@@ -12,8 +12,8 @@
               "xsd": "/xs:schema/xs:complexType/xs:sequence"
             },
             "max": 1,
-            "min": 1,
-            "schema_location": null
+            "schema_location": null,
+            "min": 1
           },
           "value": null,
           "children": [
@@ -27,13 +27,14 @@
                       "xml": "/child0",
                       "xsd": "/xs:schema/xs:complexType/xs:sequence/xs:element[1]"
                     },
-                    "max": 1,
-                    "name": "child0",
-                    "module": null,
-                    "min": 1,
-                    "schema_location": null,
                     "ns_prefix": null,
-                    "xmlns": null
+                    "xmlns": null,
+                    "name": "child0",
+                    "min": 1,
+                    "max": 1,
+                    "module": null,
+                    "label": "child0",
+                    "schema_location": null
                   },
                   "value": null,
                   "children": [
@@ -42,6 +43,10 @@
                       "children": [
                         {
                           "tag": "input",
+                          "options": {
+                            "placeholder": "",
+                            "tooltip": ""
+                          },
                           "value": ""
                         }
                       ],
@@ -56,12 +61,13 @@
                       "xml": "/child1",
                       "xsd": "/xs:schema/xs:complexType/xs:sequence/xs:element[2]"
                     },
-                    "max": 1,
-                    "name": "child1",
-                    "module": null,
-                    "min": 1,
                     "ns_prefix": null,
                     "xmlns": null,
+                    "name": "child1",
+                    "min": 1,
+                    "max": 1,
+                    "module": null,
+                    "label": "child1",
                     "schema_location": null
                   },
                   "value": null,
@@ -71,6 +77,10 @@
                       "children": [
                         {
                           "tag": "input",
+                          "options": {
+                            "placeholder": "",
+                            "tooltip": ""
+                          },
                           "value": ""
                         }
                       ],
@@ -85,6 +95,16 @@
         },
         {
           "tag": "choice",
+          "options": {
+            "xpath": {
+              "xml": "",
+              "xsd": "/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension/xs:choice"
+            },
+            "max": 1,
+            "schema_location": null,
+            "min": 1
+          },
+          "value": null,
           "children": [
             {
               "tag": "choice-iter",
@@ -96,12 +116,13 @@
                       "xml": "/child2",
                       "xsd": "/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension/xs:choice/xs:element[1]"
                     },
-                    "max": 1,
-                    "name": "child2",
-                    "module": null,
-                    "min": 1,
                     "ns_prefix": null,
                     "xmlns": null,
+                    "name": "child2",
+                    "min": 1,
+                    "max": 1,
+                    "module": null,
+                    "label": "child2",
                     "schema_location": null
                   },
                   "value": null,
@@ -111,6 +132,10 @@
                       "children": [
                         {
                           "tag": "input",
+                          "options": {
+                            "placeholder": "",
+                            "tooltip": ""
+                          },
                           "value": ""
                         }
                       ],
@@ -125,12 +150,12 @@
                       "xml": "/child3",
                       "xsd": "/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension/xs:choice/xs:element[2]"
                     },
-                    "max": 1,
-                    "name": "child3",
-                    "module": null,
-                    "min": 1,
                     "ns_prefix": null,
                     "xmlns": null,
+                    "name": "child3",
+                    "min": 1,
+                    "max": 1,
+                    "module": null,
                     "schema_location": null
                   },
                   "value": null,
@@ -139,20 +164,15 @@
               ],
               "value": null
             }
-          ],
-          "value": null,
-          "options": {
-            "max": 1,
-            "min": 1,
-            "schema_location": null,
-            "xpath": {
-              "xml": "",
-              "xsd": "/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension/xs:choice"
-            }
-          }
+          ]
         }
       ],
-      "value": null
+      "value": null,
+      "options": {
+        "ns_prefix": null,
+        "xmlns": null,
+        "name": "base0"
+      }
     }
   ],
   "value": null

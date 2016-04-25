@@ -27,7 +27,7 @@ class ParserGetNodesXPathTestSuite(TestCase):
         }
 
     def test_not_element(self):
-        document_schema = self.subnodes_data_handler.get_xsd2('no_element')
+        document_schema = self.subnodes_data_handler.get_xsd('no_element')
 
         complex_type_xpath = '/xs:schema/xs:complexType'
         complex_type = document_schema.xpath(complex_type_xpath, namespaces=self.namespace)[0]
@@ -37,7 +37,7 @@ class ParserGetNodesXPathTestSuite(TestCase):
         self.assertEqual(xpath_result, [])
 
     def test_imbricated_elements(self):
-        document_schema = self.subnodes_data_handler.get_xsd2('imbricated')
+        document_schema = self.subnodes_data_handler.get_xsd('imbricated')
 
         complex_type_xpath = '/xs:schema/xs:complexType'
         complex_type = document_schema.xpath(complex_type_xpath, namespaces=self.namespace)[0]
@@ -80,7 +80,7 @@ class ParserGetNodesXPathTestSuite(TestCase):
             self.assertTrue(are_equals(xpath_elem, expect_elem))
 
     def test_element_has_name(self):
-        document_schema = self.subnodes_data_handler.get_xsd2('name')
+        document_schema = self.subnodes_data_handler.get_xsd('name')
 
         # Retrieving the needed elements
         sequence_xpath = '/xs:schema/xs:complexType/xs:sequence'
@@ -117,7 +117,7 @@ class ParserGetNodesXPathTestSuite(TestCase):
             self.assertTrue(are_equals(xpath_elem, expect_elem))
 
     def test_element_ref_local(self):
-        document_schema = self.subnodes_data_handler.get_xsd2('ref_local')
+        document_schema = self.subnodes_data_handler.get_xsd('ref_local')
 
         complex_type_xpath = '/xs:schema/xs:complexType'
         complex_type = document_schema.xpath(complex_type_xpath, namespaces=self.namespace)[0]
@@ -159,10 +159,10 @@ class ParserGetNodesXPathTestSuite(TestCase):
     # FIXME test not working
     # def test_element_ref_import(self):
     #     document = join('ref_import', 'document')
-    #     document_schema = self.subnodes_data_handler.get_xsd2(document)
+    #     document_schema = self.subnodes_data_handler.get_xsd(document)
     #
     #     reference = join('element_with_ref_no_namespace', 'reference')
-    #     reference_schema = self.subnodes_data_handler.get_xsd2(reference)
+    #     reference_schema = self.subnodes_data_handler.get_xsd(reference)
     #
     #     sequence_xpath = '/xs:schema/xs:complexType/xs:sequence'
     #     sequence = document_schema.xpath(sequence_xpath, namespaces=self.namespace)[0]
@@ -223,8 +223,8 @@ class ParserLookupOccursTestSuite(TestCase):
 
         self.xml_xpath = '/root'
 
-        document_schema = self.occurs_data_handler.get_xsd2('document')
-        self.document_schema = etree.ElementTree(document_schema)
+        self.document_schema = self.occurs_data_handler.get_xsd('document')
+        # self.document_schema = etree.ElementTree(document_schema)
 
         sequence_xpath = '/xs:schema/xs:element/xs:complexType/xs:sequence'
         self.sequence = self.document_schema.xpath(sequence_xpath, namespaces=self.request.session['namespaces'])[0]
@@ -233,16 +233,38 @@ class ParserLookupOccursTestSuite(TestCase):
 
         compliant_xml = self.occurs_data_handler.get_xml('compliant')
 
-        max_occurs_found = lookup_occurs(self.request, self.sequence, self.document_schema, self.xml_xpath,
-                                         compliant_xml)
-        self.assertEqual(max_occurs_found, 1)
+        occurences = lookup_occurs(self.sequence, self.document_schema, self.xml_xpath, compliant_xml)
+
+        self.assertEqual(len(occurences), 3)
+
+        occ0_expected_xml = self.occurs_data_handler.get_xml('item0')
+        occ1_expected_xml = self.occurs_data_handler.get_xml('item1')
+        occ2_expected_xml = self.occurs_data_handler.get_xml('item2')
+
+        self.assertTrue(are_equals(occurences[0], occ0_expected_xml))
+        self.assertTrue(are_equals(occurences[1], occ1_expected_xml))
+        self.assertTrue(are_equals(occurences[2], occ2_expected_xml))
 
     def test_reload_noncompliant_element(self):
         noncompliant_xml = self.occurs_data_handler.get_xml('noncompliant')
 
-        max_occurs_found = lookup_occurs(self.request, self.sequence, self.document_schema, self.xml_xpath,
-                                         noncompliant_xml)
-        self.assertEqual(max_occurs_found, 1)
+        occurences = lookup_occurs(self.sequence, self.document_schema, self.xml_xpath, noncompliant_xml)
+
+        self.assertEqual(len(occurences), 6)
+
+        occ0_expected_xml = self.occurs_data_handler.get_xml('item0')
+        occ1_expected_xml = self.occurs_data_handler.get_xml('item1')
+        occ2_expected_xml = self.occurs_data_handler.get_xml('item2')
+        occ3_expected_xml = self.occurs_data_handler.get_xml('item3')
+        occ4_expected_xml = self.occurs_data_handler.get_xml('item4')
+        occ5_expected_xml = self.occurs_data_handler.get_xml('item5')
+
+        self.assertTrue(are_equals(occurences[0], occ0_expected_xml))
+        self.assertTrue(are_equals(occurences[1], occ1_expected_xml))
+        self.assertTrue(are_equals(occurences[2], occ2_expected_xml))
+        self.assertTrue(are_equals(occurences[3], occ3_expected_xml))
+        self.assertTrue(are_equals(occurences[4], occ4_expected_xml))
+        self.assertTrue(are_equals(occurences[5], occ5_expected_xml))
 
 
 class ParserManageOccurencesTestSuite(TestCase):
@@ -254,19 +276,25 @@ class ParserManageOccurencesTestSuite(TestCase):
         self.occurs_data_handler = DataHandler(occurs_data)
 
     def test_element_with_min_occurs_parsable(self):
-        xsd_element = self.occurs_data_handler.get_xsd2('min_occurs_parsable')
+        xsd_tree = self.occurs_data_handler.get_xsd('min_occurs_parsable')
+        xsd_element = xsd_tree.getroot()
+
         (min_occ, max_occ) = manage_occurences(xsd_element)
 
         self.assertEqual(min_occ, 1)
 
     def test_element_with_max_occurs_unbounded(self):
-        xsd_element = self.occurs_data_handler.get_xsd2('max_occurs_unbounded')
+        xsd_tree = self.occurs_data_handler.get_xsd('max_occurs_unbounded')
+        xsd_element = xsd_tree.getroot()
+
         (min_occ, max_occ) = manage_occurences(xsd_element)
 
         self.assertEqual(max_occ, -1)
 
     def test_element_with_max_occurs_parsable(self):
-        xsd_element = self.occurs_data_handler.get_xsd2('max_occurs_parsable')
+        xsd_tree = self.occurs_data_handler.get_xsd('max_occurs_parsable')
+        xsd_element = xsd_tree.getroot()
+
         (min_occ, max_occ) = manage_occurences(xsd_element)
 
         self.assertEqual(max_occ, 5)
@@ -281,28 +309,36 @@ class ParserManageAttrOccurencesTestSuite(TestCase):
         self.occurs_data_handler = DataHandler(occurs_data)
 
     def test_use_optional(self):
-        xsd_element = self.occurs_data_handler.get_xsd2('attr_use_optional')
+        xsd_tree = self.occurs_data_handler.get_xsd('attr_use_optional')
+        xsd_element = xsd_tree.getroot()
+
         (min_occ, max_occ) = manage_attr_occurrences(xsd_element)
 
         self.assertEqual(min_occ, 0)
         self.assertEqual(max_occ, 1)
 
     def test_use_prohibited(self):
-        xsd_element = self.occurs_data_handler.get_xsd2('attr_use_prohibited')
+        xsd_tree = self.occurs_data_handler.get_xsd('attr_use_prohibited')
+        xsd_element = xsd_tree.getroot()
+
         (min_occ, max_occ) = manage_attr_occurrences(xsd_element)
 
         self.assertEqual(min_occ, 0)
         self.assertEqual(max_occ, 0)
 
     def test_use_required(self):
-        xsd_element = self.occurs_data_handler.get_xsd2('attr_use_required')
+        xsd_tree = self.occurs_data_handler.get_xsd('attr_use_required')
+        xsd_element = xsd_tree.getroot()
+
         (min_occ, max_occ) = manage_attr_occurrences(xsd_element)
 
         self.assertEqual(min_occ, 1)
         self.assertEqual(max_occ, 1)
 
     def test_use_not_present(self):
-        xsd_element = self.occurs_data_handler.get_xsd2('attr_use_undefined')
+        xsd_tree = self.occurs_data_handler.get_xsd('attr_use_undefined')
+        xsd_element = xsd_tree.getroot()
+
         (min_occ, max_occ) = manage_attr_occurrences(xsd_element)
 
         # FIXME test broken with current parser
@@ -336,21 +372,27 @@ class ParserHasModuleTestSuite(TestCase):
         # expect true
         self._save_module_to_db()
 
-        xsd_element = self.module_data_handler.get_xsd2('registered_module')
+        xsd_tree = self.module_data_handler.get_xsd('registered_module')
+        xsd_element = xsd_tree.getroot()
+
         has_module_result = has_module(xsd_element)
 
         self.assertTrue(has_module_result)
 
     def test_element_is_module_not_registered(self):
         # expect false
-        xsd_element = self.module_data_handler.get_xsd2('unregistered_module')
+        xsd_tree = self.module_data_handler.get_xsd('unregistered_module')
+        xsd_element = xsd_tree.getroot()
+
         has_module_result = has_module(xsd_element)
 
         self.assertFalse(has_module_result)
 
     def test_element_is_not_module(self):
         # expect false
-        xsd_element = self.module_data_handler.get_xsd2('no_module')
+        xsd_tree = self.module_data_handler.get_xsd('no_module')
+        xsd_element = xsd_tree.getroot()
+
         has_module_result = has_module(xsd_element)
 
         self.assertFalse(has_module_result)
@@ -369,7 +411,7 @@ class ParserGetXmlElementDataTestSuite(TestCase):
         }
 
     def test_element_xml_text(self):
-        xml_schema = self.xml_element_data_handler.get_xsd2(join('element', 'simple'))
+        xml_schema = self.xml_element_data_handler.get_xsd(join('element', 'simple'))
 
         element_root_xpath = '/xs:schema/xs:element'
         element_root = xml_schema.xpath(element_root_xpath, namespaces=self.namespace)[0]
@@ -380,7 +422,7 @@ class ParserGetXmlElementDataTestSuite(TestCase):
         self.assertEqual(reload_data, 'string')
 
     def test_element_xml_branch(self):
-        xml_schema = self.xml_element_data_handler.get_xsd2(join('element', 'complex'))
+        xml_schema = self.xml_element_data_handler.get_xsd(join('element', 'complex'))
 
         element_root_xpath = '/xs:schema/xs:element'
         element_root = xml_schema.xpath(element_root_xpath, namespaces=self.namespace)[0]
@@ -391,18 +433,19 @@ class ParserGetXmlElementDataTestSuite(TestCase):
         self.assertEqual(reload_data, etree.tostring(xml_element))
 
     def test_attribute(self):
-        xml_schema = self.xml_element_data_handler.get_xsd2(join('attribute', 'schema'))
+        xml_schema = self.xml_element_data_handler.get_xsd(join('attribute', 'schema'))
 
         attribute_xpath = '/xs:schema/xs:element/xs:complexType/xs:attribute'
         attribute = xml_schema.xpath(attribute_xpath, namespaces=self.namespace)[0]
 
         xml_element = self.xml_element_data_handler.get_xml(join('attribute', 'instance'))
+        xml_element_attrib = xml_element.attrib['id']
 
-        reload_data = get_xml_element_data(attribute, xml_element)
-        self.assertEqual(reload_data, None)
+        reload_data = get_xml_element_data(attribute, xml_element_attrib)
+        self.assertEqual(reload_data, 'attr0')
 
     def test_complex_type_xml_empty(self):
-        xml_schema = self.xml_element_data_handler.get_xsd2(join('complex_type', 'schema'))
+        xml_schema = self.xml_element_data_handler.get_xsd(join('complex_type', 'schema'))
 
         complex_type_xpath = '/xs:schema/xs:complexType'
         complex_type = xml_schema.xpath(complex_type_xpath, namespaces=self.namespace)[0]
@@ -413,7 +456,7 @@ class ParserGetXmlElementDataTestSuite(TestCase):
         self.assertEqual(reload_data, "")
 
     def test_complex_type_xml_branch(self):
-        xml_schema = self.xml_element_data_handler.get_xsd2(join('complex_type', 'schema'))
+        xml_schema = self.xml_element_data_handler.get_xsd(join('complex_type', 'schema'))
 
         complex_type_xpath = '/xs:schema/xs:complexType'
         complex_type = xml_schema.xpath(complex_type_xpath, namespaces=self.namespace)[0]
@@ -424,7 +467,7 @@ class ParserGetXmlElementDataTestSuite(TestCase):
         self.assertEqual(reload_data, etree.tostring(xml_element))
 
     def test_simple_type_xml_text(self):
-        xml_schema = self.xml_element_data_handler.get_xsd2(join('simple_type', 'schema'))
+        xml_schema = self.xml_element_data_handler.get_xsd(join('simple_type', 'schema'))
 
         simple_type_xpath = '/xs:schema/xs:simpleType'
         simple_type = xml_schema.xpath(simple_type_xpath, namespaces=self.namespace)[0]
@@ -435,7 +478,7 @@ class ParserGetXmlElementDataTestSuite(TestCase):
         self.assertEqual(reload_data, "child0")
 
     def test_simple_type_empty(self):
-        xml_schema = self.xml_element_data_handler.get_xsd2(join('simple_type', 'schema'))
+        xml_schema = self.xml_element_data_handler.get_xsd(join('simple_type', 'schema'))
 
         simple_type_xpath = '/xs:schema/xs:simpleType'
         simple_type = xml_schema.xpath(simple_type_xpath, namespaces=self.namespace)[0]
@@ -461,7 +504,7 @@ class ParserGetElementTypeTestSuite(TestCase):
         }
 
     def test_no_type_one_child_no_annot(self):
-        xml_schema = self.xml_element_data_handler.get_xsd2(join('no_type', 'one_child_no_annot'))
+        xml_schema = self.xml_element_data_handler.get_xsd(join('no_type', 'one_child_no_annot'))
 
         element_root_xpath = '/xs:schema/xs:element'
         element_root = xml_schema.xpath(element_root_xpath, namespaces=self.namespace)[0]
@@ -470,7 +513,7 @@ class ParserGetElementTypeTestSuite(TestCase):
         self.assertEqual(element_type, (list(element_root)[0], xml_schema, None))
 
     def test_no_type_one_child_annot(self):
-        xml_schema = self.xml_element_data_handler.get_xsd2(join('no_type', 'one_child_annot'))
+        xml_schema = self.xml_element_data_handler.get_xsd(join('no_type', 'one_child_annot'))
 
         element_root_xpath = '/xs:schema/xs:element'
         element_root = xml_schema.xpath(element_root_xpath, namespaces=self.namespace)[0]
@@ -479,7 +522,7 @@ class ParserGetElementTypeTestSuite(TestCase):
         self.assertEqual(element_type, (None, xml_schema, None))
 
     def test_no_type_two_children_annot(self):
-        xml_schema = self.xml_element_data_handler.get_xsd2(join('no_type', 'two_children_annot'))
+        xml_schema = self.xml_element_data_handler.get_xsd(join('no_type', 'two_children_annot'))
 
         element_root_xpath = '/xs:schema/xs:element'
         element_root = xml_schema.xpath(element_root_xpath, namespaces=self.namespace)[0]
@@ -488,7 +531,7 @@ class ParserGetElementTypeTestSuite(TestCase):
         self.assertEqual(element_type, (list(element_root)[1], xml_schema, None))
 
     def test_no_type_more_children(self):
-        xml_schema = self.xml_element_data_handler.get_xsd2(join('no_type', 'more_children'))
+        xml_schema = self.xml_element_data_handler.get_xsd(join('no_type', 'more_children'))
 
         element_root_xpath = '/xs:schema/xs:element'
         element_root = xml_schema.xpath(element_root_xpath, namespaces=self.namespace)[0]
@@ -497,7 +540,7 @@ class ParserGetElementTypeTestSuite(TestCase):
         self.assertEqual(element_type, (None, xml_schema, None))
 
     def test_type_is_common_type(self):
-        xml_schema = self.xml_element_data_handler.get_xsd2('common_type')
+        xml_schema = self.xml_element_data_handler.get_xsd('common_type')
 
         element_root_xpath = '/xs:schema/xs:element'
         element_root = xml_schema.xpath(element_root_xpath, namespaces=self.namespace)[0]
@@ -506,7 +549,7 @@ class ParserGetElementTypeTestSuite(TestCase):
         self.assertEqual(element_type, (None, xml_schema, None))
 
     def test_type_is_complex_type(self):
-        xml_schema = self.xml_element_data_handler.get_xsd2(join('complex_type'))
+        xml_schema = self.xml_element_data_handler.get_xsd(join('complex_type'))
 
         element_root_xpath = '/xs:schema/xs:element'
         element_root = xml_schema.xpath(element_root_xpath, namespaces=self.namespace)[0]
@@ -518,7 +561,7 @@ class ParserGetElementTypeTestSuite(TestCase):
         self.assertEqual(element_type, (complex_type, xml_schema, None))
 
     def test_type_is_simple_type(self):
-        xml_schema = self.xml_element_data_handler.get_xsd2(join('simple_type'))
+        xml_schema = self.xml_element_data_handler.get_xsd(join('simple_type'))
 
         element_root_xpath = '/xs:schema/xs:element'
         element_root = xml_schema.xpath(element_root_xpath, namespaces=self.namespace)[0]
@@ -542,15 +585,14 @@ class ParserRemoveAnnotationTestSuite(TestCase):
             'xs': SCHEMA_NAMESPACE
         }
 
-        xsd_result = self.annotation_data_handler.get_xsd2('not_annot')
-        xsd_etree = etree.ElementTree(xsd_result)
+        xsd_etree = self.annotation_data_handler.get_xsd('not_annot')
 
         self.xsd_xpath = '/xs:schema/xs:complexType/xs:sequence'
         self.expected_xsd = xsd_etree.xpath(self.xsd_xpath, namespaces=self.namespaces)[0]
 
     def test_annotation_is_removed(self):
-        annotated_schema = self.annotation_data_handler.get_xsd2('annot')
-        annotated_etree = etree.ElementTree(annotated_schema)
+        annotated_etree = self.annotation_data_handler.get_xsd('annot')
+        # annotated_etree = etree.ElementTree(annotated_schema)
 
         annotated_element = annotated_etree.xpath(self.xsd_xpath, namespaces=self.namespaces)[0]
 
@@ -559,8 +601,7 @@ class ParserRemoveAnnotationTestSuite(TestCase):
         self.assertTrue(are_equals(annotated_element, self.expected_xsd))
 
     def test_no_annotation_no_change(self):
-        not_annotated_schema = self.annotation_data_handler.get_xsd2('not_annot')
-        not_annotated_etree = etree.ElementTree(not_annotated_schema)
+        not_annotated_etree = self.annotation_data_handler.get_xsd('not_annot')
 
         not_annotated_element = not_annotated_etree.xpath(self.xsd_xpath, namespaces=self.namespaces)[0]
 

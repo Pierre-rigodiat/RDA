@@ -393,7 +393,9 @@ def get_element_type(element, xml_tree, namespaces, default_prefix, target_names
                     xpath = "./{0}simpleType[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, type_name)
                     element_type = xml_tree.find(xpath)
     except Exception as e:
-        print "Something went wrong in get_element_type: " + e.message
+        exception_message = "Something went wrong in get_element_type:  " + str(e)
+        logger.fatal(exception_message)
+
         element_type = None
 
     return element_type, xml_tree, schema_location
@@ -850,7 +852,9 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
         else:
             # the element was not found where it was supposed to be
             # could be a use case too complex for the current parser
-            print "Ref element not found" + str(element.attrib)
+            warning_message = "Ref element not found: " + str(element.attrib)
+            logger.warning(warning_message)
+
             return form_string, db_element
     else:
         text_capitalized = element.attrib.get('name')
@@ -2358,6 +2362,7 @@ def generate_simple_content(request, element, xml_tree, full_path='', edit_data_
         xml_tree:
         full_path:
         edit_data_tree:
+        default_value:
         schema_location:
 
     Returns:
@@ -2433,14 +2438,15 @@ def generate_restriction(request, element, xml_tree, full_path="", edit_data_tre
 
         if request.session['curate_edit']:
             default_value = default_value if default_value is not None else ''
+
             for enum in enumeration:
                 db_child = {
                     'tag': 'enumeration',
                     'value': enum.attrib.get('value')
                 }
+
                 if default_value is not None and enum.attrib.get('value') == default_value:
                     entry = (enum.attrib.get('value'), enum.attrib.get('value'), True)
-                    # db_child['tag'] = 'enumeration/selected'
                     db_element['value'] = default_value
                 else:
                     entry = (enum.attrib.get('value'), enum.attrib.get('value'), False)
@@ -2460,8 +2466,6 @@ def generate_restriction(request, element, xml_tree, full_path="", edit_data_tre
                 db_element['children'].append(db_child)
 
             db_element['value'] = db_element['children'][0]['value']
-
-        # form_string += render_select(None, option_list)
     else:
         simple_type = element.find('{0}simpleType'.format(LXML_SCHEMA_NAMESPACE))
         if simple_type is not None:

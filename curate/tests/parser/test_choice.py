@@ -3,7 +3,7 @@ from django.test.testcases import TestCase
 from os.path import join
 from django.utils.importlib import import_module
 from lxml import etree
-from mgi.tests import DataHandler, are_equals
+from mgi.tests import DataHandler
 from curate.parser import generate_choice
 
 
@@ -35,7 +35,7 @@ class ParserCreateChoiceTestSuite(TestCase):
 
     def test_create_element_basic(self):
         xsd_files = join('element', 'basic')
-        xsd_tree = etree.ElementTree(self.choice_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.choice_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -47,13 +47,13 @@ class ParserCreateChoiceTestSuite(TestCase):
         self.assertDictEqual(result_string[1], expected_element)
 
         # result_html = etree.fromstring(result_string[0])
-        # expected_html = self.choice_data_handler.get_html2(xsd_files)
+        # expected_html = self.choice_data_handler.get_html(xsd_files)
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 
     def test_create_element_unbounded(self):
         xsd_files = join('element', 'unbounded')
-        xsd_tree = etree.ElementTree(self.choice_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.choice_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -65,68 +65,68 @@ class ParserCreateChoiceTestSuite(TestCase):
         self.assertDictEqual(result_string[1], expected_element)
 
         # result_html = etree.fromstring(result_string[0])
-        # expected_html = self.choice_data_handler.get_html2(xsd_files)
+        # expected_html = self.choice_data_handler.get_html(xsd_files)
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 
     # FIXME group test are not good since it is not supported by the parser
     # def test_create_group_basic(self):
     #     xsd_files = join('group', 'basic')
-    #     xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
+    #     xsd_tree = self.choice_data_handler.get_xsd(xsd_files)
     #     xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
     #
     #     result_string = generate_choice(self.request, xsd_element, xsd_tree, '', full_path='')
     #     # print result_string
     #
     #     result_html = etree.fromstring(result_string)
-    #     expected_html = self.choice_data_handler.get_html2(xsd_files)
+    #     expected_html = self.choice_data_handler.get_html(xsd_files)
     #
     #     self.assertTrue(are_equals(result_html, expected_html))
     #
     # def test_create_group_unbounded(self):
     #     xsd_files = join('group', 'unbounded')
-    #     xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
+    #     xsd_tree = self.choice_data_handler.get_xsd(xsd_files)
     #     xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
     #
     #     result_string = generate_choice(self.request, xsd_element, xsd_tree, '', full_path='')
     #     # print result_string
     #
     #     result_html = etree.fromstring(result_string)
-    #     expected_html = self.choice_data_handler.get_html2(xsd_files)
+    #     expected_html = self.choice_data_handler.get_html(xsd_files)
     #
     #     self.assertTrue(are_equals(result_html, expected_html))
 
     # FIXME choice test are not good since it is not supported by the parser
     # def test_create_choice_basic(self):
     #     xsd_files = join('choice', 'basic')
-    #     xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
+    #     xsd_tree = self.choice_data_handler.get_xsd(xsd_files)
     #     xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
     #
     #     result_string = generate_choice(self.request, xsd_element, xsd_tree, '', full_path='')
     #     # print result_string
     #
     #     result_html = etree.fromstring(result_string)
-    #     expected_html = self.choice_data_handler.get_html2(xsd_files)
+    #     expected_html = self.choice_data_handler.get_html(xsd_files)
     #
     #     self.assertTrue(are_equals(result_html, expected_html))
     #
     # def test_create_choice_unbounded(self):
     #     xsd_files = join('choice', 'unbounded')
-    #     xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
+    #     xsd_tree = self.choice_data_handler.get_xsd(xsd_files)
     #     xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
     #
     #     result_string = generate_choice(self.request, xsd_element, xsd_tree, '', full_path='')
     #     # print result_string
     #
     #     result_html = etree.fromstring(result_string)
-    #     expected_html = self.choice_data_handler.get_html2(xsd_files)
+    #     expected_html = self.choice_data_handler.get_html(xsd_files)
     #
     #     self.assertTrue(are_equals(result_html, expected_html))
 
     def test_create_sequence_basic(self):
         # FIXME Not working
         xsd_files = join('sequence', 'basic')
-        xsd_tree = etree.ElementTree(self.choice_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.choice_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -137,14 +137,14 @@ class ParserCreateChoiceTestSuite(TestCase):
         self.assertDictEqual(result_string[1], expected_element)
 
         # result_html = etree.fromstring(result_string[0])
-        # expected_html = self.choice_data_handler.get_html2(xsd_files)
+        # expected_html = self.choice_data_handler.get_html(xsd_files)
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 
     def test_create_sequence_unbounded(self):
         # FIXME Not working
         xsd_files = join('sequence', 'unbounded')
-        xsd_tree = etree.ElementTree(self.choice_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.choice_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -156,7 +156,7 @@ class ParserCreateChoiceTestSuite(TestCase):
         self.assertDictEqual(result_string[1], expected_element)
 
         # result_html = etree.fromstring(result_string[0])
-        # expected_html = self.choice_data_handler.get_html2(xsd_files)
+        # expected_html = self.choice_data_handler.get_html(xsd_files)
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 
@@ -196,7 +196,7 @@ class ParserReloadChoiceTestSuite(TestCase):
 
     def test_reload_element_basic(self):
         xsd_files = join('element', 'basic')
-        xsd_tree = etree.ElementTree(self.choice_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.choice_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -218,14 +218,14 @@ class ParserReloadChoiceTestSuite(TestCase):
         self.assertDictEqual(result_string[1], expected_element)
 
         # result_html = etree.fromstring(result_string[0])
-        # expected_html = self.choice_data_handler.get_html2(xsd_files + '.reload')
+        # expected_html = self.choice_data_handler.get_html(xsd_files + '.reload')
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 
     def test_reload_element_unbounded(self):
         # FIXME correct the bug here
         xsd_files = join('element', 'unbounded')
-        xsd_tree = etree.ElementTree(self.choice_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.choice_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -247,14 +247,14 @@ class ParserReloadChoiceTestSuite(TestCase):
         self.assertDictEqual(result_string[1], expected_element)
 
         # result_html = etree.fromstring(result_string[0])
-        # expected_html = self.choice_data_handler.get_html2(xsd_files + '.reload')
+        # expected_html = self.choice_data_handler.get_html(xsd_files + '.reload')
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 
     # TODO implement later
     # def test_reload_group_basic(self):
     #     xsd_files = join('element', 'basic')
-    #     xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
+    #     xsd_tree = self.choice_data_handler.get_xsd(xsd_files)
     #     xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
     #
     #     self.request.session['curate_edit'] = True
@@ -271,13 +271,13 @@ class ParserReloadChoiceTestSuite(TestCase):
     #     print result_string
     #
     #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.choice_data_handler.get_html2(xsd_files + '.reload')
+    #     # expected_html = self.choice_data_handler.get_html(xsd_files + '.reload')
     #     #
     #     # self.assertTrue(are_equals(result_html, expected_html))
 
     # def test_reload_group_unbounded(self):
     #     xsd_files = join('element', 'basic')
-    #     xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
+    #     xsd_tree = self.choice_data_handler.get_xsd(xsd_files)
     #     xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
     #
     #     self.request.session['curate_edit'] = True
@@ -294,13 +294,13 @@ class ParserReloadChoiceTestSuite(TestCase):
     #     print result_string
     #
     #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.choice_data_handler.get_html2(xsd_files + '.reload')
+    #     # expected_html = self.choice_data_handler.get_html(xsd_files + '.reload')
     #     #
     #     # self.assertTrue(are_equals(result_html, expected_html))
     #
     # def test_reload_choice_basic(self):
     #     xsd_files = join('element', 'basic')
-    #     xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
+    #     xsd_tree = self.choice_data_handler.get_xsd(xsd_files)
     #     xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
     #
     #     self.request.session['curate_edit'] = True
@@ -317,13 +317,13 @@ class ParserReloadChoiceTestSuite(TestCase):
     #     print result_string
     #
     #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.choice_data_handler.get_html2(xsd_files + '.reload')
+    #     # expected_html = self.choice_data_handler.get_html(xsd_files + '.reload')
     #     #
     #     # self.assertTrue(are_equals(result_html, expected_html))
     #
     # def test_reload_choice_unbounded(self):
     #     xsd_files = join('element', 'basic')
-    #     xsd_tree = self.choice_data_handler.get_xsd2(xsd_files)
+    #     xsd_tree = self.choice_data_handler.get_xsd(xsd_files)
     #     xsd_element = xsd_tree.xpath('/schema/complexType/choice')[0]
     #
     #     self.request.session['curate_edit'] = True
@@ -340,13 +340,13 @@ class ParserReloadChoiceTestSuite(TestCase):
     #     print result_string
     #
     #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.choice_data_handler.get_html2(xsd_files + '.reload')
+    #     # expected_html = self.choice_data_handler.get_html(xsd_files + '.reload')
     #     #
     #     # self.assertTrue(are_equals(result_html, expected_html))
 
     def test_reload_sequence_basic(self):
         xsd_files = join('sequence', 'basic')
-        xsd_tree = etree.ElementTree(self.choice_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.choice_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -368,14 +368,14 @@ class ParserReloadChoiceTestSuite(TestCase):
         self.assertDictEqual(result_string[1], expected_element)
 
         # result_html = etree.fromstring(result_string[0])
-        # expected_html = self.choice_data_handler.get_html2(xsd_files + '.reload')
+        # expected_html = self.choice_data_handler.get_html(xsd_files + '.reload')
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 
     def test_reload_sequence_unbounded(self):
         # fixme correct the bug
         xsd_files = join('sequence', 'unbounded')
-        xsd_tree = etree.ElementTree(self.choice_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.choice_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -397,7 +397,7 @@ class ParserReloadChoiceTestSuite(TestCase):
         self.assertDictEqual(result_string[1], expected_element)
 
         # result_html = etree.fromstring(result_string[0])
-        # expected_html = self.choice_data_handler.get_html2(xsd_files + '.reload')
+        # expected_html = self.choice_data_handler.get_html(xsd_files + '.reload')
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 

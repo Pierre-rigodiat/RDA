@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.http.request import HttpRequest
 from django.test.testcases import TestCase
 from os.path import join
@@ -16,26 +17,34 @@ class ParserCreateExtensionTestSuite(TestCase):
         extension_data = join('curate', 'tests', 'data', 'parser', 'extension')
         self.extension_data_handler = DataHandler(extension_data)
 
-        self.maxDiff = None
+        # self.maxDiff = None
 
-        self.request = HttpRequest()
-        engine = import_module('django.contrib.sessions.backends.db')
-        session_key = None
-        self.request.session = engine.SessionStore(session_key)
+        engine = import_module(settings.SESSION_ENGINE)
+        store = engine.SessionStore()
 
-        self.request.session['curate_edit'] = False  # Data edition
-        self.request.session['nb_html_tags'] = 0
-        self.request.session['mapTagID'] = {}
-        self.request.session['nbChoicesID'] = 0
+        store['curate_edit'] = False  # Data edition
+        store['nb_html_tags'] = 0
+        store['mapTagID'] = {}
+        store['nbChoicesID'] = 0
+        store['keys'] = {}
+        store['keyrefs'] = {}
 
         # set default namespace
         self.namespace = "{" + SCHEMA_NAMESPACE + "}"
-        self.request.session['defaultPrefix'] = 'xs'
-        self.request.session['namespaces'] = {'xs': SCHEMA_NAMESPACE}
+        store['defaultPrefix'] = 'xs'
+        store['namespaces'] = {'xs': SCHEMA_NAMESPACE}
+
+        store.save()
+        self.session = store
+
+        self.client.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
+
+        self.request = HttpRequest()
+        self.request.session = self.session
 
     # def test_create_group(self):
     #     xsd_files = join('group', 'basic')
-    #     xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
+    #     xsd_tree = self.extension_data_handler.get_xsd(xsd_files))
     #     xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension',
     #                                  namespaces=self.request.session['namespaces'])[0]
     #
@@ -49,13 +58,13 @@ class ParserCreateExtensionTestSuite(TestCase):
     #
     #     result_string = '<div>' + result_string[0] + '</div>'
     #     result_html = etree.fromstring(result_string)
-    #     expected_html = self.extension_data_handler.get_html2(xsd_files)
+    #     expected_html = self.extension_data_handler.get_html(xsd_files)
     #
     #     self.assertTrue(are_equals(result_html, expected_html))
 
     # def test_create_all(self):
     #     xsd_files = join('all', 'basic')
-    #     xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
+    #     xsd_tree = self.extension_data_handler.get_xsd(xsd_files))
     #     xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension',
     #                                  namespaces=self.request.session['namespaces'])[0]
     #
@@ -68,15 +77,15 @@ class ParserCreateExtensionTestSuite(TestCase):
     #
     #     result_string = '<div>' + result_string[0] + '</div>'
     #     result_html = etree.fromstring(result_string)
-    #     expected_html = self.extension_data_handler.get_html2(xsd_files)
+    #     expected_html = self.extension_data_handler.get_html(xsd_files)
     #
     #     self.assertTrue(are_equals(result_html, expected_html))
 
     def test_choice(self):
         xsd_files = join('choice', 'basic')
-        xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension',
-                                     namespaces=self.request.session['namespaces'])[0]
+                                     namespaces=self.session['namespaces'])[0]
 
         result_string = generate_extension(self.request, xsd_element, xsd_tree, full_path='')
 
@@ -86,9 +95,14 @@ class ParserCreateExtensionTestSuite(TestCase):
 
     def test_sequence(self):
         xsd_files = join('sequence', 'basic')
-        xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension',
-                                     namespaces=self.request.session['namespaces'])[0]
+                                     namespaces=self.session['namespaces'])[0]
+
+        self.session['keys'] = {}
+        self.session.save()
+
+        self.request.session = self.session
 
         result_string = generate_extension(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
@@ -99,9 +113,15 @@ class ParserCreateExtensionTestSuite(TestCase):
 
     def test_attribute(self):
         xsd_files = join('attribute', 'basic')
-        xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:simpleContent/xs:extension',
-                                     namespaces=self.request.session['namespaces'])[0]
+                                     namespaces=self.session['namespaces'])[0]
+
+        self.session['keys'] = {}
+        self.session['keyrefs'] = {}
+        self.session.save()
+
+        self.request.session = self.session
 
         result_string = generate_extension(self.request, xsd_element, xsd_tree, full_path='')
         # print result_string
@@ -112,7 +132,7 @@ class ParserCreateExtensionTestSuite(TestCase):
 
     # def test_create_attribute_group(self):
     #     xsd_files = join('attribute_group', 'basic')
-    #     xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
+    #     xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd(xsd_files))
     #     xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:simpleContent/xs:extension',
     #                                  namespaces=self.request.session['namespaces'])[0]
     #
@@ -126,13 +146,13 @@ class ParserCreateExtensionTestSuite(TestCase):
     #     self.assertEqual(result_string[0], '')
     #     # result_string = '<div>' + result_string[0] + '</div>'
     #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.extension_data_handler.get_html2(xsd_files)
+    #     # expected_html = self.extension_data_handler.get_html(xsd_files)
     #     #
     #     # self.assertTrue(are_equals(result_html, expected_html))
     #
     # def test_create_any_attribute(self):
     #     xsd_files = join('any_attribute', 'basic')
-    #     xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
+    #     xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd(xsd_files))
     #     xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:simpleContent/xs:extension',
     #                                  namespaces=self.request.session['namespaces'])[0]
     #
@@ -146,15 +166,15 @@ class ParserCreateExtensionTestSuite(TestCase):
     #     self.assertEqual(result_string[0], '')
     #     # result_string = '<div>' + result_string[0] + '</div>'
     #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.extension_data_handler.get_html2(xsd_files)
+    #     # expected_html = self.extension_data_handler.get_html(xsd_files)
     #     #
     #     # self.assertTrue(are_equals(result_html, expected_html))
 
     def test_multiple(self):
         xsd_files = join('multiple', 'basic')
-        xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension',
-                                     namespaces=self.request.session['namespaces'])[0]
+                                     namespaces=self.session['namespaces'])[0]
 
         result_string = generate_extension(self.request, xsd_element, xsd_tree, full_path='')
 
@@ -173,24 +193,31 @@ class ParserReloadExtensionTestSuite(TestCase):
 
         self.maxDiff = None
 
-        self.request = HttpRequest()
-        engine = import_module('django.contrib.sessions.backends.db')
-        session_key = None
-        self.request.session = engine.SessionStore(session_key)
+        engine = import_module(settings.SESSION_ENGINE)
+        store = engine.SessionStore()
 
-        self.request.session['curate_edit'] = True  # Data edition
-        self.request.session['nb_html_tags'] = 0
-        self.request.session['mapTagID'] = {}
-        self.request.session['nbChoicesID'] = 0
+        # Session dictionary update
+        store['curate_edit'] = False  # Data edition
+        store['nb_html_tags'] = 0
+        store['mapTagID'] = {}
+        store['nbChoicesID'] = 0
+        store['keys'] = {}
+        store['keyrefs'] = {}
 
         # set default namespace
         self.namespace = "{" + SCHEMA_NAMESPACE + "}"
-        self.request.session['defaultPrefix'] = 'xs'
-        self.request.session['namespaces'] = {'xs': SCHEMA_NAMESPACE}
+        store['defaultPrefix'] = 'xs'
+        store['namespaces'] = {'xs': SCHEMA_NAMESPACE}
+
+        store.save()
+        self.session = store
+
+        self.request = HttpRequest()
+        self.request.session = self.session
 
     # def test_reload_group(self):
     #     xsd_files = join('group', 'basic')
-    #     xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
+    #     xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd(xsd_files))
     #     xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension',
     #                                  namespaces=self.request.session['namespaces'])[0]
     #
@@ -215,14 +242,14 @@ class ParserReloadExtensionTestSuite(TestCase):
     #
     #     result_string = '<div>' + result_string[0] + '</div>'
     #     result_html = etree.fromstring(result_string)
-    #     expected_html = self.extension_data_handler.get_html2(xsd_files + '.reload')
+    #     expected_html = self.extension_data_handler.get_html(xsd_files + '.reload')
     #
     #     self.assertTrue(are_equals(result_html, expected_html))
 
     # def test_reload_all(self):
     #     # fixme bugs
     #     xsd_files = join('all', 'basic')
-    #     xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
+    #     xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd(xsd_files))
     #     xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension',
     #                                  namespaces=self.request.session['namespaces'])[0]
     #
@@ -246,13 +273,13 @@ class ParserReloadExtensionTestSuite(TestCase):
     #
     #     result_string = '<div>' + result_string[0] + '</div>'
     #     result_html = etree.fromstring(result_string)
-    #     expected_html = self.extension_data_handler.get_html2(xsd_files + '.reload')
+    #     expected_html = self.extension_data_handler.get_html(xsd_files + '.reload')
     #
     #     self.assertTrue(are_equals(result_html, expected_html))
 
     def test_choice(self):
         xsd_files = join('choice', 'basic')
-        xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -261,10 +288,13 @@ class ParserReloadExtensionTestSuite(TestCase):
 
         clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
         etree.set_default_parser(parser=clean_parser)
+
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+        # test
+
         result_string = generate_extension(self.request, xsd_element, xsd_tree, full_path='/test2',
-                                           edit_data_tree=edit_data_tree)
+                                           default_value='/', edit_data_tree=edit_data_tree)
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
 
@@ -274,7 +304,7 @@ class ParserReloadExtensionTestSuite(TestCase):
 
     def test_sequence(self):
         xsd_files = join('sequence', 'basic')
-        xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -296,9 +326,9 @@ class ParserReloadExtensionTestSuite(TestCase):
 
     def test_attribute(self):
         xsd_files = join('attribute', 'basic')
-        xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:simpleContent/xs:extension',
-                                     namespaces=self.request.session['namespaces'])[0]
+                                     namespaces=self.session['namespaces'])[0]
 
         xml_tree = self.extension_data_handler.get_xml(xsd_files)
         xml_data = etree.tostring(xml_tree)
@@ -318,7 +348,7 @@ class ParserReloadExtensionTestSuite(TestCase):
 
     # def test_reload_attribute_group(self):
     #     xsd_files = join('attribute_group', 'basic')
-    #     xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
+    #     xsd_tree = self.extension_data_handler.get_xsd(xsd_files))
     #     xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:simpleContent/xs:extension',
     #                                  namespaces=self.request.session['namespaces'])[0]
     #
@@ -343,13 +373,13 @@ class ParserReloadExtensionTestSuite(TestCase):
     #
     #     # result_string = '<div>' + result_string[0] + '</div>'
     #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.extension_data_handler.get_html2(xsd_files + '.reload')
+    #     # expected_html = self.extension_data_handler.get_html(xsd_files + '.reload')
     #     #
     #     # self.assertTrue(are_equals(result_html, expected_html))
     #
     # def test_reload_any_attribute(self):
     #     xsd_files = join('any_attribute', 'basic')
-    #     xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
+    #     xsd_tree = self.extension_data_handler.get_xsd(xsd_files))
     #     xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:simpleContent/xs:extension',
     #                                  namespaces=self.request.session['namespaces'])[0]
     #
@@ -374,13 +404,13 @@ class ParserReloadExtensionTestSuite(TestCase):
     #     self.assertEqual(result_string[0], '')
     #     # result_string = '<div>' + result_string[0] + '</div>'
     #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.extension_data_handler.get_html2(xsd_files + '.reload')
+    #     # expected_html = self.extension_data_handler.get_html(xsd_files + '.reload')
     #     #
     #     # self.assertTrue(are_equals(result_html, expected_html))
 
     def test_multiple(self):
         xsd_files = join('multiple', 'basic')
-        xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -392,8 +422,10 @@ class ParserReloadExtensionTestSuite(TestCase):
 
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+        # default_value = edit_data_tree.xpath('/root[1]', namespaces=self.request.session['namespaces'])
+
         result_string = generate_extension(self.request, xsd_element, xsd_tree, full_path='/root[1]',
-                                           edit_data_tree=edit_data_tree)
+                                           default_value=edit_data_tree, edit_data_tree=edit_data_tree)
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
 

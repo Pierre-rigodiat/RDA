@@ -41,7 +41,7 @@ class ParserCreateRestrictionTestSuite(TestCase):
 
     def test_enumeration(self):
         xsd_files = join('enumeration', 'basic')
-        xsd_tree = etree.ElementTree(self.restriction_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.restriction_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType/xs:restriction',
                                      namespaces=self.namespace)[0]
 
@@ -53,7 +53,7 @@ class ParserCreateRestrictionTestSuite(TestCase):
 
     def test_simple_type(self):
         xsd_files = join('simple_type', 'basic')
-        xsd_tree = etree.ElementTree(self.restriction_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.restriction_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType/xs:restriction',
                                      namespaces=self.namespace)[0]
 
@@ -66,7 +66,7 @@ class ParserCreateRestrictionTestSuite(TestCase):
 
     # def test_create_multiple(self):
     #     xsd_files = join('multiple', 'basic')
-    #     xsd_tree = etree.ElementTree(self.restriction_data_handler.get_xsd2(xsd_files))
+    #     xsd_tree = etree.ElementTree(self.restriction_data_handler.get_xsd(xsd_files))
     #     xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType/xs:restriction',
     #                                  namespaces=self.request.session['namespaces'])[0]
     #
@@ -108,7 +108,7 @@ class ParserReloadRestrictionTestSuite(TestCase):
 
     def test_enumeration(self):
         xsd_files = join('enumeration', 'basic')
-        xsd_tree = self.restriction_data_handler.get_xsd2(xsd_files)
+        xsd_tree = self.restriction_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType/xs:restriction',
                                      namespaces=self.namespace)[0]
 
@@ -131,19 +131,13 @@ class ParserReloadRestrictionTestSuite(TestCase):
 
     def test_simple_type(self):
         xsd_files = join('simple_type', 'basic')
-        xsd_tree = self.restriction_data_handler.get_xsd2(xsd_files)
+        xsd_tree = self.restriction_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType/xs:restriction',
                                      namespaces=self.namespace)[0]
 
         xml_tree = self.restriction_data_handler.get_xml(xsd_files)
-        # xml_data = etree.tostring(xml_tree)
-
         xml_data_value = xml_tree.xpath(self.xml_xpath)[0].text
 
-        # clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
-        # etree.set_default_parser(parser=clean_parser)
-        # load the XML tree from the text
-        # edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
         result_string = generate_restriction(self.request, xsd_element, xsd_tree, full_path=self.xml_xpath,
                                              edit_data_tree=xml_tree, default_value=xml_data_value)
 

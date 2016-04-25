@@ -3,7 +3,7 @@
   "options": {
     "base": "xs:string"
   },
-  "value": null,
+  "value": "child0",
   "children": [
     {
       "tag": "enumeration",

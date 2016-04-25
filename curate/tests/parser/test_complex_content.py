@@ -36,7 +36,7 @@ class ParserCreateComplexContentTestSuite(TestCase):
 
     def test_create_restriction(self):
         xsd_files = join('restriction', 'basic')
-        xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -49,13 +49,13 @@ class ParserCreateComplexContentTestSuite(TestCase):
 
         # result_string = '<div>' + result_string[0] + '</div>'
         # result_html = etree.fromstring(result_string[0])
-        # expected_html = self.extension_data_handler.get_html2(xsd_files)
+        # expected_html = self.extension_data_handler.get_html(xsd_files)
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 
     def test_create_extension(self):
         xsd_files = join('extension', 'basic')
-        xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -68,7 +68,7 @@ class ParserCreateComplexContentTestSuite(TestCase):
 
         # result_string = '<div>' + result_string[0] + '</div>'
         # result_html = etree.fromstring(result_string)
-        # expected_html = self.extension_data_handler.get_html2(xsd_files)
+        # expected_html = self.extension_data_handler.get_html(xsd_files)
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 
@@ -102,7 +102,7 @@ class ParserReloadComplexContentTestSuite(TestCase):
 
     def test_reload_restriction(self):
         xsd_files = join('restriction', 'basic')
-        xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -127,13 +127,13 @@ class ParserReloadComplexContentTestSuite(TestCase):
 
         # result_string = '<div>' + result_string[0] + '</div>'
         # result_html = etree.fromstring(result_string[0])
-        # expected_html = self.extension_data_handler.get_html2(xsd_files + '.reload')
+        # expected_html = self.extension_data_handler.get_html(xsd_files + '.reload')
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 
     def test_reload_extension(self):
         xsd_files = join('extension', 'basic')
-        xsd_tree = etree.ElementTree(self.extension_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -158,6 +158,6 @@ class ParserReloadComplexContentTestSuite(TestCase):
 
         # result_string = '<div>' + result_string[0] + '</div>'
         # result_html = etree.fromstring(result_string)
-        # expected_html = self.extension_data_handler.get_html2(xsd_files + '.reload')
+        # expected_html = self.extension_data_handler.get_html(xsd_files + '.reload')
         #
         # self.assertTrue(are_equals(result_html, expected_html))

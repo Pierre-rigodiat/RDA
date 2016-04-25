@@ -108,7 +108,7 @@ class DataHandler(object):
         :param filename:
         :return:
         """
-        return self.get_xml(filename, 'xsd')
+        return etree.ElementTree(self.get_xml(filename, 'xsd'))
 
     def get_html(self, filename):
         """

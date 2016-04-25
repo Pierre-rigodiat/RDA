@@ -29,6 +29,7 @@ class ParserCreateSimpleTypeTestSuite(TestCase):
         self.request.session['nb_html_tags'] = 0
         self.request.session['mapTagID'] = {}
         self.request.session['nbChoicesID'] = 0
+        self.request.session['implicit_extension'] = True
 
         # set default namespace
         namespace = "http://www.w3.org/2001/XMLSchema"
@@ -38,7 +39,7 @@ class ParserCreateSimpleTypeTestSuite(TestCase):
 
     def test_create_restriction(self):
         xsd_files = join('restriction', 'basic')
-        xsd_tree = etree.ElementTree(self.simple_type_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.simple_type_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType', namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_simple_type(self.request, xsd_element, xsd_tree, full_path='')
@@ -49,13 +50,13 @@ class ParserCreateSimpleTypeTestSuite(TestCase):
         self.assertDictEqual(result_string[1], expected_dict)
 
         # result_html = etree.fromstring(result_string[0])
-        # expected_html = self.simple_type_data_handler.get_html2(xsd_files)
+        # expected_html = self.simple_type_data_handler.get_html(xsd_files)
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 
     def test_create_list(self):
         xsd_files = join('list', 'basic')
-        xsd_tree = etree.ElementTree(self.simple_type_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.simple_type_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType', namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_simple_type(self.request, xsd_element, xsd_tree, full_path='')
@@ -65,14 +66,14 @@ class ParserCreateSimpleTypeTestSuite(TestCase):
         self.assertDictEqual(result_string[1], expected_dict)
 
         # result_html = etree.fromstring(result_string[0])
-        # expected_html = self.simple_type_data_handler.get_html2(xsd_files)
+        # expected_html = self.simple_type_data_handler.get_html(xsd_files)
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 
     # FIXME Union test is not good cause it has not been implemented on the server
     # def test_create_union(self):
     #     xsd_files = join('union', 'basic')
-    #     xsd_tree = self.simple_type_data_handler.get_xsd2(xsd_files)
+    #     xsd_tree = self.simple_type_data_handler.get_xsd(xsd_files)
     #     xsd_element = xsd_tree.xpath('/schema/simpleType')[0]
     #
     #     result_string = generate_simple_type(self.request, xsd_element, xsd_tree, '', full_path='')
@@ -80,7 +81,7 @@ class ParserCreateSimpleTypeTestSuite(TestCase):
     #     self.assertEqual(result_string, '')
     #
     #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.simple_type_data_handler.get_html2(xsd_files)
+    #     # expected_html = self.simple_type_data_handler.get_html(xsd_files)
     #     #
     #     # self.assertTrue(are_equals(result_html, expected_html))
 
@@ -104,6 +105,7 @@ class ParserReloadSimpleTypeTestSuite(TestCase):
         self.request.session['nb_html_tags'] = 0
         self.request.session['mapTagID'] = {}
         self.request.session['nbChoicesID'] = 0
+        self.request.session['implicit_extension'] = True
 
         # set default namespace
         namespace = "http://www.w3.org/2001/XMLSchema"
@@ -114,7 +116,7 @@ class ParserReloadSimpleTypeTestSuite(TestCase):
     def test_reload_restriction(self):
         # FIXME relaod restriction doesn't work
         xsd_files = join('restriction', 'basic')
-        xsd_tree = etree.ElementTree(self.simple_type_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.simple_type_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType', namespaces=self.request.session['namespaces'])[0]
 
         self.request.session['curate_edit'] = True
@@ -135,14 +137,14 @@ class ParserReloadSimpleTypeTestSuite(TestCase):
         self.assertDictEqual(result_string[1], expected_dict)
 
         result_html = etree.fromstring(result_string[0])
-        expected_html = self.simple_type_data_handler.get_html2(xsd_files + '.reload')
+        expected_html = self.simple_type_data_handler.get_html(xsd_files + '.reload')
 
         self.assertTrue(are_equals(result_html, expected_html))
 
     def test_reload_list(self):
         # FIXME list reload is not working
         xsd_files = join('list', 'basic')
-        xsd_tree = etree.ElementTree(self.simple_type_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.simple_type_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType', namespaces=self.request.session['namespaces'])[0]
 
         self.request.session['curate_edit'] = True
@@ -163,14 +165,14 @@ class ParserReloadSimpleTypeTestSuite(TestCase):
         self.assertDictEqual(result_string[1], expected_dict)
 
         # result_html = etree.fromstring(result_string[0])
-        # expected_html = self.simple_type_data_handler.get_html2(xsd_files + '.reload')
+        # expected_html = self.simple_type_data_handler.get_html(xsd_files + '.reload')
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 
         # fixme support for union is not there yet
         # def test_reload_union(self):
         #     xsd_files = join('restriction', 'basic')
-        #     xsd_tree = self.simple_type_data_handler.get_xsd2(xsd_files)
+        #     xsd_tree = self.simple_type_data_handler.get_xsd(xsd_files)
         #     xsd_element = xsd_tree.xpath('/schema/simpleType')[0]
         #
         #     self.request.session['curate_edit'] = True
@@ -187,7 +189,7 @@ class ParserReloadSimpleTypeTestSuite(TestCase):
         #     print result_string
         #
         #     # result_html = etree.fromstring(result_string)
-        #     # expected_html = self.simple_type_data_handler.get_html2(xsd_files + '.reload')
+        #     # expected_html = self.simple_type_data_handler.get_html(xsd_files + '.reload')
         #     #
         #     # self.assertTrue(are_equals(result_html, expected_html))
 

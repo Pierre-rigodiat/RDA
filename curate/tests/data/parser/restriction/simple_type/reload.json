@@ -7,7 +7,6 @@
   "children": [
     {
       "tag": "simple_type",
-      "value": null,
       "children": [
         {
           "tag": "restriction",
@@ -26,7 +25,13 @@
             }
           ]
         }
-      ]
+      ],
+      "value": null,
+      "options": {
+        "ns_prefix": null,
+        "xmlns": null,
+        "name": ""
+      }
     }
   ]
 }

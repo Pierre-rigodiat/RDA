@@ -42,7 +42,7 @@ class ParserCreateSequenceTestSuite(TestCase):
         #                                 self.request.session['namespaces'],
         #                                 generate_sequence, self.request)
 
-        xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.sequence_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath(xsd_xpath,
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -53,13 +53,13 @@ class ParserCreateSequenceTestSuite(TestCase):
         self.assertDictEqual(result_string[1], expected_element)
 
         # result_html = etree.fromstring(result_string[0])
-        # expected_html = self.sequence_data_handler.get_html2(join('element', 'basic'))
+        # expected_html = self.sequence_data_handler.get_html(join('element', 'basic'))
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 
     def test_create_element_unbounded(self):
         xsd_files = join('element', 'unbounded')
-        xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.sequence_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -70,37 +70,37 @@ class ParserCreateSequenceTestSuite(TestCase):
         self.assertDictEqual(result_string[1], expected_element)
 
         # result_html = etree.fromstring(result_string[0])
-        # expected_html = self.sequence_data_handler.get_html2(join('element', 'unbounded'))
+        # expected_html = self.sequence_data_handler.get_html(join('element', 'unbounded'))
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 
     # def test_create_group_basic(self):
     #     # FIXME change test and implement group support on the parser
-    #     xsd_tree = self.sequence_data_handler.get_xsd2(join('group', 'basic'))
+    #     xsd_tree = self.sequence_data_handler.get_xsd(join('group', 'basic'))
     #     xsd_element = xsd_tree.xpath('/schema/complexType/sequence')[0]
     #
     #     result_string = generate_sequence(self.request, xsd_element, xsd_tree, '', full_path='')
     #     self.assertEqual(result_string, "")
     #
     #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.sequence_data_handler.get_html2(join('element', 'element'))
+    #     # expected_html = self.sequence_data_handler.get_html(join('element', 'element'))
     #     #
     #     # self.assertTrue(are_equals(result_html, expected_html))
     #
     # def test_create_group_unbounded(self):
-    #     xsd_tree = self.sequence_data_handler.get_xsd2(join('group', 'unbounded'))
+    #     xsd_tree = self.sequence_data_handler.get_xsd(join('group', 'unbounded'))
     #     xsd_element = xsd_tree.xpath('/schema/complexType/sequence')[0]
     #
     #     result_string = generate_sequence(self.request, xsd_element, xsd_tree, '', full_path='')
     #
     #     result_html = etree.fromstring(result_string)
-    #     expected_html = self.sequence_data_handler.get_html2(join('group', 'unbounded'))
+    #     expected_html = self.sequence_data_handler.get_html(join('group', 'unbounded'))
     #
     #     self.assertTrue(are_equals(result_html, expected_html))
 
     def test_create_choice_basic(self):
         xsd_files = join('choice', 'basic')
-        xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.sequence_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -112,13 +112,13 @@ class ParserCreateSequenceTestSuite(TestCase):
         self.assertDictEqual(result_string[1], expected_element)
 
         # result_html = etree.fromstring(result_string[0])
-        # expected_html = self.sequence_data_handler.get_html2(join('choice', 'basic'))
+        # expected_html = self.sequence_data_handler.get_html(join('choice', 'basic'))
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 
     def test_create_choice_unbounded(self):
         xsd_files = join('choice', 'unbounded')
-        xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.sequence_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -129,13 +129,13 @@ class ParserCreateSequenceTestSuite(TestCase):
         self.assertDictEqual(result_string[1], expected_element)
 
         # result_html = etree.fromstring(result_string[0])
-        # expected_html = self.sequence_data_handler.get_html2(join('choice', 'unbounded'))
+        # expected_html = self.sequence_data_handler.get_html(join('choice', 'unbounded'))
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 
     def test_create_sequence_basic(self):
         xsd_files = join('sequence', 'basic')
-        xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.sequence_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -147,13 +147,13 @@ class ParserCreateSequenceTestSuite(TestCase):
         self.assertDictEqual(result_string[1], expected_element)
 
         # result_html = etree.fromstring(result_string[0])
-        # expected_html = self.sequence_data_handler.get_html2(join('sequence', 'basic'))
+        # expected_html = self.sequence_data_handler.get_html(join('sequence', 'basic'))
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 
     def test_create_sequence_unbounded(self):
         xsd_files = join('sequence', 'unbounded')
-        xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.sequence_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -165,13 +165,13 @@ class ParserCreateSequenceTestSuite(TestCase):
         self.assertDictEqual(result_string[1], expected_element)
 
         # result_html = etree.fromstring(result_string[0])
-        # expected_html = self.sequence_data_handler.get_html2(join('sequence', 'unbounded'))
+        # expected_html = self.sequence_data_handler.get_html(join('sequence', 'unbounded'))
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 
     # def test_create_any_basic(self):
     #     # FIXME How do we want to handle any's?
-    #     xsd_tree = self.sequence_data_handler.get_xsd2(join('any', 'basic'))
+    #     xsd_tree = self.sequence_data_handler.get_xsd(join('any', 'basic'))
     #     xsd_element = xsd_tree.xpath('/schema/complexType/sequence')[0]
     #
     #     result_string = generate_sequence(self.request, xsd_element, xsd_tree, '', full_path='')
@@ -179,20 +179,20 @@ class ParserCreateSequenceTestSuite(TestCase):
     #
     # def test_create_any_unbounded(self):
     #     # FIXME How do we want to handle any's?
-    #     xsd_tree = self.sequence_data_handler.get_xsd2(join('any', 'unbounded'))
+    #     xsd_tree = self.sequence_data_handler.get_xsd(join('any', 'unbounded'))
     #     xsd_element = xsd_tree.xpath('/schema/complexType/sequence')[0]
     #
     #     result_string = generate_sequence(self.request, xsd_element, xsd_tree, '', full_path='')
     #     # print result_string
     #
     #     result_html = etree.fromstring(result_string)
-    #     expected_html = self.sequence_data_handler.get_html2(join('any', 'unbounded'))
+    #     expected_html = self.sequence_data_handler.get_html(join('any', 'unbounded'))
     #
     #     self.assertTrue(are_equals(result_html, expected_html))
 
     def test_create_multiple_basic(self):
         xsd_files = join('multiple', 'basic')
-        xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(join('multiple', 'basic')))
+        xsd_tree = self.sequence_data_handler.get_xsd(join('multiple', 'basic'))
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -205,13 +205,13 @@ class ParserCreateSequenceTestSuite(TestCase):
         # result_string = '<div>' + result_string[0] + '</div>'
         #
         # result_html = etree.fromstring(result_string)
-        # expected_html = self.sequence_data_handler.get_html2(join('multiple', 'basic'))
+        # expected_html = self.sequence_data_handler.get_html(join('multiple', 'basic'))
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 
     def test_create_multiple_unbounded(self):
         xsd_files = join('multiple', 'unbounded')
-        xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.sequence_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -223,7 +223,7 @@ class ParserCreateSequenceTestSuite(TestCase):
         self.assertDictEqual(result_string[1], expected_element)
 
         # result_html = etree.fromstring(result_string[0])
-        # expected_html = self.sequence_data_handler.get_html2(join('multiple', 'unbounded'))
+        # expected_html = self.sequence_data_handler.get_html(join('multiple', 'unbounded'))
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 
@@ -256,7 +256,7 @@ class ParserReloadSequenceTestSuite(TestCase):
 
     def test_reload_element_basic(self):
         xsd_files = join('element', 'basic')
-        xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.sequence_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -277,14 +277,14 @@ class ParserReloadSequenceTestSuite(TestCase):
         self.assertDictEqual(result_string[1], expected_element)
 
         # result_html = etree.fromstring(result_string[0])
-        # expected_html = self.sequence_data_handler.get_html2(xsd_files + '.reload')
+        # expected_html = self.sequence_data_handler.get_html(xsd_files + '.reload')
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 
     def test_reload_element_unbounded(self):
         # fixme correct bug
         xsd_files = join('element', 'unbounded')
-        xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.sequence_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -306,14 +306,14 @@ class ParserReloadSequenceTestSuite(TestCase):
         self.assertDictEqual(result_string[1], expected_element)
 
         # result_html = etree.fromstring(result_string[0])
-        # expected_html = self.sequence_data_handler.get_html2(xsd_files + '.reload')
+        # expected_html = self.sequence_data_handler.get_html(xsd_files + '.reload')
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 
     # fixme implement groups
     # def test_reload_group_basic(self):
     #     xsd_files = join('element', 'basic')
-    #     xsd_tree = self.sequence_data_handler.get_xsd2(xsd_files)
+    #     xsd_tree = self.sequence_data_handler.get_xsd(xsd_files)
     #     xsd_element = xsd_tree.xpath('/schema/complexType/sequence')[0]
     #
     #     self.request.session['curate_edit'] = True
@@ -330,13 +330,13 @@ class ParserReloadSequenceTestSuite(TestCase):
     #     print result_string
     #
     #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.sequence_data_handler.get_html2(xsd_files + '.reload')
+    #     # expected_html = self.sequence_data_handler.get_html(xsd_files + '.reload')
     #     #
     #     # self.assertTrue(are_equals(result_html, expected_html))
     #
     # def test_reload_group_unbounded(self):
     #     xsd_files = join('element', 'basic')
-    #     xsd_tree = self.sequence_data_handler.get_xsd2(xsd_files)
+    #     xsd_tree = self.sequence_data_handler.get_xsd(xsd_files)
     #     xsd_element = xsd_tree.xpath('/schema/complexType/sequence')[0]
     #
     #     self.request.session['curate_edit'] = True
@@ -353,13 +353,13 @@ class ParserReloadSequenceTestSuite(TestCase):
     #     print result_string
     #
     #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.sequence_data_handler.get_html2(xsd_files + '.reload')
+    #     # expected_html = self.sequence_data_handler.get_html(xsd_files + '.reload')
     #     #
     #     # self.assertTrue(are_equals(result_html, expected_html))
 
     def test_reload_choice_basic(self):
         xsd_files = join('choice', 'basic')
-        xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.sequence_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -380,13 +380,13 @@ class ParserReloadSequenceTestSuite(TestCase):
         self.assertDictEqual(result_string[1], expected_element)
 
         # result_html = etree.fromstring(result_string[0])
-        # expected_html = self.sequence_data_handler.get_html2(xsd_files + '.reload')
+        # expected_html = self.sequence_data_handler.get_html(xsd_files + '.reload')
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 
     def test_reload_choice_unbounded(self):
         xsd_files = join('choice', 'unbounded')
-        xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.sequence_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -408,13 +408,13 @@ class ParserReloadSequenceTestSuite(TestCase):
         self.assertDictEqual(result_string[1], expected_element)
 
         # result_html = etree.fromstring(result_string[0])
-        # expected_html = self.sequence_data_handler.get_html2(xsd_files + '.reload')
+        # expected_html = self.sequence_data_handler.get_html(xsd_files + '.reload')
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 
     def test_reload_sequence_basic(self):
         xsd_files = join('sequence', 'basic')
-        xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.sequence_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -436,13 +436,13 @@ class ParserReloadSequenceTestSuite(TestCase):
         self.assertDictEqual(result_string[1], expected_element)
 
         # result_html = etree.fromstring(result_string[0])
-        # expected_html = self.sequence_data_handler.get_html2(xsd_files + '.reload')
+        # expected_html = self.sequence_data_handler.get_html(xsd_files + '.reload')
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 
     def test_reload_sequence_unbounded(self):
         xsd_files = join('sequence', 'unbounded')
-        xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.sequence_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -464,14 +464,14 @@ class ParserReloadSequenceTestSuite(TestCase):
         self.assertDictEqual(result_string[1], expected_element)
 
         # result_html = etree.fromstring(result_string[0])
-        # expected_html = self.sequence_data_handler.get_html2(xsd_files + '.reload')
+        # expected_html = self.sequence_data_handler.get_html(xsd_files + '.reload')
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 
     # TODO implement tests
     # def test_reload_any_basic(self):
     #     xsd_files = join('element', 'basic')
-    #     xsd_tree = self.sequence_data_handler.get_xsd2(xsd_files)
+    #     xsd_tree = self.sequence_data_handler.get_xsd(xsd_files)
     #     xsd_element = xsd_tree.xpath('/schema/complexType/sequence')[0]
     #
     #     self.request.session['curate_edit'] = True
@@ -488,13 +488,13 @@ class ParserReloadSequenceTestSuite(TestCase):
     #     print result_string
     #
     #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.sequence_data_handler.get_html2(xsd_files + '.reload')
+    #     # expected_html = self.sequence_data_handler.get_html(xsd_files + '.reload')
     #     #
     #     # self.assertTrue(are_equals(result_html, expected_html))
     #
     # def test_reload_any_unbounded(self):
     #     xsd_files = join('element', 'basic')
-    #     xsd_tree = self.sequence_data_handler.get_xsd2(xsd_files)
+    #     xsd_tree = self.sequence_data_handler.get_xsd(xsd_files)
     #     xsd_element = xsd_tree.xpath('/schema/complexType/sequence')[0]
     #
     #     self.request.session['curate_edit'] = True
@@ -511,13 +511,13 @@ class ParserReloadSequenceTestSuite(TestCase):
     #     print result_string
     #
     #     # result_html = etree.fromstring(result_string)
-    #     # expected_html = self.sequence_data_handler.get_html2(xsd_files + '.reload')
+    #     # expected_html = self.sequence_data_handler.get_html(xsd_files + '.reload')
     #     #
     #     # self.assertTrue(are_equals(result_html, expected_html))
 
     def test_reload_multiple_basic(self):
         xsd_files = join('multiple', 'basic')
-        xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.sequence_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -540,13 +540,13 @@ class ParserReloadSequenceTestSuite(TestCase):
         # result_string = '<div>' + result_string[0] + '</div>'
         #
         # result_html = etree.fromstring(result_string)
-        # expected_html = self.sequence_data_handler.get_html2(xsd_files + '.reload')
+        # expected_html = self.sequence_data_handler.get_html(xsd_files + '.reload')
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 
     def test_reload_multiple_unbounded(self):
         xsd_files = join('multiple', 'unbounded')
-        xsd_tree = etree.ElementTree(self.sequence_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.sequence_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:sequence',
                                      namespaces=self.request.session['namespaces'])[0]
 
@@ -566,7 +566,7 @@ class ParserReloadSequenceTestSuite(TestCase):
         self.assertDictEqual(result_string[1], expected_element)
 
         # result_html = etree.fromstring(result_string[0])
-        # expected_html = self.sequence_data_handler.get_html2(xsd_files + '.reload')
+        # expected_html = self.sequence_data_handler.get_html(xsd_files + '.reload')
         #
         # self.assertTrue(are_equals(result_html, expected_html))
 

@@ -7,7 +7,7 @@ from django.test import TestCase
 class ParserDefaultTestCase(TestCase):
 
     def parser_test_datastructures(self, xsd_files, data_handler, xsd_xpath, namespaces, test_function, request):
-        xsd_tree = etree.ElementTree(data_handler.get_xsd2(xsd_files))
+        xsd_tree = etree.ElementTree(data_handler.get_xsd(xsd_files))
         xsd_element = xsd_tree.xpath(xsd_xpath, namespaces=namespaces)[0]
 
         default_namespace = namespaces['xs'].replace('{', '')

@@ -29,6 +29,8 @@ class ParserCreateSimpleContentTestSuite(TestCase):
         self.request.session['nb_html_tags'] = 0
         self.request.session['mapTagID'] = {}
         self.request.session['nbChoicesID'] = 0
+        self.request.session['keys'] = {}
+        self.request.session['keyrefs'] = {}
 
         # set default namespace
         self.namespace = {
@@ -39,7 +41,7 @@ class ParserCreateSimpleContentTestSuite(TestCase):
 
     def test_restriction(self):
         xsd_files = join('restriction', 'basic')
-        xsd_tree = etree.ElementTree(self.simple_content_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.simple_content_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:simpleContent', namespaces=self.namespace)[0]
 
         result_string = generate_simple_content(self.request, xsd_element, xsd_tree)
@@ -49,7 +51,7 @@ class ParserCreateSimpleContentTestSuite(TestCase):
 
     def test_extension(self):
         xsd_files = join('extension', 'basic')
-        xsd_tree = etree.ElementTree(self.simple_content_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.simple_content_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:simpleContent', namespaces=self.namespace)[0]
 
         result_string = generate_simple_content(self.request, xsd_element, xsd_tree)
@@ -77,6 +79,8 @@ class ParserReloadSimpleContentTestSuite(TestCase):
         self.request.session['nb_html_tags'] = 0
         self.request.session['mapTagID'] = {}
         self.request.session['nbChoicesID'] = 0
+        self.request.session['keys'] = {}
+        self.request.session['keyrefs'] = {}
 
         # set default namespace
         self.namespace = {
@@ -86,23 +90,22 @@ class ParserReloadSimpleContentTestSuite(TestCase):
         self.request.session['namespaces'] = self.namespace
 
     def test_restriction(self):
-        # FIXME test not passing (default value is wrong)
         xsd_files = join('restriction', 'basic')
 
-        xsd_tree = self.simple_content_data_handler.get_xsd2(xsd_files)
+        xsd_tree = self.simple_content_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:simpleContent', namespaces=self.namespace)[0]
 
         xml_tree = self.simple_content_data_handler.get_xml(xsd_files)
 
         result_string = generate_simple_content(self.request, xsd_element, xsd_tree, full_path='/root',
-                                                edit_data_tree=xml_tree)
+                                                default_value='child0', edit_data_tree=xml_tree)
 
         expected_element = self.simple_content_data_handler.get_json(xsd_files + '.reload')
         self.assertDictEqual(result_string[1], expected_element)
 
     def test_extension(self):
         xsd_files = join('extension', 'basic')
-        xsd_tree = etree.ElementTree(self.simple_content_data_handler.get_xsd2(xsd_files))
+        xsd_tree = self.simple_content_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:simpleContent', namespaces=self.namespace)[0]
 
         xml_tree = self.simple_content_data_handler.get_xml(xsd_files)

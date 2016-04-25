@@ -2,7 +2,7 @@ from django.http.request import HttpRequest
 from django.test import TestCase
 from django.utils.importlib import import_module
 from os import walk
-from os.path import splitext
+from os.path import splitext, join
 from curate.parser import *
 from mgi.models import FormData
 from mgi.settings import SITE_ROOT
@@ -49,12 +49,13 @@ class ParserGenerateFormTestSuite(TestCase):
                     filepath_list.append(full_path[main_dir_len:])
 
         report_content = []
+        errors_number = 0
 
         for filepath in filepath_list:
             report_line = filepath
 
             try:
-                xsd_data = self.schema_data_handler.get_xsd2(filepath)
+                xsd_data = self.schema_data_handler.get_xsd(filepath)
                 self.request.session['xmlDocTree'] = etree.tostring(xsd_data)
 
                 root_pk = generate_form(self.request)
@@ -62,9 +63,10 @@ class ParserGenerateFormTestSuite(TestCase):
                 if root_pk != -1:
                     report_line += ',OK\n'
                 else:
+                    errors_number += 1
                     report_line += ',NOK\n'
             except Exception as e:
-                print e
+                errors_number += 1
                 report_line += ',EXC,' + e.message + '\n'
 
             report_content.append(report_line)
@@ -72,11 +74,14 @@ class ParserGenerateFormTestSuite(TestCase):
         with open(join(SITE_ROOT, 'full_tests_report.csv'), 'w') as report_file:
             report_file.writelines(report_content)
 
+        if errors_number != 0:
+            self.fail(str(errors_number) + " errors detected")
+
     # def test_sample_file(self):
     #     filepath = 'schema/namespace/include/5'
     #
     #     try:
-    #         xsd_data = self.schema_data_handler.get_xsd2(filepath)
+    #         xsd_data = self.schema_data_handler.get_xsd(filepath)
     #         self.request.session['xmlDocTree'] = etree.tostring(xsd_data)
     #
     #         root_pk = generate_form(self.request)

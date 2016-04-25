@@ -7,14 +7,13 @@
   "children": [
     {
       "tag": "simple_type",
-      "value": null,
       "children": [
         {
           "tag": "restriction",
           "options": {
             "base": "xs:string"
           },
-          "value": null,
+          "value": "child0",
           "children": [
             {
               "tag": "enumeration",
@@ -26,7 +25,13 @@
             }
           ]
         }
-      ]
+      ],
+      "value": null,
+      "options": {
+        "ns_prefix": null,
+        "xmlns": null,
+        "name": ""
+      }
     }
   ]
 }
