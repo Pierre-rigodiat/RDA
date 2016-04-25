@@ -32,6 +32,38 @@ class tests_token(TokenTest):
         else:
             self.assertFalse(False)
 
+    def test_select_schema_error_no_param(self):
+        r = self.doRequest(self.get_token_admin(), "/rest/templates/select", '', '', OPERATION_GET)
+        if r.status_code == 400:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+
+    def test_select_schema_error_no_schema(self):
+        param = {'id':'test'}
+        r = self.doRequest(self.get_token_admin(), "/rest/templates/select", '', param, OPERATION_GET)
+        if r.status_code == 404:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+
+    def test_select_schema_error_user(self):
+        param = {'id':'test'}
+        r = self.doRequest(self.get_token_user(), "/rest/templates/select", '', param, OPERATION_GET)
+        if r.status_code == 401:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+
+    def test_select_schema_admin_id(self):
+        templateID = self.createTemplate()
+        param = {'id': templateID.id}
+        r = self.doRequest(self.get_token_admin(), "/rest/templates/select", '', param, OPERATION_GET)
+        if r.status_code == 200:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+
     def test_explore_error(self):
         r = self.doRequest(self.get_token_admin(), "/rest/explore/select/all", '', {'dataformat': 'error'}, OPERATION_GET)
         if r.status_code == 400:

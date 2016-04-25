@@ -3,7 +3,8 @@ from pymongo import MongoClient
 from pymongo.errors import OperationFailure
 import requests
 from datetime import datetime, timedelta
-from mgi.models import Instance, XMLdata
+from mgi.models import Instance, XMLdata, Template, TemplateVersion
+from utils.XSDhash import XSDhash
 
 from django.utils.importlib import import_module
 import os
@@ -21,6 +22,11 @@ class RegressionTest(TestCase):
 
     def createXMLData(self):
         return XMLdata(schemaID='', xml='<test>test xmldata</test>', title='test', iduser=1).save()
+
+    def createTemplate(self):
+        hash = XSDhash.get_hash('<test>test xmldata</test>')
+        objectVersions = TemplateVersion(nbVersions=1, isDeleted=False).save()
+        return Template(title='test', filename='test', content='<test>test xmldata</test>', version=1, templateVersion=str(objectVersions.id), hash=hash).save()
 
     def tearDown(self):
         self.clean_db()
