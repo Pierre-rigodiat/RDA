@@ -6,35 +6,15 @@
     <set>
         <setSpec>{{ i.setSpec }}</setSpec>
         <setName>{{ i.setName }}</setName>
+        {% if i.description %}
         <setDescription>
             <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/             http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
-                <dc:title xml:lang="en">Collections of historical content with items digitized by, or in partnership with, the Library of Congress</dc:title>
-                <dc:creator>Library of Congress</dc:creator>
-                <dc:description>Records for collections of digital items mounted for public access at the Library of Congress.  Collections are available online through American Memory [http:/memory.loc.gov/], Global Gateway [http://international.loc.gov/intldl/intldlhome.html], and elsewhere on the Library of Congress web site.   See http://www.loc.gov/library/libarch-digital.html.  </dc:description>
-                <dc:subject xml:lang="en">United States--History--Sources</dc:subject>
-                <dc:subject xml:lang="en">History--Sources</dc:subject>
-                <dc:coverage xml:lang="en">United States</dc:coverage>
-                <dc:coverage xml:lang="en">Russia</dc:coverage>
-                <dc:coverage xml:lang="en">Puerto Rico</dc:coverage>
-                <dc:coverage xml:lang="en">Spain</dc:coverage>
-                <dc:coverage xml:lang="en">Brazil</dc:coverage>
-                <dc:coverage xml:lang="en">Netherlands</dc:coverage>
-                <dc:coverage xml:lang="en">Mali</dc:coverage>
-                <dc:coverage xml:lang="en">Japan</dc:coverage>
-                <dc:coverage xml:lang="en">Liberia</dc:coverage>
-                <dc:coverage xml:lang="en">France</dc:coverage>
-                <dc:coverage xml:lang="en">Poland</dc:coverage>
-                <dc:type xml:lang="en">image</dc:type>
-                <dc:type xml:lang="en">still image</dc:type>
-                <dc:type xml:lang="en">moving image</dc:type>
-                <dc:type xml:lang="en">sound</dc:type>
-                <dc:type xml:lang="en">text</dc:type>
-                <dc:type xml:lang="en">cartographic</dc:type>
-                <dc:type xml:lang="en">map</dc:type>
-                <dc:type xml:lang="en">collection</dc:type>
-                <dc:description xml:lang="en">Set characteristics for coll:  Source records are MARC from LC catalog [catalog.loc.gov]); MODS or oai_dc records are dynamically generated using generic transformation when harvested.   dct:accrualPolicy: Passive.  dct:accrualPeriodicity: Completely irregular.  Contains about 150 records as of March 2008.  </dc:description>
+                <dc:description xml:lang="en">
+                    {{ i.description }}
+                </dc:description>
             </oai_dc:dc>
         </setDescription>
+        {% endif %}
     </set>
     {% endfor %}
   </ListSets>

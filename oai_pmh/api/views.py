@@ -1703,7 +1703,7 @@ def update_my_metadataFormat(request):
 def add_my_set(request):
     """
     PUT http://localhost/oai_pmh/add/my-set
-    PUT data query="{'setSpec':'value', 'setName':'value'}"
+    PUT data query="{'setSpec':'value', 'setName':'value', 'description':'value'}"
     """
     if request.user.is_authenticated():
         #Serialization of the input data
@@ -1715,9 +1715,16 @@ def add_my_set(request):
                 setSpec = request.DATA['setSpec']
             if 'setName' in request.POST:
                 setName = request.DATA['setName']
+            if 'description' in request.POST:
+                description = request.DATA['description']
+            if 'templates' in request.POST:
+                templates = request.DATA.getlist('templates')
+            else:
+                templates = []
+
             try:
                 #Add in databases
-               OaiMySet(setSpec=setSpec, setName=setName).save()
+               OaiMySet(setSpec=setSpec, setName=setName, description=description, templates=templates).save()
             except Exception as e:
                 return Response({'message':'Unable to add the new set. \n%s'%e.message}, status=status.HTTP_400_BAD_REQUEST)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -1819,6 +1826,18 @@ def update_my_set(request):
                     setName = request.DATA['setName']
                     if setName:
                         set.setName = setName
+
+                description = None
+                if 'description' in request.DATA:
+                    description = request.DATA['description']
+                set.description = description
+
+                if 'templates' in request.DATA:
+                    templates = request.DATA.getlist('templates')
+                    set.templates = Template.objects(pk__in=templates).all()
+                else:
+                    set.templates = []
+
             except:
                 content = {'message':'Error while retrieving information.'}
                 return Response(content, status=status.HTTP_404_NOT_FOUND)

@@ -14,7 +14,7 @@
 from django.http import HttpResponseNotFound
 from django.conf import settings
 from django.views.generic import TemplateView
-from mgi.models import XMLdata, OaiSettings, OaiMyMetadataFormat, OaiTemplMfXslt, Template, TemplateVersion
+from mgi.models import XMLdata, OaiSettings, OaiMyMetadataFormat, OaiTemplMfXslt, Template, TemplateVersion, OaiMySet
 import os
 from oai_pmh.server.exceptions import *
 import xmltodict
@@ -128,11 +128,25 @@ class OAIProvider(TemplateView):
 #
 ################################################################################
     def list_sets(self):
-        # self.template_name = 'admin/oai_pmh/xml/list_sets.xml'
-        # items = []
+        self.template_name = 'oai_pmh/xml/list_sets.xml'
+        items = []
         #For the moment, we don't support sets
         try:
-            raise noSetHierarchy
+            #Retrieve sets
+            sets = OaiMySet.objects().all()
+            #If there is no sets, we raise noSetHierarchy
+            if len(sets) == 0:
+                raise noSetHierarchy
+            else:
+                #Fill the response
+                for set in sets:
+                    item_info = {
+                        'setSpec': set.setSpec,
+                        'setName':  set.setName,
+                        'description':  set.description
+                    }
+                    items.append(item_info)
+            return self.render_to_response({'items': items})
         except OAIExceptions, e:
             return self.errors(e.errors)
         except OAIException, e:
@@ -215,6 +229,7 @@ class OAIProvider(TemplateView):
             query = dict()
             #To store errors
             date_errors = []
+            items=[]
             #Handle FROM and UNTIL
             if self.until:
                 try:
@@ -240,25 +255,39 @@ class OAIProvider(TemplateView):
                 templates = OaiTemplMfXslt.objects(myMetadataFormat=myMetadataFormat, activated=True).distinct(field="template")
                 #Ids
                 templatesID = [str(x.id) for x in templates]
+                #If myMetadataFormat is linked to a template, we add the template id
+                if myMetadataFormat.isTemplate:
+                    templatesID.append(str(myMetadataFormat.template.id))
             except:
                 #The metadata format doesn't exist
                 raise cannotDisseminateFormat(self.metadataPrefix)
-            #Get all templates records
-            query['schema'] = { "$in" : templatesID}
-            items = []
-            data = XMLdata.executeQueryFullResult(query)
-            #If no records
-            if len(data) == 0:
+            if self.set:
+                try:
+                    setsTemplates = OaiMySet.objects(setSpec=self.set).only('templates').get()
+                    templatesID = set(templatesID).intersection([str(x.id) for x in setsTemplates.templates])
+                except Exception, e:
+                    raise noRecordsMatch
+            for template in templatesID:
+                #Retrieve sets for this template
+                sets = OaiMySet.objects(templates=template).all()
+                query['schema'] = template
+                #Get all records for this template
+                data = XMLdata.executeQueryFullResult(query)
+                #IF no records, go to the next template
+                if len(data) == 0:
+                    continue
+                for i in data:
+                    #Fill the response
+                    identifier = '%s:%s:id/%s' % (settings.OAI_SCHEME, settings.OAI_REPO_IDENTIFIER, str(i['_id']))
+                    item_info = {
+                        'identifier': identifier,
+                        'last_modified': datestamp.datetime_to_datestamp(i['publicationdate']) if 'publicationdate' in i else datestamp.datetime_to_datestamp(datetime.datetime.min),
+                        'sets': sets
+                    }
+                    items.append(item_info)
+            #If there is no records
+            if len(items) == 0:
                 raise noRecordsMatch
-            for i in data:
-                #Fill the response
-                identifier = '%s:%s:id/%s' % (settings.OAI_SCHEME, settings.OAI_REPO_IDENTIFIER, str(i['_id']))
-                item_info = {
-                    'identifier': identifier,
-                    'last_modified': datestamp.datetime_to_datestamp(i['publicationdate']) if 'publicationdate' in i else datestamp.datetime_to_datestamp(datetime.datetime.min),
-                    'sets': ''
-                }
-                items.append(item_info)
 
             return self.render_to_response({'items': items})
         except OAIExceptions, e:
@@ -306,6 +335,8 @@ class OAIProvider(TemplateView):
             data = data[0]
             #Get the template for the identifier
             template = data['schema']
+            #Retrieve sets for this template
+            sets = OaiMySet.objects(templates=template).all()
             #Retrieve the XSLT for the transformation
             try:
                 #Get the metadataformat for the provided prefix
@@ -334,7 +365,7 @@ class OAIProvider(TemplateView):
             record_info = {
                 'identifier': self.identifier,
                 'last_modified': datestamp.datetime_to_datestamp(data['publicationdate']) if 'publicationdate' in data else datestamp.datetime_to_datestamp(datetime.datetime.min),
-                'sets': '',
+                'sets': sets,
                 'XML': dataXML[0]['content']
             }
             return self.render_to_response(record_info)
@@ -380,21 +411,30 @@ class OAIProvider(TemplateView):
             #Return possible errors
             if len(date_errors) > 0:
                 raise OAIExceptions(date_errors)
+            #Get the metadataformat for the provided prefix
             try:
-                #Get the metadataformat for the provided prefix
                 myMetadataFormat = OaiMyMetadataFormat.objects.get(metadataPrefix=self.metadataPrefix)
-                if myMetadataFormat.isTemplate:
-                    #GEt the corresponding template
-                    templatesID = [str(myMetadataFormat.template.id)]
-                else:
-                    #Get information about templates using this MF
-                    objTempMfXslt = OaiTemplMfXslt.objects(myMetadataFormat=myMetadataFormat, activated=True).all()
-                     #Ids
-                    templatesID = [str(x.template.id) for x in objTempMfXslt]
-            except:
+            except Exception, e:
                 raise cannotDisseminateFormat(self.metadataPrefix)
+            if myMetadataFormat.isTemplate:
+                #GEt the corresponding template
+                templatesID = [str(myMetadataFormat.template.id)]
+            else:
+                #Get information about templates using this MF
+                objTempMfXslt = OaiTemplMfXslt.objects(myMetadataFormat=myMetadataFormat, activated=True).all()
+                 #Ids
+                templatesID = [str(x.template.id) for x in objTempMfXslt]
+            #if a set was provided, we filter the templates
+            if self.set:
+                try:
+                    setsTemplates = OaiMySet.objects(setSpec=self.set).only('templates').get()
+                    templatesID = set(templatesID).intersection([str(x.id) for x in setsTemplates.templates])
+                except Exception, e:
+                    raise noRecordsMatch
             #For each template found
             for template in templatesID:
+                #Retrieve sets for this template
+                sets = OaiMySet.objects(templates=template).all()
                 query['schema'] = template
                 #Get all records for this template
                 data = XMLdata.executeQueryFullResult(query)
@@ -418,7 +458,7 @@ class OAIProvider(TemplateView):
                     record_info = {
                         'identifier': identifier,
                         'last_modified': datestamp.datetime_to_datestamp(elt['publicationdate']) if 'publicationdate' in elt else datestamp.datetime_to_datestamp(datetime.datetime.min),
-                        'sets': '',
+                        'sets': sets,
                         'XML': xmlStr['content']
                     }
                     items.append(record_info)
@@ -569,7 +609,7 @@ class OAIProvider(TemplateView):
             self.metadataPrefix = None
             self.From = None
             self.until = None
-            self.sets = None
+            self.set = None
             self.resumptionToken = None
             #Check entry
             self.check_bad_argument(request.GET)
@@ -578,14 +618,12 @@ class OAIProvider(TemplateView):
             if self.oai_verb == 'Identify':
                 return self.identify()
             elif self.oai_verb == 'ListIdentifiers':
-                if 'sets' in request.GET: raise noSetHierarchy
-                else:
-                    self.From = request.GET.get('from', None)
-                    self.until = request.GET.get('until', None)
-                    self.sets = request.GET.get('sets', None)
-                    self.resumptionToken = request.GET.get('resumptionToken', None)
-                    self.metadataPrefix = request.GET.get('metadataPrefix', None)
-                    return self.list_identifiers()
+                self.From = request.GET.get('from', None)
+                self.until = request.GET.get('until', None)
+                self.set = request.GET.get('set', None)
+                self.resumptionToken = request.GET.get('resumptionToken', None)
+                self.metadataPrefix = request.GET.get('metadataPrefix', None)
+                return self.list_identifiers()
             elif self.oai_verb == 'ListSets':
                 return self.list_sets()
             elif self.oai_verb == 'ListMetadataFormats':
@@ -596,14 +634,12 @@ class OAIProvider(TemplateView):
                 self.metadataPrefix = request.GET.get('metadataPrefix', None)
                 return self.get_record()
             elif self.oai_verb == 'ListRecords':
-                if 'sets' in request.GET: raise noSetHierarchy
-                else:
-                    self.From = request.GET.get('from', None)
-                    self.until = request.GET.get('until', None)
-                    self.sets = request.GET.get('sets', None)
-                    self.resumptionToken = request.GET.get('resumptionToken', None)
-                    self.metadataPrefix = request.GET.get('metadataPrefix', None)
-                    return self.list_records()
+                self.From = request.GET.get('from', None)
+                self.until = request.GET.get('until', None)
+                self.set = request.GET.get('set', None)
+                self.resumptionToken = request.GET.get('resumptionToken', None)
+                self.metadataPrefix = request.GET.get('metadataPrefix', None)
+                return self.list_records()
 
         except OAIExceptions, e:
             return self.errors(e.errors)

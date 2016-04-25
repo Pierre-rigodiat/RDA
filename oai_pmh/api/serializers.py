@@ -115,6 +115,7 @@ class DeleteMyMetadataFormatSerializer(serializers.Serializer):
 class MySetSerializer(serializers.Serializer):
     setSpec = serializers.CharField(required=True)
     setName = serializers.CharField(required=True)
+    description = serializers.CharField(required=False)
 
 class DeleteMySetSerializer(serializers.Serializer):
     set_id  = serializers.CharField(required=True)

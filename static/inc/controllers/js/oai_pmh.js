@@ -720,7 +720,6 @@ load_edit_my_registry_form = function(registryId){
 /**
 * Validate edit form entries
 */
-checkSubmit
 validateEditMyRegistry = function()
 {
     errors = ""
@@ -743,7 +742,6 @@ validateEditMyRegistry = function()
 /**
 * Clear add my metadata format form
 */
-checkSubmit
 clearAddMF = function ()
 {
     clearAddMFError();
@@ -753,7 +751,6 @@ clearAddMF = function ()
 /**
 * Clear add my metadata format error banner
 */
-checkSubmit
 clearAddMFError = function ()
 {
     $("#banner_add_MF_errors").hide()
@@ -1152,7 +1149,7 @@ displayAddSet = function()
     $( "#dialog-add-set" ).dialog({
       modal: true,
       width: 550,
-      height: 'auto',
+      height: 485,
       buttons:
       [
       {
@@ -1167,7 +1164,7 @@ displayAddSet = function()
                 clearAddSetError();
                 if(validateSet())
                 {
-//                       $("#banner_add_wait").show(200);
+                   $("#banner_add_set_wait").show(200);
                    var formData = new FormData($( "#form_add_set" )[0]);
                    $.ajax({
                         url: "add/my-set",
@@ -1181,7 +1178,7 @@ displayAddSet = function()
                             window.location = 'oai-pmh-my-infos'
                         },
                         error:function(data){
-//	            	            $("#banner_add_wait").hide(200);
+                            $("#banner_add_set_wait").hide(200);
                             $("#form_add_set_errors").html(data.responseText);
                             $("#banner_add_set_errors").show(200)
                         },
@@ -1281,13 +1278,13 @@ validateSetEdit = function()
  */
 editSet = function(setId)
 {
-    clearSetEditError()
+    clearSetEditError();
     exist = load_set_edit_form(setId);
     $(function() {
         $( "#dialog-set-edit" ).dialog({
           modal: true,
-          width: 400,
-          height: 'auto',
+          width: 550,
+          height: 492,
           buttons:
               [
                {
@@ -1300,6 +1297,7 @@ editSet = function(setId)
                    text: "Edit",
                    click: function() {
                         clearSetEditError();
+                        $("#banner_edit_set_wait").show(200);
                         if(validateSetEdit())
                         {
                             var formData = new FormData($( "#form_edit_set" )[0]);
@@ -1315,6 +1313,7 @@ editSet = function(setId)
                                     window.location = 'oai-pmh-my-infos'
                                 },
                                 error:function(data){
+                                    $("#banner_edit_set_wait").hide(200);
                                     $("#form_edit_set_errors").html(data.responseText);
                                     $("#banner_edit_set_errors").show(200)
                                 },
@@ -1342,6 +1341,7 @@ load_set_edit_form = function(setId){
         success: function(data){
             $("#form_edit_set_errors").html("");
             $("#form_edit_set_current").html(data.template);
+            InitSelectMultipleTemplates("#form_edit_set_current #id_templates");
         }
     });
 }
@@ -1474,10 +1474,23 @@ Init = function(){
     });
     enterKeyPressSubscription();
 
+    InitSelectMultipleTemplates("#id_templates");
+
     //    Refresh every 30 seconds
     setTimeout(checkHarvestData, 30000);
     //    Refresh every 30 seconds
     setTimeout(checkUpdateData, 30000);
+}
+
+InitSelectMultipleTemplates = function (path_elt)
+{
+    $(path_elt).fSelect({
+                placeholder: 'Select templates',
+                numDisplayed: 500,
+                overflowText: '{n} selected',
+                searchText: 'Search',
+                showSearch: true
+            });
 }
 
 Reinit = function(){

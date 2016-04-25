@@ -573,7 +573,8 @@ class OaiMySet(Document):
     """
     setSpec  = StringField(required=True, unique=True)
     setName = StringField(required=True, unique=True)
-
+    templates = ListField(ReferenceField(Template, reverse_delete_rule=PULL), required=True)
+    description = StringField(required=False)
 
 class OaiRecord(Document):
     """
