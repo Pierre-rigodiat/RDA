@@ -40,9 +40,7 @@ class tests_token(TokenTest):
             self.assertTrue(False)
 
     def test_explore_admin(self):
-        #TODO create XMLData when we will use the test database
         self.createXMLData()
-
         r = self.doRequest(self.get_token_admin(), "/rest/explore/select/all", '', '', OPERATION_GET)
         if r.status_code == 200:
             self.assertTrue(True)
@@ -50,20 +48,13 @@ class tests_token(TokenTest):
             self.assertTrue(False)
 
     def test_explore_user(self):
-        #TODO create XMLData when we will use the test database
-        id = str(self.createXMLData())
-
         r = self.doRequest(self.get_token_user(), "/rest/explore/select/all", '', '', OPERATION_GET)
         if r.status_code == 200:
             self.assertTrue(True)
         else:
             self.assertTrue(False)
 
-
     def test_explore_delete_error_no_param(self):
-        # TODO create XMLData when we will use the test database
-        id = str(self.createXMLData())
-
         r = self.doRequest(self.get_token_admin(), "/rest/explore/delete", '', '', OPERATION_DELETE)
         if r.status_code == 400:
             self.assertTrue(True)
@@ -71,15 +62,11 @@ class tests_token(TokenTest):
             self.assertTrue(False)
 
     def test_explore_delete_error_wrong_id(self):
-        # TODO create XMLData when we will use the test database
-        id = str(self.createXMLData())
-
         r = self.doRequest(self.get_token_admin(), "/rest/explore/delete", '', {'id': 'test'}, OPERATION_DELETE)
         if r.status_code == 404:
             self.assertTrue(True)
         else:
             self.assertTrue(False)
-
 
     def test_explore_delete_error_user(self):
         r = self.doRequest(self.get_token_user(), "/rest/explore/delete", '', {'id': 'test'}, OPERATION_DELETE)
@@ -89,9 +76,7 @@ class tests_token(TokenTest):
             self.assertTrue(False)
 
     def test_explore_delete_admin(self):
-        # TODO create XMLData when we will use the test database
         id = str(self.createXMLData())
-
         r = self.doRequest(self.get_token_admin(), "/rest/explore/delete", '', {'id': id}, OPERATION_DELETE)
         if r.status_code == 204:
             self.assertTrue(True)

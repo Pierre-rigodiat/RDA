@@ -1,9 +1,9 @@
 ################################################################################
 #
-# File Name: settings.py
+# File Name: settings_test.py
 # Application: mgi
-# Description: 
-#   Django settings for mgi project.
+# Description:
+#   Django settings for testing mgi project.
 #   For more information on this file, see
 #   https://docs.djangoproject.com/en/1.7/topics/settings/
 #
@@ -34,40 +34,40 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 if DEBUG == True:
     SECRET_KEY = 'ponq)(gd8hm57799)$lup4g9kyvp0l(9)k-3!em7dddn^(y)!5'
-    
+
     ALLOWED_HOSTS = ['*']
-    
+
     DATABASES = {
     'default': {
          'ENGINE': 'django.db.backends.sqlite3',
          'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
          }
     }
-    
+
 else:
     pass
     # Uncomment and set all parameters, delete pass instruction
     # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
-    
+
     # https://docs.djangoproject.com/en/1.7/ref/settings/#secret-key
     # SECRET_KEY = '<secret_key>'
-    
+
     # https://docs.djangoproject.com/en/1.7/ref/settings/#allowed-hosts
     # ALLOWED_HOSTS = ['<domain>','<server_ip>']
-    
+
     #os.environ['HTTPS'] = "on"
     # https://docs.djangoproject.com/en/1.7/ref/settings/#csrf-cookie-secure
     # CSRF_COOKIE_SECURE = True
     # https://docs.djangoproject.com/en/1.7/ref/settings/#session-cookie-secure
     # SESSION_COOKIE_SECURE = True
-    
+
     # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
     # DATABASES = {
     #     'default': {
     #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
     #         'USER':"<postgres_user>",
     #         'PASSWORD': "<postgres_password>",
-    #         'NAME': 'mgi',                      
+    #         'NAME': 'mgi',
     #     }
     # }
 
@@ -75,7 +75,7 @@ else:
 from mongoengine import connect
 MONGO_MGI_USER = "mgi_user"
 MONGO_MGI_PASSWORD = "mgi_password"
-MGI_DB = "mgi"
+MGI_DB = "mgi_test"
 MONGODB_URI = "mongodb://" + MONGO_MGI_USER + ":" + MONGO_MGI_PASSWORD + "@localhost/" + MGI_DB
 connect(MGI_DB, host=MONGODB_URI)
 
@@ -206,7 +206,7 @@ SWAGGER_SETTINGS = {
 }
 
 
-# django.contrib.auth.views.login redirects you to accounts/profile/ 
+# django.contrib.auth.views.login redirects you to accounts/profile/
 # right after you log in by default. This setting changes that.
 LOGIN_REDIRECT_URL = '/'
 
