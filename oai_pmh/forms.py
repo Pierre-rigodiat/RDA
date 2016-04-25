@@ -12,7 +12,7 @@
 ################################################################################
 from django import forms
 from django.core.validators import MinValueValidator
-from mgi.models import OaiRegistry, OaiMetadataFormat, OaiSet, Template, TemplateVersion
+from mgi.models import OaiRegistry, OaiMetadataFormat, OaiSet, Template, TemplateVersion, OaiMySet
 
 VERBS = (('0', 'Pick one'),
          ('1', 'Identify'),
@@ -82,12 +82,36 @@ class MyTemplateMetadataFormatForm(forms.Form):
         self.fields['template'].queryset = []
         self.fields['template'].queryset = templates
 
+
+class FormDataModelChoiceFieldTemplate(forms.ModelChoiceField):
+    #Used to return the name of the xslt file
+    def label_from_instance(self, obj):
+        return obj.title
+
+
 class MySetForm(forms.Form):
     """
         A MyMetadataFormatForm form
     """
     setSpec = forms.CharField(label='Set spec', required=True)
     setName = forms.CharField(label='Set name', required=True)
+    description = forms.CharField(label='Description', required=True, widget=forms.Textarea(attrs = {'cols': '60', 'rows': '5', 'style': 'height:14em;width:30em;'}))
+    templates = FormDataModelChoiceFieldTemplate(label='Templates', queryset=[], widget=forms.SelectMultiple(), empty_label=None, required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(MySetForm, self).__init__(*args, **kwargs)
+        self.fields['templates'].queryset = []
+        self.fields['templates'].queryset = Template.objects.filter()
+
+
+    # def clean(self):
+    #     #Check if an XSLT file is provided when the Metadata Format is activated
+    #     cleaned_data = super(MySetForm, self).clean()
+    #     templates = cleaned_data.get("templates")
+    #     #If not, raise validation error
+    #     if templates is None:
+    #         raise forms.ValidationError("Please pick templates")
+
 
 class UpdateMyMetadataFormatForm(forms.Form):
     """
@@ -105,6 +129,21 @@ class UpdateMySetForm(forms.Form):
     id = forms.CharField(widget=forms.HiddenInput(), required=False)
     setSpec = forms.CharField(label='Set spec', required=True)
     setName = forms.CharField(label='Set name', required=True)
+    description = forms.CharField(label='Description', required=True, widget=forms.Textarea(attrs = {'cols': '60', 'rows': '5', 'style': 'height:14em;width:30em;'}))
+    templates = FormDataModelChoiceFieldTemplate(label='Templates', queryset=[], widget=forms.SelectMultiple(), empty_label=None, required=False)
+
+    def __init__(self, *args, **kwargs):
+        if 'id' in kwargs:
+            set_id = kwargs.pop('id')
+            information = OaiMySet.objects.get(pk=set_id)
+            data = {'id': set_id, 'setSpec': information.setSpec, 'setName': information.setName, 'description': information.description}
+            kwargs['initial'] = data
+            super(UpdateMySetForm, self).__init__(*args, **kwargs)
+            self.fields['templates'].initial = [template.id for template in information.templates]
+            self.fields['templates'].queryset = []
+            self.fields['templates'].queryset = Template.objects.filter()
+
+
 
 
 class FormDataModelChoiceFieldMF(forms.ModelChoiceField):

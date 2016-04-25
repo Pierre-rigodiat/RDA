@@ -7,7 +7,7 @@
         <identifier>{{ i.identifier }}</identifier>
         <datestamp>{{ i.last_modified }}</datestamp>
         {% for set in i.sets %}
-        <setSpec>{{ set }}</setSpec>
+        <setSpec>{{ set.setSpec }}</setSpec>
         {% endfor %}
     </header>
     {% endfor %}

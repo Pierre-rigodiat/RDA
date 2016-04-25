@@ -606,12 +606,6 @@ def update_my_metadataFormat(request):
             if 'metadataPrefix' in request.POST:
                 metadataprefix = request.POST.get('metadataPrefix')
 
-            # if 'schema' in request.POST:
-            #     schema = request.POST.get('schema')
-            #
-            # if 'metadataNamespace' in request.POST:
-            #     namespace = request.POST.get('metadataNamespace')
-
             #Call the API to update my metadataFormat
             try:
                 req = requests.put(uri, { "id": id,
@@ -663,37 +657,43 @@ def update_my_metadataFormat(request):
 @login_required(login_url='/login')
 def add_my_set(request):
     if request.method == 'POST':
-        form = MySetForm(request.POST)
-        if form.is_valid():
+        try:
+            #We add the set
+            uri = OAI_HOST_URI + reverse("api_add_my_set")
+            #We retrieve information from the form
+            if 'setSpec' in request.POST:
+                setSpec = request.POST.get('setSpec')
+
+            if 'setName' in request.POST:
+                setName = request.POST.get('setName')
+
+            if 'description' in request.POST:
+                description = request.POST.get('description')
+
+            if 'templates' in request.POST:
+                templates = request.POST.getlist('templates')
+            else:
+                templates = []
+
+            #Call to the API to add the set
             try:
-                #We add the set
-                uri = OAI_HOST_URI + reverse("api_add_my_set")
-                #We retrieve information from the form
-                if 'setSpec' in request.POST:
-                    setSpec = request.POST.get('setSpec')
-
-                if 'setName' in request.POST:
-                    setName = request.POST.get('setName')
-
-                #Call to the API to add the set
-                try:
-                    req = requests.post(uri, {"setSpec": setSpec,
-                                              "setName": setName},
-                                        auth=(OAI_USER, OAI_PASS))
-                    #If the status is OK, sucess message
-                    if req.status_code == status.HTTP_201_CREATED:
-                        messages.add_message(request, messages.SUCCESS, 'Set added with success.')
-                        return HttpResponse('CREATED')
-                    #Else, we return a bad request response with the message provided by the API
-                    else:
-                        data = json.loads(req.text)
-                        return HttpResponseBadRequest(data['message'])
-                except Exception as e:
-                    return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
+                req = requests.post(uri, {"setSpec": setSpec,
+                                          "setName": setName,
+                                          "description": description,
+                                          'templates': templates},
+                                    auth=(OAI_USER, OAI_PASS))
+                #If the status is OK, sucess message
+                if req.status_code == status.HTTP_201_CREATED:
+                    messages.add_message(request, messages.SUCCESS, 'Set added with success.')
+                    return HttpResponse('CREATED')
+                #Else, we return a bad request response with the message provided by the API
+                else:
+                    data = json.loads(req.text)
+                    return HttpResponseBadRequest(data['message'])
             except Exception as e:
                 return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
-        else:
-            return HttpResponseBadRequest('Bad entries. Check your entry')
+        except Exception as e:
+            return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
 
 
 ################################################################################
@@ -749,12 +749,20 @@ def update_my_set(request):
                 setSpec = request.POST.get('setSpec')
             if 'setName' in request.POST:
                 setName = request.POST.get('setName')
+            if 'description' in request.POST:
+                description = request.POST.get('description')
+            if 'templates' in request.POST:
+                templates = request.POST.getlist('templates')
+            else:
+                templates = []
 
             #Call the API to update my set
             try:
                 req = requests.put(uri, { "id": id,
                                           "setSpec": setSpec,
-                                          "setName": setName},
+                                          "setName": setName,
+                                          "description": description,
+                                          "templates": templates},
                                         auth=(OAI_USER, OAI_PASS))
 
                 #If the status is OK, sucess message
@@ -774,9 +782,7 @@ def update_my_set(request):
         template = loader.get_template('oai_pmh/admin/form_my_set_edit.html')
         set_id = request.GET['set_id']
         try:
-            information = OaiMySet.objects.get(pk=set_id)
-            data = {'id': set_id, 'setSpec': information.setSpec, 'setName': information.setName}
-            set_form = UpdateMySetForm(data)
+            set_form = UpdateMySetForm(id = set_id)
         except:
             set_form = UpdateMySetForm()
 
