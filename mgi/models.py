@@ -19,7 +19,7 @@ from mongoengine import *
 from collections import OrderedDict
 from bson.objectid import ObjectId
 import xmltodict
-from pymongo import MongoClient, TEXT
+from pymongo import MongoClient, TEXT, DESCENDING
 from mgi.settings import MONGODB_URI, MGI_DB
 import re
 import datetime
@@ -499,8 +499,9 @@ class XMLdata(object):
         
         if len(refinements.keys()) > 0:
             full_text_query.update(refinements)
+        full_text_query.update({'ispublished': True})
             
-        cursor = xmldata.find(full_text_query, as_class = OrderedDict)
+        cursor = xmldata.find(full_text_query, as_class = OrderedDict).sort('publicationdate', DESCENDING)
         
         results = []
         for result in cursor:
