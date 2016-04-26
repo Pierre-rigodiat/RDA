@@ -45,7 +45,8 @@
                           "tag": "input",
                           "options": {
                             "placeholder": "",
-                            "tooltip": ""
+                            "tooltip": "",
+                            "use": ""
                           },
                           "value": ""
                         }
@@ -79,7 +80,8 @@
                           "tag": "input",
                           "options": {
                             "placeholder": "",
-                            "tooltip": ""
+                            "tooltip": "",
+                            "use": ""
                           },
                           "value": ""
                         }
@@ -134,7 +136,8 @@
                           "tag": "input",
                           "options": {
                             "placeholder": "",
-                            "tooltip": ""
+                            "tooltip": "",
+                            "use": ""
                           },
                           "value": ""
                         }

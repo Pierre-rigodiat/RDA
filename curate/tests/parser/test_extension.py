@@ -17,7 +17,7 @@ class ParserCreateExtensionTestSuite(TestCase):
         extension_data = join('curate', 'tests', 'data', 'parser', 'extension')
         self.extension_data_handler = DataHandler(extension_data)
 
-        # self.maxDiff = None
+        self.maxDiff = None
 
         engine = import_module(settings.SESSION_ENGINE)
         store = engine.SessionStore()
@@ -197,7 +197,7 @@ class ParserReloadExtensionTestSuite(TestCase):
         store = engine.SessionStore()
 
         # Session dictionary update
-        store['curate_edit'] = False  # Data edition
+        store['curate_edit'] = True  # Data edition
         store['nb_html_tags'] = 0
         store['mapTagID'] = {}
         store['nbChoicesID'] = 0
@@ -281,22 +281,21 @@ class ParserReloadExtensionTestSuite(TestCase):
         xsd_files = join('choice', 'basic')
         xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension',
-                                     namespaces=self.request.session['namespaces'])[0]
+                                     namespaces=self.session['namespaces'])[0]
 
         xml_tree = self.extension_data_handler.get_xml(xsd_files)
         xml_data = etree.tostring(xml_tree)
+
+        xml_value = xml_tree.xpath('/test2', namespaces=self.session['namespaces'])[0].text
 
         clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
         etree.set_default_parser(parser=clean_parser)
 
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
-        # test
 
         result_string = generate_extension(self.request, xsd_element, xsd_tree, full_path='/test2',
-                                           default_value='/', edit_data_tree=edit_data_tree)
-        # print result_string
-        # result_string = '<div>' + result_string + '</div>'
+                                           default_value=xml_value, edit_data_tree=edit_data_tree)
 
         expected_dict = self.extension_data_handler.get_json(xsd_files+'.reload')
 
@@ -306,17 +305,19 @@ class ParserReloadExtensionTestSuite(TestCase):
         xsd_files = join('sequence', 'basic')
         xsd_tree = self.extension_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:element/xs:complexType/xs:complexContent/xs:extension',
-                                     namespaces=self.request.session['namespaces'])[0]
+                                     namespaces=self.session['namespaces'])[0]
 
         xml_tree = self.extension_data_handler.get_xml(xsd_files)
         xml_data = etree.tostring(xml_tree)
+
+        xml_value = ''
 
         clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
         result_string = generate_extension(self.request, xsd_element, xsd_tree, full_path='/root[1]',
-                                           edit_data_tree=edit_data_tree)
+                                           default_value=xml_value, edit_data_tree=edit_data_tree)
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
 
@@ -335,10 +336,13 @@ class ParserReloadExtensionTestSuite(TestCase):
 
         clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
         etree.set_default_parser(parser=clean_parser)
+
+        xml_value = xml_tree.xpath('/root[1]', namespaces=self.session['namespaces'])[0].text
+
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
         result_string = generate_extension(self.request, xsd_element, xsd_tree, full_path='/root[1]',
-                                           edit_data_tree=edit_data_tree)
+                                           default_value=xml_value, edit_data_tree=edit_data_tree)
         # print result_string
         # result_string = '<div>' + result_string + '</div>'
 
