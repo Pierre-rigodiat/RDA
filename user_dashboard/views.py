@@ -311,47 +311,53 @@ def dashboard_files(request):
 #
 ################################################################################
 @login_required(login_url='/login')
-def dashboard_detail_record(request) :
+def dashboard_detail_record(request):
     template = loader.get_template('dashboard/my_dashboard_detail_record.html')
-    result_id = request.GET['id']
-    type = request.GET['type']
+    record_id = request.GET['id']
+    record_type = request.GET['type']
 
-    if type=='form':
-        form_data = FormData.objects.get(pk=ObjectId(result_id))
-        xmlString = form_data.xml_data
+    if record_type == 'form':
+        form_data = FormData.objects.get(pk=ObjectId(record_id))
+        xml_string = form_data.xml_data
         title = form_data.name
-        schemaId = form_data.template
-    elif type=='record':
-        xmlString = XMLdata.get(result_id)
-        title = xmlString['title']
-        schemaId = xmlString['schema']
-        xmlString = xmltodict.unparse(xmlString['content']).encode('utf-8')
+        schema_id = form_data.template
+    elif record_type == 'record':
+        xml_string = XMLdata.get(record_id)
+        title = xml_string['title']
+        schema_id = xml_string['schema']
+        xml_string = xmltodict.unparse(xml_string['content']).encode('utf-8')
+    else:
+        raise Exception("Unknow record type: " + str(record_type))
 
-
-    xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
-    xslt = etree.parse(xsltPath)
+    xslt_path = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
+    xslt = etree.parse(xslt_path)
     transform = etree.XSLT(xslt)
 
-    #Check if a custom detailed result XSLT has to be used
+    dom = ''
+
+    # Check if a custom detailed result XSLT has to be used
     try:
-        if (xmlString != ""):
-            dom = etree.fromstring(str(xmlString))
-            schema = Template.objects.get(pk=schemaId)
+        if xml_string != "":
+            dom = etree.fromstring(str(xml_string))
+            schema = Template.objects.get(pk=schema_id)
+
             if schema.ResultXsltDetailed:
-                shortXslt = etree.parse(BytesIO(schema.ResultXsltDetailed.content.encode('utf-8')))
-                shortTransform = etree.XSLT(shortXslt)
-                newdom = shortTransform(dom)
+                short_xslt = etree.parse(BytesIO(schema.ResultXsltDetailed.content.encode('utf-8')))
+                short_transform = etree.XSLT(short_xslt)
+                newdom = short_transform(dom)
             else:
                 newdom = transform(dom)
-    except Exception, e:
-        #We use the default one
+        else:
+            newdom = 'No data has been saved to this form yet.'
+    except Exception as e:
+        # We use the default one
         newdom = transform(dom)
 
     result = str(newdom)
     context = RequestContext(request, {
         'XMLHolder': result,
         'title': title,
-        'type': type
+        'type': record_type
     })
 
     return HttpResponse(template.render(context))
