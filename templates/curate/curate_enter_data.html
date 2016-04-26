@@ -47,8 +47,10 @@
 {% block content %}
 <div class="toolbar">
 	<div class="btn-group pull-right">
-		<button class="btn clear-fields"><i class="icon-file"></i> Clear Fields </button>    	
+		<button class="btn clear-fields"><i class="icon-file"></i> Clear Fields </button>
+        {% if not edit %}
     	<button class="btn save-form"><i class="icon-hdd"></i> Save Form </button>
+        {% endif %}
     	<button class="btn download"><i class="icon-arrow-down"></i> Download </button>
 	</div>
     <br/><br/>

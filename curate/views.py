@@ -111,6 +111,8 @@ def curate_edit_data(request):
             previous_form.delete()
         form_data = FormData(user=str(request.user.id), template=xml_data['schema'], name=xml_data['title'], xml_data=xml_content, xml_data_id=xml_data_id).save()
         request.session['curateFormData'] = str(form_data.id)
+        if 'form_id' in request.session:
+            del request.session['form_id']
         if 'formString' in request.session:
             del request.session['formString']
         if 'xmlDocTree' in request.session:
@@ -175,8 +177,8 @@ def curate_enter_data(request):
     try:
         context = RequestContext(request, {})
         if 'id' in request.GET:
-            context = RequestContext(request, {})
             curate_edit_data(request)
+            context = RequestContext(request, {'edit': True})
         elif 'template' in request.GET:
             context = RequestContext(request, {'template_name': request.GET['template']})
             curate_from_schema(request)
@@ -214,8 +216,15 @@ def curate_view_data(request):
         form_data.name += ".xml"
     form_name = form_data.name
 
+    # detect if new document, or editing
+    if form_data.xml_data_id is not None:
+        edit = True
+    else:
+        edit = False
+
     context = RequestContext(request, {
         'form_save': SaveDataForm({"title": form_name}),
+        'edit': edit,
     })
     if 'currentTemplateID' not in request.session:
         return redirect('/curate/select-template')
