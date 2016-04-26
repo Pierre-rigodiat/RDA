@@ -30,16 +30,14 @@
 
 	<div class="width">
 
+    <ul class="nav nav-tabs">
+        {% if not ispublished %} <li class="active"> {%else%} <li> {% endif%} <a href="/dashboard/records">All</a></li>
+        {% if ispublished == "true" %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/records?ispublished=true">Published</a></li>
+        {% if ispublished == "false" %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/records?ispublished=false">Not Published</a></li>
+    </ul>
+
 {% if XMLdatas%}
 {% with canEdit=request.user|has_perm:'curate.curate_edit_document' canDelete=request.user|has_perm:'curate.curate_delete_document' %}
-
-
-
-           <ul class="nav nav-tabs">
-                {% if not ispublished %} <li class="active"> {%else%} <li> {% endif%} <a href="/dashboard/records">All</a></li>
-                {% if ispublished == "true" %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/records?ispublished=true">Published</a></li>
-                {% if ispublished == "false" %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/records?ispublished=false">Not Published</a></li>
-            </ul>
 
         <table class="data-table">
             <tr>
