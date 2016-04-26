@@ -107,6 +107,7 @@ CUSTOM_COMPOSE = 'Composer'
 CURATE_MIN_TREE = True
 CURATE_COLLAPSE = True
 AUTO_KEY_KEYREF = True
+IMPLICIT_EXTENSION_BASE = False
 
 TEMPLATE_DIRS = [
     os.path.join(BASE_DIR, 'templates')

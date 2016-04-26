@@ -9,7 +9,7 @@ from curate.models import SchemaElement
 from curate.renderer.list import ListRenderer
 from mgi.exceptions import MDCSError
 from mgi.models import FormData, Module, Template
-from mgi.settings import CURATE_MIN_TREE, CURATE_COLLAPSE, AUTO_KEY_KEYREF
+from mgi.settings import CURATE_MIN_TREE, CURATE_COLLAPSE, AUTO_KEY_KEYREF, IMPLICIT_EXTENSION_BASE
 from bson.objectid import ObjectId
 from mgi import common
 from lxml import etree
@@ -1992,8 +1992,11 @@ def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=
         # the type has some possible extensions
         if len(extensions) > 0:
             # add the base type that can be rendered alone without extensions
-            extensions.insert(0, element)
-            choice_content = generate_choice_extensions(request, extensions, xml_tree, None, full_path, edit_data_tree,
+            if IMPLICIT_EXTENSION_BASE:
+                extensions.insert(0, element)
+
+            choice_content = generate_choice_extensions(request, extensions, xml_tree, None, full_path,
+                                                        edit_data_tree,
                                                         schema_location)
             form_string += choice_content[0]
             db_element['children'].append(choice_content[1])
