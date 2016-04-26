@@ -109,7 +109,14 @@ def curate_edit_data(request):
         for previous_form in previous_forms:
             # TODO: check if need to delete all SchemaElements
             previous_form.delete()
-        form_data = FormData(user=str(request.user.id), template=xml_data['schema'], name=xml_data['title'], xml_data=xml_content, xml_data_id=xml_data_id).save()
+        form_data = FormData(
+            user=str(request.user.id),
+            template=xml_data['schema'],
+            name=xml_data['title'],
+            xml_data=xml_content,
+            xml_data_id=xml_data_id
+        )
+        form_data.save()
         request.session['curateFormData'] = str(form_data.id)
         if 'form_id' in request.session:
             del request.session['form_id']
@@ -145,9 +152,10 @@ def curate_from_schema(request):
             template_id = TemplateVersion.objects().get(pk=templates[0].templateVersion).current
             request.session['currentTemplateID'] = template_id
             
-            form_data = FormData(user=str(request.user.id), template=template_id, name=schema_name).save()
-            request.session['curateFormData'] = str(form_data.id)
-            
+            form_data = FormData(user=str(request.user.id), template=template_id, name=schema_name)
+            form_data.save()
+
+            request.session['curateFormData'] = str(form_data.pk)
             request.session['curate_edit'] = False            
             
             if 'formString' in request.session:
@@ -155,7 +163,10 @@ def curate_from_schema(request):
             if 'xmlDocTree' in request.session:
                 del request.session['xmlDocTree']
         else:
-            raise MDCSError("The selection of template by name can't be used if the MDCS contain more than one template with the same name.")
+            error_message = "The selection of template by name can't be used if the MDCS contain more than one "
+            error_message += "template with the same name."
+
+            raise MDCSError(error_message)
     except:
         raise MDCSError("The template you are looking for doesn't exist.")
     
@@ -322,8 +333,8 @@ def start_curate(request):
                 request.session['curate_edit'] = False
                 new_form = NewForm(request.POST)
                 try:
-                    form_data = FormData(user=str(user), template=template_id, name=new_form.data['document_name'],
-                                         xml_data=None).save()
+                    form_data = FormData(user=str(user), template=template_id, name=new_form.data['document_name'])
+                    form_data.save()
                 except:
                     return HttpResponseBadRequest(
                         'Unable to create the form. A form with the same name may already exist.')
