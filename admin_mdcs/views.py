@@ -935,8 +935,8 @@ def modules(request):
             request.session['moduleTemplateID'] = object_id
             request.session['moduleTemplateContent'] = db_object.content
 
-            request.session['moduleNamespaces'] = common.get_namespaces(BytesIO(str(db_object.content)))
-            for prefix, url in request.session['moduleNamespaces'].items():
+            namespaces = common.get_namespaces(BytesIO(str(db_object.content)))
+            for prefix, url in namespaces.iteritems():
                 if url == SCHEMA_NAMESPACE:
                     request.session['moduleDefaultPrefix'] = prefix
                     break

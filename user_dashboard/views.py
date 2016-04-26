@@ -16,6 +16,8 @@
 
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
+
+from mgi.common import SCHEMA_NAMESPACE
 from mgi.settings import BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI
 from utils.BLOBHoster.BLOBHosterFactory import BLOBHosterFactory
 from django.shortcuts import render
@@ -250,9 +252,9 @@ def dashboard_modules(request):
             request.session['moduleTemplateID'] = object_id
             request.session['moduleTemplateContent'] = db_object.content
 
-            request.session['moduleNamespaces'] = common.get_namespaces(BytesIO(str(db_object.content)))
-            for prefix, url in request.session['moduleNamespaces'].items():
-                if url == "{http://www.w3.org/2001/XMLSchema}":
+            namespaces = common.get_namespaces(BytesIO(str(db_object.content)))
+            for prefix, url in namespaces.iteritems():
+                if url == SCHEMA_NAMESPACE:
                     request.session['moduleDefaultPrefix'] = prefix
                     break
 
