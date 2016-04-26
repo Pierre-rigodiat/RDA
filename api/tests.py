@@ -14,7 +14,7 @@
 #
 ################################################################################
 
-from testing.models import TokenTest, OPERATION_GET, OPERATION_DELETE, TemplateVersion
+from testing.models import TokenTest, OPERATION_GET, OPERATION_DELETE, OPERATION_POST, TemplateVersion, XMLDATA_VALID_CONTENT, FAKE_ID, XMLdata
 
 class tests_token(TokenTest):
     def test_select_all_schema_admin(self):
@@ -194,3 +194,54 @@ class tests_token(TokenTest):
         templateVersion1.save()
         r = self.doRequest(self.get_token_admin(), "/rest/templates/delete", '', {'id':str(template1.id)}, OPERATION_DELETE)
         self.isStatusBadRequest(r)
+
+    def test_curate_error_serializer_admin(self):
+        data = {'content': '<test> test xml </test>'}
+        r = self.doRequest(self.get_token_admin(), "/rest/curate", data, '', OPERATION_POST)
+        self.isStatusBadRequest(r)
+
+    def test_curate_error_schema_admin(self):
+        data = {'title': 'test', 'schema': FAKE_ID, 'content': '<test> test xml </test>'}
+        r = self.doRequest(self.get_token_admin(), "/rest/curate", data, '', OPERATION_POST)
+        self.isStatusBadRequest(r)
+
+    def test_curate_error_schema_deleted_admin(self):
+        templateVersion1 = self.createTemplateVersion()
+        template1 = self.createTemplateWithTemplateVersion(str(templateVersion1.id))
+        templateVersion1.deletedVersions.append(str(template1.id))
+        templateVersion1.save()
+        data = {'title': 'test', 'schema':str(template1.id), 'content': '<test> test xml </test>'}
+        r = self.doRequest(self.get_token_admin(), "/rest/curate", data, '', OPERATION_POST)
+        self.isStatusBadRequest(r)
+
+    def test_curate_schema_error_xml_syntax_admin(self):
+        templateVersion1 = self.createTemplateVersion()
+        template1 = self.createTemplateWithTemplateVersionValidContent(str(templateVersion1.id))
+        data = {'title': 'test', 'schema': str(template1.id), 'content': '<test> test xml </test>'}
+        r = self.doRequest(self.get_token_admin(), "/rest/curate", data, '', OPERATION_POST)
+        self.isStatusBadRequest(r)
+
+    def test_curate_schema_error_xml_validation_admin(self):
+        templateVersion1 = self.createTemplateVersion()
+        template1 = self.createTemplateWithTemplateVersionValidContent(str(templateVersion1.id))
+        data = {'title': 'test', 'schema': str(template1.id), 'content': XMLDATA_VALID_CONTENT + '<'}
+        r = self.doRequest(self.get_token_admin(), "/rest/curate", data, '', OPERATION_POST)
+        self.isStatusBadRequest(r)
+
+    def test_curate_schema_admin(self):
+        self.assertTrue(len(XMLdata.objects()) == 0)
+        templateVersion1 = self.createTemplateVersion()
+        template1 = self.createTemplateWithTemplateVersionValidContent(str(templateVersion1.id))
+        data = {'title': 'test', 'schema': str(template1.id), 'content': XMLDATA_VALID_CONTENT}
+        r = self.doRequest(self.get_token_admin(), "/rest/curate", data, '', OPERATION_POST)
+        self.isStatusCreated(r)
+        self.assertTrue(len(XMLdata.objects()) == 1)
+
+    def test_curate_schema_user(self):
+        self.assertTrue(len(XMLdata.objects()) == 0)
+        templateVersion1 = self.createTemplateVersion()
+        template1 = self.createTemplateWithTemplateVersionValidContent(str(templateVersion1.id))
+        data = {'title': 'test', 'schema': str(template1.id), 'content': XMLDATA_VALID_CONTENT}
+        r = self.doRequest(self.get_token_user(), "/rest/curate", data, '', OPERATION_POST)
+        self.isStatusCreated(r)
+        self.assertTrue(len(XMLdata.objects()) == 1)
