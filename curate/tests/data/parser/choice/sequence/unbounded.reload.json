@@ -1,5 +1,15 @@
 {
   "tag": "choice",
+  "options": {
+    "xpath": {
+      "xml": "/root",
+      "xsd": "/xs:schema/xs:complexType/xs:choice"
+    },
+    "max": -1,
+    "schema_location": null,
+    "min": 2
+  },
+  "value": null,
   "children": [
     {
       "tag": "choice-iter",
@@ -12,8 +22,8 @@
               "xsd": "/xs:schema/xs:complexType/xs:choice/xs:sequence[1]"
             },
             "max": 1,
-            "min": 1,
-            "schema_location": null
+            "schema_location": null,
+            "min": 1
           },
           "value": null,
           "children": [
@@ -27,12 +37,13 @@
                       "xml": "/root/id10",
                       "xsd": "/xs:schema/xs:complexType/xs:choice/xs:sequence[1]/xs:element"
                     },
-                    "max": 1,
-                    "name": "id10",
-                    "module": null,
-                    "min": 1,
                     "ns_prefix": null,
                     "xmlns": null,
+                    "name": "id10",
+                    "min": 1,
+                    "max": 1,
+                    "module": null,
+                    "label": "id10",
                     "schema_location": null
                   },
                   "value": null,
@@ -42,6 +53,11 @@
                       "children": [
                         {
                           "tag": "input",
+                          "options": {
+                            "use": "",
+                            "placeholder": "",
+                            "tooltip": ""
+                          },
                           "value": "entry2"
                         }
                       ],
@@ -62,8 +78,8 @@
               "xsd": "/xs:schema/xs:complexType/xs:choice/xs:sequence[2]"
             },
             "max": 1,
-            "min": 1,
-            "schema_location": null
+            "schema_location": null,
+            "min": 1
           },
           "value": null,
           "children": [
@@ -77,12 +93,13 @@
                       "xml": "/root/id11",
                       "xsd": "/xs:schema/xs:complexType/xs:choice/xs:sequence[2]/xs:element"
                     },
-                    "max": 1,
-                    "name": "id11",
-                    "module": null,
-                    "min": 1,
                     "ns_prefix": null,
                     "xmlns": null,
+                    "name": "id11",
+                    "min": 1,
+                    "max": 1,
+                    "module": null,
+                    "label": "id11",
                     "schema_location": null
                   },
                   "value": null,
@@ -92,6 +109,11 @@
                       "children": [
                         {
                           "tag": "input",
+                          "options": {
+                            "use": "",
+                            "placeholder": "",
+                            "tooltip": ""
+                          },
                           "value": "entry0"
                         }
                       ],
@@ -102,6 +124,277 @@
                       "children": [
                         {
                           "tag": "input",
+                          "options": {
+                            "use": "",
+                            "placeholder": "",
+                            "tooltip": ""
+                          },
+                          "value": "entry1"
+                        }
+                      ],
+                      "value": null
+                    }
+                  ]
+                }
+              ],
+              "value": null
+            }
+          ]
+        }
+      ],
+      "value": null
+    },
+    {
+      "tag": "choice-iter",
+      "children": [
+        {
+          "tag": "sequence",
+          "options": {
+            "xpath": {
+              "xml": "/root",
+              "xsd": "/xs:schema/xs:complexType/xs:choice/xs:sequence[1]"
+            },
+            "max": 1,
+            "schema_location": null,
+            "min": 1
+          },
+          "value": null,
+          "children": [
+            {
+              "tag": "sequence-iter",
+              "children": [
+                {
+                  "tag": "element",
+                  "options": {
+                    "xpath": {
+                      "xml": "/root/id10",
+                      "xsd": "/xs:schema/xs:complexType/xs:choice/xs:sequence[1]/xs:element"
+                    },
+                    "ns_prefix": null,
+                    "xmlns": null,
+                    "name": "id10",
+                    "min": 1,
+                    "max": 1,
+                    "module": null,
+                    "label": "id10",
+                    "schema_location": null
+                  },
+                  "value": null,
+                  "children": [
+                    {
+                      "tag": "elem-iter",
+                      "children": [
+                        {
+                          "tag": "input",
+                          "options": {
+                            "use": "",
+                            "placeholder": "",
+                            "tooltip": ""
+                          },
+                          "value": "entry2"
+                        }
+                      ],
+                      "value": null
+                    }
+                  ]
+                }
+              ],
+              "value": null
+            }
+          ]
+        },
+        {
+          "tag": "sequence",
+          "options": {
+            "xpath": {
+              "xml": "/root",
+              "xsd": "/xs:schema/xs:complexType/xs:choice/xs:sequence[2]"
+            },
+            "max": 1,
+            "schema_location": null,
+            "min": 1
+          },
+          "value": null,
+          "children": [
+            {
+              "tag": "sequence-iter",
+              "children": [
+                {
+                  "tag": "element",
+                  "options": {
+                    "xpath": {
+                      "xml": "/root/id11",
+                      "xsd": "/xs:schema/xs:complexType/xs:choice/xs:sequence[2]/xs:element"
+                    },
+                    "ns_prefix": null,
+                    "xmlns": null,
+                    "name": "id11",
+                    "min": 1,
+                    "max": 1,
+                    "module": null,
+                    "label": "id11",
+                    "schema_location": null
+                  },
+                  "value": null,
+                  "children": [
+                    {
+                      "tag": "elem-iter",
+                      "children": [
+                        {
+                          "tag": "input",
+                          "options": {
+                            "use": "",
+                            "placeholder": "",
+                            "tooltip": ""
+                          },
+                          "value": "entry0"
+                        }
+                      ],
+                      "value": null
+                    },
+                    {
+                      "tag": "elem-iter",
+                      "children": [
+                        {
+                          "tag": "input",
+                          "options": {
+                            "use": "",
+                            "placeholder": "",
+                            "tooltip": ""
+                          },
+                          "value": "entry1"
+                        }
+                      ],
+                      "value": null
+                    }
+                  ]
+                }
+              ],
+              "value": null
+            }
+          ]
+        }
+      ],
+      "value": null
+    },
+    {
+      "tag": "choice-iter",
+      "children": [
+        {
+          "tag": "sequence",
+          "options": {
+            "xpath": {
+              "xml": "/root",
+              "xsd": "/xs:schema/xs:complexType/xs:choice/xs:sequence[1]"
+            },
+            "max": 1,
+            "schema_location": null,
+            "min": 1
+          },
+          "value": null,
+          "children": [
+            {
+              "tag": "sequence-iter",
+              "children": [
+                {
+                  "tag": "element",
+                  "options": {
+                    "xpath": {
+                      "xml": "/root/id10",
+                      "xsd": "/xs:schema/xs:complexType/xs:choice/xs:sequence[1]/xs:element"
+                    },
+                    "ns_prefix": null,
+                    "xmlns": null,
+                    "name": "id10",
+                    "min": 1,
+                    "max": 1,
+                    "module": null,
+                    "label": "id10",
+                    "schema_location": null
+                  },
+                  "value": null,
+                  "children": [
+                    {
+                      "tag": "elem-iter",
+                      "children": [
+                        {
+                          "tag": "input",
+                          "options": {
+                            "use": "",
+                            "placeholder": "",
+                            "tooltip": ""
+                          },
+                          "value": "entry2"
+                        }
+                      ],
+                      "value": null
+                    }
+                  ]
+                }
+              ],
+              "value": null
+            }
+          ]
+        },
+        {
+          "tag": "sequence",
+          "options": {
+            "xpath": {
+              "xml": "/root",
+              "xsd": "/xs:schema/xs:complexType/xs:choice/xs:sequence[2]"
+            },
+            "max": 1,
+            "schema_location": null,
+            "min": 1
+          },
+          "value": null,
+          "children": [
+            {
+              "tag": "sequence-iter",
+              "children": [
+                {
+                  "tag": "element",
+                  "options": {
+                    "xpath": {
+                      "xml": "/root/id11",
+                      "xsd": "/xs:schema/xs:complexType/xs:choice/xs:sequence[2]/xs:element"
+                    },
+                    "ns_prefix": null,
+                    "xmlns": null,
+                    "name": "id11",
+                    "min": 1,
+                    "max": 1,
+                    "module": null,
+                    "label": "id11",
+                    "schema_location": null
+                  },
+                  "value": null,
+                  "children": [
+                    {
+                      "tag": "elem-iter",
+                      "children": [
+                        {
+                          "tag": "input",
+                          "options": {
+                            "use": "",
+                            "placeholder": "",
+                            "tooltip": ""
+                          },
+                          "value": "entry0"
+                        }
+                      ],
+                      "value": null
+                    },
+                    {
+                      "tag": "elem-iter",
+                      "children": [
+                        {
+                          "tag": "input",
+                          "options": {
+                            "use": "",
+                            "placeholder": "",
+                            "tooltip": ""
+                          },
                           "value": "entry1"
                         }
                       ],
@@ -117,15 +410,5 @@
       ],
       "value": null
     }
-  ],
-  "value": null,
-  "options": {
-    "max": -1,
-    "min": 2,
-    "xpath": {
-      "xml": "/root",
-      "xsd": "/xs:schema/xs:complexType/xs:choice"
-    },
-    "schema_location": null
-  }
+  ]
 }

@@ -13,6 +13,7 @@
             },
             "max": 1,
             "name": "id",
+            "label": "id",
             "module": null,
             "min": 1,
             "ns_prefix": null,
@@ -26,6 +27,11 @@
               "children": [
                 {
                   "tag": "input",
+                  "options": {
+                    "placeholder": "",
+                    "tooltip": "",
+                    "use": ""
+                  },
                   "value": ""
                 }
               ],

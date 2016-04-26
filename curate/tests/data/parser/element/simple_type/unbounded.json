@@ -7,6 +7,7 @@
     },
     "max": -1,
     "name": "child",
+    "label": "child",
     "module": null,
     "min": 2,
     "ns_prefix": null,
@@ -20,13 +21,18 @@
       "children": [
         {
           "tag": "simple_type",
+          "options": {
+            "name": "",
+            "ns_prefix": null,
+            "xmlns": null
+          },
           "children": [
             {
               "tag": "restriction",
               "options": {
                 "base": "xs:string"
               },
-              "value": null,
+              "value": "child0",
               "children": [
                 {
                   "tag": "enumeration",
@@ -49,13 +55,18 @@
       "children": [
         {
           "tag": "simple_type",
+          "options": {
+            "name": "",
+            "ns_prefix": null,
+            "xmlns": null
+          },
           "children": [
             {
               "tag": "restriction",
               "options": {
                 "base": "xs:string"
               },
-              "value": null,
+              "value": "child0",
               "children": [
                 {
                   "tag": "enumeration",

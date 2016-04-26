@@ -109,9 +109,10 @@ class ParserReloadSimpleContentTestSuite(TestCase):
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:simpleContent', namespaces=self.namespace)[0]
 
         xml_tree = self.simple_content_data_handler.get_xml(xsd_files)
+        xml_value = xml_tree.xpath("/root", namespaces=self.namespace)[0].text
 
         result_string = generate_simple_content(self.request, xsd_element, xsd_tree, full_path='/root',
-                                                edit_data_tree=xml_tree)
+                                                default_value=xml_value, edit_data_tree=xml_tree)
 
         expected_element = self.simple_content_data_handler.get_json(xsd_files + '.reload')
         self.assertDictEqual(result_string[1], expected_element)

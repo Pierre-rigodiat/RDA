@@ -1,5 +1,10 @@
 {
   "tag": "complex_type",
+  "options": {
+    "name": "complex",
+    "ns_prefix": null,
+    "xmlns": null
+  },
   "children": [
     {
       "tag": "sequence",
@@ -26,6 +31,7 @@
                 },
                 "max": 1,
                 "name": "child0",
+                "label": "child0",
                 "module": null,
                 "min": 1,
                 "ns_prefix": null,
@@ -39,6 +45,11 @@
                   "children": [
                     {
                       "tag": "input",
+                      "options": {
+                        "placeholder": "",
+                        "tooltip": "",
+                        "use": ""
+                      },
                       "value": "entry0"
                     }
                   ],
@@ -55,6 +66,7 @@
                 },
                 "max": 1,
                 "name": "child1",
+                "label": "child1",
                 "module": null,
                 "min": 1,
                 "ns_prefix": null,
@@ -68,6 +80,11 @@
                   "children": [
                     {
                       "tag": "input",
+                      "options": {
+                        "placeholder": "",
+                        "tooltip": "",
+                        "use": ""
+                      },
                       "value": "entry1"
                     }
                   ],
