@@ -8,6 +8,7 @@ from utils.XSDhash import XSDhash
 
 import os
 from django.utils.importlib import import_module
+
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
 MONGODB_URI = settings.MONGODB_URI
@@ -19,6 +20,11 @@ URL_TEST = "http://127.0.0.1:8000"
 OPERATION_GET = "get"
 OPERATION_POST = "post"
 OPERATION_DELETE = "delete"
+OPERATION_POST = "post"
+
+TEMPLATE_VALID_CONTENT = '<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"> <xsd:element name="root" type="test"/> <xsd:complexType name="test"> <xsd:sequence> </xsd:sequence> </xsd:complexType> </xsd:schema>'
+XMLDATA_VALID_CONTENT  = '<?xml version="1.0" encoding="utf-8"?> <root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"></root>'
+FAKE_ID = 'abcdefghijklmn'
 
 class RegressionTest(TestCase):
 
@@ -34,8 +40,12 @@ class RegressionTest(TestCase):
         hash = XSDhash.get_hash('<test>test xmldata</test>')
         return Template(title='test', filename='test', content='<test>test xmldata</test>', version=1, templateVersion=templateVersionId, hash=hash).save()
 
+    def createTemplateWithTemplateVersionValidContent(self, templateVersionId):
+        hash = XSDhash.get_hash(TEMPLATE_VALID_CONTENT)
+        return Template(title='test', filename='test', content=TEMPLATE_VALID_CONTENT, version=1, templateVersion=templateVersionId, hash=hash).save()
+
     def createTemplateVersion(self):
-        return TemplateVersion(nbVersions=1, isDeleted=False, current='abcdefghijklmn').save()
+        return TemplateVersion(nbVersions=1, isDeleted=False, current=FAKE_ID).save()
 
     def createTemplateVersionDeleted(self):
         return TemplateVersion(nbVersions=1, isDeleted=True).save()
@@ -99,6 +109,8 @@ class TokenTest(RegressionTest):
             return requests.get(URL_TEST + url, data=data, params=params, headers=headers)
         elif operation == OPERATION_DELETE:
             return requests.delete(URL_TEST + url, data=data, params=params, headers=headers)
+        elif operation == OPERATION_POST:
+            return requests.post(URL_TEST + url, data=data, params=params, headers=headers)
 
     def isStatusOK(self, r):
         if r.status_code == 200:
@@ -126,6 +138,12 @@ class TokenTest(RegressionTest):
 
     def isStatusNoContent(self, r):
         if r.status_code == 204:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+
+    def isStatusCreated(self, r):
+        if r.status_code == 201:
             self.assertTrue(True)
         else:
             self.assertTrue(False)
