@@ -246,7 +246,7 @@ class FormData(Document):
     template = StringField(required=True)
     name = name = StringField(required=True, unique_with=['user', 'template'])
     elements = DictField()
-    xml_data = StringField()
+    xml_data = StringField(default='')
     xml_data_id = StringField()
 
 
