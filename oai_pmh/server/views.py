@@ -172,14 +172,7 @@ class OAIProvider(TemplateView):
             items = []
             # If an identifier is provided, with look for its metadataformats
             if self.identifier != None:
-                #Check if the identifier pattern is OK
-                p = re.compile("%s:%s:id/(.*)" % (settings.OAI_SCHEME, settings.OAI_REPO_IDENTIFIER))
-                idMatch = p.search(self.identifier)
-                if idMatch:
-                    #If yes, we retrieve the record ID
-                    id = idMatch.group(1)
-                else:
-                    raise idDoesNotExist(self.identifier)
+                id = self.check_identifier()
                 #We retrieve the template id for this record
                 listId = []
                 listId.append(id)
@@ -188,10 +181,13 @@ class OAIProvider(TemplateView):
                     raise idDoesNotExist(self.identifier)
                 #Get metadata formats information for this template. The metadata formats must be activated
                 metadataFormats = OaiTemplMfXslt.objects(template__in=listSchemaIds, activated=True).distinct(field='myMetadataFormat')
+                #Get the template metadata format if existing
+                metadataFormatsTemplate = OaiMyMetadataFormat.objects(template__in=listSchemaIds, isTemplate=True).all()
+                if len(metadataFormatsTemplate) != 0:
+                    metadataFormats.extend(metadataFormatsTemplate)
             else:
                 #No identifier provided. We return all metadata formats available
                 metadataFormats = OaiMyMetadataFormat.objects().all()
-
             #If there is no metadata formats, we raise noMetadataFormat
             if len(metadataFormats) == 0:
                 raise noMetadataFormat
@@ -213,6 +209,7 @@ class OAIProvider(TemplateView):
         except Exception, e:
             return self.error(e.code, e.message)
 
+
 ################################################################################
 #
 # Function Name: list_identifiers(request)
@@ -227,27 +224,9 @@ class OAIProvider(TemplateView):
             #Template name
             self.template_name = 'oai_pmh/xml/list_identifiers.xml'
             query = dict()
-            #To store errors
-            date_errors = []
             items=[]
             #Handle FROM and UNTIL
-            if self.until:
-                try:
-                    endDate = datestamp.datestamp_to_datetime(self.until)
-                    query['publicationdate'] = { "$lte" : endDate}
-                except:
-                    error = 'Illegal date/time for "until" (%s)' % self.until
-                    date_errors.append(badArgument(error))
-            if self.From:
-                try:
-                    startDate = datestamp.datestamp_to_datetime(self.From)
-                    query['publicationdate'] = { "$gte" : startDate}
-                except:
-                    error = 'Illegal date/time for "from" (%s)' % self.From
-                    date_errors.append(badArgument(error))
-            #Return possible errors
-            if len(date_errors) > 0:
-                raise OAIExceptions(date_errors)
+            query = self.check_dates()
             try:
                 #Get the metadata format thanks to the prefix
                 myMetadataFormat = OaiMyMetadataFormat.objects.get(metadataPrefix=self.metadataPrefix)
@@ -313,13 +292,7 @@ class OAIProvider(TemplateView):
             #Bool if we need to transform the XML via XSLT
             hasToBeTransformed = False
             #Check if the identifier pattern is OK
-            p = re.compile("%s:%s:id/(.*)" % (settings.OAI_SCHEME, settings.OAI_REPO_IDENTIFIER))
-            idMatch = p.search(self.identifier)
-            if idMatch:
-                #If yes, we retrieve the record ID
-                id = idMatch.group(1)
-            else:
-                raise idDoesNotExist(self.identifier)
+            id = self.check_identifier()
             #Template name
             self.template_name = 'oai_pmh/xml/get_record.xml'
             query = dict()
@@ -391,26 +364,8 @@ class OAIProvider(TemplateView):
             #Template name
             self.template_name = 'oai_pmh/xml/list_records.xml'
             query = dict()
-            #To store errors
-            date_errors = []
             #Handle FROM and UNTIL
-            if self.until:
-                try:
-                    endDate = datestamp.datestamp_to_datetime(self.until)
-                    query['publicationdate'] = { "$lte" : endDate}
-                except:
-                    error = 'Illegal date/time for "until" (%s)' % self.until
-                    date_errors.append(badArgument(error))
-            if self.From:
-                try:
-                    startDate = datestamp.datestamp_to_datetime(self.From)
-                    query['publicationdate'] = { "$gte" : startDate}
-                except:
-                    error = 'Illegal date/time for "from" (%s)' % self.From
-                    date_errors.append(badArgument(error))
-            #Return possible errors
-            if len(date_errors) > 0:
-                raise OAIExceptions(date_errors)
+            query = self.check_dates()
             #Get the metadataformat for the provided prefix
             try:
                 myMetadataFormat = OaiMyMetadataFormat.objects.get(metadataPrefix=self.metadataPrefix)
@@ -534,6 +489,60 @@ class OAIProvider(TemplateView):
         if len(errors) > 0:
             raise OAIExceptions(errors)
 
+################################################################################
+#
+# Function Name: check_identifier(request)
+# Inputs:        request -
+# Outputs:       The record ID
+# Exceptions:    None
+# Description:   Check if the identifier is legal for the server
+#
+################################################################################
+    def check_identifier(self):
+        #Check if the identifier pattern is OK
+        p = re.compile("%s:%s:id/(.*)" % (settings.OAI_SCHEME, settings.OAI_REPO_IDENTIFIER))
+        idMatch = p.search(self.identifier)
+        if idMatch:
+            #If yes, we retrieve the record ID
+            id = idMatch.group(1)
+        else:
+            raise idDoesNotExist(self.identifier)
+        return id
+
+
+################################################################################
+#
+# Function Name: check_dates(request)
+# Inputs:        request -
+# Outputs:       The Query filled with dates
+# Exceptions:    None
+# Description:   Check the dates' input
+#
+################################################################################
+    def check_dates(self):
+        query = dict()
+        #To store errors
+        date_errors = []
+        #Handle FROM and UNTIL
+        if self.until:
+            try:
+                endDate = datestamp.datestamp_to_datetime(self.until)
+                query['publicationdate'] = { "$lte" : endDate}
+            except:
+                error = 'Illegal date/time for "until" (%s)' % self.until
+                date_errors.append(badArgument(error))
+        if self.From:
+            try:
+                startDate = datestamp.datestamp_to_datetime(self.From)
+                query['publicationdate'] = { "$gte" : startDate}
+            except:
+                error = 'Illegal date/time for "from" (%s)' % self.From
+                date_errors.append(badArgument(error))
+        #Return possible errors
+        if len(date_errors) > 0:
+            raise OAIExceptions(date_errors)
+
+        return query
 
 ################################################################################
 #
