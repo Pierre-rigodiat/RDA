@@ -27,8 +27,18 @@ class RegressionTest(TestCase):
 
     def createTemplate(self):
         hash = XSDhash.get_hash('<test>test xmldata</test>')
-        objectVersions = TemplateVersion(nbVersions=1, isDeleted=False).save()
+        objectVersions = self.createTemplateVersion()
         return Template(title='test', filename='test', content='<test>test xmldata</test>', version=1, templateVersion=str(objectVersions.id), hash=hash).save()
+
+    def createTemplateWithTemplateVersion(self, templateVersionId):
+        hash = XSDhash.get_hash('<test>test xmldata</test>')
+        return Template(title='test', filename='test', content='<test>test xmldata</test>', version=1, templateVersion=templateVersionId, hash=hash).save()
+
+    def createTemplateVersion(self):
+        return TemplateVersion(nbVersions=1, isDeleted=False, current='abcdefghijklmn').save()
+
+    def createTemplateVersionDeleted(self):
+        return TemplateVersion(nbVersions=1, isDeleted=True).save()
 
     def tearDown(self):
         self.clean_db()
