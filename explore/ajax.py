@@ -27,6 +27,11 @@ import json
 import copy
 import lxml.etree as etree
 
+from curate.models import SchemaElement
+from curate.parser import generate_form
+from curate.renderer import DefaultRenderer
+from curate.renderer.checkbox import CheckboxRenderer
+from curate.renderer.list import ListRenderer
 from mgi.common import SCHEMA_NAMESPACE, LXML_SCHEMA_NAMESPACE
 from mgi.models import Template, QueryResults, SavedQuery, XMLdata, Instance, TemplateVersion
 from mgi import common
@@ -253,9 +258,9 @@ def generateSequence(request, element, fullPath, xmlTree, choiceInfo=None):
     
     if choiceInfo:
         if (choiceInfo.counter > 0):
-            formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" class=\"notchosen\">"
+            formString += "<ul id=\"" + choiceInfo.choice_id + "-" + str(choiceInfo.counter) + "\" class=\"notchosen\">"
         else:
-            formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" >"
+            formString += "<ul id=\"" + choiceInfo.choice_id + "-" + str(choiceInfo.counter) + "\" >"
     else:
         formString += "<ul>"
     
@@ -300,10 +305,10 @@ def generateChoice(request, element, fullPath, xmlTree, choiceInfo=None):
     removeAnnotations(element)
     
     if choiceInfo:
-        if (choiceInfo.counter > 0):
-            formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" class=\"notchosen\">"
+        if choiceInfo.counter > 0:
+            formString += "<ul id=\"" + choiceInfo.choice_id + "-" + str(choiceInfo.counter) + "\" class=\"notchosen\">"
         else:
-            formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" >"
+            formString += "<ul id=\"" + choiceInfo.choice_id + "-" + str(choiceInfo.counter) + "\" >"
     else:
         formString += "<ul>"
     
@@ -336,13 +341,13 @@ def generateChoice(request, element, fullPath, xmlTree, choiceInfo=None):
     
     for (counter, choiceChild) in enumerate(list(element)):
         if choiceChild.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
-            formString += generateElement(request, choiceChild, fullPath, xmlTree, common.ChoiceInfo(chooseIDStr,counter))
+            formString += generateElement(request, choiceChild, fullPath, xmlTree, common.ChoiceInfo(counter, chooseIDStr))
         elif choiceChild.tag == "{0}group".format(LXML_SCHEMA_NAMESPACE):
             pass
         elif choiceChild.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE):
             pass
         elif choiceChild.tag == "{0}sequence".format(LXML_SCHEMA_NAMESPACE):
-            formString += generateSequence(request, choiceChild, fullPath, xmlTree, common.ChoiceInfo(chooseIDStr,counter))
+            formString += generateSequence(request, choiceChild, fullPath, xmlTree, common.ChoiceInfo(counter, chooseIDStr))
         elif choiceChild.tag == "{0}any".format(LXML_SCHEMA_NAMESPACE):
             pass
 
@@ -588,10 +593,10 @@ def generateElement(request, element, fullPath, xmlTree, choiceInfo=None):
         textCapitalized = element.attrib.get('name')
         
     if choiceInfo:
-        if (choiceInfo.counter > 0):
-            formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" class=\"notchosen\">"
+        if choiceInfo.counter > 0:
+            formString += "<ul id=\"" + choiceInfo.choice_id + "-" + str(choiceInfo.counter) + "\" class=\"notchosen\">"
         else:
-            formString += "<ul id=\"" + choiceInfo.chooseIDStr + "-" + str(choiceInfo.counter) + "\" >"
+            formString += "<ul id=\"" + choiceInfo.choice_id + "-" + str(choiceInfo.counter) + "\" >"
     else:
         formString += "<ul>"
 
@@ -599,7 +604,7 @@ def generateElement(request, element, fullPath, xmlTree, choiceInfo=None):
     if 'type' not in element.attrib:           
         # if tag not closed:  <element/>
         if len(list(element)) > 0 :
-            if (element[0].tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE)):
+            if element[0].tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
                 formString += generateComplexType(request, element[0], textCapitalized, fullPath, xmlTree)
             else:                     
                 formString += generateSimpleType(request, element, textCapitalized, element[0], fullPath, xmlTree)
@@ -634,8 +639,9 @@ def generateElement(request, element, fullPath, xmlTree, choiceInfo=None):
     formString += "</ul>"
     return formString
 
+
 ################################################################################
-# 
+#
 # Function Name: generateForm(request)
 # Inputs:        request -
 # Outputs:       rendered HTMl form
@@ -644,34 +650,35 @@ def generateElement(request, element, fullPath, xmlTree, choiceInfo=None):
 #
 ################################################################################
 def generateForm(request):
-    print 'BEGIN def generateForm(request)'    
+    print 'BEGIN def generateForm(request)'
 
     xmlDocTreeStr = request.session['xmlDocTreeExplore']
     xmlDocTree = etree.fromstring(xmlDocTreeStr)
-    
+
     if 'mapTagIDElementInfoExplore' in request.session:
-        del request.session['mapTagIDElementInfoExplore']    
+        del request.session['mapTagIDElementInfoExplore']
     if 'mapEnumIDChoicesExplore' in request.session:
         del request.session['mapEnumIDChoicesExplore']
     request.session['mapTagIDElementInfoExplore'] = dict()
     request.session['mapEnumIDChoicesExplore'] = dict()
     request.session['nbChoicesIDExplore'] = '0'
-    
-    formString = ""   
+
+    formString = ""
 
     elements = xmlDocTree.findall("./{0}element".format(LXML_SCHEMA_NAMESPACE))
 
     try:
         if len(elements) == 1:
-            formString += generateElement(request, elements[0], "", xmlDocTree)    
+            formString += generateElement(request, elements[0], "", xmlDocTree)
         elif len(elements) > 1:
             formString += generateChoice(request, elements, "", xmlDocTree)
     except Exception, e:
-        formString = "UNSUPPORTED ELEMENT FOUND (" + e.message + ")" 
-        
+        formString = "UNSUPPORTED ELEMENT FOUND (" + e.message + ")"
+
     print 'END def generateForm(request)'
 
     return formString
+
 
 ################################################################################
 # 
@@ -684,12 +691,11 @@ def generateForm(request):
 ################################################################################
 def generate_xsd_tree_for_querying_data(request): 
     print 'BEGIN def generateXSDTreeForQueryingData(request)'
-    
+
     if 'formStringExplore' in request.session:
-        formString = request.session['formStringExplore']  
+        formString = request.session['formStringExplore']
     else:
         formString = ''
-    
     if 'xmlDocTreeExplore' in request.session:
         xmlDocTreeStr = request.session['xmlDocTreeExplore'] 
     else:
@@ -707,11 +713,24 @@ def generate_xsd_tree_for_querying_data(request):
     
     if xmlDocTreeStr == "":
         setCurrentTemplate(request, templateID)        
-    if (formString == ""):
+
+
+    if formString == "":
         formString = "<form id=\"dataQueryForm\" name=\"xsdForm\">"
-        formString += generateForm(request)        
-        formString += "</form>"        
- 
+        formString += generateForm(request)
+        # try:
+        #     root_element_id = generate_form(request, xmlDocTreeStr)
+        #     root_element = SchemaElement.objects.get(pk=root_element_id)
+        #
+        #     renderer = CheckboxRenderer(root_element, request)
+        #     html_form = renderer.render()
+        # except Exception as e:
+        #     renderer = DefaultRenderer(None, {})
+        #     html_form = renderer._render_form_error(e.message)
+        # formString += html_form
+
+    formString += "</form>"
+
     print 'END def generateXSDTreeForQueryingData(request)'
     response_dict = {'xsdForm': formString}
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')

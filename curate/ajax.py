@@ -275,7 +275,24 @@ def generate_xsd_form(request):
         if 'form_id' in request.session:
             root_element_id = request.session['form_id']
         else:  # If this is a new form, generate it and store the root ID
-            root_element_id = generate_form(request)
+            # get the xsd tree when going back and forth with review step
+            if 'xmlDocTree' in request.session:
+                xsd_doc_data = request.session['xmlDocTree']
+            else:
+                template_id = request.session['currentTemplateID']
+                template_object = Template.objects.get(pk=template_id)
+                xsd_doc_data = template_object.content
+
+            # get form data from the database (empty one or existing one)
+            form_data_id = request.session['curateFormData']
+            form_data = FormData.objects.get(pk=ObjectId(form_data_id))
+
+            if form_data.xml_data is not None:
+                xml_doc_data = form_data.xml_data
+            else:
+                xml_doc_data = None
+
+            root_element_id = generate_form(request, xsd_doc_data, xml_doc_data)
             request.session['form_id'] = str(root_element_id)
 
         root_element = SchemaElement.objects.get(pk=root_element_id)

@@ -667,7 +667,7 @@ def get_extensions(xml_doc_tree, base_type_name):
 # Part II: Schema parsing
 ##################################################
 
-def generate_form(request):
+def generate_form(request, xsd_doc_data, xml_doc_data=None):
     """Renders HTMl form for display.
 
     Parameters:
@@ -677,18 +677,10 @@ def generate_form(request):
         rendered HTMl form
     """
 
-    # get the xsd tree when going back and forth with review step
-    if 'xmlDocTree' in request.session:
-        xml_doc_data = request.session['xmlDocTree']
-    else:
-        template_id = request.session['currentTemplateID']
-        template_object = Template.objects.get(pk=template_id)
-        xml_doc_data = template_object.content
-
     request.session['implicit_extension'] = True
 
     # flatten the includes
-    flattener = XSDFlattenerURL(xml_doc_data)
+    flattener = XSDFlattenerURL(xsd_doc_data)
     xml_doc_tree_str = flattener.get_flat()
     xml_doc_tree = etree.parse(BytesIO(xml_doc_tree_str.encode('utf-8')))
 
@@ -701,22 +693,18 @@ def generate_form(request):
         del request.session['keyrefs']
     request.session['keyrefs'] = {}
 
-    # get form data from the database (empty one or existing one)
-    form_data_id = request.session['curateFormData']
-    form_data = FormData.objects.get(pk=ObjectId(form_data_id))
-
     # if editing, get the XML data to fill the form
     edit_data_tree = None
     if request.session['curate_edit']:
         # build the tree from data
         # transform unicode to str to support XML declaration
-        if form_data.xml_data is not None:
+        if xml_doc_data is not None:
             # Load a parser able to clean the XML from blanks, comments and processing instructions
             clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
             # set the parser
             etree.set_default_parser(parser=clean_parser)
             # load the XML tree from the text
-            edit_data_tree = etree.XML(str(form_data.xml_data.encode('utf-8')))
+            edit_data_tree = etree.XML(str(xml_doc_data.encode('utf-8')))
         else:  # no data found, not editing
             request.session['curate_edit'] = False
 
