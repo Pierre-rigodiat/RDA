@@ -4,20 +4,24 @@ import sys
 
 if __name__ == "__main__":
 
-    # debug pycharm
-    if 'manage.py' not in sys.argv:
+    if str(sys.argv[0]).endswith('manage.py'):
+        if 'runserver' in sys.argv:
+            if '-t' in sys.argv:
+                #TODO delete -t from sys.argv
+                index = sys.argv.index('-t')
+                sys.argv = sys.argv[:index] + sys.argv[index + 1:]
+                os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mgi.settings_test")
+            elif '-p' in sys.argv:
+                #TODO delete -p from sys.argv
+                os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mgi.settings_production")
+            else:
+                os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mgi.settings")
+        else:
+            os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mgi.settings_test")
+    else:
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mgi.settings_test")
 
-    elif 'test' not in sys.argv and '-t' not in sys.argv and '-p' not in sys.argv:
-        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mgi.settings")
-
-    elif '-t' in sys.argv or 'test' in sys.argv :
-        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mgi.settings_test")
-        if '-t' in sys.argv:
-            sys.argv = sys.argv[:-1]
-    #elif sys.argv[2] == '-p':
-    #    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mgi.settings_production")
-    #    sys.argv = sys.argv[:-1]
+    print 'loading settings at...:' + os.environ.get("DJANGO_SETTINGS_MODULE")
 
     from django.core.management import execute_from_command_line
     execute_from_command_line(sys.argv)
