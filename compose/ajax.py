@@ -299,7 +299,7 @@ def save_template(request):
         return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
     # validate the schema
-    error = validate_xml_schema(xmlTree)
+    error = validate_xml_schema(xml_tree)
 
     if error is not None:
         response_dict['errors'] = 'This is not a valid XML schema.' + error.replace("'","")
