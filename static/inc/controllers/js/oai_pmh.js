@@ -1148,8 +1148,8 @@ displayAddSet = function()
     clearAddSet();
     $( "#dialog-add-set" ).dialog({
       modal: true,
-      width: 550,
-      height: 485,
+      width: 720,
+      height: 625,
       buttons:
       [
       {
@@ -1283,8 +1283,8 @@ editSet = function(setId)
     $(function() {
         $( "#dialog-set-edit" ).dialog({
           modal: true,
-          width: 550,
-          height: 492,
+          width: 720,
+          height: 650,
           buttons:
               [
                {

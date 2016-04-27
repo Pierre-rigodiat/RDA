@@ -32,3 +32,5 @@ class OAIPMHConfig(AppConfig):
         tasks.init_harvest()
         #Load metadata prefixes
         discover.load_metadata_prefixes()
+        #Load sets
+        discover.load_sets()
