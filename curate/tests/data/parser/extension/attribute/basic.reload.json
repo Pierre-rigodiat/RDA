@@ -26,7 +26,8 @@
               "tag": "input",
               "options": {
                 "placeholder": "",
-                "tooltip": ""
+                "tooltip": "",
+                "use": ""
               },
               "value": "attr0"
             }
@@ -37,7 +38,7 @@
     },
     {
       "tag": "input",
-      "value": ""
+      "value": "entry0"
     }
   ],
   "value": null

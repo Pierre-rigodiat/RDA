@@ -26,6 +26,7 @@
               "tag": "input",
               "options": {
                 "placeholder": "",
+                "use": "",
                 "tooltip": ""
               },
               "value": ""

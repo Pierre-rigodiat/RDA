@@ -1,13 +1,18 @@
 {
   "tag": "simple_type",
   "value": null,
+  "options": {
+    "name": "simple",
+    "ns_prefix": null,
+    "xmlns": null
+  },
   "children": [
     {
       "tag": "restriction",
       "options": {
         "base": "xs:string"
       },
-      "value": null,
+      "value": "child_0",
       "children": [
         {
           "tag": "enumeration",

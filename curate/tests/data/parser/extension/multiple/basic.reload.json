@@ -29,9 +29,10 @@
                   "tag": "input",
                   "options": {
                     "placeholder": "",
-                    "tooltip": ""
+                    "tooltip": "",
+                    "use": ""
                   },
-                  "value": ""
+                  "value": "attr0"
                 }
               ],
               "value": null
@@ -79,7 +80,8 @@
                           "tag": "input",
                           "options": {
                             "placeholder": "",
-                            "tooltip": ""
+                            "tooltip": "",
+                            "use": ""
                           },
                           "value": "entry0"
                         }
@@ -113,7 +115,8 @@
                           "tag": "input",
                           "options": {
                             "placeholder": "",
-                            "tooltip": ""
+                            "tooltip": "",
+                            "use": ""
                           },
                           "value": "entry1"
                         }
@@ -168,7 +171,8 @@
                           "tag": "input",
                           "options": {
                             "placeholder": "",
-                            "tooltip": ""
+                            "tooltip": "",
+                            "use": ""
                           },
                           "value": "entry2"
                         }
@@ -202,7 +206,8 @@
                           "tag": "input",
                           "options": {
                             "placeholder": "",
-                            "tooltip": ""
+                            "tooltip": "",
+                            "use": ""
                           },
                           "value": "entry3"
                         }

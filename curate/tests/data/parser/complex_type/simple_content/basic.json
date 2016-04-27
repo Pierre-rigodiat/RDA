@@ -1,5 +1,10 @@
 {
   "tag": "complex_type",
+  "options": {
+    "name": "complex",
+    "ns_prefix": null,
+    "xmlns": null
+  },
   "children": [
     {
       "tag": "simple_content",
@@ -16,6 +21,7 @@
                 },
                 "max": 1,
                 "name": "attr0",
+                "label": "attr0",
                 "module": null,
                 "min": 1,
                 "ns_prefix": null,
@@ -29,6 +35,11 @@
                   "children": [
                     {
                       "tag": "input",
+                      "options": {
+                        "placeholder": "",
+                        "tooltip": "",
+                        "use": ""
+                      },
                       "value": ""
                     }
                   ],

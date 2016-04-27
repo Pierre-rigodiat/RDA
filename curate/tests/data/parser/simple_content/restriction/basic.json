@@ -7,7 +7,7 @@
             "options": {
                 "base": "element"
             },
-            "value": null,
+            "value": "child0",
             "children": [
                 {
                     "tag": "enumeration",

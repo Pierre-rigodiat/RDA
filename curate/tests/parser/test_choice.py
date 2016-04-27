@@ -373,7 +373,9 @@ class ParserReloadChoiceTestSuite(TestCase):
         # self.assertTrue(are_equals(result_html, expected_html))
 
     def test_reload_sequence_unbounded(self):
-        # fixme correct the bug
+        # fixme reload sequence unbounded has a bug
+        # fixme choice iter and inner element repeated
+
         xsd_files = join('sequence', 'unbounded')
         xsd_tree = self.choice_data_handler.get_xsd(xsd_files)
         xsd_element = xsd_tree.xpath('/xs:schema/xs:complexType/xs:choice',
@@ -396,14 +398,9 @@ class ParserReloadChoiceTestSuite(TestCase):
 
         self.assertDictEqual(result_string[1], expected_element)
 
-        # result_html = etree.fromstring(result_string[0])
-        # expected_html = self.choice_data_handler.get_html(xsd_files + '.reload')
-        #
-        # self.assertTrue(are_equals(result_html, expected_html))
-
-        # TODO implement later
-        # def test_reload_any_basic(self):
-        #     pass
-        #
-        # def test_reload_any_unbounded(self):
-        #     pass
+    # TODO implement later
+    # def test_reload_any_basic(self):
+    #     pass
+    #
+    # def test_reload_any_unbounded(self):
+    #     pass
