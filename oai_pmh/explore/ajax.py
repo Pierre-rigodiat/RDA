@@ -67,7 +67,7 @@ def get_results_by_instance_keyword(request):
     instance = Instance(name="Local", protocol=protocol, address=request.META['REMOTE_ADDR'], port=request.META['SERVER_PORT'], access_token="token", refresh_token="token")
     json_instances.append(instance.to_json())
     request.session['instancesExplore'] = json_instances
-    sessionName = "resultsExplore" + instance['name']
+    sessionName = "resultsExploreOaiPMh" + instance['name']
 
 
     try:
@@ -157,9 +157,6 @@ def get_results_by_instance_keyword(request):
         if not onlySuggestions:
             template = loader.get_template('oai_pmh/explore/explore_result_keyword.html')
             resultString+= template.render(context)
-            # result_json = {}
-            # result_json['resultString'] = resultString
-
 
     request.session[sessionName] = results
     print 'END def getResultsKeyword(request)'
