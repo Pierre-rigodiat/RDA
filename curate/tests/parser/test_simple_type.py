@@ -60,7 +60,6 @@ class ParserCreateSimpleTypeTestSuite(TestCase):
         xsd_element = xsd_tree.xpath('/xs:schema/xs:simpleType', namespaces=self.request.session['namespaces'])[0]
 
         result_string = generate_simple_type(self.request, xsd_element, xsd_tree, full_path='')
-        # print result_string
 
         expected_dict = self.simple_type_data_handler.get_json(xsd_files)
         self.assertDictEqual(result_string[1], expected_dict)
@@ -124,22 +123,20 @@ class ParserReloadSimpleTypeTestSuite(TestCase):
         xml_tree = self.simple_type_data_handler.get_xml(xsd_files)
         xml_data = etree.tostring(xml_tree)
 
+        xml_value = xml_tree.xpath("/root", namespaces=self.request.session['namespaces'])[0].text
+
         clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
         etree.set_default_parser(parser=clean_parser)
         # load the XML tree from the text
         edit_data_tree = etree.XML(str(xml_data.encode('utf-8')))
+
         result_string = generate_simple_type(self.request, xsd_element, xsd_tree, full_path='/root',
-                                             edit_data_tree=edit_data_tree)
+                                             default_value=xml_value, edit_data_tree=edit_data_tree)
         # print result_string
 
         expected_dict = self.simple_type_data_handler.get_json(xsd_files + '.reload')
 
         self.assertDictEqual(result_string[1], expected_dict)
-
-        result_html = etree.fromstring(result_string[0])
-        expected_html = self.simple_type_data_handler.get_html(xsd_files + '.reload')
-
-        self.assertTrue(are_equals(result_html, expected_html))
 
     def test_reload_list(self):
         # FIXME list reload is not working

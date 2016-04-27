@@ -13,6 +13,7 @@
             },
             "max": 1,
             "name": "child0",
+            "label": "child0",
             "module": null,
             "min": 1,
             "ns_prefix": null,
@@ -26,6 +27,11 @@
               "children": [
                 {
                   "tag": "input",
+                  "options": {
+                    "placeholder": "",
+                    "tooltip": "",
+                    "use": ""
+                  },
                   "value": ""
                 }
               ],
@@ -66,6 +72,7 @@
             },
             "max": 1,
             "name": "child0",
+            "label": "child0",
             "module": null,
             "min": 1,
             "ns_prefix": null,
@@ -79,6 +86,11 @@
               "children": [
                 {
                   "tag": "input",
+                  "options": {
+                    "placeholder": "",
+                    "tooltip": "",
+                    "use": ""
+                  },
                   "value": ""
                 }
               ],
