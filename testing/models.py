@@ -5,6 +5,8 @@ import requests
 from datetime import datetime, timedelta
 from mgi.models import Instance, XMLdata, Template, TemplateVersion
 from utils.XSDhash import XSDhash
+from django.contrib.auth.models import User
+from oauth2_provider.models import Application
 
 import os
 from django.utils.importlib import import_module
@@ -25,6 +27,14 @@ OPERATION_POST = "post"
 TEMPLATE_VALID_CONTENT = '<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"> <xsd:element name="root" type="test"/> <xsd:complexType name="test"> <xsd:sequence> </xsd:sequence> </xsd:complexType> </xsd:schema>'
 XMLDATA_VALID_CONTENT  = '<?xml version="1.0" encoding="utf-8"?> <root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"></root>'
 FAKE_ID = 'abcdefghijklmn'
+
+# Constante for application token
+CLIENT_ID_ADMIN = 'client_id'
+CLIENT_SECRET_ADMIN = 'client_secret'
+CLIENT_ID_USER = 'client_id_user'
+CLIENT_SECRET_USER = 'client_secret_user'
+USER_APPLICATION = 'remote_mdcs'
+ADMIN_APPLICATION = 'remote_mdcs'
 
 class RegressionTest(TestCase):
 
@@ -69,7 +79,39 @@ class RegressionTest(TestCase):
 
 class TokenTest(RegressionTest):
 
-    def get_token(self, username, password, client_id, client_secret):
+    # @classmethod
+    # def setUpClass(cls):
+    #     user, created = User.objects.get_or_create(username = 'user')
+    #     if created:
+    #         user.set_password('user')
+    #         user.save()
+    #
+    #     user_application = Application()
+    #     user_application.user = user
+    #     user_application.client_type = 'confidential'
+    #     user_application.authorization_grant_type = 'password'
+    #     user_application.name = USER_APPLICATION
+    #     user_application.client_id = CLIENT_ID_USER
+    #     user_application.client_secret = CLIENT_SECRET_USER
+    #     user_application.save()
+    #
+    #     admin = User.objects.get_by_natural_key('admin')
+    #
+    #     admin_application = Application()
+    #     admin_application.user = admin
+    #     admin_application.client_type = 'confidential'
+    #     admin_application.authorization_grant_type = 'password'
+    #     admin_application.name = ADMIN_APPLICATION
+    #     admin_application.client_id = CLIENT_ID_ADMIN
+    #     admin_application.client_secret = CLIENT_SECRET_ADMIN
+    #     admin_application.save()
+    #
+    # @classmethod
+    # def tearDownClass(cls):
+    #     user = User.objects.get_by_natural_key('user')
+    #     user.delete()
+
+    def get_token(self, username, password, client_id, client_secret, application):
         try:
             url = URL_TEST + "/o/token/"
             headers = {'content-type': 'application/x-www-form-urlencoded'}
@@ -86,7 +128,7 @@ class TokenTest(RegressionTest):
                 delta = timedelta(seconds=int(eval(r.content)["expires_in"]))
                 expires = now + delta
 
-                token = Instance(name='remote_mdcs', protocol='http', address='127.0.0.1', port='8000',
+                token = Instance(name=application, protocol='http', address='127.0.0.1', port='8000',
                                  access_token=eval(r.content)["access_token"],
                                  refresh_token=eval(r.content)["refresh_token"], expires=expires).save()
                 return token
@@ -96,10 +138,10 @@ class TokenTest(RegressionTest):
             return ''
 
     def get_token_admin(self):
-        return self.get_token('admin', 'admin', 'client_id', 'client_secret')
+        return self.get_token('admin', 'admin', CLIENT_ID_ADMIN, CLIENT_SECRET_ADMIN, ADMIN_APPLICATION)
 
     def get_token_user(self):
-        return self.get_token('user', 'user', 'client_id_user', 'client_secret_user')
+        return self.get_token('user', 'user', CLIENT_ID_USER, CLIENT_SECRET_USER, USER_APPLICATION)
 
     def doRequest(self, token, url, data, params, operation):
         if token == '':
