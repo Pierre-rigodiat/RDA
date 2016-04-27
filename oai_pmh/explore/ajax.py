@@ -67,7 +67,9 @@ def get_results_by_instance_keyword(request):
     instance = Instance(name="Local", protocol=protocol, address=request.META['REMOTE_ADDR'], port=request.META['SERVER_PORT'], access_token="token", refresh_token="token")
     json_instances.append(instance.to_json())
     request.session['instancesExplore'] = json_instances
-    sessionName = "resultsExplore" + instance['name']
+    sessionName = "resultsExploreOaiPMh" + instance['name']
+
+
     try:
         keyword = request.GET['keyword']
         schemas = request.GET.getlist('schemas[]')
