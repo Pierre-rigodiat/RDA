@@ -279,6 +279,7 @@ class DefaultRenderer(object):
 
             'input': loader.get_template(join(default_renderer_path, 'inputs', 'input.html')),
             'select': loader.get_template(join(default_renderer_path, 'inputs', 'select.html')),
+            'checkbox': loader.get_template(join(default_renderer_path, 'inputs', 'checkbox.html')),
 
             'btn_add': loader.get_template(join(default_renderer_path, 'buttons', 'add.html')),
             'btn_del': loader.get_template(join(default_renderer_path, 'buttons', 'delete.html')),

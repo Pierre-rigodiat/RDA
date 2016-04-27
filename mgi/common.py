@@ -165,8 +165,9 @@ def getXSDTypes(prefix):
 class ChoiceInfo:
     "Class that stores information about a choice being rendered"
         
-    def __init__(self, counter):
+    def __init__(self, counter, choice_id=None):
         self.counter = counter
+        self.choice_id = choice_id
         
         
 ################################################################################
