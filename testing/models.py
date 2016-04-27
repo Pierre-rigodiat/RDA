@@ -184,6 +184,38 @@ class TokenTest(RegressionTest):
         application.client_secret = secret
         application.save()
 
+    # @classmethod
+    # def setUpClass(cls):
+    #     user, created = User.objects.get_or_create(username = 'user')
+    #     if created:
+    #         user.set_password('user')
+    #         user.save()
+    #
+    #     user_application = Application()
+    #     user_application.user = user
+    #     user_application.client_type = 'confidential'
+    #     user_application.authorization_grant_type = 'password'
+    #     user_application.name = USER_APPLICATION
+    #     user_application.client_id = CLIENT_ID_USER
+    #     user_application.client_secret = CLIENT_SECRET_USER
+    #     user_application.save()
+    #
+    #     admin = User.objects.get_by_natural_key('admin')
+    #
+    #     admin_application = Application()
+    #     admin_application.user = admin
+    #     admin_application.client_type = 'confidential'
+    #     admin_application.authorization_grant_type = 'password'
+    #     admin_application.name = ADMIN_APPLICATION
+    #     admin_application.client_id = CLIENT_ID_ADMIN
+    #     admin_application.client_secret = CLIENT_SECRET_ADMIN
+    #     admin_application.save()
+    #
+    # @classmethod
+    # def tearDownClass(cls):
+    #     user = User.objects.get_by_natural_key('user')
+    #     user.delete()
+
     def get_token(self, username, password, client_id, client_secret, application):
         try:
             url = URL_TEST + "/o/token/"
