@@ -628,7 +628,7 @@ def add_schema(request):
                 # replace includes/imports by API calls
                 for dependency in dependencies:
                     if dependency in listTypesId:
-                        includes[idxInclude].attrib['schemaLocation'] = getSchemaLocation(request, str(dependency))
+                        includes[idxInclude].attrib['schemaLocation'] = getSchemaLocation(str(dependency))
                         idxInclude += 1
                     else:
                         content = {'message':'One or more dependencies can not be found in the database.'}
@@ -1060,7 +1060,7 @@ def add_type(request):
                 # replace includes/imports by API calls
                 for dependency in dependencies:
                     if dependency in listTypesId:
-                        includes[idxInclude].attrib['schemaLocation'] = getSchemaLocation(request, str(dependency))
+                        includes[idxInclude].attrib['schemaLocation'] = getSchemaLocation(str(dependency))
                         idxInclude += 1
                     else:
                         content = {'message':'One or more dependencies can not be found in the database.'}
@@ -1075,7 +1075,7 @@ def add_type(request):
                 else:
                     xsdContent = etree.tostring(xmlTree)
             else:
-                content = {'message':'The number of given dependencies (' + str(len(dependencies)) + ')  is different from the actual number of dependencies found in the uploaded template (' + str(len(includes)) + ').'}
+                content = {'message':'The number of given dependencies (' + str(len(dependencies)) + ') is different from the actual number of dependencies found in the uploaded template (' + str(len(includes)) + ').'}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
         else:
             if len(includes) > 0:
