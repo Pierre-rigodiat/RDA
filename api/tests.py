@@ -59,7 +59,7 @@ class tests_token(TokenTest):
 
     def test_explore_user(self):
         r = self.doRequest(self.get_token_user(), "/rest/explore/select/all", '', '', OPERATION_GET)
-        self.isStatusOK(r)
+        self.isStatusUnauthorized(r)
 
     def test_explore_delete_error_no_param(self):
         r = self.doRequest(self.get_token_admin(), "/rest/explore/delete", '', '', OPERATION_DELETE)
@@ -243,5 +243,4 @@ class tests_token(TokenTest):
         template1 = self.createTemplateWithTemplateVersionValidContent(str(templateVersion1.id))
         data = {'title': 'test', 'schema': str(template1.id), 'content': XMLDATA_VALID_CONTENT}
         r = self.doRequest(self.get_token_user(), "/rest/curate", data, '', OPERATION_POST)
-        self.isStatusCreated(r)
-        self.assertTrue(len(XMLdata.objects()) == 1)
+        self.isStatusUnauthorized(r)
