@@ -95,7 +95,7 @@ def get_metadata_formats_detail(request):
     list_metadata_formats_info = []
     for metadataFormat in list_metadata_formats:
         item = {
-            'registry' : OaiRegistry.objects.only('name').get(pk=metadataFormat.registry).name,
+            'registry' : OaiRegistry.objects(isDeactivated=False).only('name').get(pk=metadataFormat.registry).name,
             'metadataPrefix' : metadataFormat.metadataPrefix,
             'schema' : metadataFormat.schema,
         }

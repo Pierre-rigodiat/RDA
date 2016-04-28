@@ -27,6 +27,8 @@ urlpatterns = patterns(
     url(r'^update/registry$', 'update_registry', name='api_update_registry'),
     url(r'^update/registry-info$', 'update_registry_info', name='api_update_registry_info'),
     url(r'^delete/registry$', 'delete_registry', name='api_delete_registry'),
+    url(r'^deactivate/registry$', 'deactivate_registry', name='api_deactivate_registry'),
+    url(r'^reactivate/registry$', 'reactivate_registry', name='api_reactivate_registry'),
     #Manage my server
     url(r'^update/my-registry$', 'update_my_registry', name="api_update_my_registry"),
     #Manage my server's metadata formats

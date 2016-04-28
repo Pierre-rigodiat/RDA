@@ -787,6 +787,7 @@ class OaiRegistry(Document):
     lastUpdate = DateTimeField(required=False)
     isHarvesting = BooleanField()
     isUpdating = BooleanField()
+    isDeactivated = BooleanField(required=True)
 
 class OaiXslt(Document):
     """Represents an xslt file for Oai-Pmh"""

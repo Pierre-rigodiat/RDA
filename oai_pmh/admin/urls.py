@@ -23,6 +23,8 @@ urlpatterns = patterns(
     url(r'^delete/registry$', 'delete_registry'),
     url(r'^oai-pmh-detail-registry$', 'oai_pmh_detail_registry', name='oai_pmh_detail_registry'),
     url(r'^check/update-info', 'check_update_info', name='check_update_info'),
+    url(r'^deactivate/registry$', 'deactivate_registry'),
+    url(r'^reactivate/registry$', 'reactivate_registry'),
     #Manage my server's metadata formats
     url(r'^add/my-metadataFormat', 'add_my_metadataFormat'),
     url(r'^add/my-template-metadataFormat', 'add_my_template_metadataFormat'),
