@@ -241,6 +241,7 @@ def setDataToRegistry(harvest, harvestrate, identify, registry, url):
     registry.harvestrate = harvestrate
     registry.description = identify.description
     registry.harvest = harvest
+    registry.isDeactivated = False
 
 
 ################################################################################
@@ -492,6 +493,94 @@ def delete_registry(request):
             #We can now delete the registry
             registry.delete()
             content = {'message':"Registry deleted with success."}
+            return Response(content, status=status.HTTP_200_OK)
+        except Exception as e:
+            Response({"message":e.message}, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        content = {'message':'Only an administrator can use this feature.'}
+        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+
+
+################################################################################
+#
+# Function Name: deactivate_registry(request)
+# Inputs:        request -
+# Outputs:       200 Record deactivated.
+# Exceptions:    400 Error connecting to database.
+#                400 [Name] not found in request.
+#                400 Unspecified.
+#                401 Unauthorized.
+#                404 No record found with the given identity.
+# Description:   OAI-PMH Delete Registry
+#
+################################################################################
+@api_view(['POST'])
+def deactivate_registry(request):
+    """
+    POST http://localhost/oai_pmh/deactivate/registry
+    POST data query="{'RegistryId':'value'}"
+    """
+    if request.user.is_authenticated():
+        #Get the ID
+        try:
+            id = request.DATA['RegistryId']
+        except:
+            rsp = {'RegistryId':['This field is required.']}
+            return Response(rsp, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            try:
+                registry = OaiRegistry.objects.get(pk=id)
+            except:
+                content = {'message':'No registry found with the given id.'}
+                return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+            registry.isDeactivated = True
+            registry.save()
+            content = {'message':"Registry deactivated with success."}
+            return Response(content, status=status.HTTP_200_OK)
+        except Exception as e:
+            Response({"message":e.message}, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        content = {'message':'Only an administrator can use this feature.'}
+        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+
+
+################################################################################
+#
+# Function Name: reactivate_registry(request)
+# Inputs:        request -
+# Outputs:       200 Record deactivated.
+# Exceptions:    400 Error connecting to database.
+#                400 [Name] not found in request.
+#                400 Unspecified.
+#                401 Unauthorized.
+#                404 No record found with the given identity.
+# Description:   OAI-PMH Delete Registry
+#
+################################################################################
+@api_view(['POST'])
+def reactivate_registry(request):
+    """
+    POST http://localhost/oai_pmh/deactivate/registry
+    POST data query="{'RegistryId':'value'}"
+    """
+    if request.user.is_authenticated():
+        #Get the ID
+        try:
+            id = request.DATA['RegistryId']
+        except:
+            rsp = {'RegistryId':['This field is required.']}
+            return Response(rsp, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            try:
+                registry = OaiRegistry.objects.get(pk=id)
+            except:
+                content = {'message':'No registry found with the given id.'}
+                return Response(content, status=status.HTTP_404_NOT_FOUND)
+
+            registry.isDeactivated = False
+            registry.save()
+            content = {'message':"Registry reactivated with success."}
             return Response(content, status=status.HTTP_200_OK)
         except Exception as e:
             Response({"message":e.message}, status=status.HTTP_400_BAD_REQUEST)
@@ -938,10 +1027,10 @@ def harvest(request):
             except:
                 content = {'message':'No registry found with the given parameters.'}
                 return Response(content, status=status.HTTP_404_NOT_FOUND)
-            #Set the last update date
-            registry.lastUpdate = datetime.datetime.now()
             #We are harvesting
             registry.isHarvesting = True
+            #Set the last update date
+            harvestDate = datetime.datetime.now()
             registry.save()
             records = []
             #Get all available metadata formats
@@ -1002,6 +1091,8 @@ def harvest(request):
                         allErrors.append(errors)
             #Stop harvesting
             registry.isHarvesting = False
+            #Set the last update date
+            registry.lastUpdate = harvestDate
             registry.save()
             #Return the harvest status
             if len(allErrors) == 0:
@@ -1137,7 +1228,7 @@ def update_registry_harvest(request):
 #
 # Function Name: update_registry_info(request)
 # Inputs:        request -
-# Outputs:       201 Registry updated.
+# Outputs:       200 Registry updated.
 # Exceptions:    400 Error connecting to database.
 #                400 [Identifier] not found in request.
 #                400 Unable to update record.
@@ -1301,7 +1392,7 @@ def update_registry_info(request):
             #Save the registry
             registry.isUpdating = False
             registry.save()
-            return Response({'message':'Data provider updated with success.'}, status=status.HTTP_201_CREATED)
+            return Response({'message':'Data provider updated with success.'}, status=status.HTTP_200_OK)
         except NotUniqueError as e:
             registry.isUpdating = False
             return Response({'message':'Unable to update the registry. The registry already exists.%s'%e.message}, status=status.HTTP_409_CONFLICT)

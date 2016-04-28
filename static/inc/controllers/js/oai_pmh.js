@@ -252,6 +252,74 @@ delete_registry = function(registry_id){
 
 
 /**
+ * Deactive the registry
+ * @param registry_id Registry Id
+ */
+deactivateRegistry = function(registry_id)
+{
+ $(function() {
+    $( "#dialog-confirm-delete" ).dialog({
+      modal: true,
+      buttons:{
+                Cancel: function() {
+	                $( this ).dialog( "close" );
+                },
+            	Delete: function() {
+            		deactivate_registry(registry_id);
+                },
+
+		    }
+    });
+  });
+}
+
+/**
+ * AJAX call, Deactive a Registry
+ * @param registry_id id of the registry
+ */
+deactivate_registry = function(registry_id){
+    $("#banner_delete_wait").show(200);
+    $.ajax({
+        url : 'deactivate/registry',
+        type : "POST",
+        dataType: "json",
+        data : {
+        	RegistryId : registry_id,
+        },
+        success: function(data){
+            window.location = 'oai-pmh'
+        },
+        error:function(data){
+            $("#banner_delete_wait").hide(200);
+            $("#form_delete_errors").html(data.responseText);
+            $("#banner_delete_errors").show(200);
+	    }
+    });
+}
+
+/**
+ * AJAX call, Reactive a Registry
+ * @param registry_id id of the registry
+ */
+reactivateRegistry = function(registry_id){
+    $("#banner_delete_wait").show(200);
+    $.ajax({
+        url : 'reactivate/registry',
+        type : "POST",
+        dataType: "json",
+        data : {
+        	RegistryId : registry_id,
+        },
+        success: function(data){
+            window.location = 'oai-pmh'
+        },
+        error:function(data){
+
+	    }
+    });
+}
+
+/**
  * AJAX call, Check all status
  */
 checkAllStatus = function ()
