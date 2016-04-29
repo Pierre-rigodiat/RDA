@@ -250,6 +250,8 @@ class OAIProvider(TemplateView):
                 #Retrieve sets for this template
                 sets = OaiMySet.objects(templates=template).all()
                 query['schema'] = template
+                #The record has to be published
+                query['ispublished'] = True
                 #Get all records for this template
                 data = XMLdata.executeQueryFullResult(query)
                 #IF no records, go to the next template
@@ -299,6 +301,8 @@ class OAIProvider(TemplateView):
             #Convert id to ObjectId
             try:
                 query['_id'] = ObjectId(id)
+                #The record has to be published
+                query['ispublished'] = True
             except Exception:
                 raise idDoesNotExist(self.identifier)
             data = XMLdata.executeQueryFullResult(query)
@@ -391,6 +395,8 @@ class OAIProvider(TemplateView):
                 #Retrieve sets for this template
                 sets = OaiMySet.objects(templates=template).all()
                 query['schema'] = template
+                #The record has to be published
+                query['ispublished'] = True
                 #Get all records for this template
                 data = XMLdata.executeQueryFullResult(query)
                 #IF no records, go to the next template
