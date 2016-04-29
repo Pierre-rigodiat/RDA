@@ -1532,80 +1532,6 @@ HarvestButton = function(){
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
-
-
-Init = function(){
-    var buttonsetElts = $("td[id^=ButtonSet]")
-    $.each(buttonsetElts, function(index, props) {
-         $("#"+props.id).buttonset();
-         $(props).css("visibility", "visible");
-    });
-    enterKeyPressSubscription();
-
-    InitSelectMultipleTemplates("#id_templates");
-
-    //    Refresh every 30 seconds
-    setTimeout(checkHarvestData, 30000);
-    //    Refresh every 30 seconds
-    setTimeout(checkUpdateData, 30000);
-}
-
-InitSelectMultipleTemplates = function (path_elt)
-{
-    $(path_elt).fSelect({
-                placeholder: 'Select templates',
-                numDisplayed: 500,
-                overflowText: '{n} selected',
-                searchText: 'Search',
-                showSearch: true
-            });
-}
-
-Reinit = function(){
-    var buttonsetElts = $("#form_edit_current td[id^=ButtonSet]")
-    $.each(buttonsetElts, function(index, props) {
-         $("#"+props.id).buttonset();
-         $(props).css("visibility", "visible");
-    });
-    enterKeyPressSubscription();
-}
-
-init = function(){
-    populateSelect();
-    $("select").on('change', function() {
-      $("#build_errors").html("");
-      $("#banner_build_errors").hide(200);
-    });
-    $("input").on('change', function() {
-      $("#build_errors").html("");
-      $("#banner_build_errors").hide(200);
-    });
-
-    $("select#id_dataProvider").on('change', function() {
-      populateSelect();
-    });
-
-    $('#id_until').datetimepicker({
-        weekStart: 1,
-        todayBtn:  1,
-		autoclose: 1,
-		todayHighlight: 1,
-		startView: 2,
-		forceParse: 0,
-        showMeridian: 1
-    });
-    $('#id_From').datetimepicker({
-        weekStart: 1,
-        todayBtn:  1,
-		autoclose: 1,
-		todayHighlight: 1,
-		startView: 2,
-		forceParse: 0,
-        showMeridian: 1
-    });
-}
-
-
 /**
  * Show/hide
  * @param event
@@ -1656,4 +1582,88 @@ enterKeyPressSubscription = function ()
             event.stopPropagation();
         }
     });
+}
+
+////////////////////////////////////////////////
+////////////////   INIT    /////////////////////
+////////////////////////////////////////////////
+
+InitBuildRequest = function(){
+    populateSelect();
+    $("select").on('change', function() {
+      $("#build_errors").html("");
+      $("#banner_build_errors").hide(200);
+    });
+    $("input").on('change', function() {
+      $("#build_errors").html("");
+      $("#banner_build_errors").hide(200);
+    });
+
+    $("select#id_dataProvider").on('change', function() {
+      populateSelect();
+    });
+
+    $('#id_until').datetimepicker({
+        weekStart: 1,
+        todayBtn:  1,
+		autoclose: 1,
+		todayHighlight: 1,
+		startView: 2,
+		forceParse: 0,
+        showMeridian: 1
+    });
+    $('#id_From').datetimepicker({
+        weekStart: 1,
+        todayBtn:  1,
+		autoclose: 1,
+		todayHighlight: 1,
+		startView: 2,
+		forceParse: 0,
+        showMeridian: 1
+    });
+}
+
+InitOaiPmh = function(){
+    var buttonsetElts = $("td[id^=ButtonSet]")
+    $.each(buttonsetElts, function(index, props) {
+         $("#"+props.id).buttonset();
+         $(props).css("visibility", "visible");
+    });
+    enterKeyPressSubscription();
+
+    //    Refresh every 30 seconds
+    setTimeout(checkHarvestData, 30000);
+    //    Refresh every 30 seconds
+    setTimeout(checkUpdateData, 30000);
+}
+
+InitOaiPmhMyInfos = function(){
+    var buttonsetElts = $("td[id^=ButtonSet]")
+    $.each(buttonsetElts, function(index, props) {
+         $("#"+props.id).buttonset();
+         $(props).css("visibility", "visible");
+    });
+    enterKeyPressSubscription();
+
+    InitSelectMultipleTemplates("#id_templates");
+}
+
+InitSelectMultipleTemplates = function (path_elt)
+{
+    $(path_elt).fSelect({
+                placeholder: 'Select templates',
+                numDisplayed: 500,
+                overflowText: '{n} selected',
+                searchText: 'Search',
+                showSearch: true
+            });
+}
+
+Reinit = function(){
+    var buttonsetElts = $("#form_edit_current td[id^=ButtonSet]")
+    $.each(buttonsetElts, function(index, props) {
+         $("#"+props.id).buttonset();
+         $(props).css("visibility", "visible");
+    });
+    enterKeyPressSubscription();
 }
