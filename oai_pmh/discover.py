@@ -10,7 +10,7 @@
 #
 ################################################################################
 from django.conf import settings
-from mgi.models import OaiSettings, OaiMyMetadataFormat, Template, OaiMySet
+from mgi.models import OaiSettings, OaiMyMetadataFormat, Template, OaiMySet, OaiRegistry
 from lxml import etree
 from lxml.etree import XMLSyntaxError
 import os
@@ -119,3 +119,14 @@ def load_sets():
                 OaiMySet(setSpec=info['setSpec'], setName=info['setName'], description=info['description'], templates=[template]).save()
             except Exception, e:
                 print('ERROR : Impossible to set the template "{!s}" as a set. {!s}'.format(template_name, e.message))
+
+
+def init_registries_status():
+    """
+    Init registries status. Avoid a wrong state due to a bad server shutdown
+    """
+    registries = OaiRegistry.objects.all()
+    for registry in registries:
+        registry.isUpdating = False
+        registry.isHarvesting = False
+        registry.save()

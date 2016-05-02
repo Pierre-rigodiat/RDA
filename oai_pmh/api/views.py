@@ -25,16 +25,14 @@ from sickle.oaiexceptions import NoSetHierarchy, NoMetadataFormat
 # Serializers
 from oai_pmh.api.serializers import IdentifyObjectSerializer, MetadataFormatSerializer, SetSerializer,\
     RegistrySerializer, ListRecordsSerializer, RegistryURLSerializer, RecordSerializer, \
-    IdentifySerializer, UpdateRecordSerializer, DeleteRecordSerializer, UpdateRegistrySerializer, \
+    IdentifySerializer, UpdateRegistrySerializer, \
     UpdateMyRegistrySerializer, MyMetadataFormatSerializer, DeleteMyMetadataFormatSerializer,\
     UpdateMyMetadataFormatSerializer, GetRecordSerializer, UpdateMySetSerializer, DeleteMySetSerializer,\
     MySetSerializer, MyTemplateMetadataFormatSerializer
 # Models
 from mgi.models import OaiRegistry, OaiSet, OaiMetadataFormat, OaiIdentify, OaiSettings, Template, OaiRecord,\
 OaiMyMetadataFormat, OaiMySet, OaiMetadataformatSet
-# DB Connection
-from pymongo import MongoClient
-from mgi.settings import MONGODB_URI, MGI_DB, OAI_HOST_URI
+from mgi.settings import OAI_HOST_URI
 from mongoengine import NotUniqueError
 import xmltodict
 import requests
@@ -93,12 +91,14 @@ def add_registry(request):
             else:
                 harvest = False
 
+            #Get the identify information for the given URL
             identifyResponse = objectIdentify(request)
             if identifyResponse.status_code == status.HTTP_200_OK:
                 identifyData = identifyResponse.data
             else:
                 return Response({'message': identifyResponse.data['message']}, status=identifyResponse.status_code)
 
+            #Get the sets information for the given URL
             sets = listObjectSets(request)
             setsData = []
             if sets.status_code == status.HTTP_200_OK:
@@ -106,6 +106,7 @@ def add_registry(request):
             elif sets.status_code != status.HTTP_204_NO_CONTENT:
                 return Response({'message': sets.data['message']}, status=sets.status_code)
 
+            #Get the metadata formats information for the given URL
             metadataformats = listObjectMetadataFormats(request)
             metadataformatsData = []
             if metadataformats.status_code == status.HTTP_200_OK:
@@ -178,32 +179,11 @@ def createMetadataformatsForRegistry(metadataformatsData, registry):
                                     metadataNamespace=metadataformat['metadataNamespace'],
                                     schema=metadataformat['schema'], raw=raw, registry=str(registry.id), harvest=True)
             http_response = requests.get(obj.schema)
-            if str(http_response.status_code) == "200":
-                xmlSchema = xmltodict.parse(http_response.text)
-                obj.xmlSchema = xmlSchema
-                hash = XSDhash.get_hash(http_response.text)
-                obj.hash = hash
-                # TODO: Find a better solution to retrieve the corresponding template. The hash is not fully working because we can have different metadata prefixes with the same hash
-                # We check if we have this metadata prefix in our server configuration.
-                # If yes, we compare the xml hash with the related template hash. If it's a match, we retrieve the template
-                template = None
-                try:
-                    myMetadataFormat = OaiMyMetadataFormat.objects.get(metadataPrefix=metadataformat['metadataPrefix'])
-                    if myMetadataFormat.template:
-                        if hash == myMetadataFormat.template.hash:
-                            template = myMetadataFormat.template
-                        else:
-                            # We check in the template collection thanks to the hash
-                            template = Template.objects(hash=hash).first()
-                except MONGO_ERRORS.DoesNotExist, e:
-                    # We check in the template collection thanks to the hash
-                    template = Template.objects(hash=hash).first()
-                if template != None:
-                    obj.template = template
+            if http_response.status_code == status.HTTP_200_OK:
+                setMetadataFormatXMLSchema(obj, metadataformat['metadataPrefix'], http_response.text)
             obj.save()
         except:
             pass
-
 
 ################################################################################
 #
@@ -255,19 +235,54 @@ def setDataToRegistry(harvest, harvestrate, identify, registry, url):
 ################################################################################
 def createOaiIdentify(identifyData, identifyRaw):
     return OaiIdentify(adminEmail=identifyData['adminEmail'],
-                           baseURL=identifyData['baseURL'],
-                           repositoryName=identifyData['repositoryName'],
-                           deletedRecord=identifyData['deletedRecord'],
-                           delimiter=identifyData['delimiter'],
-                           description=identifyData['description'],
-                           earliestDatestamp=identifyData['earliestDatestamp'],
-                           granularity=identifyData['granularity'],
-                           oai_identifier=identifyData['oai_identifier'],
-                           protocolVersion=identifyData['protocolVersion'],
-                           repositoryIdentifier=identifyData['repositoryIdentifier'],
-                           sampleIdentifier=identifyData['sampleIdentifier'],
-                           scheme=identifyData['scheme'],
-                           raw=identifyRaw).save()
+                       baseURL=identifyData['baseURL'],
+                       repositoryName=identifyData['repositoryName'],
+                       deletedRecord=identifyData['deletedRecord'],
+                       delimiter=identifyData['delimiter'],
+                       description=identifyData['description'],
+                       earliestDatestamp=identifyData['earliestDatestamp'],
+                       granularity=identifyData['granularity'],
+                       oai_identifier=identifyData['oai_identifier'],
+                       protocolVersion=identifyData['protocolVersion'],
+                       repositoryIdentifier=identifyData['repositoryIdentifier'],
+                       sampleIdentifier=identifyData['sampleIdentifier'],
+                       scheme=identifyData['scheme'],
+                       raw=identifyRaw).save()
+
+
+################################################################################
+#
+# Function Name: setMetadataFormatXMLSchema
+# Inputs:        metadataFormat, metadataPrefix, stringXML
+# Outputs:       -
+# Exceptions:
+# Description:   OAI-PMH. Set the XML schema for the metadata format in parameter
+#                Try to associate the metadata format schema with an existing template
+#                in database thanks to the schema hash
+#
+################################################################################
+def setMetadataFormatXMLSchema(metadataFormat, metadataPrefix, stringXML):
+    xmlSchema = xmltodict.parse(stringXML)
+    metadataFormat.xmlSchema = xmlSchema
+    hash = XSDhash.get_hash(stringXML)
+    metadataFormat.hash = hash
+    # TODO: Find a better solution to retrieve the corresponding template. The hash is not fully working because we can have different metadata prefixes with the same hash
+    # We check if we have this metadata prefix in our server configuration.
+    # If yes, we compare the xml hash with the related template hash. If it's a match, we retrieve the template
+    template = None
+    try:
+        myMetadataFormat = OaiMyMetadataFormat.objects.get(metadataPrefix=metadataPrefix)
+        if myMetadataFormat.template:
+            if hash == myMetadataFormat.template.hash:
+                template = myMetadataFormat.template
+            else:
+                # We check in the template collection thanks to the hash
+                template = Template.objects(hash=hash).first()
+    except MONGO_ERRORS.DoesNotExist, e:
+        # We check in the template collection thanks to the hash
+        template = Template.objects(hash=hash).first()
+    if template != None:
+        metadataFormat.template = template
 
 ################################################################################
 #
@@ -282,20 +297,16 @@ def createOaiIdentify(identifyData, identifyRaw):
 @api_view(['GET'])
 def select_all_registries(request):
     """
-    GET http://localhost/oai_pmh/select/all/registries
+    GET http://localhost/oai_pmh/api/select/all/registries
     """
     if request.user.is_authenticated():
         try:
-            rec_collection = MongoClient(MONGODB_URI)[MGI_DB]['registry']
+            registry = OaiRegistry.objects.all()
         except Exception:
             return Response({'message':'Error connecting to database.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        registry = rec_collection.find({}, {"_id":False}) # Exclude ObjectID from result
-
-        rsp = []
-        for r in registry:
-            rsp.append(r)
-        return Response(rsp, status=status.HTTP_200_OK)
+        serializer = RegistrySerializer(registry)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     else:
         content = {'message':'Only an administrator can use this feature.'}
         return Response(content, status=status.HTTP_401_UNAUTHORIZED)
@@ -636,32 +647,6 @@ def getRecord(request):
         content = {'message':'Only an administrator can use this feature.'}
         return Response(content, status=status.HTTP_401_UNAUTHORIZED)
 
-################################################################################
-#
-# Function Name: getMetadata(request)
-# Inputs:        request -
-# Outputs:       200 Response successful.
-# Exceptions:    500 An error occurred when attempting to identify resource.
-# Description:   OAI-PMH Get Metadata
-#
-################################################################################
-def getMetadata(request):
-    """
-    POST http://localhost/oai_pmh/identify
-    """
-    if request.user.is_authenticated():
-        try:
-
-            return Response("", status=status.HTTP_200_OK)
-        except:
-            content = {'message':'An error occurred when attempting to identify resource.'}
-            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
-
-import json
 ################################################################################
 #
 # Function Name: objectIdentify(request)
@@ -1027,12 +1012,12 @@ def harvest(request):
             except:
                 content = {'message':'No registry found with the given parameters.'}
                 return Response(content, status=status.HTTP_404_NOT_FOUND)
+
             #We are harvesting
             registry.isHarvesting = True
+            registry.save()
             #Set the last update date
             harvestDate = datetime.datetime.now()
-            registry.save()
-            records = []
             #Get all available metadata formats
             metadataformats = OaiMetadataFormat.objects(registry=registry_id, harvest=True)
             #Get all sets
@@ -1043,52 +1028,11 @@ def harvest(request):
             #harvest request. Avoid to retrieve same records for nothing (If records are in many sets).
             searchBySets = len(registryAllSets) != len(registrySetsToHarvest)
             #Search by sets
-            if searchBySets or len(registryAllSets) != 0:
-                for set in registrySetsToHarvest:
-                    for metadataFormat in metadataformats:
-                        currentDate = datetime.datetime.now()
-                        try:
-                            #Retrieve the last update for this metadata format and this set
-                            objOaiMFSets = OaiMetadataformatSet.objects(metadataformat=metadataFormat, set=set).get()
-                            lastUpdate = datestamp.datetime_to_datestamp(objOaiMFSets.lastUpdate)
-                            #Set the new date
-                            objOaiMFSets.lastUpdate = currentDate
-                        except:
-                            lastUpdate = None
-                            #Set the new date
-                            objOaiMFSets = OaiMetadataformatSet(metadataformat=metadataFormat, set=set, lastUpdate=currentDate)
-                        errors = harvestRecords(url, registry_id, metadataFormat, lastUpdate, registryAllSets, set)
-                        #If no exceptions was thrown and no errors occured, we can update the lastUpdate date
-                        if len(errors) == 0:
-                            #Set the last update date
-                            metadataFormat.lastUpdate = datetime.datetime.now()
-                            metadataFormat.save()
-                            objOaiMFSets.save()
-                        else:
-                            allErrors.append(errors)
+            if searchBySets and len(registryAllSets) != 0:
+                allErrors = harvestBySetsAndMF(registrySetsToHarvest, metadataformats, url, registry_id, registryAllSets)
             #If we don't have to search by set or the OAI Registry doesn't support sets
             else:
-                for metadataFormat in metadataformats:
-                    try:
-                        #Retrieve the last update for this metadata format
-                        lastUpdate = datestamp.datetime_to_datestamp(metadataFormat.lastUpdate)
-                    except:
-                        lastUpdate = None
-                    #Update the new date for the metadataFormat
-                    currentDate = datetime.datetime.now()
-                    errors = harvestRecords(url, registry_id, metadataFormat, lastUpdate, registryAllSets)
-                    #If no exceptions was thrown and no errors occured, we can update the lastUpdate date
-                    if errors and len(errors) == 0:
-                        #Update the update date for all sets
-                        if len(registrySetsToHarvest) != 0:
-                            for set in registrySetsToHarvest:
-                                set.lastUpdate = currentDate
-                                set.save()
-                        #Update the update date
-                        metadataFormat.lastUpdate = currentDate
-                        metadataFormat.save()
-                    else:
-                        allErrors.append(errors)
+                allErrors = harvestByMF(registrySetsToHarvest, metadataformats, url, registry_id, registryAllSets)
             #Stop harvesting
             registry.isHarvesting = False
             #Set the last update date
@@ -1098,7 +1042,7 @@ def harvest(request):
             if len(allErrors) == 0:
                 content = {'message':'Harvest data succeeded without errors.'}
             else:
-                content = {'message': errors}
+                content = {'message': allErrors}
 
             return Response(content, status=status.HTTP_200_OK)
         except Exception as e:
@@ -1106,10 +1050,83 @@ def harvest(request):
             registry.save()
             content = {'message':'An error occurred during the harvest process: %s'%e.message}
             return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
     else:
         content = {'message':'Only an administrator can use this feature.'}
         return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+
+
+################################################################################
+#
+# Function Name: harvestBySetsAndMF
+# Inputs:        registrySetsToHarvest, metadataformats, url, registry_id, registryAllSets
+# Outputs:       List of errors.
+# Exceptions:    -
+# Description:   Harvest data by sets and metadata format.
+#                For each set, try to retrieve records for each metadata format
+#
+################################################################################
+def harvestBySetsAndMF(registrySetsToHarvest, metadataformats, url, registry_id, registryAllSets):
+    allErrors = []
+    for set in registrySetsToHarvest:
+        for metadataFormat in metadataformats:
+            currentDate = datetime.datetime.now()
+            try:
+                #Retrieve the last update for this metadata format and this set
+                objOaiMFSets = OaiMetadataformatSet.objects(metadataformat=metadataFormat, set=set).get()
+                lastUpdate = datestamp.datetime_to_datestamp(objOaiMFSets.lastUpdate)
+                #Set the new date
+                objOaiMFSets.lastUpdate = currentDate
+            except:
+                lastUpdate = None
+                #Set the new date
+                objOaiMFSets = OaiMetadataformatSet(metadataformat=metadataFormat, set=set, lastUpdate=currentDate)
+            errors = harvestRecords(url, registry_id, metadataFormat, lastUpdate, registryAllSets, set)
+            #If no exceptions was thrown and no errors occured, we can update the lastUpdate date
+            if len(errors) == 0:
+                #Set the last update date
+                metadataFormat.lastUpdate = datetime.datetime.now()
+                metadataFormat.save()
+                objOaiMFSets.save()
+            else:
+                allErrors.append(errors)
+
+    return allErrors
+
+################################################################################
+#
+# Function Name: harvestByMF
+# Inputs:        registrySetsToHarvest, metadataformats, url, registry_id, registryAllSets
+# Outputs:       List of errors.
+# Exceptions:    -
+# Description:   Harvest data by metadata format.
+#
+################################################################################
+def harvestByMF(registrySetsToHarvest, metadataformats, url, registry_id, registryAllSets):
+    allErrors = []
+    for metadataFormat in metadataformats:
+        try:
+            #Retrieve the last update for this metadata format
+            lastUpdate = datestamp.datetime_to_datestamp(metadataFormat.lastUpdate)
+        except:
+            lastUpdate = None
+        #Update the new date for the metadataFormat
+        currentDate = datetime.datetime.now()
+        errors = harvestRecords(url, registry_id, metadataFormat, lastUpdate, registryAllSets)
+        #If no exceptions was thrown and no errors occured, we can update the lastUpdate date
+        if len(errors) == 0:
+            #Update the update date for all sets
+            if len(registrySetsToHarvest) != 0:
+                for set in registrySetsToHarvest:
+                    set.lastUpdate = currentDate
+                    set.save()
+            #Update the update date
+            metadataFormat.lastUpdate = currentDate
+            metadataFormat.save()
+        else:
+            allErrors.append(errors)
+
+    return allErrors
+
 
 ################################################################################
 #
@@ -1303,92 +1320,9 @@ def update_registry_info(request):
             return Response({'message': metadataformats.data['message']}, status=metadataformats.status_code)
 
         try:
-            #Get the raw XML from a dictionary
-            try:
-                identifyRaw = xmltodict.parse(identifyData['raw'])
-            except:
-                identifyRaw = {}
-            #Constructor if Identity
-            identify = OaiIdentify(id=registry.identify.id,
-                                  adminEmail=identifyData['adminEmail'],
-                                  baseURL=identifyData['baseURL'],
-                                  repositoryName=identifyData['repositoryName'],
-                                  deletedRecord=identifyData['deletedRecord'],
-                                  delimiter=identifyData['delimiter'],
-                                  description=identifyData['description'],
-                                  earliestDatestamp=identifyData['earliestDatestamp'],
-                                  granularity=identifyData['granularity'],
-                                  oai_identifier=identifyData['oai_identifier'],
-                                  protocolVersion=identifyData['protocolVersion'],
-                                  repositoryIdentifier=identifyData['repositoryIdentifier'],
-                                  sampleIdentifier=identifyData['sampleIdentifier'],
-                                  scheme=identifyData['scheme'],
-                                  raw=identifyRaw).save()
-            #Add identity
-            registry.identify = identify
-            registry.name = identify.repositoryName
-            registry.description = identify.description
-            #Save the registry
-            registry.save()
-            #Creation of each set
-            for set in setsData:
-                try:
-                    raw = xmltodict.parse(set['raw'])
-                    #Try to retrieve the existing set for this registry
-                    try:
-                        #Update
-                        obj = OaiSet.objects(setSpec=set['setSpec'], registry=str(registry.id)).get()
-                        obj.setName = set['setName']
-                        obj.raw = raw
-                    except:
-                        #New set. Creation
-                        obj = OaiSet(setName=set['setName'], setSpec=set['setSpec'], raw= raw,
-                                     registry=str(registry.id))
-                    obj.save()
-                except:
-                    pass
-            #Creation of each metadata format
-            for metadataformat in metadataformatsData:
-                try:
-                    #Try to retrieve this existing metadata format for this registry
-                    raw = xmltodict.parse(metadataformat['raw'])
-                    try:
-                        #Update
-                        obj = OaiMetadataFormat.objects(metadataPrefix=metadataformat['metadataPrefix'], registry=str(registry.id)).get()
-                        obj.metadataNamespace = metadataformat['metadataNamespace']
-                        obj.schema = metadataformat['schema']
-                        obj.raw = raw
-                    except:
-                        #New metadata format Creation
-                        obj = OaiMetadataFormat(metadataPrefix=metadataformat['metadataPrefix'],
-                                                metadataNamespace=metadataformat['metadataNamespace'],
-                                                schema=metadataformat['schema'], raw= raw, registry=str(registry.id))
-                    http_response = requests.get(obj.schema)
-                    if str(http_response.status_code) == "200":
-                        xmlSchema = xmltodict.parse(http_response.text)
-                        obj.xmlSchema = xmlSchema
-                        hash = XSDhash.get_hash(http_response.text)
-                        obj.hash = hash
-                        #TODO: Find a better solution to retrieve the corresponding template. The hash is not fully working because we can have different metadata prefixes with the same hash
-                        #We check if we have this metadata prefix in our server configuration.
-                        #If yes, we compare the xml hash with the related template hash. If it's a match, we retrieve the template
-                        template = None
-                        try:
-                            myMetadataFormat = OaiMyMetadataFormat.objects.get(metadataPrefix=metadataformat['metadataPrefix'])
-                            if myMetadataFormat.template:
-                                if hash == myMetadataFormat.template.hash:
-                                    template = myMetadataFormat.template
-                                else:
-                                    #We check in the template collection thanks to the hash
-                                    template = Template.objects(hash=hash).first()
-                        except MONGO_ERRORS.DoesNotExist, e:
-                            #We check in the template collection thanks to the hash
-                            template = Template.objects(hash=hash).first()
-                        if template != None:
-                            obj.template = template
-                    obj.save()
-                except:
-                    pass
+            modifyRegistry(identifyData, registry)
+            modifySetsForRegistry(registry, setsData)
+            modifyMetadataformatsForRegistry(registry, metadataformatsData)
             #Save the registry
             registry.isUpdating = False
             registry.save()
@@ -1402,6 +1336,117 @@ def update_registry_info(request):
     else:
         content = {'message':'Only an administrator can use this feature.'}
         return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+
+
+################################################################################
+#
+# Function Name: modifyMetadataformatsForRegistry
+# Inputs:        metadataformatsData, registry
+# Outputs:
+# Exceptions:
+# Description:   OAI-PMH add or modify each metadata format
+#
+################################################################################
+def modifyMetadataformatsForRegistry(registry, metadataformatsData):
+    #Creation of each metadata format
+    for metadataformat in metadataformatsData:
+        try:
+            #Try to retrieve this existing metadata format for this registry
+            raw = xmltodict.parse(metadataformat['raw'])
+            try:
+                #Update
+                obj = OaiMetadataFormat.objects(metadataPrefix=metadataformat['metadataPrefix'], registry=str(registry.id)).get()
+                obj.metadataNamespace = metadataformat['metadataNamespace']
+                obj.schema = metadataformat['schema']
+                obj.raw = raw
+            except:
+                #New metadata format Creation
+                obj = OaiMetadataFormat(metadataPrefix=metadataformat['metadataPrefix'],
+                                        metadataNamespace=metadataformat['metadataNamespace'],
+                                        schema=metadataformat['schema'], raw= raw, registry=str(registry.id))
+            http_response = requests.get(obj.schema)
+            if http_response.status_code == status.HTTP_200_OK:
+                setMetadataFormatXMLSchema(obj, metadataformat['metadataPrefix'], http_response.text)
+            obj.save()
+        except:
+            pass
+
+################################################################################
+#
+# Function Name: modifySetsForRegistry
+# Inputs:        registry, setsData
+# Outputs:
+# Exceptions:
+# Description:   OAI-PMH modify or add sets
+#
+################################################################################
+def modifySetsForRegistry(registry, setsData):
+    #Creation or modification of each set
+    for set in setsData:
+        try:
+            raw = xmltodict.parse(set['raw'])
+            #Try to retrieve the existing set for this registry
+            try:
+                #Update
+                obj = OaiSet.objects(setSpec=set['setSpec'], registry=str(registry.id)).get()
+                obj.setName = set['setName']
+                obj.raw = raw
+            except:
+                #New set. Creation
+                obj = OaiSet(setName=set['setName'], setSpec=set['setSpec'], raw= raw,
+                             registry=str(registry.id), harvest=True)
+            obj.save()
+        except:
+            pass
+
+################################################################################
+#
+# Function Name: modifyRegistry
+# Inputs:        harvest, harvestrate, identifyData, url
+# Outputs:       identify and registry
+# Exceptions:
+# Description:   OAI-PMH create registry
+#
+################################################################################
+def modifyRegistry(identifyData, registry):
+    # Get the raw XML from a dictionary
+    try:
+        identifyRaw = xmltodict.parse(identifyData['raw'])
+    except:
+        identifyRaw = {}
+    identify = modifyOaiIdentify(identifyData, identifyRaw, registry.identify.id)
+    registry.identify = identify
+    registry.name = identify.repositoryName
+    registry.description = identify.description
+    registry.save()
+    return identify, registry
+
+
+################################################################################
+#
+# Function Name: modifyOaiIdentify
+# Inputs:        identifyData, identifyRaw, identifyId
+# Outputs:       OaiIdentify object.
+# Exceptions:
+# Description:   OAI-PMH modify OaiIdentify object
+#
+################################################################################
+def modifyOaiIdentify(identifyData, identifyRaw, identifyId):
+    return OaiIdentify(id=identifyId,
+                       adminEmail=identifyData['adminEmail'],
+                       baseURL=identifyData['baseURL'],
+                       repositoryName=identifyData['repositoryName'],
+                       deletedRecord=identifyData['deletedRecord'],
+                       delimiter=identifyData['delimiter'],
+                       description=identifyData['description'],
+                       earliestDatestamp=identifyData['earliestDatestamp'],
+                       granularity=identifyData['granularity'],
+                       oai_identifier=identifyData['oai_identifier'],
+                       protocolVersion=identifyData['protocolVersion'],
+                       repositoryIdentifier=identifyData['repositoryIdentifier'],
+                       sampleIdentifier=identifyData['sampleIdentifier'],
+                       scheme=identifyData['scheme'],
+                       raw=identifyRaw).save()
 
 ################################################################################
 #
@@ -1524,13 +1569,6 @@ def getListRecords(url, metadataPrefix=None, resumptionToken=None, set_h=None, f
             resumptionTokenElt = etree.XML(xml.encode("utf8"), parser=XMLParser).iterfind('.//' + '{http://www.openarchives.org/OAI/2.0/}' + 'resumptionToken')
             for res in resumptionTokenElt:
                 resumptionToken = res.text
-
-            # if resumptionToken != None and resumptionToken != '':
-            #     #Only the URL and the resumptionToken
-            #     callUrl = url + '?verb=ListRecords' + '&resumptionToken=%s' % resumptionToken
-                # needed = False
-            # else:
-            #     needed = False
 
         elif http_response.status_code == status.HTTP_404_NOT_FOUND:
             content = {'error':'Server not found.'}
@@ -1948,195 +1986,3 @@ def update_my_set(request):
         content = {'message':'Only an administrator can use this feature.'}
         return Response(content, status=status.HTTP_401_UNAUTHORIZED)
 
-################################################################################
-#
-# Function Name: select_record(request)
-# Inputs:        request -
-# Outputs:       200 Found record.
-# Exceptions:    400 Error connecting to database.
-#                400 Error getting content.
-#                400 No record found matching the identifier: [identifier]
-#                400 Serializer failed validation.
-#                401 Unauthorized.
-#                500 An error occurred when attempting to identify resource.
-# Description:   Select OAI-PMH Record
-#
-################################################################################
-@api_view(['POST'])
-def select_record(request):
-    """
-    POST http://localhost/oai_pmh/select/record
-    """
-    if request.user.is_authenticated():
-        try:
-            serializer = RecordSerializer(data=request.DATA)
-            if serializer.is_valid():
-                try:
-                    rec_collection = MongoClient(MONGODB_URI)[MGI_DB]['records']
-                except Exception:
-                    return Response({'message':'Error connecting to database.'}, status=status.HTTP_400_BAD_REQUEST)
-
-                try:
-                    identifier = request.DATA['identifier']
-                except ValueError:
-                    return Response({'message':'Error getting content.'}, status=status.HTTP_400_BAD_REQUEST)
-
-                record = rec_collection.find_one({"identifier":identifier}, {"_id":False}) # Exclude ObjectID from result
-
-                if record is 'null':
-                    return Response({'message':'No record found matching the identifier: %s'%identifier}, status=status.HTTP_400_BAD_REQUEST)
-                return Response(record, status=status.HTTP_200_OK)
-            else:
-                return Response({'message':'Serializer failed validation.'}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            content = {'message':'An error occurred when attempting to identify resource: %s'%e.message}
-            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
-
-################################################################################
-#
-# Function Name: select_all_records(request)
-# Inputs:        request -
-# Outputs:       200 Found records.
-# Exceptions:    400 Error connecting to database.
-#                401 Unauthorized.
-#                500 An error occurred when attempting to identify resource.
-# Description:   Select All OAI-PMH Records
-#
-################################################################################
-@api_view(['GET'])
-def select_all_records(request):
-    """
-    POST http://localhost/oai_pmh/select/all/records
-    """
-    if request.user.is_authenticated():
-        try:
-            try:
-                rec_collection = MongoClient(MONGODB_URI)[MGI_DB]['records']
-            except Exception:
-                return Response({'message':'Error connecting to database.'}, status=status.HTTP_400_BAD_REQUEST)
-
-            records = rec_collection.find({}, {"_id":False}) # Exclude ObjectID from result
-            rsp = {}
-            for r in records:
-                rsp.update(r)
-            return Response(rsp, status=status.HTTP_200_OK)
-        except Exception as e:
-            content = {'message':'An error occurred when attempting to identify resource: %s'%e.message}
-            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
-
-################################################################################
-#
-# Function Name: update_record(request)
-# Inputs:        request -
-# Outputs:       201 Record updated.
-# Exceptions:    400 Error connecting to database.
-#                400 [Identifier] not found in request.
-#                400 [Content] not found in request.
-#                400 Unable to update record.
-#                400 Serializer failed validation.
-#                401 Unauthorized.
-#                404 No record found with the given identity.
-# Description:   Update OAI-PMH Record
-#
-################################################################################
-@api_view(['PUT'])
-def update_record(request):
-    """
-    PUT http://localhost/oai_pmh/update/record
-    """
-    if request.user.is_authenticated():
-        serializer = UpdateRecordSerializer(data=request.DATA)
-        if serializer.is_valid():
-            try:
-                rec_collection = MongoClient(MONGODB_URI)[MGI_DB]['records']
-            except Exception:
-                return Response({'message':'Error connecting to database.'}, status=status.HTTP_400_BAD_REQUEST)
-
-            try:
-                identifier = request.DATA['identifier']
-            except:
-                rsp = {'message':'\'Identifier\' not found in request.'}
-                return Response(rsp, status=status.HTTP_400_BAD_REQUEST)
-
-            try:
-                content = request.DATA['content']
-            except:
-                rsp = {'message':'\'Content\' not found in request.'}
-                return Response(rsp, status=status.HTTP_400_BAD_REQUEST)
-
-            try:
-                record = rec_collection.find_one({"identifier":identifier})
-                if record is "null":
-                    pass
-            except:
-                rsp = {'message':'No record found with the given identity.'}
-                return Response(rsp, status=status.HTTP_404_NOT_FOUND)
-
-            try:
-
-                rec_collection.update({"identifier":identifier}, { "$set": {"content":content} })
-            except:
-                return Response({'message':'Unable to update record.'}, status=status.HTTP_400_BAD_REQUEST)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response({'message':'Serializer failed validation.'}, status=status.HTTP_400_BAD_REQUEST)
-    else:
-        return Response({'message':'Only an administrator can use this feature.'}, status=status.HTTP_401_UNAUTHORIZED)
-
-################################################################################
-#
-# Function Name: delete_record(request)
-# Inputs:        request -
-# Outputs:       204 Record deleted.
-# Exceptions:    400 Error connecting to database.
-#                400 [Identifier] not found in request.
-#                400 [Content] not found in request.
-#                400 Unspecified.
-#                400 Serializer failed validation.
-#                401 Unauthorized.
-#                404 No record found with the given identity.
-# Description:   Delete OAI-PMH Registry
-#
-################################################################################
-@api_view(['POST'])
-def delete_record(request):
-    """
-    POST http://localhost/oai_pmh/delete/record
-    """
-    if request.user.is_authenticated():
-        try:
-            serializer = DeleteRecordSerializer(data=request.DATA)
-        except Exception as e:
-            return Response({"message":e.message}, status=status.HTTP_400_BAD_REQUEST)
-        if serializer.is_valid():
-            try:
-                rec_collection = MongoClient(MONGODB_URI)[MGI_DB]['records']
-            except:
-                return Response({'message':'Unable to connect to database.'}, status=status.HTTP_400_BAD_REQUEST)
-            try:
-                identifier = request.DATA['identifier']
-            except:
-                rsp = {'message':'\'Identifier\' not found in request.'}
-                return Response(rsp, status=status.HTTP_400_BAD_REQUEST)
-            try:
-                record = rec_collection.find_one({"identifier":identifier})
-                if record is not 'null':
-                    rec_collection.remove({"identifier":identifier})
-                    content = {'message':"Deleted record %s with success."%identifier}
-                    return Response(content, status=status.HTTP_204_NO_CONTENT)
-            except ValueError as e:
-                Response({"message":e.message}, status=status.HTTP_400_BAD_REQUEST)
-
-        else:
-            return Response({'message':'Serializer failed validation.'}, status=status.HTTP_400_BAD_REQUEST)
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)

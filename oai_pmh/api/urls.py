@@ -48,8 +48,4 @@ urlpatterns = patterns(
     url(r'^update/registry-harvest$', 'update_registry_harvest', name='api_update_registry_harvest'),
 
     url(r'^select/all/registries$', 'select_all_registries'),
-    url(r'^select/all/records', 'select_all_records'),
-    url(r'^select/record$', 'select_record'),
-    url(r'^update/record$', 'update_record'),
-    url(r'^delete/record$', 'delete_record'),
 )

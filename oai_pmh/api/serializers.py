@@ -9,11 +9,9 @@
 #
 ################################################################################
 
-
 from rest_framework import serializers
 from rest_framework_mongoengine.serializers import MongoEngineModelSerializer
-from mgi.models import OaiRegistry, UpdateRecord, DeleteRecord, SelectRecord, OaiSettings,\
-OaiMyMetadataFormat
+from mgi.models import OaiRegistry, OaiSettings
 
 class RegistrySerializer(MongoEngineModelSerializer):
     class Meta:
@@ -72,18 +70,6 @@ class IdentifyObjectSerializer(serializers.Serializer):
     sampleIdentifier = serializers.CharField(required=False)
     scheme = serializers.CharField(required=False)
     raw = serializers.CharField(required=False)
-
-class UpdateRecordSerializer(MongoEngineModelSerializer):
-    class Meta:
-        model = UpdateRecord
-
-class DeleteRecordSerializer(MongoEngineModelSerializer):
-    class Meta:
-        model = DeleteRecord
-
-class SelectRecordSerializer(MongoEngineModelSerializer):
-    class Meta:
-        model = SelectRecord
 
 class SetSerializer(serializers.Serializer):
     setName = serializers.CharField()

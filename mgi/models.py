@@ -788,6 +788,7 @@ class OaiRegistry(Document):
     isHarvesting = BooleanField()
     isUpdating = BooleanField()
     isDeactivated = BooleanField(required=True)
+    isQueued = BooleanField()
 
 class OaiXslt(Document):
     """Represents an xslt file for Oai-Pmh"""
@@ -809,28 +810,3 @@ class OaiMetadataformatSet(Document):
     set = ReferenceField(OaiSet, reverse_delete_rule=CASCADE)
     metadataformat = ReferenceField(OaiMetadataFormat, reverse_delete_rule=CASCADE)
     lastUpdate = DateTimeField(required=False)
-
-# class Sets(Document):
-#     """
-#         A set object
-#     """
-#     content = DictField(required=True)
-
-class UpdateRecord(Document):
-    """
-        A record object
-    """
-    identifier = StringField(required=True)
-    content = DictField(required=True)
-
-class DeleteRecord(Document):
-    """
-        Delete record model
-    """
-    identifier = StringField(required=True)
-
-class SelectRecord(Document):
-    """
-        A record object
-    """
-    identifier = StringField(required=True)
