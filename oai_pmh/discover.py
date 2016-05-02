@@ -10,7 +10,7 @@
 #
 ################################################################################
 from django.conf import settings
-from mgi.models import OaiSettings, OaiMyMetadataFormat
+from mgi.models import OaiSettings, OaiMyMetadataFormat, OaiRegistry
 from lxml import etree
 from lxml.etree import XMLSyntaxError
 import os
@@ -54,3 +54,12 @@ def load_metadata_prefixes():
                             xmlSchema=xsdContent,
                             isDefault=True).save()
 
+def init_registries_status():
+    """
+    Init registries status. Avoid a wrong state due to a bad server shutdown
+    """
+    registries = OaiRegistry.objects.all()
+    for registry in registries:
+        registry.isUpdating = False
+        registry.isHarvesting = False
+        registry.save()

@@ -28,7 +28,9 @@ class OAIPMHConfig(AppConfig):
         discover.init_settings()
         #Add indexes for the keyword research
         OaiRecord.initIndexes()
-        #Launch background tasks
-        tasks.init_harvest()
         #Load metadata prefixes
         discover.load_metadata_prefixes()
+        #Check registries state
+        discover.init_registries_status()
+        #Launch background tasks
+        tasks.init_harvest()
