@@ -40,6 +40,12 @@
 </div>
 <br/><br/><br/>
     {% if registries %}
+    <div id="Refreshing" style="display: none;"><i class="fa fa-spinner fa-spin"></i> Refreshing...</div>
+    <div id="RefreshInfo">
+        <i class='fa fa-refresh' aria-hidden='true'></i>
+            Refresh in <div id="countdown" style="display:inline-block;"></div> sec.
+    </div>
+
     <table class="data-table">
         <tr>
             <th>Name</th>

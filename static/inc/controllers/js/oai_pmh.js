@@ -1,5 +1,6 @@
 var emptyEntry = '----------'
-
+//Refresh Time in second
+var refreshTime = 30;
 ////////////////////////////////////////////////
 ///////// OAI Data Provider Management /////////
 ////////////////////////////////////////////////
@@ -436,7 +437,7 @@ harvestData = function(registry_id){
  */
 checkHarvestData = function()
 {
-    $.ajax({
+    return $.ajax({
         url : 'check/harvest-data',
         type : "POST",
         dataType: "json",
@@ -492,7 +493,7 @@ updateRegistryInfos = function(registry_id)
  */
 checkUpdateData = function()
 {
-    $.ajax({
+    return $.ajax({
         url : 'check/update-info',
         type : "POST",
         dataType: "json",
@@ -517,6 +518,31 @@ checkUpdateData = function()
         error:function(data){
 	    }
     });
+}
+
+
+/**
+ * AJAX call, check data providers info
+ */
+checkInfo = function() {
+    $.when(checkUpdateData(), checkHarvestData()).done(function(a1, a2){
+        $('#Refreshing').hide();
+        $('#RefreshInfo').show();
+        //Refresh every 30 seconds
+        refreshInfo(refreshTime);
+    });
+}
+
+refreshInfo = function(remaining) {
+    if(remaining === 0)
+    {
+        $('#RefreshInfo').hide();
+        $('#Refreshing').show();
+        checkInfo();
+        return;
+    }
+    $('#countdown').html(remaining);
+    setTimeout(function(){ refreshInfo(remaining - 1); }, 1000);
 }
 
 ////////////////////////////////////////////////
@@ -1631,10 +1657,8 @@ InitOaiPmh = function(){
     });
     enterKeyPressSubscription();
 
-    //    Refresh every 30 seconds
-    setTimeout(checkHarvestData, 30000);
-    //    Refresh every 30 seconds
-    setTimeout(checkUpdateData, 30000);
+    //Refresh every 30 seconds
+    refreshInfo(refreshTime);
 }
 
 InitOaiPmhMyInfos = function(){
