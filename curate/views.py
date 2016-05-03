@@ -427,10 +427,14 @@ def save_xml_data_to_db(request):
                 # update data if id is present
                 if form_data.xml_data_id is not None:
                     XMLdata.update_content(form_data.xml_data_id, xmlString, title=form.data['title'])
+                    #Publish it again
+                    XMLdata.update_publish(form_data.xml_data_id)
                 else:
                     #create new data otherwise
                     newJSONData = XMLdata(schemaID=templateID, xml=xmlString, title=form.data['title'], iduser=str(request.user.id))
-                    newJSONData.save()
+                    xml_data_id = newJSONData.save()
+                    #Publish it
+                    XMLdata.update_publish(xml_data_id)
                 # delete form data
                 try:
                     form_data = FormData.objects().get(pk=form_data_id)
