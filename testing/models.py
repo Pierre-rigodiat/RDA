@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import LiveServerTestCase
 from pymongo import MongoClient
 from pymongo.errors import OperationFailure
 import requests
@@ -7,7 +7,7 @@ from mgi.models import Instance, XMLdata, Template, TemplateVersion
 from utils.XSDhash import XSDhash
 from django.contrib.auth.models import User
 from oauth2_provider.models import Application
-
+from admin_mdcs import discover
 import os
 from django.utils.importlib import import_module
 
@@ -16,9 +16,7 @@ settings = import_module(settings_file)
 MONGODB_URI = settings.MONGODB_URI
 MGI_DB = settings.MGI_DB
 
-#from mgi.settings_test import MGI_DB, MONGODB_URI
-
-URL_TEST = "http://127.0.0.1:8000"
+URL_TEST = "http://127.0.0.1:8082"
 OPERATION_GET = "get"
 OPERATION_POST = "post"
 OPERATION_DELETE = "delete"
@@ -36,7 +34,7 @@ CLIENT_SECRET_USER = 'client_secret_user'
 USER_APPLICATION = 'remote_mdcs'
 ADMIN_APPLICATION = 'remote_mdcs'
 
-class RegressionTest(TestCase):
+class RegressionTest(LiveServerTestCase):
 
     def createXMLData(self):
         return XMLdata(schemaID='', xml='<test>test xmldata</test>', title='test', iduser=1).save()
@@ -79,37 +77,32 @@ class RegressionTest(TestCase):
 
 class TokenTest(RegressionTest):
 
-    # @classmethod
-    # def setUpClass(cls):
-    #     user, created = User.objects.get_or_create(username = 'user')
-    #     if created:
-    #         user.set_password('user')
-    #         user.save()
-    #
-    #     user_application = Application()
-    #     user_application.user = user
-    #     user_application.client_type = 'confidential'
-    #     user_application.authorization_grant_type = 'password'
-    #     user_application.name = USER_APPLICATION
-    #     user_application.client_id = CLIENT_ID_USER
-    #     user_application.client_secret = CLIENT_SECRET_USER
-    #     user_application.save()
-    #
-    #     admin = User.objects.get_by_natural_key('admin')
-    #
-    #     admin_application = Application()
-    #     admin_application.user = admin
-    #     admin_application.client_type = 'confidential'
-    #     admin_application.authorization_grant_type = 'password'
-    #     admin_application.name = ADMIN_APPLICATION
-    #     admin_application.client_id = CLIENT_ID_ADMIN
-    #     admin_application.client_secret = CLIENT_SECRET_ADMIN
-    #     admin_application.save()
-    #
-    # @classmethod
-    # def tearDownClass(cls):
-    #     user = User.objects.get_by_natural_key('user')
-    #     user.delete()
+    def setUp(self):
+        discover.init_rules()
+
+        user, userCreated = User.objects.get_or_create(username = 'user')
+        if userCreated:
+            user.set_password('user')
+            user.save()
+
+        self.createApplication(user, USER_APPLICATION, CLIENT_ID_USER, CLIENT_SECRET_USER)
+
+        admin, adminCreated = User.objects.get_or_create(username = 'admin', is_staff=1, is_superuser=1)
+        if adminCreated:
+            admin.set_password('admin')
+            admin.save()
+
+        self.createApplication(admin, ADMIN_APPLICATION, CLIENT_ID_ADMIN, CLIENT_SECRET_ADMIN)
+
+    def createApplication(self, user, name, id, secret):
+        application = Application()
+        application.user = user
+        application.client_type = 'confidential'
+        application.authorization_grant_type = 'password'
+        application.name = name
+        application.client_id = id
+        application.client_secret = secret
+        application.save()
 
     def get_token(self, username, password, client_id, client_secret, application):
         try:
@@ -128,7 +121,7 @@ class TokenTest(RegressionTest):
                 delta = timedelta(seconds=int(eval(r.content)["expires_in"]))
                 expires = now + delta
 
-                token = Instance(name=application, protocol='http', address='127.0.0.1', port='8000',
+                token = Instance(name=application, protocol='http', address='127.0.0.1', port='8082',
                                  access_token=eval(r.content)["access_token"],
                                  refresh_token=eval(r.content)["refresh_token"], expires=expires).save()
                 return token
