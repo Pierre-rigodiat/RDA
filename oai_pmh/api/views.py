@@ -1363,7 +1363,8 @@ def modifyMetadataformatsForRegistry(registry, metadataformatsData):
                 #New metadata format Creation
                 obj = OaiMetadataFormat(metadataPrefix=metadataformat['metadataPrefix'],
                                         metadataNamespace=metadataformat['metadataNamespace'],
-                                        schema=metadataformat['schema'], raw= raw, registry=str(registry.id))
+                                        schema=metadataformat['schema'], raw= raw, registry=str(registry.id),
+                                        harvest=True)
             http_response = requests.get(obj.schema)
             if http_response.status_code == status.HTTP_200_OK:
                 setMetadataFormatXMLSchema(obj, metadataformat['metadataPrefix'], http_response.text)
