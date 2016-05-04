@@ -74,6 +74,46 @@ class RegressionTest(LiveServerTestCase):
             except OperationFailure:
                 pass
 
+    def isStatusOK(self, r):
+        if r.status_code == 200:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+
+
+    def isStatusNotFound(self, r):
+        if r.status_code == 404:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+
+
+    def isStatusBadRequest(self, r):
+        if r.status_code == 400:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+
+
+    def isStatusUnauthorized(self, r):
+        if r.status_code == 401:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+
+
+    def isStatusNoContent(self, r):
+        if r.status_code == 204:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+
+
+    def isStatusCreated(self, r):
+        if r.status_code == 201:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
 
 class TokenTest(RegressionTest):
 
@@ -146,39 +186,3 @@ class TokenTest(RegressionTest):
             return requests.delete(URL_TEST + url, data=data, params=params, headers=headers)
         elif operation == OPERATION_POST:
             return requests.post(URL_TEST + url, data=data, params=params, headers=headers)
-
-    def isStatusOK(self, r):
-        if r.status_code == 200:
-            self.assertTrue(True)
-        else:
-            self.assertTrue(False)
-
-    def isStatusNotFound(self, r):
-        if r.status_code == 404:
-            self.assertTrue(True)
-        else:
-            self.assertTrue(False)
-
-    def isStatusBadRequest(self, r):
-        if r.status_code == 400:
-            self.assertTrue(True)
-        else:
-            self.assertTrue(False)
-
-    def isStatusUnauthorized(self, r):
-        if r.status_code == 401:
-            self.assertTrue(True)
-        else:
-            self.assertTrue(False)
-
-    def isStatusNoContent(self, r):
-        if r.status_code == 204:
-            self.assertTrue(True)
-        else:
-            self.assertTrue(False)
-
-    def isStatusCreated(self, r):
-        if r.status_code == 201:
-            self.assertTrue(True)
-        else:
-            self.assertTrue(False)
