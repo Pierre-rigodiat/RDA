@@ -45,6 +45,8 @@ from django.core.urlresolvers import reverse
 import mongoengine.errors as MONGO_ERRORS
 from oai_pmh.api.exceptions import OAIAPIException, OAIAPILabelledException
 from oai_pmh.api.messages import APIMessage
+from admin_mdcs.models import api_permission_required, api_staff_member_required
+import oai_pmh.rights as RIGHTS
 
 ################################################################################
 #
@@ -61,87 +63,85 @@ from oai_pmh.api.messages import APIMessage
 #
 ################################################################################
 @api_view(['POST'])
+@api_staff_member_required()
 def add_registry(request):
     """
     POST http://localhost/oai_pmh/add/registry
     POST data query="{'url':'value','harvestrate':'number', 'harvest':'True or False'}"
     """
-    if request.user.is_authenticated():
-        try:
-            #Serialization of the input data
-            serializer = RegistrySerializer(data=request.DATA)
-            #If all fields are okay
-            if serializer.is_valid():
-                #Check the URL
-                if 'url' in request.DATA:
-                    url = request.DATA['url']
-                else:
-                    raise OAIAPILabelledException(message="Please provide an URL", status=status.HTTP_400_BAD_REQUEST)
-                #We check first if this repository already exists in database. If yes, we return a response 409
-                if OaiRegistry.objects(url__exact=url).count() > 0:
-                    raise OAIAPILabelledException(message='Unable to create the data provider. The data provider already exists.', status=status.HTTP_409_CONFLICT)
-                #Chech the harvest rate. If not provided, set to none
-                if 'harvestrate' in request.DATA:
-                    harvestrate = request.DATA['harvestrate']
-                else:
-                    harvestrate = ""
-                #Chech the harvest action. If not provided, set to false
-                if 'harvest' in request.DATA:
-                    harvest = request.DATA['harvest'] == 'True'
-                else:
-                    harvest = False
-
-                #Get the identify information for the given URL
-                identifyResponse = objectIdentify(request)
-                if identifyResponse.status_code == status.HTTP_200_OK:
-                    identifyData = identifyResponse.data
-                else:
-                    raise OAIAPILabelledException(message=identifyResponse.data[APIMessage.label], status=identifyResponse.status_code)
-
-                #Get the sets information for the given URL
-                sets = listObjectSets(request)
-                setsData = []
-                if sets.status_code == status.HTTP_200_OK:
-                    setsData = sets.data
-                elif sets.status_code != status.HTTP_204_NO_CONTENT:
-                    raise OAIAPILabelledException(message=sets.data[APIMessage.label], status=sets.status_code)
-
-                #Get the metadata formats information for the given URL
-                metadataformats = listObjectMetadataFormats(request)
-                metadataformatsData = []
-                if metadataformats.status_code == status.HTTP_200_OK:
-                    metadataformatsData = metadataformats.data
-                elif metadataformats.status_code != status.HTTP_204_NO_CONTENT:
-                    raise OAIAPILabelledException(message=metadataformats.data[APIMessage.label], status=metadataformats.status_code)
-
-                try:
-                    identify, registry = createRegistry(harvest, harvestrate, identifyData, url)
-                    createSetsForRegistry(registry, setsData)
-                    createMetadataformatsForRegistry(metadataformatsData, registry)
-                    registry.save()
-
-                    return Response(serializer.data, status=status.HTTP_201_CREATED)
-                except NotUniqueError as e:
-                    #Manual Rollback
-                    if identify:
-                        identify.delete()
-                    OaiSet.objects(registry=registry.id).delete()
-                    OaiMetadataFormat.objects(registry=registry.id).delete()
-                    raise OAIAPILabelledException(message='Unable to create the registry. The registry already exists.', status=status.HTTP_409_CONFLICT)
-                except Exception as e:
-                    #Manual Rollback
-                    if identify:
-                        identify.delete()
-                    OaiSet.objects(registry=registry.id).delete()
-                    OaiMetadataFormat.objects(registry=registry.id).delete()
-                    raise OAIAPILabelledException(message='An error occured when trying to save document.%s'%e.message, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        #Serialization of the input data
+        serializer = RegistrySerializer(data=request.DATA)
+        #If all fields are okay
+        if serializer.is_valid():
+            #Check the URL
+            if 'url' in request.DATA:
+                url = request.DATA['url']
             else:
-                raise OAIAPILabelledException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except OAIAPIException as e:
-            #Return a response with the status_code and the message provided by the called function
-            return e.response()
-    else:
-        return Response({}, status=status.HTTP_401_UNAUTHORIZED)
+                raise OAIAPILabelledException(message="Please provide an URL", status=status.HTTP_400_BAD_REQUEST)
+            #We check first if this repository already exists in database. If yes, we return a response 409
+            if OaiRegistry.objects(url__exact=url).count() > 0:
+                raise OAIAPILabelledException(message='Unable to create the data provider. The data provider already exists.', status=status.HTTP_409_CONFLICT)
+            #Chech the harvest rate. If not provided, set to none
+            if 'harvestrate' in request.DATA:
+                harvestrate = request.DATA['harvestrate']
+            else:
+                harvestrate = ""
+            #Chech the harvest action. If not provided, set to false
+            if 'harvest' in request.DATA:
+                harvest = request.DATA['harvest'] == 'True'
+            else:
+                harvest = False
+
+            #Get the identify information for the given URL
+            identifyResponse = objectIdentify(request)
+            if identifyResponse.status_code == status.HTTP_200_OK:
+                identifyData = identifyResponse.data
+            else:
+                raise OAIAPILabelledException(message=identifyResponse.data[APIMessage.label], status=identifyResponse.status_code)
+
+            #Get the sets information for the given URL
+            sets = listObjectSets(request)
+            setsData = []
+            if sets.status_code == status.HTTP_200_OK:
+                setsData = sets.data
+            elif sets.status_code != status.HTTP_204_NO_CONTENT:
+                raise OAIAPILabelledException(message=sets.data[APIMessage.label], status=sets.status_code)
+
+            #Get the metadata formats information for the given URL
+            metadataformats = listObjectMetadataFormats(request)
+            metadataformatsData = []
+            if metadataformats.status_code == status.HTTP_200_OK:
+                metadataformatsData = metadataformats.data
+            elif metadataformats.status_code != status.HTTP_204_NO_CONTENT:
+                raise OAIAPILabelledException(message=metadataformats.data[APIMessage.label], status=metadataformats.status_code)
+
+            try:
+                identify, registry = createRegistry(harvest, harvestrate, identifyData, url)
+                createSetsForRegistry(registry, setsData)
+                createMetadataformatsForRegistry(metadataformatsData, registry)
+                registry.save()
+
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            except NotUniqueError as e:
+                #Manual Rollback
+                if identify:
+                    identify.delete()
+                OaiSet.objects(registry=registry.id).delete()
+                OaiMetadataFormat.objects(registry=registry.id).delete()
+                raise OAIAPILabelledException(message='Unable to create the registry. The registry already exists.', status=status.HTTP_409_CONFLICT)
+            except Exception as e:
+                #Manual Rollback
+                if identify:
+                    identify.delete()
+                OaiSet.objects(registry=registry.id).delete()
+                OaiMetadataFormat.objects(registry=registry.id).delete()
+                raise OAIAPILabelledException(message='An error occured when trying to save document.%s'%e.message, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            raise OAIAPILabelledException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except OAIAPIException as e:
+        #Return a response with the status_code and the message provided by the called function
+        return e.response()
 
 
 ################################################################################
@@ -299,21 +299,19 @@ def setMetadataFormatXMLSchema(metadataFormat, metadataPrefix, stringXML):
 #
 ################################################################################
 @api_view(['GET'])
+@api_permission_required(RIGHTS.oai_pmh_content_type, RIGHTS.oai_pmh_access)
 def select_all_registries(request):
     """
     GET http://localhost/oai_pmh/api/select/all/registries
     """
     try:
-        if request.user.is_authenticated():
-            try:
-                registry = OaiRegistry.objects.all()
-            except Exception:
-                raise OAIAPILabelledException(message='Error connecting to database.', status=status.HTTP_400_BAD_REQUEST)
+        try:
+            registry = OaiRegistry.objects.all()
+        except Exception:
+            raise OAIAPILabelledException(message='Error connecting to database.', status=status.HTTP_400_BAD_REQUEST)
 
-            serializer = RegistrySerializer(registry)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            raise OAIAPILabelledException(message='Only an administrator can use this feature.', status=status.HTTP_401_UNAUTHORIZED)
+        serializer = RegistrySerializer(registry)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     except OAIAPIException as e:
         return e.response()
 
@@ -331,30 +329,28 @@ def select_all_registries(request):
 #
 ################################################################################
 @api_view(['GET'])
+@api_permission_required(RIGHTS.oai_pmh_content_type, RIGHTS.oai_pmh_access)
 def select_registry(request):
     """
     GET http://localhost/oai_pmh/api/select/registry
     name: string
     """
-    if request.user.is_authenticated:
+    try:
+        if 'name' in request.GET:
+            name = request.GET['name']
+        else:
+            content = {'name':['This field is required.']}
+            raise OAIAPIException(message=content, status=status.HTTP_400_BAD_REQUEST)
         try:
-            if 'name' in request.GET:
-                name = request.GET['name']
-            else:
-                content = {'name':['This field is required.']}
-                raise OAIAPIException(message=content, status=status.HTTP_400_BAD_REQUEST)
-            try:
-                registry = OaiRegistry.objects.get(name=name)
-            except Exception as e:
-                raise OAIAPILabelledException(message='No registry found with the given parameters.', status=status.HTTP_404_NOT_FOUND)
+            registry = OaiRegistry.objects.get(name=name)
+        except Exception as e:
+            raise OAIAPILabelledException(message='No registry found with the given parameters.', status=status.HTTP_404_NOT_FOUND)
 
-            serializer = RegistrySerializer(registry)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except OAIAPIException as e:
-            return e.response()
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+        serializer = RegistrySerializer(registry)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except OAIAPIException as e:
+        return e.response()
+
 
 ################################################################################
 #
@@ -371,51 +367,48 @@ def select_registry(request):
 #
 ################################################################################
 @api_view(['PUT'])
+@api_staff_member_required()
 def update_registry(request):
     """
     PUT http://localhost/oai_pmh/update/registry
     PUT data query="{'id':'value'}"
     id: string
     """
-    if request.user.is_authenticated():
-        try:
-            #Serialization of the input data
-            serializer = UpdateRegistrySerializer(data=request.DATA)
-            #If it's valid
-            if serializer.is_valid():
-                #We retrieve all information
-                try:
-                    if 'id' in request.DATA:
-                        id = request.DATA['id']
-                        registry = OaiRegistry.objects.get(pk=id)
-                    else:
-                        rsp = {'id':['This field is required.']}
-                        return Response(rsp, status=status.HTTP_400_BAD_REQUEST)
-                except:
-                    raise OAIAPILabelledException(message='No registry found with the given id.', status=status.HTTP_404_NOT_FOUND)
+    try:
+        #Serialization of the input data
+        serializer = UpdateRegistrySerializer(data=request.DATA)
+        #If it's valid
+        if serializer.is_valid():
+            #We retrieve all information
+            try:
+                if 'id' in request.DATA:
+                    id = request.DATA['id']
+                    registry = OaiRegistry.objects.get(pk=id)
+                else:
+                    rsp = {'id':['This field is required.']}
+                    return Response(rsp, status=status.HTTP_400_BAD_REQUEST)
+            except:
+                raise OAIAPILabelledException(message='No registry found with the given id.', status=status.HTTP_404_NOT_FOUND)
 
-                if 'harvestrate' in request.DATA:
-                    harvestrate = request.DATA['harvestrate']
-                    if harvestrate:
-                        registry.harvestrate = harvestrate
-                if 'harvest' in request.DATA:
-                    harvest = request.DATA['harvest']
-                    if harvest:
-                        registry.harvest =  harvest == 'True'
-                try:
-                    #Save the modifications
-                   registry.save()
-                except Exception as e:
-                    raise OAIAPILabelledException(message='Unable to update registry. \n%s'%e.message, status=status.HTTP_400_BAD_REQUEST)
+            if 'harvestrate' in request.DATA:
+                harvestrate = request.DATA['harvestrate']
+                if harvestrate:
+                    registry.harvestrate = harvestrate
+            if 'harvest' in request.DATA:
+                harvest = request.DATA['harvest']
+                if harvest:
+                    registry.harvest =  harvest == 'True'
+            try:
+                #Save the modifications
+               registry.save()
+            except Exception as e:
+                raise OAIAPILabelledException(message='Unable to update registry. \n%s'%e.message, status=status.HTTP_400_BAD_REQUEST)
 
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            else:
-                raise OAIAPILabelledException(message='Serializer failed validation. ', status=status.HTTP_400_BAD_REQUEST)
-        except OAIAPIException as e:
-            return e.response()
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            raise OAIAPILabelledException(message='Serializer failed validation. ', status=status.HTTP_400_BAD_REQUEST)
+    except OAIAPIException as e:
+        return e.response()
 
 
 ################################################################################
@@ -433,46 +426,43 @@ def update_registry(request):
 #
 ################################################################################
 @api_view(['PUT'])
+@api_staff_member_required()
 def update_my_registry(request):
     """
     PUT http://localhost/oai_pmh/update/my-registry
     PUT data query="{'repositoryName':'value', 'enableHarvesting':'True or False'}"
     """
-    if request.user.is_authenticated():
-        try:
-            #Serialization of the input data
-            serializer = UpdateMyRegistrySerializer(data=request.DATA)
-            #If it's valid
-            if serializer.is_valid():
-                #We retrieve all information
-                try:
-                    if 'repositoryName' in request.DATA:
-                        repositoryName = request.DATA['repositoryName']
-                    if 'enableHarvesting' in request.DATA:
-                        enableHarvesting = request.DATA['enableHarvesting']
-                        if enableHarvesting:
-                            enableHarvesting =  enableHarvesting == 'True'
-                except Exception as e:
-                    raise OAIAPILabelledException(message='Error while retrieving information.', status=status.HTTP_404_NOT_FOUND)
+    try:
+        #Serialization of the input data
+        serializer = UpdateMyRegistrySerializer(data=request.DATA)
+        #If it's valid
+        if serializer.is_valid():
+            #We retrieve all information
+            try:
+                if 'repositoryName' in request.DATA:
+                    repositoryName = request.DATA['repositoryName']
+                if 'enableHarvesting' in request.DATA:
+                    enableHarvesting = request.DATA['enableHarvesting']
+                    if enableHarvesting:
+                        enableHarvesting =  enableHarvesting == 'True'
+            except Exception as e:
+                raise OAIAPILabelledException(message='Error while retrieving information.', status=status.HTTP_404_NOT_FOUND)
 
-                try:
-                    #Save the modifications
-                    information = OaiSettings.objects.get()
-                    information.repositoryName = repositoryName
-                    information.enableHarvesting = enableHarvesting
-                    information.save()
-                except Exception as e:
-                    raise OAIAPILabelledException(message='Unable to update registry. \n%s'%e.message, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                #Save the modifications
+                information = OaiSettings.objects.get()
+                information.repositoryName = repositoryName
+                information.enableHarvesting = enableHarvesting
+                information.save()
+            except Exception as e:
+                raise OAIAPILabelledException(message='Unable to update registry. \n%s'%e.message, status=status.HTTP_400_BAD_REQUEST)
 
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            else:
-                raise OAIAPILabelledException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            raise OAIAPILabelledException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        except OAIAPIException as e:
-            return e.response()
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+    except OAIAPIException as e:
+        return e.response()
 
 ################################################################################
 #
@@ -488,46 +478,43 @@ def update_my_registry(request):
 #
 ################################################################################
 @api_view(['POST'])
+@api_staff_member_required()
 def delete_registry(request):
     """
     POST http://localhost/oai_pmh/delete/registry
     POST data query="{'RegistryId':'value'}"
     """
-    if request.user.is_authenticated():
+    try:
+        #Get the ID
+        if 'RegistryId' in request.DATA:
+            id = request.DATA['RegistryId']
+        else:
+            rsp = {'RegistryId':['This field is required.']}
+            raise OAIAPIException(message=rsp, status=status.HTTP_400_BAD_REQUEST)
         try:
-            #Get the ID
-            if 'RegistryId' in request.DATA:
-                id = request.DATA['RegistryId']
-            else:
-                rsp = {'RegistryId':['This field is required.']}
-                raise OAIAPIException(message=rsp, status=status.HTTP_400_BAD_REQUEST)
-            try:
-                registry = OaiRegistry.objects.get(pk=id)
-            except:
-                raise OAIAPILabelledException(message='No registry found with the given id.',
-                                              status=status.HTTP_404_NOT_FOUND)
-            #Delete all ReferenceFields
-            #Identify
-            registry.identify.delete()
-            #Records
-            OaiRecord.objects(registry=id).delete()
-            #Sets
-            OaiSet.objects(registry=id).delete()
-            #Metadata formats
-            OaiMetadataFormat.objects(registry=id).delete()
-            #We can now delete the registry
-            registry.delete()
-            content = APIMessage.getMessageLabelled("Registry deleted with success.")
+            registry = OaiRegistry.objects.get(pk=id)
+        except:
+            raise OAIAPILabelledException(message='No registry found with the given id.',
+                                          status=status.HTTP_404_NOT_FOUND)
+        #Delete all ReferenceFields
+        #Identify
+        registry.identify.delete()
+        #Records
+        OaiRecord.objects(registry=id).delete()
+        #Sets
+        OaiSet.objects(registry=id).delete()
+        #Metadata formats
+        OaiMetadataFormat.objects(registry=id).delete()
+        #We can now delete the registry
+        registry.delete()
+        content = APIMessage.getMessageLabelled("Registry deleted with success.")
 
-            return Response(content, status=status.HTTP_200_OK)
-        except OAIAPIException as e:
-            return e.response()
-        except Exception as e:
-            content = APIMessage.getMessageLabelled(e.message)
-            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(content, status=status.HTTP_200_OK)
+    except OAIAPIException as e:
+        return e.response()
+    except Exception as e:
+        content = APIMessage.getMessageLabelled(e.message)
+        return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 ################################################################################
@@ -544,36 +531,33 @@ def delete_registry(request):
 #
 ################################################################################
 @api_view(['POST'])
+@api_staff_member_required()
 def deactivate_registry(request):
     """
     POST http://localhost/oai_pmh/deactivate/registry
     POST data query="{'RegistryId':'value'}"
     """
-    if request.user.is_authenticated():
+    try:
+        #Get the ID
+        if 'RegistryId' in request.DATA:
+            id = request.DATA['RegistryId']
+        else:
+            rsp = {'RegistryId':['This field is required.']}
+            raise OAIAPIException(message=rsp, status=status.HTTP_400_BAD_REQUEST)
         try:
-            #Get the ID
-            if 'RegistryId' in request.DATA:
-                id = request.DATA['RegistryId']
-            else:
-                rsp = {'RegistryId':['This field is required.']}
-                raise OAIAPIException(message=rsp, status=status.HTTP_400_BAD_REQUEST)
-            try:
-                registry = OaiRegistry.objects.get(pk=id)
-            except:
-                raise OAIAPILabelledException(message='No registry found with the given id.', status=status.HTTP_404_NOT_FOUND)
-            registry.isDeactivated = True
-            registry.save()
-            content = APIMessage.getMessageLabelled("Registry deactivated with success.")
+            registry = OaiRegistry.objects.get(pk=id)
+        except:
+            raise OAIAPILabelledException(message='No registry found with the given id.', status=status.HTTP_404_NOT_FOUND)
+        registry.isDeactivated = True
+        registry.save()
+        content = APIMessage.getMessageLabelled("Registry deactivated with success.")
 
-            return Response(content, status=status.HTTP_200_OK)
-        except OAIAPIException as e:
-            return e.response()
-        except Exception as e:
-            content = APIMessage.getMessageLabelled(e.message)
-            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(content, status=status.HTTP_200_OK)
+    except OAIAPIException as e:
+        return e.response()
+    except Exception as e:
+        content = APIMessage.getMessageLabelled(e.message)
+        return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 ################################################################################
@@ -590,37 +574,34 @@ def deactivate_registry(request):
 #
 ################################################################################
 @api_view(['POST'])
+@api_staff_member_required()
 def reactivate_registry(request):
     """
     POST http://localhost/oai_pmh/deactivate/registry
     POST data query="{'RegistryId':'value'}"
     """
-    if request.user.is_authenticated():
+    try:
+        #Get the ID
+        if 'RegistryId' in request.DATA:
+            id = request.DATA['RegistryId']
+        else:
+            rsp = {'RegistryId':['This field is required.']}
+            raise OAIAPIException(message=rsp, status=status.HTTP_400_BAD_REQUEST)
         try:
-            #Get the ID
-            if 'RegistryId' in request.DATA:
-                id = request.DATA['RegistryId']
-            else:
-                rsp = {'RegistryId':['This field is required.']}
-                raise OAIAPIException(message=rsp, status=status.HTTP_400_BAD_REQUEST)
-            try:
-                registry = OaiRegistry.objects.get(pk=id)
-            except:
-                raise OAIAPILabelledException(message='No registry found with the given id.',
-                                              status=status.HTTP_404_NOT_FOUND)
-            registry.isDeactivated = False
-            registry.save()
-            content = APIMessage.getMessageLabelled("Registry reactivated with success.")
+            registry = OaiRegistry.objects.get(pk=id)
+        except:
+            raise OAIAPILabelledException(message='No registry found with the given id.',
+                                          status=status.HTTP_404_NOT_FOUND)
+        registry.isDeactivated = False
+        registry.save()
+        content = APIMessage.getMessageLabelled("Registry reactivated with success.")
 
-            return Response(content, status=status.HTTP_200_OK)
-        except OAIAPIException as e:
-            return e.response()
-        except Exception as e:
-            content = APIMessage.getMessageLabelled(e.message)
-            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(content, status=status.HTTP_200_OK)
+    except OAIAPIException as e:
+        return e.response()
+    except Exception as e:
+        content = APIMessage.getMessageLabelled(e.message)
+        return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ################################################################################
 #
@@ -635,42 +616,39 @@ def reactivate_registry(request):
 #
 ################################################################################
 @api_view(['POST'])
+@api_permission_required(RIGHTS.oai_pmh_content_type, RIGHTS.oai_pmh_access)
 def getRecord(request):
     """
     POST http://localhost/oai_pmh/rest/getrecord
     POST data query="{'url':'value', 'identifier':'value', 'metadataprefix':'value'}"
     """
-    if request.user.is_authenticated():
-        try:
-            serializer = GetRecordSerializer(data=request.DATA)
-            if serializer.is_valid():
-                url = request.DATA['url']
-                identifier = request.DATA['identifier']
-                metadataprefix = request.DATA['metadataprefix']
-                sickle = Sickle(url)
-                grResponse = sickle.GetRecord(metadataPrefix=metadataprefix, identifier=identifier)
-                record = Record(grResponse.xml)
-                rtn=[]
-                rtn.append({"identifier": record.header.identifier,
-                          "datestamp": record.header.datestamp,
-                          "deleted": record.deleted,
-                          "sets": record.header.setSpecs,
-                          "metadataPrefix": metadataprefix,
-                          "metadata": etree.tostring(record.xml.find('.//' + '{http://www.openarchives.org/OAI/2.0/}' + 'metadata/')),
-                          "raw": record.raw})
+    try:
+        serializer = GetRecordSerializer(data=request.DATA)
+        if serializer.is_valid():
+            url = request.DATA['url']
+            identifier = request.DATA['identifier']
+            metadataprefix = request.DATA['metadataprefix']
+            sickle = Sickle(url)
+            grResponse = sickle.GetRecord(metadataPrefix=metadataprefix, identifier=identifier)
+            record = Record(grResponse.xml)
+            rtn=[]
+            rtn.append({"identifier": record.header.identifier,
+                      "datestamp": record.header.datestamp,
+                      "deleted": record.deleted,
+                      "sets": record.header.setSpecs,
+                      "metadataPrefix": metadataprefix,
+                      "metadata": etree.tostring(record.xml.find('.//' + '{http://www.openarchives.org/OAI/2.0/}' + 'metadata/')),
+                      "raw": record.raw})
 
-                serializer = RecordSerializer(rtn)
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            else:
-                raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except OAIAPIException as e:
-            return e.response()
-        except Exception as e:
-            content = APIMessage.getMessageLabelled('An error occurred when attempting to retrieve record. %s'%e)
-            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+            serializer = RecordSerializer(rtn)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except OAIAPIException as e:
+        return e.response()
+    except Exception as e:
+        content = APIMessage.getMessageLabelled('An error occurred when attempting to retrieve record. %s'%e)
+        return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ################################################################################
 #
@@ -684,37 +662,34 @@ def getRecord(request):
 #
 ################################################################################
 @api_view(['POST'])
+@api_permission_required(RIGHTS.oai_pmh_content_type, RIGHTS.oai_pmh_access)
 def objectIdentify(request):
     """
     POST http://localhost/oai_pmh/objectidentify
     POST data query="{'url':'value'}"
     """
-    if request.user.is_authenticated():
-        try:
-            serializer = IdentifySerializer(data=request.DATA)
-            if serializer.is_valid():
-                url = request.DATA['url']
-                req = sickleObjectIdentify(url)
-                if req.status_code == status.HTTP_200_OK:
-                    identifyData = req.data
-                    serializerIdentify = IdentifyObjectSerializer(data=identifyData)
-                    # If it's not valid, return with a bad request
-                    if not serializerIdentify.is_valid():
-                        raise OAIAPIException(message=serializerIdentify.errors, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        serializer = IdentifySerializer(data=request.DATA)
+        if serializer.is_valid():
+            url = request.DATA['url']
+            req = sickleObjectIdentify(url)
+            if req.status_code == status.HTTP_200_OK:
+                identifyData = req.data
+                serializerIdentify = IdentifyObjectSerializer(data=identifyData)
+                # If it's not valid, return with a bad request
+                if not serializerIdentify.is_valid():
+                    raise OAIAPIException(message=serializerIdentify.errors, status=status.HTTP_400_BAD_REQUEST)
 
-                    return Response(req.data, status=status.HTTP_200_OK)
-                else:
-                    raise OAIAPILabelledException(message=req.data[APIMessage.label], status=req.status_code)
+                return Response(req.data, status=status.HTTP_200_OK)
             else:
-                raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except OAIAPIException as e:
-            return e.response()
-        except Exception:
-            content = APIMessage.getMessageLabelled('An error occurred when attempting to identify resource')
-            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+                raise OAIAPILabelledException(message=req.data[APIMessage.label], status=req.status_code)
+        else:
+            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except OAIAPIException as e:
+        return e.response()
+    except Exception:
+        content = APIMessage.getMessageLabelled('An error occurred when attempting to identify resource')
+        return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 ################################################################################
@@ -764,36 +739,34 @@ def sickleObjectIdentify(url):
 #
 ################################################################################
 @api_view(['POST'])
+@api_permission_required(RIGHTS.oai_pmh_content_type, RIGHTS.oai_pmh_access)
 def listObjectMetadataFormats(request):
     """
     POST http://localhost/oai_pmh/listobjectmetadataformats
     POST data query="{'url':'value'}"
     """
-    if request.user.is_authenticated():
-        try:
-            serializer = IdentifySerializer(data=request.DATA)
-            if serializer.is_valid():
-                url = request.DATA['url']
-                req = sickleListObjectMetadataFormats(url)
-                if req.status_code == status.HTTP_200_OK:
-                    metadataformatsData = req.data
-                    serializerMetadataFormat = MetadataFormatSerializer(data=metadataformatsData)
-                    if not serializerMetadataFormat.is_valid():
-                        raise OAIAPIException(message=serializerMetadataFormat.errors, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        serializer = IdentifySerializer(data=request.DATA)
+        if serializer.is_valid():
+            url = request.DATA['url']
+            req = sickleListObjectMetadataFormats(url)
+            if req.status_code == status.HTTP_200_OK:
+                metadataformatsData = req.data
+                serializerMetadataFormat = MetadataFormatSerializer(data=metadataformatsData)
+                if not serializerMetadataFormat.is_valid():
+                    raise OAIAPIException(message=serializerMetadataFormat.errors, status=status.HTTP_400_BAD_REQUEST)
 
-                    return Response(req.data, status=status.HTTP_200_OK)
-                else:
-                    raise OAIAPILabelledException(message=req.data[APIMessage.label], status=req.status_code)
+                return Response(req.data, status=status.HTTP_200_OK)
             else:
-                raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except OAIAPIException as e:
-            return e.response()
-        except Exception as e:
-            content = APIMessage.getMessageLabelled('An error occurred when attempting to identify resource')
-            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+                raise OAIAPILabelledException(message=req.data[APIMessage.label], status=req.status_code)
+        else:
+            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except OAIAPIException as e:
+        return e.response()
+    except Exception as e:
+        content = APIMessage.getMessageLabelled('An error occurred when attempting to identify resource')
+        return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 ################################################################################
@@ -846,36 +819,33 @@ def sickleListObjectMetadataFormats(url):
 #
 ################################################################################
 @api_view(['POST'])
+@api_permission_required(RIGHTS.oai_pmh_content_type, RIGHTS.oai_pmh_access)
 def listObjectSets(request):
     """
     POST http://localhost/oai_pmh/listObjectSets
     POST data query="{'url':'value'}"
     """
-    if request.user.is_authenticated():
-        try:
-            serializer = IdentifySerializer(data=request.DATA)
-            if serializer.is_valid():
-                url = request.DATA['url']
-                req = sickleListObjectSets(url)
-                if req.status_code == status.HTTP_200_OK:
-                    setsData = req.data
-                    serializerSet = SetSerializer(data=setsData)
-                    if not serializerSet.is_valid():
-                        raise OAIAPIException(message=serializerSet.errors, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        serializer = IdentifySerializer(data=request.DATA)
+        if serializer.is_valid():
+            url = request.DATA['url']
+            req = sickleListObjectSets(url)
+            if req.status_code == status.HTTP_200_OK:
+                setsData = req.data
+                serializerSet = SetSerializer(data=setsData)
+                if not serializerSet.is_valid():
+                    raise OAIAPIException(message=serializerSet.errors, status=status.HTTP_400_BAD_REQUEST)
 
-                    return Response(req.data, status=status.HTTP_200_OK)
-                else:
-                    raise OAIAPILabelledException(message=req.data[APIMessage.label], status=req.status_code)
+                return Response(req.data, status=status.HTTP_200_OK)
             else:
-                raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except OAIAPIException as e:
-            return e.response()
-        except Exception as e:
-            content = APIMessage.getMessageLabelled('An error occurred when attempting to identify resource')
-            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+                raise OAIAPILabelledException(message=req.data[APIMessage.label], status=req.status_code)
+        else:
+            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except OAIAPIException as e:
+        return e.response()
+    except Exception as e:
+        content = APIMessage.getMessageLabelled('An error occurred when attempting to identify resource')
+        return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 ################################################################################
@@ -928,43 +898,40 @@ def sickleListObjectSets(url):
 #
 ################################################################################
 @api_view(['POST'])
+@api_permission_required(RIGHTS.oai_pmh_content_type, RIGHTS.oai_pmh_access)
 def listIdentifiers(request):
     """
     POST http://localhost/oai_pmh/listidentifiers
     POST data query="{'url':'value', 'metadataprefix':'value'}" optional {'set':'value'}
     """
-    if request.user.is_authenticated():
-        try:
-            serializer = RegistryURLSerializer(data=request.DATA)
-            if serializer.is_valid():
-                url = request.DATA['url']
-                metadataprefix = request.DATA['metadataprefix']
-                if 'set' in request.DATA:
-                    setH = request.DATA['set']
-                else:
-                    setH = ""
-                sickle = Sickle(url)
-                rsp = sickle.ListIdentifiers(metadataPrefix=metadataprefix, set=setH)
-                rtn = []
-                try:
-                    while True:
-                        rtn.append( dict(rsp.next()) )
-                except StopIteration:
-                    pass
-
-                content = APIMessage.getMessageLabelled(rtn)
-                return Response(content, status=status.HTTP_200_OK)
+    try:
+        serializer = RegistryURLSerializer(data=request.DATA)
+        if serializer.is_valid():
+            url = request.DATA['url']
+            metadataprefix = request.DATA['metadataprefix']
+            if 'set' in request.DATA:
+                setH = request.DATA['set']
             else:
-                raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                setH = ""
+            sickle = Sickle(url)
+            rsp = sickle.ListIdentifiers(metadataPrefix=metadataprefix, set=setH)
+            rtn = []
+            try:
+                while True:
+                    rtn.append( dict(rsp.next()) )
+            except StopIteration:
+                pass
 
-        except OAIAPIException as e:
-            return e.response()
-        except Exception as e:
-            content = APIMessage.getMessageLabelled('An error occurred when attempting to identify resource: %s'%e.message)
-            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+            content = APIMessage.getMessageLabelled(rtn)
+            return Response(content, status=status.HTTP_200_OK)
+        else:
+            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    except OAIAPIException as e:
+        return e.response()
+    except Exception as e:
+        content = APIMessage.getMessageLabelled('An error occurred when attempting to identify resource: %s'%e.message)
+        return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ################################################################################
 #
@@ -980,44 +947,42 @@ def listIdentifiers(request):
 #
 ################################################################################
 @api_view(['POST'])
+@api_permission_required(RIGHTS.oai_pmh_content_type, RIGHTS.oai_pmh_access)
 def getData(request):
     """
     GET http://localhost/oai_pmh/api/getdata/
     url: string
     """
-    if request.user.is_authenticated():
-        try:
-            if 'url' in request.POST:
-                url = request.POST['url']
-            else:
-                content = {'url':['This field is required.']}
-                raise OAIAPIException(message=content, status=status.HTTP_400_BAD_REQUEST)
-            if str(url).__contains__('?'):
-                registryURl = str(url).split('?')[0]
-                #Check if the OAI Registry is available
-                try:
-                    sickle = Sickle(registryURl)
-                    sickle.Identify()
-                except Exception:
-                    raise OAIAPIException(message='An error occurred when attempting to identify resource.', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-                http_response = requests.get(url)
-                if http_response.status_code == status.HTTP_200_OK:
+    try:
+        if 'url' in request.POST:
+            url = request.POST['url']
+        else:
+            content = {'url':['This field is required.']}
+            raise OAIAPIException(message=content, status=status.HTTP_400_BAD_REQUEST)
+        if str(url).__contains__('?'):
+            registryURl = str(url).split('?')[0]
+            #Check if the OAI Registry is available
+            try:
+                sickle = Sickle(registryURl)
+                sickle.Identify()
+            except Exception:
+                raise OAIAPIException(message='An error occurred when attempting to identify resource.', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            http_response = requests.get(url)
+            if http_response.status_code == status.HTTP_200_OK:
 
-                    return Response(http_response.text, status=status.HTTP_200_OK)
-                elif http_response.status_code == status.HTTP_404_NOT_FOUND:
-                    raise OAIAPIException(message='Server not found.', status=status.HTTP_404_NOT_FOUND)
-                else:
-                    raise OAIAPIException(message='An error occurred.', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response(http_response.text, status=status.HTTP_200_OK)
+            elif http_response.status_code == status.HTTP_404_NOT_FOUND:
+                raise OAIAPIException(message='Server not found.', status=status.HTTP_404_NOT_FOUND)
             else:
-                raise OAIAPIException(message='An error occurred, url malformed.', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                raise OAIAPIException(message='An error occurred.', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            raise OAIAPIException(message='An error occurred, url malformed.', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        except OAIAPIException as e:
-            return e.response()
-        except Exception as e:
-            content = 'An error occurred when attempting to identify resource: %s'%e.message
-            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        return Response('Only an administrator can use this feature.', status=status.HTTP_401_UNAUTHORIZED)
+    except OAIAPIException as e:
+        return e.response()
+    except Exception as e:
+        content = 'An error occurred when attempting to identify resource: %s'%e.message
+        return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ################################################################################
 #
@@ -1032,70 +997,67 @@ def getData(request):
 #
 ################################################################################
 @api_view(['POST'])
+@api_staff_member_required()
 def harvest(request):
     """
     POST http://localhost/oai_pmh/api/harvest
     POST data query="{'registry_id':'value'}"
     """
-    if request.user.is_authenticated():
-        #List of errors
-        allErrors = []
+    #List of errors
+    allErrors = []
+    try:
+        if 'registry_id' in request.DATA:
+            registry_id = request.DATA['registry_id']
+        else:
+            content = {'registry_id':['This field is required.']}
+            raise OAIAPIException(message=content, status=status.HTTP_400_BAD_REQUEST)
+
+        #We retrieve the registry (data provider)
         try:
-            if 'registry_id' in request.DATA:
-                registry_id = request.DATA['registry_id']
-            else:
-                content = {'registry_id':['This field is required.']}
-                raise OAIAPIException(message=content, status=status.HTTP_400_BAD_REQUEST)
+            registry = OaiRegistry.objects(pk=registry_id).get()
+            url = registry.url
+        except:
+            raise OAIAPILabelledException(message='No registry found with the given parameters.',
+                                          status=status.HTTP_404_NOT_FOUND)
+        #We are harvesting
+        registry.isHarvesting = True
+        registry.save()
+        #Set the last update date
+        harvestDate = datetime.datetime.now()
+        #Get all available metadata formats
+        metadataformats = OaiMetadataFormat.objects(registry=registry_id, harvest=True)
+        #Get all sets
+        registryAllSets = OaiSet.objects(registry=registry_id).order_by("setName")
+        #Get all available  sets
+        registrySetsToHarvest = OaiSet.objects(registry=registry_id, harvest=True).order_by("setName")
+        #Check if we have to retrieve all sets or not. If all sets, no need to provide the set parameter in the
+        #harvest request. Avoid to retrieve same records for nothing (If records are in many sets).
+        searchBySets = len(registryAllSets) != len(registrySetsToHarvest)
+        #Search by sets
+        if searchBySets and len(registryAllSets) != 0:
+            allErrors = harvestBySetsAndMF(registrySetsToHarvest, metadataformats, url, registry_id, registryAllSets)
+        #If we don't have to search by set or the OAI Registry doesn't support sets
+        else:
+            allErrors = harvestByMF(registrySetsToHarvest, metadataformats, url, registry_id, registryAllSets)
+        #Stop harvesting
+        registry.isHarvesting = False
+        #Set the last update date
+        registry.lastUpdate = harvestDate
+        registry.save()
+        #Return the harvest status
+        if len(allErrors) == 0:
+            content = APIMessage.getMessageLabelled('Harvest data succeeded without errors.')
+        else:
+            content = APIMessage.getMessageLabelled(allErrors)
 
-            #We retrieve the registry (data provider)
-            try:
-                registry = OaiRegistry.objects(pk=registry_id).get()
-                url = registry.url
-            except:
-                raise OAIAPILabelledException(message='No registry found with the given parameters.',
-                                              status=status.HTTP_404_NOT_FOUND)
-            #We are harvesting
-            registry.isHarvesting = True
-            registry.save()
-            #Set the last update date
-            harvestDate = datetime.datetime.now()
-            #Get all available metadata formats
-            metadataformats = OaiMetadataFormat.objects(registry=registry_id, harvest=True)
-            #Get all sets
-            registryAllSets = OaiSet.objects(registry=registry_id).order_by("setName")
-            #Get all available  sets
-            registrySetsToHarvest = OaiSet.objects(registry=registry_id, harvest=True).order_by("setName")
-            #Check if we have to retrieve all sets or not. If all sets, no need to provide the set parameter in the
-            #harvest request. Avoid to retrieve same records for nothing (If records are in many sets).
-            searchBySets = len(registryAllSets) != len(registrySetsToHarvest)
-            #Search by sets
-            if searchBySets and len(registryAllSets) != 0:
-                allErrors = harvestBySetsAndMF(registrySetsToHarvest, metadataformats, url, registry_id, registryAllSets)
-            #If we don't have to search by set or the OAI Registry doesn't support sets
-            else:
-                allErrors = harvestByMF(registrySetsToHarvest, metadataformats, url, registry_id, registryAllSets)
-            #Stop harvesting
-            registry.isHarvesting = False
-            #Set the last update date
-            registry.lastUpdate = harvestDate
-            registry.save()
-            #Return the harvest status
-            if len(allErrors) == 0:
-                content = APIMessage.getMessageLabelled('Harvest data succeeded without errors.')
-            else:
-                content = APIMessage.getMessageLabelled(allErrors)
-
-            return Response(content, status=status.HTTP_200_OK)
-        except OAIAPIException as e:
-            return e.response()
-        except Exception as e:
-            registry.isHarvesting = False
-            registry.save()
-            content = APIMessage.getMessageLabelled('An error occurred during the harvest process: %s'%e.message)
-            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(content, status=status.HTTP_200_OK)
+    except OAIAPIException as e:
+        return e.response()
+    except Exception as e:
+        registry.isHarvesting = False
+        registry.save()
+        content = APIMessage.getMessageLabelled('An error occurred during the harvest process: %s'%e.message)
+        return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 ################################################################################
@@ -1235,53 +1197,50 @@ def harvestRecords(url, registry_id, metadataFormat, lastUpdate, registryAllSets
 #
 ################################################################################
 @api_view(['PUT'])
+@api_staff_member_required()
 def update_registry_harvest(request):
     """
     PUT http://localhost/oai_pmh/update/registry-harvest
     PUT data query="{'id':'value', metadataFormats:['id1', 'id2'..], sets:['id1', 'id2'..]}"
     id: string
     """
-    if request.user.is_authenticated():
+    try:
         #Serialization of the input data
         serializer = UpdateRegistrySerializer(data=request.DATA)
         #If it's valid
-        try:
-            if serializer.is_valid():
-                #We retrieve all information
-                if 'id' in request.DATA:
-                    id = request.DATA['id']
-                else:
-                    rsp = {'id':['This field is required.']}
-                    raise OAIAPIException(message=rsp, status=status.HTTP_400_BAD_REQUEST)
-
-                #Set harvest=False for all
-                OaiMetadataFormat.objects(registry=id).update(set__harvest=False)
-                #For each metadataFormats selected, set harvest=True
-                if 'metadataFormats' in request.DATA:
-                    metadataFormats = request.DATA.getlist('metadataFormats')
-                    if len(metadataFormats):
-                        OaiMetadataFormat.objects(pk__in=metadataFormats).update(set__harvest=True)
-
-                #Set harvest=False for all
-                OaiSet.objects(registry=id).update(set__harvest=False)
-                #For each sets selected, set harvest=True
-                if 'sets' in request.DATA:
-                    sets = request.DATA.getlist('sets')
-                    if len(sets):
-                        OaiSet.objects(pk__in=sets).update(set__harvest=True)
-
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+        if serializer.is_valid():
+            #We retrieve all information
+            if 'id' in request.DATA:
+                id = request.DATA['id']
             else:
-                raise OAIAPILabelledException(message='Serializer failed validation.',
-                                              status=status.HTTP_400_BAD_REQUEST)
-        except OAIAPIException as e:
-            return e.response()
-        except Exception as e:
-            content = APIMessage.getMessageLabelled('Unable to update the harvest configuration for the registry.')
-            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+                rsp = {'id':['This field is required.']}
+                raise OAIAPIException(message=rsp, status=status.HTTP_400_BAD_REQUEST)
+
+            #Set harvest=False for all
+            OaiMetadataFormat.objects(registry=id).update(set__harvest=False)
+            #For each metadataFormats selected, set harvest=True
+            if 'metadataFormats' in request.DATA:
+                metadataFormats = request.DATA.getlist('metadataFormats')
+                if len(metadataFormats):
+                    OaiMetadataFormat.objects(pk__in=metadataFormats).update(set__harvest=True)
+
+            #Set harvest=False for all
+            OaiSet.objects(registry=id).update(set__harvest=False)
+            #For each sets selected, set harvest=True
+            if 'sets' in request.DATA:
+                sets = request.DATA.getlist('sets')
+                if len(sets):
+                    OaiSet.objects(pk__in=sets).update(set__harvest=True)
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            raise OAIAPILabelledException(message='Serializer failed validation.',
+                                          status=status.HTTP_400_BAD_REQUEST)
+    except OAIAPIException as e:
+        return e.response()
+    except Exception as e:
+        content = APIMessage.getMessageLabelled('Unable to update the harvest configuration for the registry.')
+        return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 ################################################################################
@@ -1299,97 +1258,94 @@ def update_registry_harvest(request):
 #
 ################################################################################
 @api_view(['PUT'])
+@api_staff_member_required()
 def update_registry_info(request):
     """
     PUT http://localhost/oai_pmh/update/registry-info
     PUT data query="{'registry_id':'value'}"
     id: string
     """
-    if request.user.is_authenticated():
+    try:
         try:
-            try:
-                registry_id = request.DATA['registry_id']
-            except Exception:
-                content = {'registry_id':['This field is required.']}
-                raise OAIAPIException(message=content, status=status.HTTP_400_BAD_REQUEST)
+            registry_id = request.DATA['registry_id']
+        except Exception:
+            content = {'registry_id':['This field is required.']}
+            raise OAIAPIException(message=content, status=status.HTTP_400_BAD_REQUEST)
 
-            #We retrieve the registry (data provider)
-            try:
-                registry = OaiRegistry.objects(pk=registry_id).get()
-                url = registry.url
-                registry.isUpdating = True
-                registry.save()
-            except:
-                raise OAIAPILabelledException(message='No registry found with the given parameters.',
-                                      status=status.HTTP_404_NOT_FOUND)
+        #We retrieve the registry (data provider)
+        try:
+            registry = OaiRegistry.objects(pk=registry_id).get()
+            url = registry.url
+            registry.isUpdating = True
+            registry.save()
+        except:
+            raise OAIAPILabelledException(message='No registry found with the given parameters.',
+                                  status=status.HTTP_404_NOT_FOUND)
 
-            #Get the identify information for the given URL
-            identify = sickleObjectIdentify(url)
-            #If status OK, we try to serialize data and check if it's valid
-            if identify.status_code == status.HTTP_200_OK:
-                identifyData = identify.data
-                serializerIdentify = IdentifyObjectSerializer(data=identifyData)
-                #If it's not valid, return with a bad request
-                if not serializerIdentify.is_valid():
-                    raise OAIAPILabelledException(message=serializerIdentify.errors, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                raise OAIAPILabelledException(message=identify.data[APIMessage.label], status=identify.status_code)
+        #Get the identify information for the given URL
+        identify = sickleObjectIdentify(url)
+        #If status OK, we try to serialize data and check if it's valid
+        if identify.status_code == status.HTTP_200_OK:
+            identifyData = identify.data
+            serializerIdentify = IdentifyObjectSerializer(data=identifyData)
+            #If it's not valid, return with a bad request
+            if not serializerIdentify.is_valid():
+                raise OAIAPILabelledException(message=serializerIdentify.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            raise OAIAPILabelledException(message=identify.data[APIMessage.label], status=identify.status_code)
 
-            #Get the sets information for the given URL
-            sets = sickleListObjectSets(url)
-            setsData = []
-            #If status OK, we try to serialize data and check if it's valid
-            if sets.status_code == status.HTTP_200_OK:
-                setsData = sets.data
-                serializerSet = SetSerializer(data=setsData)
-                #If it's not valid, return with a bad request
-                if not serializerSet.is_valid():
-                    raise OAIAPILabelledException(serializerSet.errors, status=sets.HTTP_400_BAD_REQUEST)
-            elif sets.status_code != status.HTTP_204_NO_CONTENT:
-                raise OAIAPILabelledException(message=sets.data[APIMessage.label], status=sets.status_code)
+        #Get the sets information for the given URL
+        sets = sickleListObjectSets(url)
+        setsData = []
+        #If status OK, we try to serialize data and check if it's valid
+        if sets.status_code == status.HTTP_200_OK:
+            setsData = sets.data
+            serializerSet = SetSerializer(data=setsData)
+            #If it's not valid, return with a bad request
+            if not serializerSet.is_valid():
+                raise OAIAPILabelledException(serializerSet.errors, status=sets.HTTP_400_BAD_REQUEST)
+        elif sets.status_code != status.HTTP_204_NO_CONTENT:
+            raise OAIAPILabelledException(message=sets.data[APIMessage.label], status=sets.status_code)
 
-            #Get the metadata formats information for the given URL
-            metadataformats = sickleListObjectMetadataFormats(url)
-            metadataformatsData = []
-            #If status OK, we try to serialize data and check if it's valid
-            if metadataformats.status_code == status.HTTP_200_OK:
-                metadataformatsData = metadataformats.data
-                serializerMetadataFormat = MetadataFormatSerializer(data=metadataformatsData)
-                #If it's not valid, return with a bad request
-                if not serializerMetadataFormat.is_valid():
-                    raise OAIAPILabelledException(message=serializerMetadataFormat.errors,
-                                                  status=status.HTTP_400_BAD_REQUEST)
-            elif metadataformats.status_code != status.HTTP_204_NO_CONTENT:
-                raise OAIAPILabelledException(message=metadataformats.data[APIMessage.label],
-                                              status=metadataformats.status_code)
-            try:
-                modifyRegistry(identifyData, registry)
-                modifySetsForRegistry(registry, setsData)
-                modifyMetadataformatsForRegistry(registry, metadataformatsData)
-                #Save the registry
-                registry.isUpdating = False
-                registry.save()
-                content = APIMessage.getMessageLabelled('Data provider updated with success.')
+        #Get the metadata formats information for the given URL
+        metadataformats = sickleListObjectMetadataFormats(url)
+        metadataformatsData = []
+        #If status OK, we try to serialize data and check if it's valid
+        if metadataformats.status_code == status.HTTP_200_OK:
+            metadataformatsData = metadataformats.data
+            serializerMetadataFormat = MetadataFormatSerializer(data=metadataformatsData)
+            #If it's not valid, return with a bad request
+            if not serializerMetadataFormat.is_valid():
+                raise OAIAPILabelledException(message=serializerMetadataFormat.errors,
+                                              status=status.HTTP_400_BAD_REQUEST)
+        elif metadataformats.status_code != status.HTTP_204_NO_CONTENT:
+            raise OAIAPILabelledException(message=metadataformats.data[APIMessage.label],
+                                          status=metadataformats.status_code)
+        try:
+            modifyRegistry(identifyData, registry)
+            modifySetsForRegistry(registry, setsData)
+            modifyMetadataformatsForRegistry(registry, metadataformatsData)
+            #Save the registry
+            registry.isUpdating = False
+            registry.save()
+            content = APIMessage.getMessageLabelled('Data provider updated with success.')
 
-                return Response(content, status=status.HTTP_200_OK)
-            except NotUniqueError as e:
-                raise OAIAPILabelledException(message='Unable to update the registry. '
-                                                      'The registry already exists.%s'%e.message,
-                                                  status=status.HTTP_409_CONFLICT)
-            except Exception as e:
-                raise OAIAPILabelledException(message='An error occurred during the Data Provider update. '
-                                                      'Please contact your administrator. %s'%e.message,
-                                                  status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        except OAIAPIException as e:
-                registry.isUpdating = False
-                registry.save()
-                return e.response()
+            return Response(content, status=status.HTTP_200_OK)
+        except NotUniqueError as e:
+            raise OAIAPILabelledException(message='Unable to update the registry. '
+                                                  'The registry already exists.%s'%e.message,
+                                              status=status.HTTP_409_CONFLICT)
         except Exception as e:
-            content = APIMessage.getMessageLabelled(e.message)
-            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+            raise OAIAPILabelledException(message='An error occurred during the Data Provider update. '
+                                                  'Please contact your administrator. %s'%e.message,
+                                              status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except OAIAPIException as e:
+            registry.isUpdating = False
+            registry.save()
+            return e.response()
+    except Exception as e:
+        content = APIMessage.getMessageLabelled(e.message)
+        return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 ################################################################################
@@ -1516,50 +1472,47 @@ def modifyOaiIdentify(identifyData, identifyRaw, identifyId):
 #
 ################################################################################
 @api_view(['POST'])
+@api_permission_required(RIGHTS.oai_pmh_content_type, RIGHTS.oai_pmh_access)
 def listObjectAllRecords(request):
     """
     POST http://localhost/oai_pmh/listobjectrecords
     POST data query="{'url':'value', 'metadataprefix':'value'}" optional: {'set':'value', 'fromDate':'date', 'until':'date'}
     """
-    if request.user.is_authenticated():
-        try:
-            serializer = ListRecordsSerializer(data=request.DATA)
-            if serializer.is_valid():
-                url = request.DATA['url']
-                metadataPrefix = request.DATA['metadataprefix']
-                set_h = None
-                if 'set' in request.DATA:
-                    set_h = request.DATA['set']
+    try:
+        serializer = ListRecordsSerializer(data=request.DATA)
+        if serializer.is_valid():
+            url = request.DATA['url']
+            metadataPrefix = request.DATA['metadataprefix']
+            set_h = None
+            if 'set' in request.DATA:
+                set_h = request.DATA['set']
 
-                fromDate = None
-                if 'fromDate' in request.DATA:
-                    fromDate = request.DATA['fromDate']
+            fromDate = None
+            if 'fromDate' in request.DATA:
+                fromDate = request.DATA['fromDate']
 
-                untilDate = None
-                if 'until' in request.DATA:
-                    untilDate = request.DATA['until']
+            untilDate = None
+            if 'until' in request.DATA:
+                untilDate = request.DATA['until']
 
-                http_response, token = getListRecords(url, metadataPrefix, set_h, fromDate, untilDate)
-                if http_response.status_code == status.HTTP_200_OK:
-                    rtn = http_response.data
-                #Else, we return a bad request response with the message provided by the API
-                else:
-                    content = http_response.data['error']
-                    raise OAIAPIException(message=content, status=http_response.status_code)
-
-                serializer = RecordSerializer(rtn)
-                return Response(serializer.data, status=status.HTTP_200_OK)
+            http_response, token = getListRecords(url, metadataPrefix, set_h, fromDate, untilDate)
+            if http_response.status_code == status.HTTP_200_OK:
+                rtn = http_response.data
+            #Else, we return a bad request response with the message provided by the API
             else:
-                raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                content = http_response.data['error']
+                raise OAIAPIException(message=content, status=http_response.status_code)
 
-        except OAIAPIException as e:
-            return e.response()
-        except Exception as e:
-            content = APIMessage.getMessageLabelled('An error occurred when attempting to identify resource: %s'%e.message)
-            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+            serializer = RecordSerializer(rtn)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    except OAIAPIException as e:
+        return e.response()
+    except Exception as e:
+        content = APIMessage.getMessageLabelled('An error occurred when attempting to identify resource: %s'%e.message)
+        return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ################################################################################
 #
@@ -1656,62 +1609,59 @@ def getListRecords(url, metadataPrefix=None, resumptionToken=None, set_h=None, f
 #
 ################################################################################
 @api_view(['POST'])
+@api_staff_member_required()
 def add_my_metadataFormat(request):
     """
     POST http://localhost/oai_pmh/add/my-metadataformat
     POST data query="{'metadataPrefix':'value', 'schema':'schemaURL'}"
     """
-    if request.user.is_authenticated():
-        try:
-        #Serialization of the input data
-            serializer = MyMetadataFormatSerializer(data=request.DATA)
-            #If it's valid
-            if serializer.is_valid():
-                #We retrieve all information
-                if 'metadataPrefix' in request.POST:
-                    metadataprefix = request.DATA['metadataPrefix']
-                if 'schema' in request.POST:
-                    schema = request.DATA['schema']
+    try:
+    #Serialization of the input data
+        serializer = MyMetadataFormatSerializer(data=request.DATA)
+        #If it's valid
+        if serializer.is_valid():
+            #We retrieve all information
+            if 'metadataPrefix' in request.POST:
+                metadataprefix = request.DATA['metadataPrefix']
+            if 'schema' in request.POST:
+                schema = request.DATA['schema']
 
-                #Try to get the schema
-                http_response = requests.get(schema)
-                if http_response.status_code == status.HTTP_200_OK:
-                    #Check if the XML is well formed
-                    try:
-                        xml_schema = http_response.text
-                        dom = etree.fromstring(xml_schema.encode('utf-8'))
-                        if 'targetNamespace' in dom.find(".").attrib:
-                            metadataNamespace = dom.find(".").attrib['targetNamespace'] or "namespace"
-                        else:
-                            metadataNamespace = "http://www.w3.org/2001/XMLSchema"
-                    except XMLSyntaxError:
-                        raise OAIAPILabelledException(message='Unable to add the new metadata format.',
-                                                      status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    raise OAIAPILabelledException(message='Unable to add the new metadata format. '
-                                                          'Impossible to retrieve the schema at the given URL',
-                                                  status=status.HTTP_400_BAD_REQUEST)
+            #Try to get the schema
+            http_response = requests.get(schema)
+            if http_response.status_code == status.HTTP_200_OK:
+                #Check if the XML is well formed
                 try:
-                    #Add in database
-                   OaiMyMetadataFormat(metadataPrefix=metadataprefix, schema=schema,
-                                       metadataNamespace=metadataNamespace,
-                                       xmlSchema=xml_schema, isDefault=False).save()
-                except Exception as e:
-                    raise OAIAPILabelledException(message='Unable to add the new metadata format. \n%s'%e.message,
-                                                      status=status.HTTP_400_BAD_REQUEST)
-
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                    xml_schema = http_response.text
+                    dom = etree.fromstring(xml_schema.encode('utf-8'))
+                    if 'targetNamespace' in dom.find(".").attrib:
+                        metadataNamespace = dom.find(".").attrib['targetNamespace'] or "namespace"
+                    else:
+                        metadataNamespace = "http://www.w3.org/2001/XMLSchema"
+                except XMLSyntaxError:
+                    raise OAIAPILabelledException(message='Unable to add the new metadata format.',
+                                                  status=status.HTTP_400_BAD_REQUEST)
             else:
-                raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                raise OAIAPILabelledException(message='Unable to add the new metadata format. '
+                                                      'Impossible to retrieve the schema at the given URL',
+                                              status=status.HTTP_400_BAD_REQUEST)
+            try:
+                #Add in database
+               OaiMyMetadataFormat(metadataPrefix=metadataprefix, schema=schema,
+                                   metadataNamespace=metadataNamespace,
+                                   xmlSchema=xml_schema, isDefault=False).save()
+            except Exception as e:
+                raise OAIAPILabelledException(message='Unable to add the new metadata format. \n%s'%e.message,
+                                                  status=status.HTTP_400_BAD_REQUEST)
 
-        except OAIAPIException as e:
-            return e.response()
-        except Exception, e:
-            content = APIMessage.getMessageLabelled('Unable to add the new metadata format. \n%s'%e.message)
-            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    except OAIAPIException as e:
+        return e.response()
+    except Exception, e:
+        content = APIMessage.getMessageLabelled('Unable to add the new metadata format. \n%s'%e.message)
+        return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 ################################################################################
@@ -1729,64 +1679,61 @@ def add_my_metadataFormat(request):
 #
 ################################################################################
 @api_view(['POST'])
+@api_staff_member_required()
 def add_my_template_metadataFormat(request):
     """
     POST http://localhost/oai_pmh/add/my-template-metadataformat
     POST data query="{'metadataPrefix':'value', 'template':'templateID'}"
     """
-    if request.user.is_authenticated():
-        try:
-        #Serialization of the input data
-            serializer = MyTemplateMetadataFormatSerializer(data=request.DATA)
-            #If it's valid
-            if serializer.is_valid():
-                #We retrieve all information
-                if 'metadataPrefix' in request.POST:
-                    metadataprefix = request.DATA['metadataPrefix']
-                if 'template' in request.POST:
-                    template = request.DATA['template']
+    try:
+    #Serialization of the input data
+        serializer = MyTemplateMetadataFormatSerializer(data=request.DATA)
+        #If it's valid
+        if serializer.is_valid():
+            #We retrieve all information
+            if 'metadataPrefix' in request.POST:
+                metadataprefix = request.DATA['metadataPrefix']
+            if 'template' in request.POST:
+                template = request.DATA['template']
 
-                #Try to get the template
+            #Try to get the template
+            try:
+                template = Template.objects.get(pk=template)
+                #Check if the XML is well formed
                 try:
-                    template = Template.objects.get(pk=template)
-                    #Check if the XML is well formed
-                    try:
-                        xml_schema = template.content
-                        dom = etree.fromstring(xml_schema.encode('utf-8'))
-                        if 'targetNamespace' in dom.find(".").attrib:
-                            metadataNamespace = dom.find(".").attrib['targetNamespace'] or "namespace"
-                        else:
-                            metadataNamespace = "http://www.w3.org/2001/XMLSchema"
-                    except XMLSyntaxError:
-                        raise OAIAPILabelledException(message='Unable to add the new metadata format. XML Synthax error.',
-                                                  status=status.HTTP_400_BAD_REQUEST)
-                except Exception, e:
-                    raise OAIAPILabelledException(message='Unable to add the new metadata format. '
-                                                          'Impossible to retrieve the template with the given template',
-                                                  status=status.HTTP_400_BAD_REQUEST)
-                try:
-                   #Create a schema URL
-                   schemaURL = OAI_HOST_URI + reverse('getXSD', args=[template.filename])
-                   #Add in database
-                   OaiMyMetadataFormat(metadataPrefix=metadataprefix,
-                                       schema=schemaURL,
-                                       metadataNamespace=metadataNamespace, xmlSchema='', isDefault=False,
-                                       isTemplate=True, template=template).save()
-                except Exception as e:
-                    raise OAIAPILabelledException(message='Unable to add the new metadata format. \n%s'%e.message,
-                                                  status=status.HTTP_400_BAD_REQUEST)
+                    xml_schema = template.content
+                    dom = etree.fromstring(xml_schema.encode('utf-8'))
+                    if 'targetNamespace' in dom.find(".").attrib:
+                        metadataNamespace = dom.find(".").attrib['targetNamespace'] or "namespace"
+                    else:
+                        metadataNamespace = "http://www.w3.org/2001/XMLSchema"
+                except XMLSyntaxError:
+                    raise OAIAPILabelledException(message='Unable to add the new metadata format. XML Synthax error.',
+                                              status=status.HTTP_400_BAD_REQUEST)
+            except Exception, e:
+                raise OAIAPILabelledException(message='Unable to add the new metadata format. '
+                                                      'Impossible to retrieve the template with the given template',
+                                              status=status.HTTP_400_BAD_REQUEST)
+            try:
+               #Create a schema URL
+               schemaURL = OAI_HOST_URI + reverse('getXSD', args=[template.filename])
+               #Add in database
+               OaiMyMetadataFormat(metadataPrefix=metadataprefix,
+                                   schema=schemaURL,
+                                   metadataNamespace=metadataNamespace, xmlSchema='', isDefault=False,
+                                   isTemplate=True, template=template).save()
+            except Exception as e:
+                raise OAIAPILabelledException(message='Unable to add the new metadata format. \n%s'%e.message,
+                                              status=status.HTTP_400_BAD_REQUEST)
 
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            else:
-                raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except OAIAPIException as e:
-            return e.response()
-        except Exception, e:
-            content = APIMessage.getMessageLabelled('Unable to add the new metadata format. \n%s'%e.message)
-            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except OAIAPIException as e:
+        return e.response()
+    except Exception, e:
+        content = APIMessage.getMessageLabelled('Unable to add the new metadata format. \n%s'%e.message)
+        return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ################################################################################
 #
@@ -1803,37 +1750,34 @@ def add_my_template_metadataFormat(request):
 #
 ################################################################################
 @api_view(['POST'])
+@api_staff_member_required()
 def delete_my_metadataFormat(request):
     """
     POST http://localhost/oai_pmh/delete/my-metadataFormat
     POST data query="{'MetadataFormatId':'value'}"
     """
-    if request.user.is_authenticated():
-        try:
-            serializer = DeleteMyMetadataFormatSerializer(data=request.DATA)
-            if serializer.is_valid():
-                #Get the ID
-                id = request.DATA['MetadataFormatId']
-                try:
-                    metadataFormat = OaiMyMetadataFormat.objects.get(pk=id)
-                except Exception as e:
-                    raise OAIAPILabelledException(message='No metadata format found with the given id.',
-                                                  status=status.HTTP_400_BAD_REQUEST)
-                #We can now delete the metadataFormat for my server
-                metadataFormat.delete()
-                content = APIMessage.getMessageLabelled("Deleted metadata format with success.")
+    try:
+        serializer = DeleteMyMetadataFormatSerializer(data=request.DATA)
+        if serializer.is_valid():
+            #Get the ID
+            id = request.DATA['MetadataFormatId']
+            try:
+                metadataFormat = OaiMyMetadataFormat.objects.get(pk=id)
+            except Exception as e:
+                raise OAIAPILabelledException(message='No metadata format found with the given id.',
+                                              status=status.HTTP_400_BAD_REQUEST)
+            #We can now delete the metadataFormat for my server
+            metadataFormat.delete()
+            content = APIMessage.getMessageLabelled("Deleted metadata format with success.")
 
-                return Response(content, status=status.HTTP_200_OK)
-            else:
-                raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except OAIAPIException as e:
-            return e.response()
-        except Exception as e:
-            content = APIMessage.getMessageLabelled(e.message)
-            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(content, status=status.HTTP_200_OK)
+        else:
+            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except OAIAPIException as e:
+        return e.response()
+    except Exception as e:
+        content = APIMessage.getMessageLabelled(e.message)
+        return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ################################################################################
 #
@@ -1850,47 +1794,44 @@ def delete_my_metadataFormat(request):
 #
 ################################################################################
 @api_view(['PUT'])
+@api_staff_member_required()
 def update_my_metadataFormat(request):
     """
     PUT http://localhost/oai_pmh/update/my-metadataFormat
     PUT data query="{'id':'value', 'metadataPrefix':'value'}"
     """
-    if request.user.is_authenticated():
-        try:
-            #Serialization of the input data
-            serializer = UpdateMyMetadataFormatSerializer(data=request.DATA)
-            #If it's valid
-            if serializer.is_valid():
-            #We retrieve all information
-                try:
-                    if 'id' in request.DATA:
-                        id = request.DATA['id']
-                        metadataFormat = OaiMyMetadataFormat.objects.get(pk=id)
-                    else:
-                        rsp = {'id':'\'Id\' not found in request.'}
-                        return Response(rsp, status=status.HTTP_400_BAD_REQUEST)
-                except:
-                    raise OAIAPILabelledException(message='No metadata format found with the given id.',
-                                                  status=status.HTTP_404_NOT_FOUND)
-                if 'metadataPrefix' in request.DATA:
-                    metadataprefix = request.DATA['metadataPrefix']
-                    if metadataprefix:
-                        metadataFormat.metadataPrefix = metadataprefix
-                try:
-                    #Save the modifications
-                     metadataFormat.save()
-                except Exception as e:
-                    raise OAIAPILabelledException(message='Unable to update the metadata format. \n%s'%e.message,
-                                                  status=status.HTTP_400_BAD_REQUEST)
+    try:
+        #Serialization of the input data
+        serializer = UpdateMyMetadataFormatSerializer(data=request.DATA)
+        #If it's valid
+        if serializer.is_valid():
+        #We retrieve all information
+            try:
+                if 'id' in request.DATA:
+                    id = request.DATA['id']
+                    metadataFormat = OaiMyMetadataFormat.objects.get(pk=id)
+                else:
+                    rsp = {'id':'\'Id\' not found in request.'}
+                    return Response(rsp, status=status.HTTP_400_BAD_REQUEST)
+            except:
+                raise OAIAPILabelledException(message='No metadata format found with the given id.',
+                                              status=status.HTTP_404_NOT_FOUND)
+            if 'metadataPrefix' in request.DATA:
+                metadataprefix = request.DATA['metadataPrefix']
+                if metadataprefix:
+                    metadataFormat.metadataPrefix = metadataprefix
+            try:
+                #Save the modifications
+                 metadataFormat.save()
+            except Exception as e:
+                raise OAIAPILabelledException(message='Unable to update the metadata format. \n%s'%e.message,
+                                              status=status.HTTP_400_BAD_REQUEST)
 
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            else:
-                raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except OAIAPIException as e:
-            return e.response()
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except OAIAPIException as e:
+        return e.response()
 
 
 ################################################################################
@@ -1908,43 +1849,40 @@ def update_my_metadataFormat(request):
 #
 ################################################################################
 @api_view(['POST'])
+@api_staff_member_required()
 def add_my_set(request):
     """
     PUT http://localhost/oai_pmh/add/my-set
     PUT data query="{'setSpec':'value', 'setName':'value', 'description':'value'}"
     """
-    if request.user.is_authenticated():
-        try:
-            #Serialization of the input data
-            serializer = MySetSerializer(data=request.DATA)
-            #If it's valid
-            if serializer.is_valid():
-                #We retrieve all information
-                if 'setSpec' in request.POST:
-                    setSpec = request.DATA['setSpec']
-                if 'setName' in request.POST:
-                    setName = request.DATA['setName']
-                if 'description' in request.POST:
-                    description = request.DATA['description']
-                if 'templates' in request.POST:
-                    templates = request.DATA.getlist('templates')
-                else:
-                    templates = []
-                try:
-                    #Add in databases
-                   OaiMySet(setSpec=setSpec, setName=setName, description=description, templates=templates).save()
-                except Exception as e:
-                    raise OAIAPILabelledException(message='Unable to add the new set. \n%s'%e.message,
-                                                  status=status.HTTP_400_BAD_REQUEST)
-
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+    try:
+        #Serialization of the input data
+        serializer = MySetSerializer(data=request.DATA)
+        #If it's valid
+        if serializer.is_valid():
+            #We retrieve all information
+            if 'setSpec' in request.POST:
+                setSpec = request.DATA['setSpec']
+            if 'setName' in request.POST:
+                setName = request.DATA['setName']
+            if 'description' in request.POST:
+                description = request.DATA['description']
+            if 'templates' in request.POST:
+                templates = request.DATA.getlist('templates')
             else:
-                raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except OAIAPIException as e:
-            return e.response()
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+                templates = []
+            try:
+                #Add in databases
+               OaiMySet(setSpec=setSpec, setName=setName, description=description, templates=templates).save()
+            except Exception as e:
+                raise OAIAPILabelledException(message='Unable to add the new set. \n%s'%e.message,
+                                              status=status.HTTP_400_BAD_REQUEST)
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except OAIAPIException as e:
+        return e.response()
 
 
 ################################################################################
@@ -1962,37 +1900,34 @@ def add_my_set(request):
 #
 ################################################################################
 @api_view(['POST'])
+@api_staff_member_required()
 def delete_my_set(request):
     """
     POST http://localhost/oai_pmh/delete/my-set
     POST data query="{'set_id':'value'}"
     """
-    if request.user.is_authenticated():
-        try:
-            serializer = DeleteMySetSerializer(data=request.DATA)
-            if serializer.is_valid():
-                #Get the ID
-                id = request.DATA['set_id']
-                try:
-                    set = OaiMySet.objects.get(pk=id)
-                except Exception as e:
-                    raise OAIAPILabelledException(message='No set found with the given id.',
-                                                  status=status.HTTP_400_BAD_REQUEST)
-                #We can now delete the set for my server
-                set.delete()
-                content = APIMessage.getMessageLabelled("Deleted set with success.")
+    try:
+        serializer = DeleteMySetSerializer(data=request.DATA)
+        if serializer.is_valid():
+            #Get the ID
+            id = request.DATA['set_id']
+            try:
+                set = OaiMySet.objects.get(pk=id)
+            except Exception as e:
+                raise OAIAPILabelledException(message='No set found with the given id.',
+                                              status=status.HTTP_400_BAD_REQUEST)
+            #We can now delete the set for my server
+            set.delete()
+            content = APIMessage.getMessageLabelled("Deleted set with success.")
 
-                return Response(content, status=status.HTTP_200_OK)
-            else:
-                raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except OAIAPIException as e:
-            return e.response()
-        except Exception as e:
-            content = APIMessage.getMessageLabelled(e.message)
-            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(content, status=status.HTTP_200_OK)
+        else:
+            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except OAIAPIException as e:
+        return e.response()
+    except Exception as e:
+        content = APIMessage.getMessageLabelled(e.message)
+        return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 ################################################################################
@@ -2010,58 +1945,55 @@ def delete_my_set(request):
 #
 ################################################################################
 @api_view(['PUT'])
+@api_staff_member_required()
 def update_my_set(request):
     """
     PUT http://localhost/oai_pmh/update/my-set
     PUT data query="{'id':'value', 'setSpec':'value','setName':'value'}"
     """
-    if request.user.is_authenticated():
-        try:
-            #Serialization of the input data
-            serializer = UpdateMySetSerializer(data=request.DATA)
-            #If it's valid
-            if serializer.is_valid():
-                #We retrieve all information
-                try:
-                    if 'id' in request.DATA:
-                        id = request.DATA['id']
-                        set = OaiMySet.objects.get(pk=id)
-                    else:
-                        rsp = {'id':'\'Id\' not found in request.'}
-                        raise OAIAPIException(message=rsp, status=status.HTTP_400_BAD_REQUEST)
-                except:
-                    raise OAIAPILabelledException(message='No set found with the given id.',
-                                                  status=status.HTTP_404_NOT_FOUND)
-                if 'setSpec' in request.DATA:
-                    setSpec = request.DATA['setSpec']
-                    if setSpec:
-                        set.setSpec = setSpec
-                if 'setName' in request.DATA:
-                    setName = request.DATA['setName']
-                    if setName:
-                        set.setName = setName
-                description = None
-                if 'description' in request.DATA:
-                    description = request.DATA['description']
-                set.description = description
-                if 'templates' in request.DATA:
-                    templates = request.DATA.getlist('templates')
-                    set.templates = Template.objects(pk__in=templates).all()
+    try:
+        #Serialization of the input data
+        serializer = UpdateMySetSerializer(data=request.DATA)
+        #If it's valid
+        if serializer.is_valid():
+            #We retrieve all information
+            try:
+                if 'id' in request.DATA:
+                    id = request.DATA['id']
+                    set = OaiMySet.objects.get(pk=id)
                 else:
-                    set.templates = []
-                try:
-                    #Save the modifications
-                     set.save()
-                except Exception as e:
-                    raise OAIAPILabelledException(message='Unable to update the set. \n%s'%e.message,
-                                                  status=status.HTTP_400_BAD_REQUEST)
-
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                    rsp = {'id':'\'Id\' not found in request.'}
+                    raise OAIAPIException(message=rsp, status=status.HTTP_400_BAD_REQUEST)
+            except:
+                raise OAIAPILabelledException(message='No set found with the given id.',
+                                              status=status.HTTP_404_NOT_FOUND)
+            if 'setSpec' in request.DATA:
+                setSpec = request.DATA['setSpec']
+                if setSpec:
+                    set.setSpec = setSpec
+            if 'setName' in request.DATA:
+                setName = request.DATA['setName']
+                if setName:
+                    set.setName = setName
+            description = None
+            if 'description' in request.DATA:
+                description = request.DATA['description']
+            set.description = description
+            if 'templates' in request.DATA:
+                templates = request.DATA.getlist('templates')
+                set.templates = Template.objects(pk__in=templates).all()
             else:
-                raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except OAIAPIException as e:
-            return e.response()
-    else:
-        content = {'message':'Only an administrator can use this feature.'}
-        return Response(content, status=status.HTTP_401_UNAUTHORIZED)
+                set.templates = []
+            try:
+                #Save the modifications
+                 set.save()
+            except Exception as e:
+                raise OAIAPILabelledException(message='Unable to update the set. \n%s'%e.message,
+                                              status=status.HTTP_400_BAD_REQUEST)
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except OAIAPIException as e:
+        return e.response()
 
