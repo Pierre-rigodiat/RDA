@@ -37,6 +37,7 @@ from mongoengine import NotUniqueError, OperationError
 from django.forms import formset_factory
 from oai_pmh.admin.forms import AssociateXSLT
 from django.core.urlresolvers import reverse
+from oai_pmh.api.messages import APIMessage
 
 
 ################################################################################
@@ -136,7 +137,7 @@ def add_registry(request):
                     #Else, we return a bad request response with the message provided by the API
                     else:
                         data = json.loads(req.text)
-                        return HttpResponseBadRequest(data['message'])
+                        return HttpResponseBadRequest(data[APIMessage.label])
                 except Exception as e:
                     return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
             except Exception as e:
@@ -187,7 +188,7 @@ def update_registry(request):
                 #Else, we return a bad request response with the message provided by the API
                 else:
                     data = json.loads(req.text)
-                    return HttpResponseBadRequest(data['message'])
+                    return HttpResponseBadRequest(data[APIMessage.label])
             except Exception as e:
                 return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
         except Exception as e:
@@ -236,7 +237,7 @@ def delete_registry(request):
         #Else, we return a bad request response with the message provided by the API
         else:
             data = json.loads(req.text)
-            return HttpResponseBadRequest(data['message'])
+            return HttpResponseBadRequest(data[APIMessage.label])
     except Exception as e:
         return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
 
@@ -267,7 +268,7 @@ def deactivate_registry(request):
         #Else, we return a bad request response with the message provided by the API
         else:
             data = json.loads(req.text)
-            return HttpResponseBadRequest(data['message'])
+            return HttpResponseBadRequest(data[APIMessage.label])
     except Exception as e:
         return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
 
@@ -298,7 +299,7 @@ def reactivate_registry(request):
         #Else, we return a bad request response with the message provided by the API
         else:
             data = json.loads(req.text)
-            return HttpResponseBadRequest(data['message'])
+            return HttpResponseBadRequest(data[APIMessage.label])
     except Exception as e:
         return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
 
@@ -494,7 +495,7 @@ def update_my_registry(request):
                 #Else, we return a bad request response with the message provided by the API
                 else:
                     data = json.loads(req.text)
-                    return HttpResponseBadRequest(data['message'])
+                    return HttpResponseBadRequest(data[APIMessage.label])
             except Exception as e:
                 return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
         except Exception as e:
@@ -557,7 +558,7 @@ def add_my_metadataFormat(request):
                     #Else, we return a bad request response with the message provided by the API
                     else:
                         data = json.loads(req.text)
-                        return HttpResponseBadRequest(data['message'])
+                        return HttpResponseBadRequest(data[APIMessage.label])
                 except Exception as e:
                     return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
             except Exception as e:
@@ -606,7 +607,7 @@ def add_my_template_metadataFormat(request):
                     #Else, we return a bad request response with the message provided by the API
                     else:
                         data = json.loads(req.text)
-                        return HttpResponseBadRequest(data['message'])
+                        return HttpResponseBadRequest(data[APIMessage.label])
                 except Exception as e:
                     return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
             except Exception as e:
@@ -641,7 +642,7 @@ def delete_my_metadataFormat(request):
         #Else, we return a bad request response with the message provided by the API
         else:
             data = json.loads(req.text)
-            return HttpResponseBadRequest(data['message'])
+            return HttpResponseBadRequest(data[APIMessage.label])
     except Exception as e:
         return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
 
@@ -684,7 +685,7 @@ def update_my_metadataFormat(request):
                 #Else, we return a bad request response with the message provided by the API
                 else:
                     data = json.loads(req.text)
-                    return HttpResponseBadRequest(data['message'])
+                    return HttpResponseBadRequest(data[APIMessage.label])
             except Exception as e:
                 return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
         except Exception as e:
@@ -751,7 +752,7 @@ def add_my_set(request):
                 #Else, we return a bad request response with the message provided by the API
                 else:
                     data = json.loads(req.text)
-                    return HttpResponseBadRequest(data['message'])
+                    return HttpResponseBadRequest(data[APIMessage.label])
             except Exception as e:
                 return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
         except Exception as e:
@@ -784,7 +785,7 @@ def delete_my_set(request):
         #Else, we return a bad request response with the message provided by the API
         else:
             data = json.loads(req.text)
-            return HttpResponseBadRequest(data['message'])
+            return HttpResponseBadRequest(data[APIMessage.label])
     except Exception as e:
         return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
 
@@ -834,7 +835,7 @@ def update_my_set(request):
                 #Else, we return a bad request response with the message provided by the API
                 else:
                     data = json.loads(req.text)
-                    return HttpResponseBadRequest(data['message'])
+                    return HttpResponseBadRequest(data[APIMessage.label])
             except Exception as e:
                 return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
         except Exception as e:
@@ -1039,7 +1040,7 @@ def update_registry_harvest(request):
                 #Else, we return a bad request response with the message provided by the API
                 else:
                     data = json.loads(req.text)
-                    return HttpResponseBadRequest(data['message'])
+                    return HttpResponseBadRequest(data[APIMessage.label])
             except Exception as e:
                 return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
         except Exception as e:
