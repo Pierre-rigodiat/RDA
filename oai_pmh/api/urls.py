@@ -20,7 +20,7 @@ urlpatterns = patterns(
     url(r'^listobjectmetadataformats$', 'listObjectMetadataFormats'), #ListMF
     url(r'^listobjectsets$', 'listObjectSets'), #List Set
     url(r'^listidentifiers$', 'listIdentifiers'), #List Identify
-    url(r'^getrecord', 'getRecord'), #GetRecord
+    url(r'^getrecord$', 'getRecord'), #GetRecord
     #Manage Data Providers
     url(r'^select/registry$', 'select_registry'),
     url(r'^add/registry$', 'add_registry', name='api_add_registry'),
@@ -41,7 +41,7 @@ urlpatterns = patterns(
     url(r'^update/my-set$', 'update_my_set', name='api_update_my_set'),
     url(r'^delete/my-set$', 'delete_my_set', name='api_delete_my_set'),
     #Get data
-    url(r'^getdata/$', 'getData'),
+    url(r'^getdata/$', 'getData', name='api_get_data'),
     #Harvest data
     url(r'^harvest$', 'harvest', name='api_harvest'),
     #Harvest configuration

@@ -34,6 +34,7 @@ from django.conf import settings
 import lxml.etree as etree
 import os
 from StringIO import StringIO
+from django.core.urlresolvers import reverse
 
 ################################################################################
 #
@@ -149,7 +150,7 @@ def all_metadataprefix(request, registry):
 def getData(request):
     url = request.POST['url']
 
-    uri= OAI_HOST_URI + "/oai_pmh/api/getdata/"
+    uri= OAI_HOST_URI + reverse("api_get_data")
     req = requests.post(uri, {"url":url}, auth=(OAI_USER, OAI_PASS))
 
     if req.status_code == status.HTTP_200_OK:
