@@ -26,33 +26,14 @@ default_group = "default"
 #######################
 
 ### API Rights ###
-api_content_type = "api"
-api_access = "api_access"
+api_content_type = "api_oai_pmh"
+api_access = "api_oai_pmh_access"
 ### End API Rights ###
 
-### Compose Rights ###
-compose_content_type = "compose"
-compose_access = "compose_access"
-compose_save_template = "compose_save_template"
-compose_save_type = "compose_save_type"
-### End Compose Rights ###
-
-
-### Curate Rights ###
-curate_content_type = "curate"
-curate_access = "curate_access"
-curate_view_data_save_repo = "curate_view_data_save_repo"
-curate_edit_document="curate_edit_document"
-curate_delete_document="curate_delete_document"
-### End Curate Rights ###
-
-
-### Explore Rights ###
-explore_content_type = "explore"
-explore_access = "explore_access"
-explore_save_query="explore_save_query"
-explore_delete_query="explore_delete_query"
-### End Explore Rights ###
+### OAI PMH Rights ###
+oai_pmh_content_type = "oaipmh"
+oai_pmh_access = "oaipmh_access"
+### End OAI PMH Rights ###
 
 
 def get_description(right):
