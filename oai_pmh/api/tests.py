@@ -11,8 +11,7 @@
 #
 ################################################################################
 
-from testing.models import OAI_PMH_Test
-
+from oai_pmh.tests.models import OAI_PMH_Test
 
 class tests_OAI_PMH_API(OAI_PMH_Test):
 

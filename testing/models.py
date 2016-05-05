@@ -55,6 +55,28 @@ ADMIN_APPLICATION = 'remote_mdcs'
 
 class RegressionTest(LiveServerTestCase):
 
+    def setUp(self):
+        discover.init_rules()
+
+        user, userCreated = User.objects.get_or_create(username='user')
+        if userCreated:
+            user.set_password('user')
+            user.save()
+
+        admin, adminCreated = User.objects.get_or_create(username='admin', is_staff=1, is_superuser=1)
+        if adminCreated:
+            admin.set_password('admin')
+            admin.save()
+
+    def doRequestGet(self, url, data, params):
+        return requests.get(URL_TEST + url, data=data, params=params)
+
+    def doRequestPost(self, url, data, params):
+        return requests.post(URL_TEST + url, data=data, params=params)
+
+    def doRequestPut(self, url, data, params):
+        return requests.put(URL_TEST + url, data=data, params=params)
+
     def dump_result_xslt(self):
         self.assertEquals(len(ResultXslt.objects()), 0)
         self.restoreDump(join(DUMP_TEST_PATH, 'result_xslt.bson'), 'result_xslt')
@@ -158,44 +180,12 @@ class RegressionTest(LiveServerTestCase):
         else:
             self.assertTrue(False)
 
-class OAI_PMH_Test(RegressionTest):
-
-    def setUp(self):
-        self.clean_db()
-
-    def dump_oai_my_metadata_format(self):
-        self.assertEquals(len(OaiMyMetadataFormat.objects()), 0)
-        self.restoreDump(join(DUMP_OAI_PMH_TEST_PATH, 'oai_my_metadata_format.bson'), 'oai_my_metadata_format')
-        self.assertTrue(len(OaiMyMetadataFormat.objects()) > 0)
-
-    def dump_oai_my_set(self):
-        self.assertEquals(len(OaiMySet.objects()), 0)
-        self.restoreDump(join(DUMP_OAI_PMH_TEST_PATH, 'oai_my_set.bson'), 'oai_my_set')
-        self.assertTrue(len(OaiMySet.objects()) > 0)
-
-    def dump_oai_settings(self):
-        self.assertEquals(len(OaiSettings.objects()), 0)
-        self.restoreDump(join(DUMP_OAI_PMH_TEST_PATH, 'oai_settings.bson'), 'oai_settings')
-        self.assertTrue(len(OaiSettings.objects()) > 0)
-
 class TokenTest(RegressionTest):
 
     def setUp(self):
-        discover.init_rules()
-
-        user, userCreated = User.objects.get_or_create(username = 'user')
-        if userCreated:
-            user.set_password('user')
-            user.save()
-
-        self.createApplication(user, USER_APPLICATION, CLIENT_ID_USER, CLIENT_SECRET_USER)
-
-        admin, adminCreated = User.objects.get_or_create(username = 'admin', is_staff=1, is_superuser=1)
-        if adminCreated:
-            admin.set_password('admin')
-            admin.save()
-
-        self.createApplication(admin, ADMIN_APPLICATION, CLIENT_ID_ADMIN, CLIENT_SECRET_ADMIN)
+        super(TokenTest, self).setUp()
+        self.createApplication(User.objects.get(username='user'), USER_APPLICATION, CLIENT_ID_USER, CLIENT_SECRET_USER)
+        self.createApplication(User.objects.get(username='admin'), ADMIN_APPLICATION, CLIENT_ID_ADMIN, CLIENT_SECRET_ADMIN)
 
     def createApplication(self, user, name, id, secret):
         application = Application()
@@ -239,13 +229,20 @@ class TokenTest(RegressionTest):
     def get_token_user(self):
         return self.get_token('user', 'user', CLIENT_ID_USER, CLIENT_SECRET_USER, USER_APPLICATION)
 
-    def doRequest(self, token, url, data, params, operation):
+    def doRequestGet(self, token, url, data, params):
         if token == '':
             self.assertTrue(False)
         headers = {'Authorization': 'Bearer ' + token.access_token}
-        if operation == OPERATION_GET:
-            return requests.get(URL_TEST + url, data=data, params=params, headers=headers)
-        elif operation == OPERATION_DELETE:
-            return requests.delete(URL_TEST + url, data=data, params=params, headers=headers)
-        elif operation == OPERATION_POST:
-            return requests.post(URL_TEST + url, data=data, params=params, headers=headers)
+        return requests.get(URL_TEST + url, data=data, params=params, headers=headers)
+
+    def doRequestPost(self, token, url, data, params):
+        if token == '':
+            self.assertTrue(False)
+        headers = {'Authorization': 'Bearer ' + token.access_token}
+        return requests.post(URL_TEST + url, data=data, params=params, headers=headers)
+
+    def doRequestDelete(self, token, url, data, params):
+        if token == '':
+            self.assertTrue(False)
+        headers = {'Authorization': 'Bearer ' + token.access_token}
+        return requests.delete(URL_TEST + url, data=data, params=params, headers=headers)
