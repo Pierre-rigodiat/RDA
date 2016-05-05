@@ -12,9 +12,11 @@
 from django.conf import settings
 from mgi.models import OaiSettings, OaiMyMetadataFormat, OaiRegistry
 from lxml import etree
-from lxml.etree import XMLSyntaxError
 import os
-from mgi.settings import SITE_ROOT
+from django.utils.importlib import import_module
+settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
+settings = import_module(settings_file)
+SITE_ROOT = settings.SITE_ROOT
 
 def init_settings():
     """
