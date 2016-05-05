@@ -16,7 +16,13 @@ from django.http.response import HttpResponseBadRequest
 from oai_pmh.admin.forms import UpdateRegistryForm, MyMetadataFormatForm, RegistryForm, MyRegistryForm, UpdateMyMetadataFormatForm, MySetForm, UpdateMySetForm, \
 MyTemplateMetadataFormatForm, SettingHarvestForm
 import json
-from mgi.settings import OAI_HOST_URI, OAI_USER, OAI_PASS
+import os
+from django.utils.importlib import import_module
+settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
+settings = import_module(settings_file)
+OAI_HOST_URI = settings.OAI_HOST_URI
+OAI_USER = settings.OAI_USER
+OAI_PASS = settings.OAI_PASS
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.conf import settings

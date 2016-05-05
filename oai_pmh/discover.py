@@ -14,8 +14,13 @@ from mgi.models import OaiSettings, OaiMyMetadataFormat, Template, OaiMySet, Oai
 from lxml import etree
 from lxml.etree import XMLSyntaxError
 import os
-from mgi.settings import SITE_ROOT, OAI_HOST_URI
+from django.utils.importlib import import_module
+settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
+settings = import_module(settings_file)
+SITE_ROOT = settings.SITE_ROOT
+OAI_HOST_URI = settings.OAI_HOST_URI
 from django.core.urlresolvers import reverse
+
 
 def init_settings():
     """

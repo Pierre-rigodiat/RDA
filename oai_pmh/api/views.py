@@ -32,7 +32,11 @@ from oai_pmh.api.serializers import IdentifyObjectSerializer, MetadataFormatSeri
 # Models
 from mgi.models import OaiRegistry, OaiSet, OaiMetadataFormat, OaiIdentify, OaiSettings, Template, OaiRecord,\
 OaiMyMetadataFormat, OaiMySet, OaiMetadataformatSet, OaiXslt, OaiTemplMfXslt
-from mgi.settings import OAI_HOST_URI
+import os
+from django.utils.importlib import import_module
+settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
+settings = import_module(settings_file)
+OAI_HOST_URI = settings.OAI_HOST_URI
 from mongoengine import NotUniqueError
 import xmltodict
 import requests
