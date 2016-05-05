@@ -46,6 +46,12 @@ urlpatterns = patterns(
     url(r'^harvest$', 'harvest', name='api_harvest'),
     #Harvest configuration
     url(r'^update/registry-harvest$', 'update_registry_harvest', name='api_update_registry_harvest'),
+    #Manage XSLT
+    url(r'^upload/xslt$', 'upload_oai_pmh_xslt', name='api_upload_oai_pmh_xslt'),
+    url(r'^oai-pmh-conf/xslt$', 'oai_pmh_conf_xslt', name='api_oai_pmh_conf_xslt'),
+    url(r'^edit/xslt', 'edit_oai_pmh_xslt', name='api_edit_oai_pmh_xslt'),
+    url(r'^delete/xslt$', 'delete_oai_pmh_xslt', name='api_delete_oai_pmh_xslt'),
+
 
     url(r'^select/all/registries$', 'select_all_registries'),
 )

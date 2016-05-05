@@ -28,10 +28,10 @@ from oai_pmh.api.serializers import IdentifyObjectSerializer, MetadataFormatSeri
     IdentifySerializer, UpdateRegistrySerializer, \
     UpdateMyRegistrySerializer, MyMetadataFormatSerializer, DeleteMyMetadataFormatSerializer,\
     UpdateMyMetadataFormatSerializer, GetRecordSerializer, UpdateMySetSerializer, DeleteMySetSerializer,\
-    MySetSerializer, MyTemplateMetadataFormatSerializer
+    MySetSerializer, MyTemplateMetadataFormatSerializer, DeleteXSLTSerializer, OaiConfXSLTSerializer, OaiXSLTSerializer
 # Models
 from mgi.models import OaiRegistry, OaiSet, OaiMetadataFormat, OaiIdentify, OaiSettings, Template, OaiRecord,\
-OaiMyMetadataFormat, OaiMySet, OaiMetadataformatSet
+OaiMyMetadataFormat, OaiMySet, OaiMetadataformatSet, OaiXslt, OaiTemplMfXslt
 from mgi.settings import OAI_HOST_URI
 from mongoengine import NotUniqueError
 import xmltodict
@@ -81,7 +81,8 @@ def add_registry(request):
                 raise OAIAPILabelledException(message="Please provide an URL", status=status.HTTP_400_BAD_REQUEST)
             #We check first if this repository already exists in database. If yes, we return a response 409
             if OaiRegistry.objects(url__exact=url).count() > 0:
-                raise OAIAPILabelledException(message='Unable to create the data provider. The data provider already exists.', status=status.HTTP_409_CONFLICT)
+                raise OAIAPILabelledException(message='Unable to create the data provider. The data provider already exists.',
+                                              status=status.HTTP_409_CONFLICT)
             #Chech the harvest rate. If not provided, set to none
             if 'harvestrate' in request.DATA:
                 harvestrate = request.DATA['harvestrate']
@@ -98,7 +99,8 @@ def add_registry(request):
             if identifyResponse.status_code == status.HTTP_200_OK:
                 identifyData = identifyResponse.data
             else:
-                raise OAIAPILabelledException(message=identifyResponse.data[APIMessage.label], status=identifyResponse.status_code)
+                raise OAIAPILabelledException(message=identifyResponse.data[APIMessage.label],
+                                              status=identifyResponse.status_code)
 
             #Get the sets information for the given URL
             sets = listObjectSets(request)
@@ -114,7 +116,8 @@ def add_registry(request):
             if metadataformats.status_code == status.HTTP_200_OK:
                 metadataformatsData = metadataformats.data
             elif metadataformats.status_code != status.HTTP_204_NO_CONTENT:
-                raise OAIAPILabelledException(message=metadataformats.data[APIMessage.label], status=metadataformats.status_code)
+                raise OAIAPILabelledException(message=metadataformats.data[APIMessage.label],
+                                              status=metadataformats.status_code)
 
             try:
                 identify, registry = createRegistry(harvest, harvestrate, identifyData, url)
@@ -129,14 +132,16 @@ def add_registry(request):
                     identify.delete()
                 OaiSet.objects(registry=registry.id).delete()
                 OaiMetadataFormat.objects(registry=registry.id).delete()
-                raise OAIAPILabelledException(message='Unable to create the registry. The registry already exists.', status=status.HTTP_409_CONFLICT)
+                raise OAIAPILabelledException(message='Unable to create the registry. The registry already exists.',
+                                              status=status.HTTP_409_CONFLICT)
             except Exception as e:
                 #Manual Rollback
                 if identify:
                     identify.delete()
                 OaiSet.objects(registry=registry.id).delete()
                 OaiMetadataFormat.objects(registry=registry.id).delete()
-                raise OAIAPILabelledException(message='An error occured when trying to save document.%s'%e.message, status=status.HTTP_400_BAD_REQUEST)
+                raise OAIAPILabelledException(message='An error occured when trying to save document.%s'%e.message,
+                                              status=status.HTTP_400_BAD_REQUEST)
         else:
             raise OAIAPILabelledException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
@@ -344,7 +349,8 @@ def select_registry(request):
         try:
             registry = OaiRegistry.objects.get(name=name)
         except Exception as e:
-            raise OAIAPILabelledException(message='No registry found with the given parameters.', status=status.HTTP_404_NOT_FOUND)
+            raise OAIAPILabelledException(message='No registry found with the given parameters.',
+                                          status=status.HTTP_404_NOT_FOUND)
 
         serializer = RegistrySerializer(registry)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -388,7 +394,8 @@ def update_registry(request):
                     rsp = {'id':['This field is required.']}
                     return Response(rsp, status=status.HTTP_400_BAD_REQUEST)
             except:
-                raise OAIAPILabelledException(message='No registry found with the given id.', status=status.HTTP_404_NOT_FOUND)
+                raise OAIAPILabelledException(message='No registry found with the given id.',
+                                              status=status.HTTP_404_NOT_FOUND)
 
             if 'harvestrate' in request.DATA:
                 harvestrate = request.DATA['harvestrate']
@@ -402,7 +409,8 @@ def update_registry(request):
                 #Save the modifications
                registry.save()
             except Exception as e:
-                raise OAIAPILabelledException(message='Unable to update registry. \n%s'%e.message, status=status.HTTP_400_BAD_REQUEST)
+                raise OAIAPILabelledException(message='Unable to update registry. \n%s'%e.message,
+                                              status=status.HTTP_400_BAD_REQUEST)
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
@@ -446,7 +454,8 @@ def update_my_registry(request):
                     if enableHarvesting:
                         enableHarvesting =  enableHarvesting == 'True'
             except Exception as e:
-                raise OAIAPILabelledException(message='Error while retrieving information.', status=status.HTTP_404_NOT_FOUND)
+                raise OAIAPILabelledException(message='Error while retrieving information.',
+                                              status=status.HTTP_404_NOT_FOUND)
 
             try:
                 #Save the modifications
@@ -455,7 +464,8 @@ def update_my_registry(request):
                 information.enableHarvesting = enableHarvesting
                 information.save()
             except Exception as e:
-                raise OAIAPILabelledException(message='Unable to update registry. \n%s'%e.message, status=status.HTTP_400_BAD_REQUEST)
+                raise OAIAPILabelledException(message='Unable to update registry. \n%s'%e.message,
+                                              status=status.HTTP_400_BAD_REQUEST)
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
@@ -547,7 +557,8 @@ def deactivate_registry(request):
         try:
             registry = OaiRegistry.objects.get(pk=id)
         except:
-            raise OAIAPILabelledException(message='No registry found with the given id.', status=status.HTTP_404_NOT_FOUND)
+            raise OAIAPILabelledException(message='No registry found with the given id.',
+                                          status=status.HTTP_404_NOT_FOUND)
         registry.isDeactivated = True
         registry.save()
         content = APIMessage.getMessageLabelled("Registry deactivated with success.")
@@ -1765,7 +1776,7 @@ def delete_my_metadataFormat(request):
                 metadataFormat = OaiMyMetadataFormat.objects.get(pk=id)
             except Exception as e:
                 raise OAIAPILabelledException(message='No metadata format found with the given id.',
-                                              status=status.HTTP_400_BAD_REQUEST)
+                                              status=status.HTTP_404_NOT_FOUND)
             #We can now delete the metadataFormat for my server
             metadataFormat.delete()
             content = APIMessage.getMessageLabelled("Deleted metadata format with success.")
@@ -1915,7 +1926,7 @@ def delete_my_set(request):
                 set = OaiMySet.objects.get(pk=id)
             except Exception as e:
                 raise OAIAPILabelledException(message='No set found with the given id.',
-                                              status=status.HTTP_400_BAD_REQUEST)
+                                              status=status.HTTP_404_NOT_FOUND)
             #We can now delete the set for my server
             set.delete()
             content = APIMessage.getMessageLabelled("Deleted set with success.")
@@ -1997,3 +2008,213 @@ def update_my_set(request):
     except OAIAPIException as e:
         return e.response()
 
+
+
+################################################################################
+#
+# Function Name: delete_oai_pmh_xslt(request)
+# Inputs:        request -
+# Outputs:       200 XSLT deleted.
+# Exceptions:    400 Error connecting to database.
+#                400 [xslt_id] not found in request.
+#                400 Unspecified.
+#                400 Serializer failed validation.
+#                401 Unauthorized.
+#                404 No record found with the given identity.
+#                500 An error occurred.
+# Description:   OAI-PMH Delete OAI-PMH XSLT
+#
+################################################################################
+@api_view(['POST'])
+@api_staff_member_required()
+def delete_oai_pmh_xslt(request):
+    """
+    POST http://localhost/oai_pmh/delete/xslt
+    POST data query="{'xslt_id':'value'}"
+    """
+    try:
+        serializer = DeleteXSLTSerializer(data=request.DATA)
+        if serializer.is_valid():
+            #Get the ID
+            id = request.DATA['xslt_id']
+            try:
+                xslt = OaiXslt.objects(pk=id)
+            except Exception as e:
+                raise OAIAPILabelledException(message='No xslt found with the given id.',
+                                              status=status.HTTP_404_NOT_FOUND)
+            #We can now delete the set for my server
+            xslt.delete()
+            content = APIMessage.getMessageLabelled("Deleted xslt with success.")
+
+            return Response(content, status=status.HTTP_200_OK)
+        else:
+            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except OAIAPIException as e:
+        return e.response()
+    except Exception as e:
+        content = APIMessage.getMessageLabelled(e.message)
+        return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+################################################################################
+#
+# Function Name: edit_oai_pmh_xslt(request)
+# Inputs:        request -
+# Outputs:       200 XSLT edited.
+# Exceptions:    400 Error connecting to database.
+#                400 [xslt_id] not found in request.
+#                400 [Name] not found in request.
+#                400 Unspecified.
+#                400 Serializer failed validation.
+#                401 Unauthorized.
+#                404 No record found with the given identity.
+#                500 An error occurred.
+# Description:   OAI-PMH Edit OAI-PMH XSLT
+#
+################################################################################
+@api_view(['POST'])
+@api_staff_member_required()
+def edit_oai_pmh_xslt(request):
+    """
+    POST http://localhost/oai_pmh/edit/xslt
+    POST data query="{'xslt_id':'value', 'name': 'value'}"
+    """
+    try:
+        serializer = DeleteXSLTSerializer(data=request.DATA)
+        if serializer.is_valid():
+            #Get the ID
+            id = request.DATA['xslt_id']
+            new_name = request.DATA['name']
+            try:
+                xslt = OaiXslt.objects.get(pk=id)
+            except Exception as e:
+                raise OAIAPILabelledException(message='No xslt found with the given id.',
+                                              status=status.HTTP_404_NOT_FOUND)
+            if xslt.name == new_name:
+                raise OAIAPILabelledException(message='Please enter a different name.',
+                                              status=status.HTTP_400_BAD_REQUEST)
+            else:
+                xslt.update(set__name=str(new_name))
+            content = APIMessage.getMessageLabelled("XSLT edited with success.")
+
+            return Response(content, status=status.HTTP_200_OK)
+        else:
+            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except OAIAPIException as e:
+        return e.response()
+    except Exception as e:
+        content = APIMessage.getMessageLabelled(e.message)
+        return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+################################################################################
+#
+# Function Name: oai_pmh_conf_xslt(request)
+# Inputs:        request -
+# Outputs:       200 OAI-PMH configured.
+# Exceptions:    400 Error connecting to database.
+#                400 [template_id] not found in request.
+#                400 [my_metadata_format_id] not found in request.
+#                400 [activated] not found in request.
+#                400 Unspecified.
+#                400 Serializer failed validation.
+#                401 Unauthorized.
+#                500 An error occurred.
+# Description:   OAI-PMH Edit OAI-PMH XSLT configuration.
+#                Associate the Metadata Format with the template and provide an XSLT for the transformation toward
+#                the metadata format schema.
+#
+################################################################################
+@api_view(['POST'])
+@api_staff_member_required()
+def oai_pmh_conf_xslt(request):
+    """
+    POST http://localhost/oai_pmh/api/oai-pmh-conf/xslt
+    POST data query='{"template_id": "value", "my_metadata_format_id": "value", "xslt_id": "value",
+    "activated": "value"}'
+    """
+    try:
+        serializer = OaiConfXSLTSerializer(data=request.DATA)
+        if serializer.is_valid():
+            #Get input
+            template_id = request.DATA['template_id']
+            my_metadata_format_id = request.DATA['my_metadata_format_id']
+            xslt_id = None
+            if 'xslt_id' in request.DATA:
+                xslt_id = request.DATA['xslt_id']
+            activated = request.DATA['activated'] == "True"
+            if xslt_id == None and activated == True:
+                raise OAIAPILabelledException(message='Impossible to activate the configuration. Please provide '
+                                                      'a XSLT.',
+                                              status=status.HTTP_400_BAD_REQUEST)
+            try:
+                OaiTemplMfXslt.objects.filter(myMetadataFormat=my_metadata_format_id, template=template_id)\
+                    .update(set__myMetadataFormat = my_metadata_format_id, set__template = template_id,
+                            set__xslt = xslt_id, set__activated = activated, upsert=True)
+            except Exception as e:
+                raise OAIAPILabelledException(message='An error occurred when attempting to save the configuration',
+                                              status=status.HTTP_400_BAD_REQUEST)
+            content = APIMessage.getMessageLabelled("XSLT edited with success.")
+
+            return Response(content, status=status.HTTP_200_OK)
+        else:
+            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except OAIAPIException as e:
+        return e.response()
+    except Exception as e:
+        content = APIMessage.getMessageLabelled(e.message)
+        return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+################################################################################
+#
+# Function Name: upload_oai_pmh_xslt(request)
+# Inputs:        request -
+# Outputs:       201 XSLT created.
+# Exceptions:    400 Error connecting to database.
+#                400 [name] not found in request.
+#                400 [filename] not found in request.
+#                400 [content] not found in request.
+#                400 Unspecified.
+#                400 Serializer failed validation.
+#                401 Unauthorized.
+#                500 An error occurred.
+# Description:   OAI-PMH Upload an XSLT for OAI-PMH
+#
+################################################################################
+@api_view(['POST'])
+@api_staff_member_required()
+def upload_oai_pmh_xslt(request):
+    """
+    POST http://localhost/oai_pmh/api/upload/xslt
+    POST data query='{"name": ''value, 'filename': 'value', 'content': 'value'}
+    """
+    try:
+        serializer = OaiXSLTSerializer(data=request.DATA)
+        if serializer.is_valid():
+            name = request.DATA['name']
+            filename = request.DATA['filename']
+            xmlStr = request.DATA['content']
+            try:
+                etree.XML(xmlStr.encode('utf-8'))
+            except Exception, e:
+                raise OAIAPILabelledException(message=e.message,
+                                              status=status.HTTP_400_BAD_REQUEST)
+            try:
+                OaiXslt(name=name, filename=filename, content=xmlStr).save()
+                content = APIMessage.getMessageLabelled("XSLT added with success.")
+
+                return Response(content, status=status.HTTP_201_CREATED)
+            except NotUniqueError, e:
+                raise OAIAPILabelledException(message='This XSLT name already exists. Please enter an other name.',
+                                              status=status.HTTP_400_BAD_REQUEST)
+            except Exception as e:
+                raise OAIAPILabelledException(message='An error occurred when attempting to save the XSLT',
+                                              status=status.HTTP_400_BAD_REQUEST)
+        else:
+            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except OAIAPIException as e:
+        return e.response()
+    except Exception as e:
+        content = APIMessage.getMessageLabelled(e.message)
+        return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

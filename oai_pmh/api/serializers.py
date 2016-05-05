@@ -114,3 +114,17 @@ class UpdateMySetSerializer(serializers.Serializer):
     id = serializers.CharField(required=True)
     setSpec = serializers.CharField(required=True)
     setName = serializers.CharField(required=True)
+
+class DeleteXSLTSerializer(serializers.Serializer):
+    xslt_id = serializers.CharField(required=True)
+
+class OaiConfXSLTSerializer(serializers.Serializer):
+    template_id = serializers.CharField(required=True)
+    my_metadata_format_id = serializers.CharField(required=True)
+    xslt_id = serializers.CharField(required=False)
+    activated = serializers.CharField(required=True)
+
+class OaiXSLTSerializer(serializers.Serializer):
+    name = serializers.CharField(required=True)
+    filename = serializers.CharField(required=True)
+    content = serializers.CharField(required=True)
