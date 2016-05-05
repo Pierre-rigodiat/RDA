@@ -1,20 +1,36 @@
+################################################################################
+#
+# File Name: models.py
+# Application: testing
+# Purpose:
+#
+# Author: Xavier SCHMITT
+#         xavier.schmitt@nist.gov
+#
+# Sponsor: National Institute of Standards and Technology (NIST)
+#
+################################################################################
+
 from django.test import LiveServerTestCase
 from pymongo import MongoClient
 from pymongo.errors import OperationFailure
 import requests
 from datetime import datetime, timedelta
-from mgi.models import Instance, XMLdata, Template, TemplateVersion
+from mgi.models import Instance, XMLdata, Template, TemplateVersion, OaiMySet, OaiSettings, OaiMyMetadataFormat, ResultXslt
 from utils.XSDhash import XSDhash
 from django.contrib.auth.models import User
 from oauth2_provider.models import Application
 from admin_mdcs import discover
 import os
 from django.utils.importlib import import_module
+from bson import decode_all
+from os.path import join
 
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
 MONGODB_URI = settings.MONGODB_URI
 MGI_DB = settings.MGI_DB
+BASE_DIR = settings.BASE_DIR
 
 URL_TEST = "http://127.0.0.1:8082"
 OPERATION_GET = "get"
@@ -26,6 +42,9 @@ TEMPLATE_VALID_CONTENT = '<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchem
 XMLDATA_VALID_CONTENT  = '<?xml version="1.0" encoding="utf-8"?> <root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"></root>'
 FAKE_ID = 'abcdefghijklmn'
 
+DUMP_OAI_PMH_TEST_PATH = os.path.join(BASE_DIR, 'oai_pmh', 'tests', 'dump')
+DUMP_TEST_PATH = os.path.join(BASE_DIR, 'testing', 'dump')
+
 # Constante for application token
 CLIENT_ID_ADMIN = 'client_id'
 CLIENT_SECRET_ADMIN = 'client_secret'
@@ -35,6 +54,35 @@ USER_APPLICATION = 'remote_mdcs'
 ADMIN_APPLICATION = 'remote_mdcs'
 
 class RegressionTest(LiveServerTestCase):
+
+    def dump_result_xslt(self):
+        self.assertEquals(len(ResultXslt.objects()), 0)
+        self.restoreDump(join(DUMP_TEST_PATH, 'result_xslt.bson'), 'result_xslt')
+        self.assertTrue(len(ResultXslt.objects()) > 0)
+
+    def dump_template_version(self):
+        self.assertEquals(len(TemplateVersion.objects()), 0)
+        self.restoreDump(join(DUMP_TEST_PATH, 'template_version.bson'), 'template_version')
+        self.assertTrue(len(TemplateVersion.objects()) > 0)
+
+    def dump_template(self):
+        self.assertEquals(len(Template.objects()), 0)
+        self.dump_template_version()
+        self.restoreDump(join(DUMP_TEST_PATH, 'template.bson'), 'template')
+        self.assertTrue(len(Template.objects()) > 0)
+
+    def dump_xmldata(self):
+        self.assertEquals(len(XMLdata.objects()), 0)
+        self.dump_template()
+        self.restoreDump(join(DUMP_TEST_PATH, 'xmldata.bson'), 'xmldata')
+        self.assertTrue(len(XMLdata.objects()) > 0)
+
+    def restoreDump(self, file, collectionName):
+        client = MongoClient(MONGODB_URI)
+        db = client[MGI_DB]
+        target_collection = db[collectionName]
+        re = open(file, 'rb').read()
+        target_collection.insert(decode_all(re))
 
     def createXMLData(self):
         return XMLdata(schemaID='', xml='<test>test xmldata</test>', title='test', iduser=1).save()
@@ -80,13 +128,11 @@ class RegressionTest(LiveServerTestCase):
         else:
             self.assertTrue(False)
 
-
     def isStatusNotFound(self, r):
         if r.status_code == 404:
             self.assertTrue(True)
         else:
             self.assertTrue(False)
-
 
     def isStatusBadRequest(self, r):
         if r.status_code == 400:
@@ -94,13 +140,11 @@ class RegressionTest(LiveServerTestCase):
         else:
             self.assertTrue(False)
 
-
     def isStatusUnauthorized(self, r):
         if r.status_code == 401:
             self.assertTrue(True)
         else:
             self.assertTrue(False)
-
 
     def isStatusNoContent(self, r):
         if r.status_code == 204:
@@ -108,12 +152,31 @@ class RegressionTest(LiveServerTestCase):
         else:
             self.assertTrue(False)
 
-
     def isStatusCreated(self, r):
         if r.status_code == 201:
             self.assertTrue(True)
         else:
             self.assertTrue(False)
+
+class OAI_PMH_Test(RegressionTest):
+
+    def setUp(self):
+        self.clean_db()
+
+    def dump_oai_my_metadata_format(self):
+        self.assertEquals(len(OaiMyMetadataFormat.objects()), 0)
+        self.restoreDump(join(DUMP_OAI_PMH_TEST_PATH, 'oai_my_metadata_format.bson'), 'oai_my_metadata_format')
+        self.assertTrue(len(OaiMyMetadataFormat.objects()) > 0)
+
+    def dump_oai_my_set(self):
+        self.assertEquals(len(OaiMySet.objects()), 0)
+        self.restoreDump(join(DUMP_OAI_PMH_TEST_PATH, 'oai_my_set.bson'), 'oai_my_set')
+        self.assertTrue(len(OaiMySet.objects()) > 0)
+
+    def dump_oai_settings(self):
+        self.assertEquals(len(OaiSettings.objects()), 0)
+        self.restoreDump(join(DUMP_OAI_PMH_TEST_PATH, 'oai_settings.bson'), 'oai_settings')
+        self.assertTrue(len(OaiSettings.objects()) > 0)
 
 class TokenTest(RegressionTest):
 
