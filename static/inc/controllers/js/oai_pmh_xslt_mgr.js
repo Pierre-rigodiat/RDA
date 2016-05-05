@@ -1,5 +1,15 @@
+/**
+ * Clear DP add error banner
+ */
+clearError = function ()
+{
+    $("#banner_oai_pmh_errors").hide()
+    $("#form_oai_pmh_start_errors").html("");
+}
+
 displayOaiImport = function()
 {
+ clearError();
  $(function() {
     $("#form_oai_pmh_start_errors").html("");
     $( "#dialog-oai-pmh-message" ).dialog({
@@ -25,6 +35,7 @@ displayOaiImport = function()
                                 window.location = '/admin/xml-schemas/manage-xslt'
 	            	        },
 	            	        error:function(data){
+	            	            $("#banner_oai_pmh_errors").show(200);
 	            	        	$("#form_oai_pmh_start_errors").html(data.responseText);
 	            	        },
 	            	    })
@@ -40,6 +51,7 @@ displayOaiImport = function()
 
 validateOaiExport = function()
 {
+    clearError();
     errors = ""
     if ($( "#id_oai_name" ).val().trim() == ""){
         errors = "Please enter a name."
@@ -50,6 +62,7 @@ validateOaiExport = function()
     }
 
 	if (errors != ""){
+	    $("#banner_oai_pmh_errors").show(200);
 		$("#form_oai_pmh_start_errors").html(errors);
 		return (false);
 	}else{
@@ -65,13 +78,13 @@ deleteOaiXSLT = function(xslt_id)
     $( "#dialog-deletexslt-message" ).dialog({
       modal: true,
       buttons:{
+                Cancel: function() {
+	                $( this ).dialog( "close" );
+                },
             	Delete: function() {
             		delete_OAI_XSLT(xslt_id);
             		$( this ).dialog( "close" );
-            		},
-				Cancel: function() {
-	                $( this ).dialog( "close" );
-		          },
+                },
 		    }
     });
   });
@@ -110,35 +123,48 @@ delete_OAI_XSLT = function(elt){
     });
 }
 
+
+/**
+ * Clear DP edit error banner
+ */
+clearEditError = function ()
+{
+    $("#banner_oai_pmh_edit_errors").hide()
+    $("#form_oai_pmh_edit_errors").html("");
+}
+
 /**
  * Edit general information of a template or a type
  */
 editOaiInformation = function(objectID)
 {
+    clearEditError();
     var objectName = $(this).parent().siblings(':first').text();
     var objectID = $(this).attr("objectid");
     var typeXSLT = $(this).attr("typeXSLT");
-    $("#form_edit_errors").html("");
-    $("#edit-name")[0].value = objectName;
+    $("#form_oai_pmh_edit_errors").html("");
+    $("#edit-oai_pmh_name")[0].value = objectName;
 
 	$(function() {
-        $( "#dialog-edit-message" ).dialog({
+        $( "#dialog-oai-pmh-edit-message" ).dialog({
             modal: true,
             width: 500,
             buttons: {
+                Cancel: function() {
+                    $( this ).dialog( "close" );
+                },
             	Ok: function() {
-					var newName = $("#edit-name")[0].value;
+            	    clearEditError();
+					var newName = $("#edit-oai_pmh_name")[0].value;
 					if (newName == ""){
-                        $("#form_edit_errors").html("<font color='red'>Please enter a name.</font><br/>");
+					    $("#banner_oai_pmh_edit_errors").show(200)
+                        $("#form_oai_pmh_edit_errors").html("Please enter a name.");
                     }
                     else
                     {
 					    edit_oai_information(objectID, newName, typeXSLT);
 					}
                 },
-                Cancel: function() {
-                    $( this ).dialog( "close" );
-                }
             }
         });
     });
@@ -151,6 +177,7 @@ editOaiInformation = function(objectID)
  * @param newName new name of the object
  */
 edit_oai_information = function(objectID, newName, typeXSLT){
+    clearEditError();
     var urlEdit = "/oai_pmh/admin/edit-xslt"
     $.ajax({
         url : urlEdit,
@@ -164,7 +191,8 @@ edit_oai_information = function(objectID, newName, typeXSLT){
             window.location = '/admin/xml-schemas/manage-xslt'
         },
         error:function(data){
-            $("#form_edit_errors").html(data.responseText);
+            $("#banner_oai_pmh_edit_errors").show(200)
+            $("#form_oai_pmh_edit_errors").html(data.responseText);
         }
     });
 }

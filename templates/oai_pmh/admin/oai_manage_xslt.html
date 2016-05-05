@@ -42,7 +42,7 @@
     <td>{{ object.name }}</td>
     <td>{{ object.filename }}</td>
     <td>
-    	<div id="EditOAI" class="icon legend edit" objectid="{{ object.id }}" typeXSLT="OAI-PMH">Edit</div>
+    	<div id="EditOAI" class="icon legend editOaiPmh" objectid="{{ object.id }}" typeXSLT="OAI-PMH">Edit</div>
     	<div class="icon legend delete" objectid="{{ object.id }}" typeXSLT="OAI-PMH" onclick="deleteOaiXSLT(this)">Delete</div>
 	</td>
   </tr>
@@ -57,7 +57,12 @@
 {% endblock %}
 {% block popups %}
 <div id="dialog-oai-pmh-message" title="Upload OAI-PMH XSLT" style="display: none;">
-	<form id="form_oai_pmh_start" action="admin/xml-schemas/manage-xslt" method="post" enctype="multipart/form-data">
+	<div class="alert alert-error" id="banner_oai_pmh_errors" style="display: none;">
+		<h4><i class="fa fa-exclamation-circle fa-1x"></i> Error</h4>
+		<div id="form_oai_pmh_start_errors">
+		</div>
+	</div>
+	<form id="form_oai_pmh_start" action="/oai_pmh/admin/edit-xslt" method="post" enctype="multipart/form-data">
 		{% csrf_token %}
 		<table>
 			<tr>
@@ -71,11 +76,14 @@
 		</table>
 		<div id="form_oai_pmh_start_current"></div>
 	</form>
-	<div id="form_oai_pmh_start_errors" style="color:red;">
-	</div>
 </div>
 
-<div id="dialog-oai-pmh-edit-message" title="Edit XSLT" style="display: none;">
+<div id="dialog-oai-pmh-edit-message" title="Edit OAI-PMH XSLT" style="display: none;">
+	<div class="alert alert-error" id="banner_oai_pmh_edit_errors" style="display: none;">
+		<h4><i class="fa fa-exclamation-circle fa-1x"></i> Error</h4>
+		<div id="form_oai_pmh_edit_errors">
+		</div>
+	</div>
 	<table>
 		<tr>
 			<td>{{upload_xslt_Form.name.label}}</td>
@@ -83,8 +91,6 @@
 		</tr>
 		<tr>
 	</table>
-	<div id="form_oai_pmh_edit_errors" style="color:red;">
-	</div>
 </div>
 
 
@@ -106,6 +112,7 @@
 {% endblock %}
 {% block extrajs %}
 <script src="{% static 'inc/controllers/js/oai_pmh_xslt_mgr.js' %}"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script>
 InitOai();
 </script>
