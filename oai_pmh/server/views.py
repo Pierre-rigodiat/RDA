@@ -153,7 +153,7 @@ class OAIProvider(TemplateView):
         except OAIException, e:
             return self.error(e)
         except Exception, e:
-            return self.error(e.message)
+            return HttpResponse({'content':e.message}, status=HTTP_500_INTERNAL_SERVER_ERROR)
         except badResumptionToken, e:
             return self.error(badResumptionToken.code, badResumptionToken.message)
 
@@ -208,7 +208,7 @@ class OAIProvider(TemplateView):
         except OAIException, e:
             return self.error(e)
         except Exception, e:
-            return self.error(e.message)
+            return HttpResponse({'content':e.message}, status=HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 ################################################################################
@@ -275,7 +275,7 @@ class OAIProvider(TemplateView):
         except OAIException, e:
             return self.error(e)
         except Exception, e:
-            return self.error(e.message)
+            return HttpResponse({'content':e.message}, status=HTTP_500_INTERNAL_SERVER_ERROR)
         except badResumptionToken, e:
             return self.error(badResumptionToken.code, badResumptionToken.message)
 
@@ -348,7 +348,7 @@ class OAIProvider(TemplateView):
         except OAIException, e:
             return self.error(e)
         except Exception, e:
-            return self.error(e.message)
+            return HttpResponse({'content':e.message}, status=HTTP_500_INTERNAL_SERVER_ERROR)
 
 ################################################################################
 #
@@ -429,7 +429,7 @@ class OAIProvider(TemplateView):
         except OAIException, e:
             return self.error(e)
         except Exception, e:
-            return self.error(e.message)
+            return HttpResponse({'content':e.message}, status=HTTP_500_INTERNAL_SERVER_ERROR)
         except badResumptionToken, e:
             return self.error(badResumptionToken.code, badResumptionToken.message)
 
