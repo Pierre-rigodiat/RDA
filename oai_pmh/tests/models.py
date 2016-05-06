@@ -11,7 +11,7 @@
 #
 ################################################################################
 
-from testing.models import RegressionTest, OaiMyMetadataFormat, DUMP_OAI_PMH_TEST_PATH, join, OaiMySet, OaiSettings
+from testing.models import RegressionTest, OaiMyMetadataFormat, DUMP_OAI_PMH_TEST_PATH, join, OaiMySet, OaiSettings, ADMIN_AUTH, USER_AUTH
 
 class OAI_PMH_Test(RegressionTest):
 
