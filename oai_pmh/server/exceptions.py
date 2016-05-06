@@ -10,6 +10,10 @@
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
+NO_SET_HIERARCHY = 'noSetHierarchy'
+BAD_VERB = 'badVerb'
+
+
 class OAIExceptions(Exception):
     def __init__(self, errors):
         self.message = 'Error'
@@ -44,7 +48,7 @@ class badResumptionToken(OAIException):
 class badVerb(OAIException):
     def __init__(self, message):
         self.message = message
-        self.code = 'badVerb'
+        self.code = BAD_VERB
 
 class cannotDisseminateFormat(OAIException):
     def __init__(self, metadataPrefix):
@@ -71,4 +75,4 @@ class noMetadataFormat(OAIException):
 class noSetHierarchy(OAIException):
     def __init__(self):
         self.message = 'The repository does not support sets.'
-        self.code = 'noSetHierarchy'
+        self.code = NO_SET_HIERARCHY
