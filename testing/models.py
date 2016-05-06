@@ -187,6 +187,12 @@ class OAI_PMH_Test(RegressionTest):
         self.restoreDump(join(DUMP_OAI_PMH_TEST_PATH, 'oai_settings.bson'), 'oai_settings')
         self.assertTrue(len(OaiSettings.objects()) > 0)
 
+    def isStatusInternalError(self, r):
+        if r.status_code == 500:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+
 class TokenTest(RegressionTest):
 
     def setUp(self):
