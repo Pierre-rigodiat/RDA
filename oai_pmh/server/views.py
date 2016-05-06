@@ -28,7 +28,6 @@ from django.shortcuts import HttpResponse
 from StringIO import StringIO
 from rest_framework.status import HTTP_500_INTERNAL_SERVER_ERROR
 
-RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'oai_pmh/server/resources/')
 
 class OAIProvider(TemplateView):
     content_type = 'text/xml'
@@ -51,11 +50,11 @@ class OAIProvider(TemplateView):
         context.update({
             'now': datestamp.datetime_to_datestamp(datetime.datetime.now()),
             'verb': self.oai_verb,
-            'identifier': self.identifier,
-            'metadataPrefix': self.metadataPrefix,
+            'identifier': self.identifier if hasattr(self, 'identifier') else None,
+            'metadataPrefix': self.metadataPrefix if hasattr(self, 'metadataPrefix') else None,
             'url': self.request.build_absolute_uri(self.request.path),
-            'from': self.From,
-            'until': self.until,
+            'from': self.From if hasattr(self, 'From') else None,
+            'until': self.until if hasattr(self, 'until') else None,
         })
         #Render the template with the context information
         return super(TemplateView, self) \
