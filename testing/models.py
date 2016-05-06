@@ -52,6 +52,8 @@ CLIENT_ID_USER = 'client_id_user'
 CLIENT_SECRET_USER = 'client_secret_user'
 USER_APPLICATION = 'remote_mdcs'
 ADMIN_APPLICATION = 'remote_mdcs'
+ADMIN_AUTH = ('admin', 'admin')
+USER_AUTH = ('user', 'user')
 
 class RegressionTest(LiveServerTestCase):
 
@@ -68,14 +70,14 @@ class RegressionTest(LiveServerTestCase):
             admin.set_password('admin')
             admin.save()
 
-    def doRequestGet(self, url, data, params):
-        return requests.get(URL_TEST + url, data=data, params=params)
+    def doRequestGet(self, url, data=None, params=None, auth=None):
+        return requests.get(URL_TEST + url, data=data, params=params, auth=auth)
 
-    def doRequestPost(self, url, data, params):
-        return requests.post(URL_TEST + url, data=data, params=params)
+    def doRequestPost(self, url, data=None, params=None, auth=None):
+        return requests.post(URL_TEST + url, data=data, params=params, auth=auth)
 
-    def doRequestPut(self, url, data, params):
-        return requests.put(URL_TEST + url, data=data, params=params)
+    def doRequestPut(self, url, data=None, params=None, auth=None):
+        return requests.put(URL_TEST + url, data=data, params=params, auth=auth)
 
     def dump_result_xslt(self):
         self.assertEquals(len(ResultXslt.objects()), 0)
@@ -145,46 +147,25 @@ class RegressionTest(LiveServerTestCase):
                 pass
 
     def isStatusOK(self, r):
-        if r.status_code == 200:
-            self.assertTrue(True)
-        else:
-            self.assertTrue(False)
+        self.assertTrue(r.status_code == 200)
 
     def isStatusNotFound(self, r):
-        if r.status_code == 404:
-            self.assertTrue(True)
-        else:
-            self.assertTrue(False)
+        self.assertTrue(r.status_code == 404)
 
     def isStatusBadRequest(self, r):
-        if r.status_code == 400:
-            self.assertTrue(True)
-        else:
-            self.assertTrue(False)
+        self.assertTrue(r.status_code == 400)
 
     def isStatusUnauthorized(self, r):
-        if r.status_code == 401:
-            self.assertTrue(True)
-        else:
-            self.assertTrue(False)
+        self.assertTrue(r.status_code == 401)
 
     def isStatusNoContent(self, r):
-        if r.status_code == 204:
-            self.assertTrue(True)
-        else:
-            self.assertTrue(False)
+        self.assertTrue(r.status_code == 204)
 
     def isStatusCreated(self, r):
-        if r.status_code == 201:
-            self.assertTrue(True)
-        else:
-            self.assertTrue(False)
+        self.assertTrue(r.status_code == 201)
 
     def isStatusInternalError(self, r):
-        if r.status_code == 500:
-            self.assertTrue(True)
-        else:
-            self.assertTrue(False)
+        self.assertTrue(r.status_code == 500)
 
 class TokenTest(RegressionTest):
 
@@ -235,19 +216,19 @@ class TokenTest(RegressionTest):
     def get_token_user(self):
         return self.get_token('user', 'user', CLIENT_ID_USER, CLIENT_SECRET_USER, USER_APPLICATION)
 
-    def doRequestGet(self, token, url, data, params):
+    def doRequestGet(self, token, url, data=None, params=None):
         if token == '':
             self.assertTrue(False)
         headers = {'Authorization': 'Bearer ' + token.access_token}
         return requests.get(URL_TEST + url, data=data, params=params, headers=headers)
 
-    def doRequestPost(self, token, url, data, params):
+    def doRequestPost(self, token, url, data=None, params=None):
         if token == '':
             self.assertTrue(False)
         headers = {'Authorization': 'Bearer ' + token.access_token}
         return requests.post(URL_TEST + url, data=data, params=params, headers=headers)
 
-    def doRequestDelete(self, token, url, data, params):
+    def doRequestDelete(self, token, url, data=None, params=None):
         if token == '':
             self.assertTrue(False)
         headers = {'Authorization': 'Bearer ' + token.access_token}
