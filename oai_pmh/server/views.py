@@ -26,6 +26,7 @@ import datetime
 from exporter.builtin.models import XSLTExporter
 from django.shortcuts import HttpResponse
 from StringIO import StringIO
+from rest_framework.status import HTTP_500_INTERNAL_SERVER_ERROR
 
 RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'oai_pmh/server/resources/')
 
@@ -152,7 +153,7 @@ class OAIProvider(TemplateView):
         except OAIException, e:
             return self.error(e)
         except Exception, e:
-            return self.error(e.code, e.message)
+            return self.error(e.message)
         except badResumptionToken, e:
             return self.error(badResumptionToken.code, badResumptionToken.message)
 
@@ -207,7 +208,7 @@ class OAIProvider(TemplateView):
         except OAIException, e:
             return self.error(e)
         except Exception, e:
-            return self.error(e.code, e.message)
+            return self.error(e.message)
 
 
 ################################################################################
@@ -276,7 +277,7 @@ class OAIProvider(TemplateView):
         except OAIException, e:
             return self.error(e)
         except Exception, e:
-            return self.error(e.code, e.message)
+            return self.error(e.message)
         except badResumptionToken, e:
             return self.error(badResumptionToken.code, badResumptionToken.message)
 
@@ -351,7 +352,7 @@ class OAIProvider(TemplateView):
         except OAIException, e:
             return self.error(e)
         except Exception, e:
-            return self.error(e.code, e.message)
+            return self.error(e.message)
 
 ################################################################################
 #
@@ -434,7 +435,7 @@ class OAIProvider(TemplateView):
         except OAIException, e:
             return self.error(e)
         except Exception, e:
-            return self.error(e.code, e.message)
+            return self.error(e.message)
         except badResumptionToken, e:
             return self.error(badResumptionToken.code, badResumptionToken.message)
 
@@ -661,7 +662,7 @@ class OAIProvider(TemplateView):
         except OAIException, e:
             return self.error(e)
         except Exception, e:
-            return self.error(e.code, e.message)
+            return HttpResponse({'content':e.message}, status=HTTP_500_INTERNAL_SERVER_ERROR)
 
 ################################################################################
 #

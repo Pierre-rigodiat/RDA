@@ -180,6 +180,12 @@ class RegressionTest(LiveServerTestCase):
         else:
             self.assertTrue(False)
 
+    def isStatusInternalError(self, r):
+        if r.status_code == 500:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+
 class TokenTest(RegressionTest):
 
     def setUp(self):
