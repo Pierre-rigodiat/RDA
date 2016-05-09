@@ -10,6 +10,9 @@
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
+NO_RECORDS_MATCH = 'noRecordsMatch'
+DISSEMINATE_FORMAT = 'cannotDisseminateFormat'
+BAD_ARGUMENT = 'badArgument'
 NO_SET_HIERARCHY = 'noSetHierarchy'
 BAD_VERB = 'badVerb'
 
@@ -38,7 +41,7 @@ class badArgument(OAIException):
         else:
             self.message = 'The request includes illegal arguments, is missing required arguments, includes a repeated' \
                         ' argument, or values for arguments have an illegal syntax.'
-        self.code = 'badArgument'
+        self.code = BAD_ARGUMENT
 
 class badResumptionToken(OAIException):
     def __init__(self, resumptionToken):
@@ -54,7 +57,7 @@ class cannotDisseminateFormat(OAIException):
     def __init__(self, metadataPrefix):
         self.message = 'The metadata format identified by the value given for the metadataPrefix argument' \
                        ' (%s) is not supported by the item or by the repository.' % metadataPrefix
-        self.code = 'cannotDisseminateFormat'
+        self.code = DISSEMINATE_FORMAT
 
 class idDoesNotExist(OAIException):
     def __init__(self, identifier):
@@ -65,7 +68,7 @@ class noRecordsMatch(OAIException):
     def __init__(self):
         self.message = 'The combination of the values of the from, until, set and metadataPrefix arguments ' \
                        'results in an empty list.'
-        self.code = 'noRecordsMatch'
+        self.code = NO_RECORDS_MATCH
 
 class noMetadataFormat(OAIException):
     def __init__(self):

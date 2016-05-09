@@ -16,7 +16,7 @@ from pymongo import MongoClient
 from pymongo.errors import OperationFailure
 import requests
 from datetime import datetime, timedelta
-from mgi.models import Instance, XMLdata, Template, TemplateVersion, OaiMySet, OaiSettings, OaiMyMetadataFormat, ResultXslt
+from mgi.models import Instance, XMLdata, Template, TemplateVersion, ResultXslt
 from utils.XSDhash import XSDhash
 from django.contrib.auth.models import User
 from oauth2_provider.models import Application
