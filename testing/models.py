@@ -31,6 +31,8 @@ settings = import_module(settings_file)
 MONGODB_URI = settings.MONGODB_URI
 MGI_DB = settings.MGI_DB
 BASE_DIR = settings.BASE_DIR
+OAI_SCHEME = settings.OAI_SCHEME
+OAI_REPO_IDENTIFIER = settings.OAI_REPO_IDENTIFIER
 
 URL_TEST = "http://127.0.0.1:8082"
 OPERATION_GET = "get"

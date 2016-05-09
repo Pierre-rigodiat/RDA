@@ -14,6 +14,7 @@
 from oai_pmh.tests.models import OAI_PMH_Test
 from mgi.models import OaiSettings, OaiMySet, OaiMyMetadataFormat
 from exceptions import BAD_VERB, NO_SET_HIERARCHY, BAD_ARGUMENT, DISSEMINATE_FORMAT, NO_RECORDS_MATCH, NO_METADATA_FORMAT
+from testing.models import OAI_SCHEME, OAI_REPO_IDENTIFIER
 from lxml import etree
 
 URL = '/oai_pmh/server'
@@ -129,14 +130,24 @@ class tests_OAI_PMH_server(OAI_PMH_Test):
         self.isStatusOK(r)
         self.checkTagErrorCode(r.text, NO_RECORDS_MATCH)
 
-    # def test_list_identifiers_TODO(self):
-        # self.dump_oai_templ_mf_xslt()
-        # self.dump_template()
-    #     self.dump_oai_my_metadata_format()
-    #     self.dump_oai_my_set()
-    #     data = {'verb': 'ListIdentifiers', 'metadataPrefix': 'TODO replace here', 'from': '2015-01-01T12:12:12Z', 'until': '2016-01-01T12:12:12Z', 'set': 'TODO replace here'}
-    #     r = self.doRequestServer(data=data)
-    #     self.isStatusOK(r)
+    def test_list_identifiers_with_set(self):
+        self.dump_oai_templ_mf_xslt()
+        self.dump_oai_my_metadata_format()
+        self.dump_oai_my_set()
+        self.dump_xmldata()
+        data = {'verb': 'ListIdentifiers', 'metadataPrefix': 'oai_dc', 'from': '2015-01-01T12:12:12Z', 'until': '2016-01-01T12:12:12Z', 'set': 'soft'}
+        r = self.doRequestServer(data=data)
+        self.isStatusOK(r)
+        self.checkTagExist(r.text, 'ListIdentifiers')
+
+    def test_list_identifiers_with_no_set(self):
+        self.dump_oai_templ_mf_xslt()
+        self.dump_oai_my_metadata_format()
+        self.dump_xmldata()
+        data = {'verb': 'ListIdentifiers', 'metadataPrefix': 'oai_dc', 'from': '2015-01-01T12:12:12Z', 'until': '2016-01-01T12:12:12Z'}
+        r = self.doRequestServer(data=data)
+        self.isStatusOK(r)
+        self.checkTagExist(r.text, 'ListIdentifiers')
 
     def test_list_metadataformat_no_data(self):
         data = {'verb': 'ListMetadataFormats'}
@@ -152,13 +163,13 @@ class tests_OAI_PMH_server(OAI_PMH_Test):
         self.checkTagExist(r.text, 'ListMetadataFormats')
         self.checkTagCount(r.text, 'metadataFormat', len(OaiMyMetadataFormat.objects().all()))
 
-    # def test_list_metadataformat_with_identifier(self):
-    #     self.dump_xmldata()
-    #     self.dump_oai_templ_mf_xslt()
-    #     self.dump_oai_my_metadata_format()
-    #     data = {'verb': 'ListMetadataFormats'}
-    #     r = self.doRequestServer(data=data)
-    #     self.isStatusOK(r)
-    #     self.checkTagExist(r.text, 'ListMetadataFormats')
-    #     self.checkTagExist(r.text, 'metadataFormat')
-    #     #self.checkTagCount(r.text, 'metadataFormat', len(OaiMyMetadataFormat.objects().all()))
+    def test_list_metadataformat_with_identifier(self):
+        self.dump_xmldata()
+        self.dump_oai_templ_mf_xslt()
+        self.dump_oai_my_metadata_format()
+        identifier = '%s:%s:id/%s' % (OAI_SCHEME, OAI_REPO_IDENTIFIER, '572a51dca530afee94f3b35c')
+        data = {'verb': 'ListMetadataFormats', 'identifier': identifier}
+        r = self.doRequestServer(data=data)
+        self.isStatusOK(r)
+        self.checkTagExist(r.text, 'ListMetadataFormats')
+        self.checkTagExist(r.text, 'metadataFormat')
