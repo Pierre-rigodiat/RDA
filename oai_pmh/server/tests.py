@@ -65,6 +65,12 @@ class tests_OAI_PMH_server(OAI_PMH_Test):
         self.isStatusOK(r)
         self.checkTagErrorCode(r.text, BAD_VERB)
 
+    def test_duplicate(self):
+        data = {'verb': ['test2', 'test2']}
+        r = self.doRequestServer(data=data)
+        self.isStatusOK(r)
+        self.checkTagErrorCode(r.text, BAD_ARGUMENT)
+
     def test_identify(self):
         data = {'verb': 'Identify'}
         r = self.doRequestServer(data=data)
