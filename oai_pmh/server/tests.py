@@ -12,10 +12,9 @@
 ################################################################################
 
 from oai_pmh.tests.models import OAI_PMH_Test
-from mgi.models import OaiSettings, OaiMySet
-from exceptions import BAD_VERB, NO_SET_HIERARCHY, BAD_ARGUMENT, DISSEMINATE_FORMAT, NO_RECORDS_MATCH
+from mgi.models import OaiSettings, OaiMySet, OaiMyMetadataFormat
+from exceptions import BAD_VERB, NO_SET_HIERARCHY, BAD_ARGUMENT, DISSEMINATE_FORMAT, NO_RECORDS_MATCH, NO_METADATA_FORMAT
 from lxml import etree
-from django import test
 
 URL = '/oai_pmh/server'
 
@@ -110,7 +109,6 @@ class tests_OAI_PMH_server(OAI_PMH_Test):
         self.checkTagErrorCode(r.text, BAD_ARGUMENT)
 
     def test_list_identifiers_error_no_metadataformat(self):
-
         data = {'verb': 'ListIdentifiers', 'metadataPrefix': 'oai_dc', 'from': '2015-01-01T12:12:12Z', 'until': '2016-01-01T12:12:12Z'}
         r = self.doRequestServer(data=data)
         self.isStatusOK(r)
@@ -139,3 +137,28 @@ class tests_OAI_PMH_server(OAI_PMH_Test):
     #     data = {'verb': 'ListIdentifiers', 'metadataPrefix': 'TODO replace here', 'from': '2015-01-01T12:12:12Z', 'until': '2016-01-01T12:12:12Z', 'set': 'TODO replace here'}
     #     r = self.doRequestServer(data=data)
     #     self.isStatusOK(r)
+
+    def test_list_metadataformat_no_data(self):
+        data = {'verb': 'ListMetadataFormats'}
+        r = self.doRequestServer(data=data)
+        self.isStatusOK(r)
+        self.checkTagErrorCode(r.text, NO_METADATA_FORMAT)
+
+    def test_list_metadataformat_no_identifier(self):
+        self.dump_oai_my_metadata_format()
+        data = {'verb': 'ListMetadataFormats'}
+        r = self.doRequestServer(data=data)
+        self.isStatusOK(r)
+        self.checkTagExist(r.text, 'ListMetadataFormats')
+        self.checkTagCount(r.text, 'metadataFormat', len(OaiMyMetadataFormat.objects().all()))
+
+    # def test_list_metadataformat_with_identifier(self):
+    #     self.dump_xmldata()
+    #     self.dump_oai_templ_mf_xslt()
+    #     self.dump_oai_my_metadata_format()
+    #     data = {'verb': 'ListMetadataFormats'}
+    #     r = self.doRequestServer(data=data)
+    #     self.isStatusOK(r)
+    #     self.checkTagExist(r.text, 'ListMetadataFormats')
+    #     self.checkTagExist(r.text, 'metadataFormat')
+    #     #self.checkTagCount(r.text, 'metadataFormat', len(OaiMyMetadataFormat.objects().all()))

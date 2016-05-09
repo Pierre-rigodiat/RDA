@@ -10,6 +10,7 @@
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
+NO_METADATA_FORMAT = 'noMetadataFormat'
 NO_RECORDS_MATCH = 'noRecordsMatch'
 DISSEMINATE_FORMAT = 'cannotDisseminateFormat'
 BAD_ARGUMENT = 'badArgument'
@@ -73,7 +74,7 @@ class noRecordsMatch(OAIException):
 class noMetadataFormat(OAIException):
     def __init__(self):
         self.message = 'There are no metadata formats available for the specified item.'
-        self.code = 'noMetadataFormat'
+        self.code = NO_METADATA_FORMAT
 
 class noSetHierarchy(OAIException):
     def __init__(self):
