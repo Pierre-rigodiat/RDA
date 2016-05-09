@@ -11,7 +11,8 @@
 #
 ################################################################################
 
-from testing.models import RegressionTest, OaiMyMetadataFormat, DUMP_OAI_PMH_TEST_PATH, join, OaiMySet, OaiSettings, ADMIN_AUTH, USER_AUTH
+from testing.models import RegressionTest, DUMP_OAI_PMH_TEST_PATH, join
+from mgi.models import OaiMyMetadataFormat, OaiTemplMfXslt, OaiMySet, OaiSettings
 
 class OAI_PMH_Test(RegressionTest):
 
@@ -33,3 +34,8 @@ class OAI_PMH_Test(RegressionTest):
         self.assertEquals(len(OaiSettings.objects()), 0)
         self.restoreDump(join(DUMP_OAI_PMH_TEST_PATH, 'oai_settings.bson'), 'oai_settings')
         self.assertTrue(len(OaiSettings.objects()) > 0)
+
+    def dump_oai_templ_mf_xslt(self):
+        self.assertEquals(len(OaiTemplMfXslt.objects()), 0)
+        self.restoreDump(join(DUMP_OAI_PMH_TEST_PATH, 'oai_templ_mf_xslt.bson'), 'oai_templ_mf_xslt')
+        self.assertTrue(len(OaiTemplMfXslt.objects()) > 0)
