@@ -568,30 +568,26 @@ class OAIProvider(TemplateView):
             raise badArgument(error_msg)
 
         #Build the illegal and required arguments depending of the verb
-        if self.oai_verb != None:
-            if self.oai_verb == 'Identify':
-                legal = ['verb']
-                required = ['verb']
-            elif self.oai_verb== 'ListIdentifiers':
-                legal = ['verb', 'metadataPrefix', 'from', 'until', 'set', 'resumptionToken']
-                required = ['verb', 'metadataPrefix']
-            elif self.oai_verb == 'ListSets':
-                legal = ['verb', 'resumptionToken']
-                required = ['verb']
-            elif self.oai_verb == 'ListMetadataFormats':
-                legal = ['verb', 'identifier']
-                required = ['verb']
-            elif self.oai_verb == 'GetRecord':
-                legal = ['verb', 'identifier', 'metadataPrefix']
-                required = ['verb', 'identifier', 'metadataPrefix']
-            elif self.oai_verb == 'ListRecords':
-                legal = ['verb', 'metadataPrefix', 'from', 'until', 'set', 'resumptionToken']
-                required = ['verb', 'metadataPrefix']
-            else:
-                error_msg = 'The verb "%s" is illegal' % self.oai_verb
-                raise badVerb(error_msg)
+        if self.oai_verb == 'Identify':
+            legal = ['verb']
+            required = ['verb']
+        elif self.oai_verb== 'ListIdentifiers':
+            legal = ['verb', 'metadataPrefix', 'from', 'until', 'set', 'resumptionToken']
+            required = ['verb', 'metadataPrefix']
+        elif self.oai_verb == 'ListSets':
+            legal = ['verb', 'resumptionToken']
+            required = ['verb']
+        elif self.oai_verb == 'ListMetadataFormats':
+            legal = ['verb', 'identifier']
+            required = ['verb']
+        elif self.oai_verb == 'GetRecord':
+            legal = ['verb', 'identifier', 'metadataPrefix']
+            required = ['verb', 'identifier', 'metadataPrefix']
+        elif self.oai_verb == 'ListRecords':
+            legal = ['verb', 'metadataPrefix', 'from', 'until', 'set', 'resumptionToken']
+            required = ['verb', 'metadataPrefix']
         else:
-            error_msg = 'The request did not provide any verb.'
+            error_msg = 'The verb "%s" is illegal' % self.oai_verb
             raise badVerb(error_msg)
 
         #Check

@@ -65,6 +65,16 @@ class tests_OAI_PMH_server(OAI_PMH_Test):
         self.isStatusOK(r)
         self.checkTagErrorCode(r.text, BAD_VERB)
 
+    def test_bad_verb(self):
+        r = self.doRequestServer(data={'verb': 'test'})
+        self.isStatusOK(r)
+        self.checkTagErrorCode(r.text, BAD_VERB)
+
+    def test_illegal_argument(self):
+        r = self.doRequestServer(data={'verb': 'Identify', 'test': 'test'})
+        self.isStatusOK(r)
+        self.checkTagErrorCode(r.text, BAD_ARGUMENT)
+
     def test_duplicate(self):
         data = {'verb': ['test2', 'test2']}
         r = self.doRequestServer(data=data)
@@ -130,6 +140,15 @@ class tests_OAI_PMH_server(OAI_PMH_Test):
         self.isStatusOK(r)
         self.checkTagErrorCode(r.text, NO_RECORDS_MATCH)
 
+    def test_list_identifiers_with_no_xmldata(self):
+        self.dump_oai_templ_mf_xslt()
+        self.dump_oai_my_metadata_format()
+        self.dump_template()
+        data = {'verb': 'ListIdentifiers', 'metadataPrefix': 'oai_dc', 'from': '2015-01-01T12:12:12Z', 'until': '2016-01-01T12:12:12Z'}
+        r = self.doRequestServer(data=data)
+        self.isStatusOK(r)
+        self.checkTagErrorCode(r.text, NO_RECORDS_MATCH)
+
     def test_list_identifiers_with_set(self):
         self.dump_oai_templ_mf_xslt()
         self.dump_oai_my_metadata_format()
@@ -154,6 +173,16 @@ class tests_OAI_PMH_server(OAI_PMH_Test):
         r = self.doRequestServer(data=data)
         self.isStatusOK(r)
         self.checkTagErrorCode(r.text, NO_METADATA_FORMAT)
+
+    def test_list_metadataformat_no_xmldata(self):
+        self.dump_template()
+        self.dump_oai_templ_mf_xslt()
+        self.dump_oai_my_metadata_format()
+        identifier = '%s:%s:id/%s' % (OAI_SCHEME, OAI_REPO_IDENTIFIER, '572a51dca530afee94f3b35c')
+        data = {'verb': 'ListMetadataFormats', 'identifier': identifier}
+        r = self.doRequestServer(data=data)
+        self.isStatusOK(r)
+        self.checkTagErrorCode(r.text, ID_DOES_NOT_EXIST)
 
     def test_list_metadataformat_no_identifier(self):
         self.dump_oai_my_metadata_format()
