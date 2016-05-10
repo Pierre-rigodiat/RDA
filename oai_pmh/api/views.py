@@ -29,7 +29,7 @@ from oai_pmh.api.serializers import IdentifyObjectSerializer, MetadataFormatSeri
     UpdateMyRegistrySerializer, MyMetadataFormatSerializer, DeleteMyMetadataFormatSerializer,\
     UpdateMyMetadataFormatSerializer, GetRecordSerializer, UpdateMySetSerializer, DeleteMySetSerializer,\
     MySetSerializer, MyTemplateMetadataFormatSerializer, DeleteXSLTSerializer, OaiConfXSLTSerializer, \
-    OaiXSLTSerializer, DeleteRegistrySerializer
+    OaiXSLTSerializer, RegistryIdSerializer
 # Models
 from mgi.models import OaiRegistry, OaiSet, OaiMetadataFormat, OaiIdentify, OaiSettings, Template, OaiRecord,\
 OaiMyMetadataFormat, OaiMySet, OaiMetadataformatSet, OaiXslt, OaiTemplMfXslt
@@ -482,7 +482,7 @@ def delete_registry(request):
     """
     try:
         #Serialization of the input data
-        serializer = DeleteRegistrySerializer(data=request.DATA)
+        serializer = RegistryIdSerializer(data=request.DATA)
         #If it's valid
         if serializer.is_valid():
             try:
@@ -523,37 +523,40 @@ def delete_registry(request):
 # Inputs:        request -
 # Outputs:       200 Record deactivated.
 # Exceptions:    400 Error connecting to database.
-#                400 [Name] not found in request.
-#                400 Unspecified.
+#                400 [RegistryId] not found in request.
 #                401 Unauthorized.
 #                404 No record found with the given identity.
-# Description:   OAI-PMH Delete Registry
+# Description:   OAI-PMH Deactivate Registry
 #
 ################################################################################
 @api_view(['POST'])
 @api_staff_member_required()
 def deactivate_registry(request):
     """
-    POST http://localhost/oai_pmh/deactivate/registry
+    POST http://localhost/oai_pmh/api/deactivate/registry
     POST data query="{'RegistryId':'value'}"
     """
     try:
-        #Get the ID
-        if 'RegistryId' in request.DATA:
-            id = request.DATA['RegistryId']
+        #Serialization of the input data
+        serializer = RegistryIdSerializer(data=request.DATA)
+        #If it's valid
+        if serializer.is_valid():
+            try:
+                #Get the ID
+                id = request.DATA['RegistryId']
+                registry = OaiRegistry.objects.get(pk=id)
+                registry.isDeactivated = True
+                registry.save()
+                content = APIMessage.getMessageLabelled("Registry deactivated with success.")
+                return Response(content, status=status.HTTP_200_OK)
+            except MONGO_ERRORS.DoesNotExist:
+                raise OAIAPILabelledException(message='No registry found with the given id.',
+                                              status=status.HTTP_404_NOT_FOUND)
+            except Exception as e:
+                raise OAIAPILabelledException(message='Unable to deactivate the registry. \n%s'%e.message,
+                                              status=status.HTTP_400_BAD_REQUEST)
         else:
-            rsp = {'RegistryId':['This field is required.']}
-            raise OAIAPIException(message=rsp, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            registry = OaiRegistry.objects.get(pk=id)
-        except:
-            raise OAIAPILabelledException(message='No registry found with the given id.',
-                                          status=status.HTTP_404_NOT_FOUND)
-        registry.isDeactivated = True
-        registry.save()
-        content = APIMessage.getMessageLabelled("Registry deactivated with success.")
-
-        return Response(content, status=status.HTTP_200_OK)
+            raise OAIAPILabelledException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
         return e.response()
     except Exception as e:
@@ -567,8 +570,7 @@ def deactivate_registry(request):
 # Inputs:        request -
 # Outputs:       200 Record deactivated.
 # Exceptions:    400 Error connecting to database.
-#                400 [Name] not found in request.
-#                400 Unspecified.
+#                400 [RegistryId] not found in request.
 #                401 Unauthorized.
 #                404 No record found with the given identity.
 # Description:   OAI-PMH Delete Registry
@@ -578,31 +580,36 @@ def deactivate_registry(request):
 @api_staff_member_required()
 def reactivate_registry(request):
     """
-    POST http://localhost/oai_pmh/deactivate/registry
+    POST http://localhost/oai_pmh/reactivate/registry
     POST data query="{'RegistryId':'value'}"
     """
     try:
-        #Get the ID
-        if 'RegistryId' in request.DATA:
-            id = request.DATA['RegistryId']
+        #Serialization of the input data
+        serializer = RegistryIdSerializer(data=request.DATA)
+        #If it's valid
+        if serializer.is_valid():
+            try:
+                #Get the ID
+                id = request.DATA['RegistryId']
+                registry = OaiRegistry.objects.get(pk=id)
+                registry.isDeactivated = False
+                registry.save()
+                content = APIMessage.getMessageLabelled("Registry deactivated with success.")
+                return Response(content, status=status.HTTP_200_OK)
+            except MONGO_ERRORS.DoesNotExist:
+                raise OAIAPILabelledException(message='No registry found with the given id.',
+                                              status=status.HTTP_404_NOT_FOUND)
+            except Exception as e:
+                raise OAIAPILabelledException(message='Unable to reactivated the registry. \n%s'%e.message,
+                                              status=status.HTTP_400_BAD_REQUEST)
         else:
-            rsp = {'RegistryId':['This field is required.']}
-            raise OAIAPIException(message=rsp, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            registry = OaiRegistry.objects.get(pk=id)
-        except:
-            raise OAIAPILabelledException(message='No registry found with the given id.',
-                                          status=status.HTTP_404_NOT_FOUND)
-        registry.isDeactivated = False
-        registry.save()
-        content = APIMessage.getMessageLabelled("Registry reactivated with success.")
-
-        return Response(content, status=status.HTTP_200_OK)
+            raise OAIAPILabelledException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
         return e.response()
     except Exception as e:
         content = APIMessage.getMessageLabelled(e.message)
         return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 ################################################################################
 #

@@ -23,7 +23,7 @@ class UpdateRegistrySerializer(serializers.Serializer):
     harvestrate = serializers.IntegerField(required=True)
     harvest = serializers.BooleanField(required=True)
 
-class DeleteRegistrySerializer(serializers.Serializer):
+class RegistryIdSerializer(serializers.Serializer):
     RegistryId  = serializers.CharField(required=True)
 
 class ListRecordsSerializer(serializers.Serializer):

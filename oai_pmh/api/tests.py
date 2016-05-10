@@ -652,6 +652,85 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
 
 ################################################################################
 
+###################### Deactivate / Activate registry tests ####################
+
+    def test_deactivate_registry(self):
+        self.dump_oai_settings()
+        self.dump_oai_registry()
+        registry = OaiRegistry.objects.get()
+        self.assertEquals(registry.isDeactivated, False)
+        data = {"RegistryId": str(registry.id)}
+        req = self.doRequestPost(url=reverse("api_deactivate_registry"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_200_OK)
+        objInDatabase = OaiRegistry.objects.get(pk=registry.id)
+        self.assertEquals(objInDatabase.isDeactivated, True)
+
+    def test_deactivate_registry_unauthorized(self):
+        data = {"RegistryId": FAKE_ID}
+        req = self.doRequestPost(url=reverse("api_deactivate_registry"), data=data, auth=None)
+        self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_deactivate_registry_unauthorized_user(self):
+        data = {"RegistryId": FAKE_ID}
+        req = self.doRequestPost(url=reverse("api_deactivate_registry"), data=data, auth=USER_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_deactivate_registry_not_found(self):
+        data = {"RegistryId": FAKE_ID}
+        req = self.doRequestPost(url=reverse("api_deactivate_registry"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_deactivate_registry_serializer_invalid(self):
+        data = {"RRegistryId": FAKE_ID}
+        req = self.doRequestPost(url=reverse("api_deactivate_registry"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_deactivate_registry_bad_entries(self):
+        data = {"RegistryId": 1000}
+        req = self.doRequestPost(url=reverse("api_deactivate_registry"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_reactivate_registry(self):
+        self.dump_oai_settings()
+        self.dump_oai_registry()
+        registry = OaiRegistry.objects.get()
+        registry.isDeactivated = True
+        registry.save()
+        objInDatabase = OaiRegistry.objects.get(pk=registry.id)
+        self.assertEquals(objInDatabase.isDeactivated, True)
+        data = {"RegistryId": str(registry.id)}
+        req = self.doRequestPost(url=reverse("api_reactivate_registry"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_200_OK)
+        objInDatabase = OaiRegistry.objects.get(pk=registry.id)
+        self.assertEquals(objInDatabase.isDeactivated, False)
+
+    def test_reactivate_registry_unauthorized(self):
+        data = {"RegistryId": FAKE_ID}
+        req = self.doRequestPost(url=reverse("api_reactivate_registry"), data=data, auth=None)
+        self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_reactivate_registry_unauthorized_user(self):
+        data = {"RegistryId": FAKE_ID}
+        req = self.doRequestPost(url=reverse("api_reactivate_registry"), data=data, auth=USER_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_reactivate_registry_not_found(self):
+        data = {"RegistryId": FAKE_ID}
+        req = self.doRequestPost(url=reverse("api_reactivate_registry"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_reactivate_registry_serializer_invalid(self):
+        data = {"RRegistryId": FAKE_ID}
+        req = self.doRequestPost(url=reverse("api_reactivate_registry"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_reactivate_registry_bad_entries(self):
+        data = {"RegistryId": 1000}
+        req = self.doRequestPost(url=reverse("api_reactivate_registry"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+################################################################################
 
 ################################################################################
 ########################## Common assert controls ##############################
