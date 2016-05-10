@@ -13,7 +13,7 @@
 
 from oai_pmh.tests.models import OAI_PMH_Test
 from mgi.models import OaiSettings, OaiMySet, OaiMyMetadataFormat
-from exceptions import BAD_VERB, NO_SET_HIERARCHY, BAD_ARGUMENT, DISSEMINATE_FORMAT, NO_RECORDS_MATCH, NO_METADATA_FORMAT
+from exceptions import BAD_VERB, NO_SET_HIERARCHY, BAD_ARGUMENT, DISSEMINATE_FORMAT, NO_RECORDS_MATCH, NO_METADATA_FORMAT, ID_DOES_NOT_EXIST
 from testing.models import OAI_SCHEME, OAI_REPO_IDENTIFIER
 from lxml import etree
 
@@ -173,3 +173,54 @@ class tests_OAI_PMH_server(OAI_PMH_Test):
         self.isStatusOK(r)
         self.checkTagExist(r.text, 'ListMetadataFormats')
         self.checkTagExist(r.text, 'metadataFormat')
+
+    def test_get_record_missing_identifier(self):
+        identifier = '%s:%s:id/%s' % (OAI_SCHEME, OAI_REPO_IDENTIFIER, '572a51dca530afee94f3b35c')
+        data = {'verb': 'GetRecord', 'metadataPrefix': 'oai_dc'}
+        r = self.doRequestServer(data=data)
+        self.isStatusOK(r)
+        self.checkTagErrorCode(r.text, BAD_ARGUMENT)
+
+    def test_get_record_missing_metadataprefix(self):
+        identifier = '%s:%s:id/%s' % (OAI_SCHEME, OAI_REPO_IDENTIFIER, '572a51dca530afee94f3b35c')
+        data = {'verb': 'GetRecord', 'identifier': identifier}
+        r = self.doRequestServer(data=data)
+        self.isStatusOK(r)
+        self.checkTagErrorCode(r.text, BAD_ARGUMENT)
+
+    def test_get_record_bad_id(self):
+        identifier = '%s:%s:id/%s' % (OAI_SCHEME, OAI_REPO_IDENTIFIER, 'ttest')
+        data = {'verb': 'GetRecord', 'identifier': identifier, 'metadataPrefix': 'oai_dc'}
+        r = self.doRequestServer(data=data)
+        self.isStatusOK(r)
+        self.checkTagErrorCode(r.text, ID_DOES_NOT_EXIST)
+
+    def test_get_record_id_does_not_exist(self):
+        identifier = '%s:%s:id/%s' % (OAI_SCHEME, OAI_REPO_IDENTIFIER, '000051dca530afee94f30000')
+        data = {'verb': 'GetRecord', 'identifier': identifier, 'metadataPrefix': 'oai_dc'}
+        r = self.doRequestServer(data=data)
+        self.isStatusOK(r)
+        self.checkTagErrorCode(r.text, ID_DOES_NOT_EXIST)
+
+    def test_get_record_no_templ_xslt(self):
+        self.dump_oai_my_set()
+        self.dump_xmldata()
+        self.dump_oai_my_metadata_format()
+        identifier = '%s:%s:id/%s' % (OAI_SCHEME, OAI_REPO_IDENTIFIER, '572a51dca530afee94f3b35c')
+        data = {'verb': 'GetRecord', 'identifier': identifier, 'metadataPrefix': 'oai_dc'}
+        r = self.doRequestServer(data=data)
+        self.isStatusOK(r)
+        self.checkTagErrorCode(r.text, DISSEMINATE_FORMAT)
+
+    def test_get_record(self):
+        self.dump_oai_my_set()
+        self.dump_xmldata()
+        self.dump_oai_my_metadata_format()
+        self.dump_oai_templ_mf_xslt()
+        self.dump_oai_xslt()
+        identifier = '%s:%s:id/%s' % (OAI_SCHEME, OAI_REPO_IDENTIFIER, '572a51dca530afee94f3b35c')
+        data = {'verb': 'GetRecord', 'identifier': identifier, 'metadataPrefix': 'oai_dc'}
+        r = self.doRequestServer(data=data)
+        self.isStatusOK(r)
+        self.checkTagExist(r.text, 'GetRecord')
+        self.checkTagExist(r.text, 'record')

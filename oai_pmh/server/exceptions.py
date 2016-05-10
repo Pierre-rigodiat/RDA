@@ -10,6 +10,7 @@
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
+ID_DOES_NOT_EXIST = 'idDoesNotExist'
 NO_METADATA_FORMAT = 'noMetadataFormat'
 NO_RECORDS_MATCH = 'noRecordsMatch'
 DISSEMINATE_FORMAT = 'cannotDisseminateFormat'
@@ -63,7 +64,7 @@ class cannotDisseminateFormat(OAIException):
 class idDoesNotExist(OAIException):
     def __init__(self, identifier):
         self.message = 'The value of the identifier argument (%s) is unknown or illegal in this repository.' %identifier
-        self.code = 'idDoesNotExist'
+        self.code = ID_DOES_NOT_EXIST
 
 class noRecordsMatch(OAIException):
     def __init__(self):
