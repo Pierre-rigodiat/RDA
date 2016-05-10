@@ -28,7 +28,8 @@ from oai_pmh.api.serializers import IdentifyObjectSerializer, MetadataFormatSeri
     IdentifySerializer, UpdateRegistrySerializer, \
     UpdateMyRegistrySerializer, MyMetadataFormatSerializer, DeleteMyMetadataFormatSerializer,\
     UpdateMyMetadataFormatSerializer, GetRecordSerializer, UpdateMySetSerializer, DeleteMySetSerializer,\
-    MySetSerializer, MyTemplateMetadataFormatSerializer, DeleteXSLTSerializer, OaiConfXSLTSerializer, OaiXSLTSerializer
+    MySetSerializer, MyTemplateMetadataFormatSerializer, DeleteXSLTSerializer, OaiConfXSLTSerializer, \
+    OaiXSLTSerializer, DeleteRegistrySerializer
 # Models
 from mgi.models import OaiRegistry, OaiSet, OaiMetadataFormat, OaiIdentify, OaiSettings, Template, OaiRecord,\
 OaiMyMetadataFormat, OaiMySet, OaiMetadataformatSet, OaiXslt, OaiTemplMfXslt
@@ -480,31 +481,35 @@ def delete_registry(request):
     POST data query="{'RegistryId':'value'}"
     """
     try:
-        #Get the ID
-        if 'RegistryId' in request.DATA:
-            id = request.DATA['RegistryId']
+        #Serialization of the input data
+        serializer = DeleteRegistrySerializer(data=request.DATA)
+        #If it's valid
+        if serializer.is_valid():
+            try:
+                #Get the ID
+                id = request.DATA['RegistryId']
+                registry = OaiRegistry.objects.get(pk=id)
+                #Delete all ReferenceFields
+                #Identify
+                registry.identify.delete()
+                #Records
+                OaiRecord.objects(registry=id).delete()
+                #Sets
+                OaiSet.objects(registry=id).delete()
+                #Metadata formats
+                OaiMetadataFormat.objects(registry=id).delete()
+                #We can now delete the registry
+                registry.delete()
+                content = APIMessage.getMessageLabelled("Registry deleted with success.")
+                return Response(content, status=status.HTTP_200_OK)
+            except MONGO_ERRORS.DoesNotExist:
+                raise OAIAPILabelledException(message='No registry found with the given id.',
+                                              status=status.HTTP_404_NOT_FOUND)
+            except Exception as e:
+                raise OAIAPILabelledException(message='Unable to delete the registry. \n%s'%e.message,
+                                              status=status.HTTP_400_BAD_REQUEST)
         else:
-            rsp = {'RegistryId':['This field is required.']}
-            raise OAIAPIException(message=rsp, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            registry = OaiRegistry.objects.get(pk=id)
-        except:
-            raise OAIAPILabelledException(message='No registry found with the given id.',
-                                          status=status.HTTP_404_NOT_FOUND)
-        #Delete all ReferenceFields
-        #Identify
-        registry.identify.delete()
-        #Records
-        OaiRecord.objects(registry=id).delete()
-        #Sets
-        OaiSet.objects(registry=id).delete()
-        #Metadata formats
-        OaiMetadataFormat.objects(registry=id).delete()
-        #We can now delete the registry
-        registry.delete()
-        content = APIMessage.getMessageLabelled("Registry deleted with success.")
-
-        return Response(content, status=status.HTTP_200_OK)
+            raise OAIAPILabelledException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
         return e.response()
     except Exception as e:

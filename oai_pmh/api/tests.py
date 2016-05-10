@@ -16,7 +16,7 @@ from oai_pmh.api.views import createRegistry, createOaiIdentify, setDataToRegist
     sickleListObjectMetadataFormats, sickleListObjectSets, setMetadataFormatXMLSchema, createSetsForRegistry, \
     sickleObjectIdentify
 from mgi.models import OaiRegistry, OaiIdentify, OaiMetadataFormat, OaiMyMetadataFormat, OaiSettings, Template, OaiSet,\
-    OaiMySet
+    OaiMySet, OaiRecord
 import xmltodict
 import lxml.etree as etree
 from testing.models import URL_TEST, ADMIN_AUTH, ADMIN_AUTH_GET, USER_AUTH
@@ -591,7 +591,7 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         data = {"repositoryNName": modifiedRepositoryName, "enableHarvesting": 'True'}
         req = self.doRequestPut(url="/oai_pmh/api/update/my-registry", data=data, auth=ADMIN_AUTH)
         self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
-        data = {"repositoryNName": modifiedRepositoryName, "enableHHarvesting": 'True'}
+        data = {"repositoryName": modifiedRepositoryName, "enableHHarvesting": 'True'}
         req = self.doRequestPut(url="/oai_pmh/api/update/my-registry", data=data, auth=ADMIN_AUTH)
         self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
         data = {"repositoryName": modifiedRepositoryName}
@@ -608,6 +608,50 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
 
 ################################################################################
+
+############################## Delete registry tests ###########################
+
+    def test_delete_registry(self):
+        self.dump_oai_settings()
+        self.dump_oai_registry()
+        registry = OaiRegistry.objects.get()
+        data = {"RegistryId": str(registry.id)}
+        req = self.doRequestPost(url=reverse("api_delete_registry"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(OaiRegistry.objects()), 0)
+        self.assertEquals(len(OaiIdentify.objects()), 0)
+        self.assertEquals(len(OaiMetadataFormat.objects()), 0)
+        self.assertEquals(len(OaiSet.objects()), 0)
+        self.assertEquals(len(OaiRecord.objects()), 0)
+
+    def test_delete_registry_unauthorized(self):
+        data = {"RegistryId": FAKE_ID}
+        req = self.doRequestPost(url=reverse("api_delete_registry"), data=data, auth=None)
+        self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_delete_registry_unauthorized_user(self):
+        data = {"RegistryId": FAKE_ID}
+        req = self.doRequestPost(url=reverse("api_delete_registry"), data=data, auth=USER_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_delete_registry_not_found(self):
+        data = {"RegistryId": FAKE_ID}
+        req = self.doRequestPost(url=reverse("api_delete_registry"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_registry_serializer_invalid(self):
+        data = {"RRegistryId": FAKE_ID}
+        req = self.doRequestPost(url=reverse("api_delete_registry"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_delete_registry_bad_entries(self):
+        data = {"RegistryId": 1000}
+        req = self.doRequestPost(url=reverse("api_delete_registry"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+################################################################################
+
 
 ################################################################################
 ########################## Common assert controls ##############################
