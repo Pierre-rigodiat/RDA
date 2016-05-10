@@ -23,6 +23,9 @@ class UpdateRegistrySerializer(serializers.Serializer):
     harvestrate = serializers.IntegerField(required=True)
     harvest = serializers.BooleanField(required=True)
 
+class DeleteRegistrySerializer(serializers.Serializer):
+    RegistryId  = serializers.CharField(required=True)
+
 class ListRecordsSerializer(serializers.Serializer):
     url  = serializers.URLField(required=True)
     metadataprefix = serializers.CharField(required=True)
