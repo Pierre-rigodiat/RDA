@@ -12,7 +12,8 @@
 ################################################################################
 
 from testing.models import RegressionTest, DUMP_OAI_PMH_TEST_PATH, join
-from mgi.models import OaiMyMetadataFormat, OaiTemplMfXslt, OaiMySet, OaiSettings, OaiXslt
+from mgi.models import OaiMyMetadataFormat, OaiTemplMfXslt, OaiMySet, OaiSettings, OaiXslt, OaiIdentify,\
+    OaiMetadataFormat, OaiSet, OaiRecord, OaiRegistry
 
 class OAI_PMH_Test(RegressionTest):
 
@@ -44,3 +45,32 @@ class OAI_PMH_Test(RegressionTest):
         self.assertEquals(len(OaiXslt.objects()), 0)
         self.restoreDump(join(DUMP_OAI_PMH_TEST_PATH, 'oai_xslt.bson'), 'oai_xslt')
         self.assertTrue(len(OaiXslt.objects()) > 0)
+
+    def dump_oai_registry(self):
+        self.assertEquals(len(OaiRegistry.objects()), 0)
+        self.restoreDump(join(DUMP_OAI_PMH_TEST_PATH, 'oai_registry.bson'), 'oai_registry')
+        self.assertTrue(len(OaiRegistry.objects()) > 0)
+        self.dump_oai_identify()
+        self.dump_oai_metadata_format()
+        self.dump_oai_set()
+        self.dump_oai_record()
+
+    def dump_oai_identify(self):
+        self.assertEquals(len(OaiIdentify.objects()), 0)
+        self.restoreDump(join(DUMP_OAI_PMH_TEST_PATH, 'oai_identify.bson'), 'oai_identify')
+        self.assertTrue(len(OaiIdentify.objects()) > 0)
+
+    def dump_oai_metadata_format(self):
+        self.assertEquals(len(OaiMetadataFormat.objects()), 0)
+        self.restoreDump(join(DUMP_OAI_PMH_TEST_PATH, 'oai_metadata_format.bson'), 'oai_metadata_format')
+        self.assertTrue(len(OaiMetadataFormat.objects()) > 0)
+
+    def dump_oai_set(self):
+        self.assertEquals(len(OaiSet.objects()), 0)
+        self.restoreDump(join(DUMP_OAI_PMH_TEST_PATH, 'oai_set.bson'), 'oai_set')
+        self.assertTrue(len(OaiSet.objects()) > 0)
+
+    def dump_oai_record(self):
+        self.assertEquals(len(OaiRecord.objects()), 0)
+        self.restoreDump(join(DUMP_OAI_PMH_TEST_PATH, 'oai_record.bson'), 'oai_record')
+        self.assertTrue(len(OaiRecord.objects()) > 0)
