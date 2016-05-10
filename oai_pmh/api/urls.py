@@ -15,12 +15,12 @@ from django.conf.urls import patterns, url
 urlpatterns = patterns(
     'oai_pmh.api.views',
     #OAI-PMH Verbs
-    url(r'^listobjectallrecords$', 'listObjectAllRecords'), #ListRecords
+    url(r'^listobjectallrecords$', 'listObjectAllRecords', name='api_listObjectAllRecords'), #ListRecords
     url(r'^objectidentify$', 'objectIdentify', name='api_objectIdentify'), #Identify
-    url(r'^listobjectmetadataformats$', 'listObjectMetadataFormats'), #ListMF
-    url(r'^listobjectsets$', 'listObjectSets'), #List Set
-    url(r'^listidentifiers$', 'listIdentifiers'), #List Identify
-    url(r'^getrecord$', 'getRecord'), #GetRecord
+    url(r'^listobjectmetadataformats$', 'listObjectMetadataFormats', name='api_listObjectMetadataFormats'), #ListMF
+    url(r'^listobjectsets$', 'listObjectSets', name='api_listObjectSets'), #List Set
+    url(r'^listidentifiers$', 'listIdentifiers', name='api_listIdentifiers'), #List Identify
+    url(r'^getrecord$', 'getRecord', name='api_getRecord'), #GetRecord
     #Manage Data Providers
     url(r'^select/registry$', 'select_registry'),
     url(r'^add/registry$', 'add_registry', name='api_add_registry'),
@@ -53,5 +53,5 @@ urlpatterns = patterns(
     url(r'^delete/xslt$', 'delete_oai_pmh_xslt', name='api_delete_oai_pmh_xslt'),
 
 
-    url(r'^select/all/registries$', 'select_all_registries'),
+    url(r'^select/all/registries$', 'select_all_registries', name='api_select_all_registries'),
 )

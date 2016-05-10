@@ -18,10 +18,10 @@ class RegistrySerializer(MongoEngineModelSerializer):
         model = OaiRegistry
         exclude = (['identity', 'metadataformats', 'sets', 'description', 'name'])
 
-class UpdateRegistrySerializer(MongoEngineModelSerializer):
-    class Meta:
-        model = OaiRegistry
-        exclude = (['identity','sets', 'metadataformats', 'name', 'url'])
+class UpdateRegistrySerializer(serializers.Serializer):
+    id  = serializers.CharField(required=True)
+    harvestrate = serializers.IntegerField(required=True)
+    harvest = serializers.BooleanField(required=True)
 
 class ListRecordsSerializer(serializers.Serializer):
     url  = serializers.URLField(required=True)
@@ -82,10 +82,9 @@ class MetadataFormatSerializer(serializers.Serializer):
     schema = serializers.CharField()
     raw = serializers.CharField()
 
-class UpdateMyRegistrySerializer(MongoEngineModelSerializer):
-    class Meta:
-        model = OaiSettings
-        exclude = (['repositoryIdentifier'])
+class UpdateMyRegistrySerializer(serializers.Serializer):
+    repositoryName = serializers.CharField(required=True)
+    enableHarvesting = serializers.BooleanField(required=True)
 
 class MyMetadataFormatSerializer(serializers.Serializer):
     metadataPrefix = serializers.CharField()

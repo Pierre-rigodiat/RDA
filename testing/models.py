@@ -25,7 +25,9 @@ import os
 from django.utils.importlib import import_module
 from bson import decode_all
 from os.path import join
-
+from django.test import Client
+import base64
+import json
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
 MONGODB_URI = settings.MONGODB_URI
@@ -42,7 +44,7 @@ OPERATION_POST = "post"
 
 TEMPLATE_VALID_CONTENT = '<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"> <xsd:element name="root" type="test"/> <xsd:complexType name="test"> <xsd:sequence> </xsd:sequence> </xsd:complexType> </xsd:schema>'
 XMLDATA_VALID_CONTENT  = '<?xml version="1.0" encoding="utf-8"?> <root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"></root>'
-FAKE_ID = 'abcdefghijklmn'
+FAKE_ID = '12345678a123aff6ff5f2d9e'
 
 DUMP_OAI_PMH_TEST_PATH = os.path.join(BASE_DIR, 'oai_pmh', 'tests', 'dump')
 DUMP_TEST_PATH = os.path.join(BASE_DIR, 'testing', 'dump')
@@ -54,8 +56,9 @@ CLIENT_ID_USER = 'client_id_user'
 CLIENT_SECRET_USER = 'client_secret_user'
 USER_APPLICATION = 'remote_mdcs'
 ADMIN_APPLICATION = 'remote_mdcs'
-ADMIN_AUTH = ('admin', 'admin')
-USER_AUTH = ('user', 'user')
+ADMIN_AUTH = 'admin:admin'
+USER_AUTH = 'user:user'
+ADMIN_AUTH_GET = ('admin', 'admin')
 
 class RegressionTest(LiveServerTestCase):
 
@@ -72,14 +75,24 @@ class RegressionTest(LiveServerTestCase):
             admin.set_password('admin')
             admin.save()
 
+    def getClient(self, auth=None):
+        client = Client()
+        if auth is not None:
+            credentials = base64.b64encode(auth)
+            client.defaults['HTTP_AUTHORIZATION'] = 'Basic ' + credentials
+        return client
+
+
     def doRequestGet(self, url, data=None, params=None, auth=None):
         return requests.get(URL_TEST + url, data=data, params=params, auth=auth)
 
     def doRequestPost(self, url, data=None, params=None, auth=None):
-        return requests.post(URL_TEST + url, data=data, params=params, auth=auth)
+        client = self.getClient(auth)
+        return client.post(URL_TEST + url, data=data, params=params)
 
-    def doRequestPut(self, url, data=None, params=None, auth=None):
-        return requests.put(URL_TEST + url, data=data, params=params, auth=auth)
+    def doRequestPut(self, url, data=None, params=None, auth=None, content_type='application/json'):
+        client = self.getClient(auth)
+        return client.put(URL_TEST + url, data=json.dumps(data), params=params, content_type=content_type)
 
     def dump_result_xslt(self):
         self.assertEquals(len(ResultXslt.objects()), 0)

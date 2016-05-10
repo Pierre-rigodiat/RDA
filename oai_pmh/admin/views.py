@@ -188,7 +188,7 @@ def update_registry(request):
                                     "harvest": harvest},
                                    auth=(OAI_USER, OAI_PASS))
                 #If the status is OK, sucess message
-                if req.status_code == status.HTTP_201_CREATED:
+                if req.status_code == status.HTTP_200_OK:
                     messages.add_message(request, messages.INFO, 'Data Provider successfully edited.')
                     return HttpResponse(json.dumps({}), content_type='application/javascript')
                 #Else, we return a bad request response with the message provided by the API
@@ -557,7 +557,7 @@ def update_my_registry(request):
                                     "enableHarvesting": enable_harvesting},
                                    auth=(OAI_USER, OAI_PASS))
                 #If the status is OK, sucess message
-                if req.status_code == status.HTTP_201_CREATED:
+                if req.status_code == status.HTTP_200_CREATED:
                     messages.add_message(request, messages.INFO, 'Data provider edited with success.')
                     return HttpResponse(json.dumps({}), content_type='application/javascript')
                 #Else, we return a bad request response with the message provided by the API
