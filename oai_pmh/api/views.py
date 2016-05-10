@@ -20,7 +20,7 @@ from rest_framework import status
 from rest_framework.response import Response
 # OAI-PMH
 from sickle import Sickle
-from sickle.models import Set, MetadataFormat, Record
+from sickle.models import Set, MetadataFormat, Record, Identify
 from sickle.oaiexceptions import NoSetHierarchy, NoMetadataFormat
 # Serializers
 from oai_pmh.api.serializers import IdentifyObjectSerializer, MetadataFormatSerializer, SetSerializer,\
@@ -194,8 +194,9 @@ def createMetadataformatsForRegistry(metadataformatsData, registry):
             http_response = requests.get(obj.schema)
             if http_response.status_code == status.HTTP_200_OK:
                 setMetadataFormatXMLSchema(obj, metadataformat['metadataPrefix'], http_response.text)
+
             obj.save()
-        except:
+        except Exception, e:
             pass
 
 ################################################################################
@@ -275,7 +276,7 @@ def createOaiIdentify(identifyData, identifyRaw):
 #
 ################################################################################
 def setMetadataFormatXMLSchema(metadataFormat, metadataPrefix, stringXML):
-    xmlSchema = xmltodict.parse(stringXML)
+    xmlSchema = stringXML
     metadataFormat.xmlSchema = xmlSchema
     hash = XSDhash.get_hash(stringXML)
     metadataFormat.hash = hash
@@ -366,9 +367,8 @@ def select_registry(request):
 #
 # Function Name: update_registry(request)
 # Inputs:        request -
-# Outputs:       201 Registry updated.
+# Outputs:       200 Registry updated.
 # Exceptions:    400 Error connecting to database.
-#                400 [Identifier] not found in request.
 #                400 Unable to update record.
 #                400 Serializer failed validation.
 #                401 Unauthorized.
@@ -381,7 +381,7 @@ def select_registry(request):
 def update_registry(request):
     """
     PUT http://localhost/oai_pmh/update/registry
-    PUT data query="{'id':'value'}"
+    PUT data query="{'id':'value', 'harvestrate':'value', 'harvest':'True or False'}"
     id: string
     """
     try:
@@ -391,32 +391,21 @@ def update_registry(request):
         if serializer.is_valid():
             #We retrieve all information
             try:
-                if 'id' in request.DATA:
-                    id = request.DATA['id']
-                    registry = OaiRegistry.objects.get(pk=id)
-                else:
-                    rsp = {'id':['This field is required.']}
-                    return Response(rsp, status=status.HTTP_400_BAD_REQUEST)
-            except:
+                id = request.DATA['id']
+                registry = OaiRegistry.objects.get(pk=id)
+                harvestrate = request.DATA['harvestrate']
+                registry.harvestrate = harvestrate
+                harvest = request.DATA['harvest']
+                registry.harvest =  harvest == 'True'
+                #Save the modifications
+                registry.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            except MONGO_ERRORS.DoesNotExist:
                 raise OAIAPILabelledException(message='No registry found with the given id.',
                                               status=status.HTTP_404_NOT_FOUND)
-
-            if 'harvestrate' in request.DATA:
-                harvestrate = request.DATA['harvestrate']
-                if harvestrate:
-                    registry.harvestrate = harvestrate
-            if 'harvest' in request.DATA:
-                harvest = request.DATA['harvest']
-                if harvest:
-                    registry.harvest =  harvest == 'True'
-            try:
-                #Save the modifications
-               registry.save()
             except Exception as e:
                 raise OAIAPILabelledException(message='Unable to update registry. \n%s'%e.message,
                                               status=status.HTTP_400_BAD_REQUEST)
-
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             raise OAIAPILabelledException(message='Serializer failed validation. ', status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
@@ -451,30 +440,22 @@ def update_my_registry(request):
         if serializer.is_valid():
             #We retrieve all information
             try:
-                if 'repositoryName' in request.DATA:
-                    repositoryName = request.DATA['repositoryName']
-                if 'enableHarvesting' in request.DATA:
-                    enableHarvesting = request.DATA['enableHarvesting']
-                    if enableHarvesting:
-                        enableHarvesting =  enableHarvesting == 'True'
-            except Exception as e:
-                raise OAIAPILabelledException(message='Error while retrieving information.',
-                                              status=status.HTTP_404_NOT_FOUND)
-
-            try:
+                repositoryName = request.DATA['repositoryName']
+                enableHarvesting = request.DATA['enableHarvesting'] == 'True'
                 #Save the modifications
                 information = OaiSettings.objects.get()
                 information.repositoryName = repositoryName
                 information.enableHarvesting = enableHarvesting
                 information.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            except MONGO_ERRORS.DoesNotExist:
+                raise OAIAPILabelledException(message='No OAI-PMH configuration found.',
+                                              status=status.HTTP_404_NOT_FOUND)
             except Exception as e:
-                raise OAIAPILabelledException(message='Unable to update registry. \n%s'%e.message,
+                raise OAIAPILabelledException(message='Unable to update the registry. \n%s'%e.message,
                                               status=status.HTTP_400_BAD_REQUEST)
-
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             raise OAIAPILabelledException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
     except OAIAPIException as e:
         return e.response()
 

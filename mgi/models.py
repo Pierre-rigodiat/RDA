@@ -550,12 +550,12 @@ class OaiMetadataFormat(Document):
     """
     metadataPrefix  = StringField(required=True)
     schema = StringField(required=True)
-    xmlSchema = DictField(required=False)
+    xmlSchema = StringField(required=False)
     metadataNamespace  = StringField(required=True)
     raw = DictField(required=True)
     template = ReferenceField(Template, reverse_delete_rule=PULL)
     registry = StringField(required=False)
-    hash = StringField(required=True)
+    hash = StringField(required=False)
     harvest = BooleanField()
     lastUpdate = DateTimeField(required=False)
 
