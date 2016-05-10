@@ -224,3 +224,64 @@ class tests_OAI_PMH_server(OAI_PMH_Test):
         self.isStatusOK(r)
         self.checkTagExist(r.text, 'GetRecord')
         self.checkTagExist(r.text, 'record')
+
+    def test_get_list_record_missing_metadataprefix(self):
+        data = {'verb': 'ListRecords', 'set': 'soft'}
+        r = self.doRequestServer(data=data)
+        self.isStatusOK(r)
+        self.checkTagErrorCode(r.text, BAD_ARGUMENT)
+
+    def test_get_list_record_bad_until_date(self):
+        data = {'verb': 'ListRecords', 'set': 'soft', 'metadataPrefix': 'oai_dc', 'until': 'test'}
+        r = self.doRequestServer(data=data)
+        self.isStatusOK(r)
+        self.checkTagErrorCode(r.text, BAD_ARGUMENT)
+
+    def test_get_list_record_bad_from_date(self):
+        data = {'verb': 'ListRecords', 'set': 'soft', 'metadataPrefix': 'oai_dc', 'from': 'test'}
+        r = self.doRequestServer(data=data)
+        self.isStatusOK(r)
+        self.checkTagErrorCode(r.text, BAD_ARGUMENT)
+
+    def test_get_list_record_no_metadataformat(self):
+        data = {'verb': 'ListRecords', 'set': 'soft', 'metadataPrefix': 'oai_dc'}
+        r = self.doRequestServer(data=data)
+        self.isStatusOK(r)
+        self.checkTagErrorCode(r.text, DISSEMINATE_FORMAT)
+
+    def test_get_list_record_no_set_in_database(self):
+        self.dump_oai_my_metadata_format()
+        data = {'verb': 'ListRecords', 'set': 'soft', 'metadataPrefix': 'oai_dc'}
+        r = self.doRequestServer(data=data)
+        self.isStatusOK(r)
+        self.checkTagErrorCode(r.text, NO_RECORDS_MATCH)
+
+    def test_get_list_record_no_templaet_in_database(self):
+        self.dump_oai_my_metadata_format()
+        data = {'verb': 'ListRecords', 'metadataPrefix': 'oai_dc'}
+        r = self.doRequestServer(data=data)
+        self.isStatusOK(r)
+        self.checkTagErrorCode(r.text, NO_RECORDS_MATCH)
+
+    def test_get_list_record_with_set(self):
+        self.dump_oai_my_set()
+        self.dump_oai_templ_mf_xslt()
+        self.dump_xmldata()
+        self.dump_oai_my_metadata_format()
+        self.dump_oai_xslt()
+        data = {'verb': 'ListRecords', 'metadataPrefix': 'oai_dc', 'set': 'soft'}
+        r = self.doRequestServer(data=data)
+        self.isStatusOK(r)
+        self.checkTagExist(r.text, 'ListRecords')
+        self.checkTagExist(r.text, 'record')
+
+    def test_get_list_record_no_xmldata(self):
+        self.dump_oai_my_set()
+        self.dump_oai_templ_mf_xslt()
+        self.dump_template()
+        self.dump_oai_my_metadata_format()
+        self.dump_oai_xslt()
+        data = {'verb': 'ListRecords', 'metadataPrefix': 'oai_dc'}
+        r = self.doRequestServer(data=data)
+        self.isStatusOK(r)
+        self.checkTagErrorCode(r.text, NO_RECORDS_MATCH)
