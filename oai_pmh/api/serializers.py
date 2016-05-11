@@ -24,7 +24,12 @@ class UpdateRegistrySerializer(serializers.Serializer):
     harvest = serializers.BooleanField(required=True)
 
 class RegistryIdSerializer(serializers.Serializer):
-    RegistryId  = serializers.CharField(required=True)
+    RegistryId = serializers.CharField(required=True)
+
+class AddRegistrySerializer(serializers.Serializer):
+    url = serializers.CharField(required=True)
+    harvestrate = serializers.IntegerField(required=True)
+    harvest = serializers.BooleanField(required=True)
 
 class UpdateRegistryHarvestSerializer(serializers.Serializer):
     id = serializers.CharField(required=True)
@@ -74,7 +79,7 @@ class IdentifyObjectSerializer(serializers.Serializer):
     granularity = serializers.CharField(required=False)
     oai_identifier = serializers.CharField(required=False)
     protocolVersion = serializers.CharField(required=False)
-    repositoryIdentifier = serializers.CharField(required=False)
+    repositoryIdentifier = serializers.CharField(required=True)
     sampleIdentifier = serializers.CharField(required=False)
     scheme = serializers.CharField(required=False)
     raw = serializers.CharField(required=False)

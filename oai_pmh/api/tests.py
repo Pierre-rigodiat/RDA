@@ -102,6 +102,32 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         req = self.doRequestPost(url=reverse("api_add_registry"), data=data, auth=ADMIN_AUTH)
         self.assertNotEquals(req.status_code, status.HTTP_200_OK)
 
+    def test_add_registry_bad_identify(self):
+        self.dump_oai_settings_bad()
+        self.setHarvest(True)
+        data = {"url": URL_TEST_SERVER, "harvestrate": 5000, "harvest": True}
+        req = self.doRequestPost(url=reverse("api_add_registry"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_add_registry_bad_metadata_format(self):
+        self.dump_oai_settings()
+        self.dump_oai_my_set()
+        self.dump_oai_my_metadata_format_bad()
+        self.setHarvest(True)
+        data = {"url": URL_TEST_SERVER, "harvestrate": 5000, "harvest": True}
+        req = self.doRequestPost(url=reverse("api_add_registry"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_add_registry_bad_sets(self):
+        self.dump_oai_settings()
+        self.dump_oai_my_set_bad()
+        self.dump_oai_my_metadata_format()
+        self.setHarvest(True)
+        data = {"url": URL_TEST_SERVER, "harvestrate": 5000, "harvest": True}
+        req = self.doRequestPost(url=reverse("api_add_registry"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+
 ################################################################################
 
 ########################## createRegistry tests ################################
@@ -806,6 +832,8 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
 
 
 ################################################################################
+
+
 
 ################################################################################
 ########################## Common assert controls ##############################

@@ -29,7 +29,7 @@ from oai_pmh.api.serializers import IdentifyObjectSerializer, MetadataFormatSeri
     UpdateMyRegistrySerializer, MyMetadataFormatSerializer, DeleteMyMetadataFormatSerializer,\
     UpdateMyMetadataFormatSerializer, GetRecordSerializer, UpdateMySetSerializer, DeleteMySetSerializer,\
     MySetSerializer, MyTemplateMetadataFormatSerializer, DeleteXSLTSerializer, OaiConfXSLTSerializer, \
-    OaiXSLTSerializer, RegistryIdSerializer, UpdateRegistryHarvestSerializer
+    OaiXSLTSerializer, RegistryIdSerializer, UpdateRegistryHarvestSerializer, AddRegistrySerializer
 # Models
 from mgi.models import OaiRegistry, OaiSet, OaiMetadataFormat, OaiIdentify, OaiSettings, Template, OaiRecord,\
 OaiMyMetadataFormat, OaiMySet, OaiMetadataformatSet, OaiXslt, OaiTemplMfXslt
@@ -48,7 +48,7 @@ import datetime
 from oai_pmh import datestamp
 from django.core.urlresolvers import reverse
 import mongoengine.errors as MONGO_ERRORS
-from oai_pmh.api.exceptions import OAIAPIException, OAIAPILabelledException
+from oai_pmh.api.exceptions import OAIAPIException, OAIAPILabelledException, OAIAPISerializeLabelledException
 from oai_pmh.api.messages import APIMessage
 from admin_mdcs.models import api_permission_required, api_staff_member_required
 import oai_pmh.rights as RIGHTS
@@ -77,29 +77,18 @@ def add_registry(request):
     """
     try:
         #Serialization of the input data
-        serializer = RegistrySerializer(data=request.DATA)
+        serializer = AddRegistrySerializer(data=request.DATA)
         #If all fields are okay
         if serializer.is_valid():
             #Check the URL
-            if 'url' in request.DATA:
-                url = request.DATA['url']
-            else:
-                raise OAIAPILabelledException(message="Please provide an URL", status=status.HTTP_400_BAD_REQUEST)
+            url = request.DATA['url']
             #We check first if this repository already exists in database. If yes, we return a response 409
             if OaiRegistry.objects(url__exact=url).count() > 0:
-                raise OAIAPILabelledException(message='Unable to create the data provider. The data provider already exists.',
+                raise OAIAPILabelledException(message='Unable to create the data provider. '
+                                                      'The data provider already exists.',
                                               status=status.HTTP_409_CONFLICT)
-            #Chech the harvest rate. If not provided, set to none
-            if 'harvestrate' in request.DATA:
-                harvestrate = request.DATA['harvestrate']
-            else:
-                harvestrate = ""
-            #Chech the harvest action. If not provided, set to false
-            if 'harvest' in request.DATA:
-                harvest = request.DATA['harvest'] == 'True'
-            else:
-                harvest = False
-
+            harvestrate = request.DATA['harvestrate']
+            harvest = request.DATA['harvest'] == 'True'
             #Get the identify information for the given URL
             identifyResponse = objectIdentify(request)
             if identifyResponse.status_code == status.HTTP_200_OK:
@@ -107,7 +96,6 @@ def add_registry(request):
             else:
                 raise OAIAPILabelledException(message=identifyResponse.data[APIMessage.label],
                                               status=identifyResponse.status_code)
-
             #Get the sets information for the given URL
             sets = listObjectSets(request)
             setsData = []
@@ -115,7 +103,6 @@ def add_registry(request):
                 setsData = sets.data
             elif sets.status_code != status.HTTP_204_NO_CONTENT:
                 raise OAIAPILabelledException(message=sets.data[APIMessage.label], status=sets.status_code)
-
             #Get the metadata formats information for the given URL
             metadataformats = listObjectMetadataFormats(request)
             metadataformatsData = []
@@ -124,7 +111,6 @@ def add_registry(request):
             elif metadataformats.status_code != status.HTTP_204_NO_CONTENT:
                 raise OAIAPILabelledException(message=metadataformats.data[APIMessage.label],
                                               status=metadataformats.status_code)
-
             try:
                 identify, registry = createRegistry(harvest, harvestrate, identifyData, url)
                 createSetsForRegistry(registry, setsData)
@@ -132,14 +118,6 @@ def add_registry(request):
                 registry.save()
 
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
-            except NotUniqueError as e:
-                #Manual Rollback
-                if identify:
-                    identify.delete()
-                OaiSet.objects(registry=registry.id).delete()
-                OaiMetadataFormat.objects(registry=registry.id).delete()
-                raise OAIAPILabelledException(message='Unable to create the registry. The registry already exists.',
-                                              status=status.HTTP_409_CONFLICT)
             except Exception as e:
                 #Manual Rollback
                 if identify:
@@ -147,11 +125,10 @@ def add_registry(request):
                 OaiSet.objects(registry=registry.id).delete()
                 OaiMetadataFormat.objects(registry=registry.id).delete()
                 raise OAIAPILabelledException(message='An error occured when trying to save document.%s'%e.message,
-                                              status=status.HTTP_400_BAD_REQUEST)
+                                              status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
-            raise OAIAPILabelledException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
-        #Return a response with the status_code and the message provided by the called function
         return e.response()
 
 
@@ -687,13 +664,15 @@ def objectIdentify(request):
                 serializerIdentify = IdentifyObjectSerializer(data=identifyData)
                 # If it's not valid, return with a bad request
                 if not serializerIdentify.is_valid():
-                    raise OAIAPIException(message=serializerIdentify.errors, status=status.HTTP_400_BAD_REQUEST)
+                    raise OAIAPISerializeLabelledException(message="Identify serialization error.",
+                                                           errors=serializerIdentify.errors,
+                                                           status=status.HTTP_400_BAD_REQUEST)
 
                 return Response(req.data, status=status.HTTP_200_OK)
             else:
                 raise OAIAPILabelledException(message=req.data[APIMessage.label], status=req.status_code)
         else:
-            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
         return e.response()
     except Exception:
@@ -763,13 +742,15 @@ def listObjectMetadataFormats(request):
                 metadataformatsData = req.data
                 serializerMetadataFormat = MetadataFormatSerializer(data=metadataformatsData)
                 if not serializerMetadataFormat.is_valid():
-                    raise OAIAPIException(message=serializerMetadataFormat.errors, status=status.HTTP_400_BAD_REQUEST)
+                    raise OAIAPISerializeLabelledException(message="Metadata formats serialization error.",
+                                                           errors=serializerMetadataFormat.errors,
+                                                           status=status.HTTP_400_BAD_REQUEST)
 
                 return Response(req.data, status=status.HTTP_200_OK)
             else:
                 raise OAIAPILabelledException(message=req.data[APIMessage.label], status=req.status_code)
         else:
-            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
         return e.response()
     except Exception as e:
@@ -843,13 +824,15 @@ def listObjectSets(request):
                 setsData = req.data
                 serializerSet = SetSerializer(data=setsData)
                 if not serializerSet.is_valid():
-                    raise OAIAPIException(message=serializerSet.errors, status=status.HTTP_400_BAD_REQUEST)
+                    raise OAIAPISerializeLabelledException(message="Sets serialization error.",
+                                                           errors=serializerSet.errors,
+                                                           status=status.HTTP_400_BAD_REQUEST)
 
                 return Response(req.data, status=status.HTTP_200_OK)
             else:
                 raise OAIAPILabelledException(message=req.data[APIMessage.label], status=req.status_code)
         else:
-            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
         return e.response()
     except Exception as e:
