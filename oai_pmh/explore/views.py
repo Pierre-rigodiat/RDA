@@ -90,6 +90,7 @@ def get_metadata_formats_detail(request):
             localTemplate = None
     except:
         metadataFormats = []
+        localTemplate = None
 
     list_metadata_formats = OaiMetadataFormat.objects(pk__in=metadataFormats).all()
     list_metadata_formats_info = []
