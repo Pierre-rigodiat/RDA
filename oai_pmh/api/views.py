@@ -29,7 +29,7 @@ from oai_pmh.api.serializers import IdentifyObjectSerializer, MetadataFormatSeri
     UpdateMyRegistrySerializer, MyMetadataFormatSerializer, DeleteMyMetadataFormatSerializer,\
     UpdateMyMetadataFormatSerializer, GetRecordSerializer, UpdateMySetSerializer, DeleteMySetSerializer,\
     MySetSerializer, MyTemplateMetadataFormatSerializer, DeleteXSLTSerializer, OaiConfXSLTSerializer, \
-    OaiXSLTSerializer, RegistryIdSerializer
+    OaiXSLTSerializer, RegistryIdSerializer, UpdateRegistryHarvestSerializer
 # Models
 from mgi.models import OaiRegistry, OaiSet, OaiMetadataFormat, OaiIdentify, OaiSettings, Template, OaiRecord,\
 OaiMyMetadataFormat, OaiMySet, OaiMetadataformatSet, OaiXslt, OaiTemplMfXslt
@@ -52,6 +52,7 @@ from oai_pmh.api.exceptions import OAIAPIException, OAIAPILabelledException
 from oai_pmh.api.messages import APIMessage
 from admin_mdcs.models import api_permission_required, api_staff_member_required
 import oai_pmh.rights as RIGHTS
+from django.http.request import QueryDict
 
 ################################################################################
 #
@@ -1193,13 +1194,11 @@ def harvestRecords(url, registry_id, metadataFormat, lastUpdate, registryAllSets
 #
 # Function Name: update_registry_harvest(request)
 # Inputs:        request -
-# Outputs:       201 Registry updated.
+# Outputs:       200 Registry updated.
 # Exceptions:    400 Error connecting to database.
-#                400 [Identifier] not found in request.
-#                400 Unable to update record.
 #                400 Serializer failed validation.
 #                401 Unauthorized.
-#                404 No registry found with the given identity.
+#                500 An error occurred when attempting to identify resource.
 # Description:   OAI-PMH Update Registry Harvest configuration.
 #                Harvest records for the metadata formats and sets provided
 #
@@ -1214,33 +1213,26 @@ def update_registry_harvest(request):
     """
     try:
         #Serialization of the input data
-        serializer = UpdateRegistrySerializer(data=request.DATA)
+        serializer = UpdateRegistryHarvestSerializer(data=request.DATA)
         #If it's valid
         if serializer.is_valid():
-            #We retrieve all information
-            if 'id' in request.DATA:
-                id = request.DATA['id']
+            id = request.DATA['id']
+            if isinstance(request.DATA, QueryDict):
+                metadataFormats = request.DATA.getlist('metadataFormats')
+                sets = request.DATA.getlist('sets')
             else:
-                rsp = {'id':['This field is required.']}
-                raise OAIAPIException(message=rsp, status=status.HTTP_400_BAD_REQUEST)
-
+                metadataFormats = request.DATA['metadataFormats']
+                sets = request.DATA['sets']
             #Set harvest=False for all
             OaiMetadataFormat.objects(registry=id).update(set__harvest=False)
-            #For each metadataFormats selected, set harvest=True
-            if 'metadataFormats' in request.DATA:
-                metadataFormats = request.DATA.getlist('metadataFormats')
-                if len(metadataFormats):
-                    OaiMetadataFormat.objects(pk__in=metadataFormats).update(set__harvest=True)
-
-            #Set harvest=False for all
             OaiSet.objects(registry=id).update(set__harvest=False)
+            #For each metadataFormats selected, set harvest=True
+            if len(metadataFormats):
+                OaiMetadataFormat.objects(pk__in=metadataFormats).update(set__harvest=True)
             #For each sets selected, set harvest=True
-            if 'sets' in request.DATA:
-                sets = request.DATA.getlist('sets')
-                if len(sets):
-                    OaiSet.objects(pk__in=sets).update(set__harvest=True)
-
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            if len(sets):
+                OaiSet.objects(pk__in=sets).update(set__harvest=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             raise OAIAPILabelledException(message='Serializer failed validation.',
                                           status=status.HTTP_400_BAD_REQUEST)

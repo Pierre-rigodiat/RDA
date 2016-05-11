@@ -732,6 +732,81 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
 
 ################################################################################
 
+######################### Update registry harvest tests ########################
+    def test_update_registry_harvest(self):
+        self.dump_oai_settings()
+        self.dump_oai_registry()
+        registry = OaiRegistry.objects.get()
+        OaiMetadataFormat.objects(registry=str(registry.id)).update(set__harvest=False)
+        OaiSet.objects(registry=str(registry.id)).update(set__harvest=False)
+        twoFirstMF = [str(x.id) for x in OaiMetadataFormat.objects(registry=str(registry.id)).limit(2)]
+        twoFirstSet = [str(x.id) for x in OaiSet.objects(registry=str(registry.id)).limit(2)]
+        data = {"id": str(registry.id), 'metadataFormats': twoFirstMF, 'sets': twoFirstSet}
+        req = self.doRequestPut(url=reverse("api_update_registry_harvest"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_200_OK)
+        metadataFormatsInDatabaseModified = OaiMetadataFormat.objects(registry=str(registry.id), pk__in=twoFirstMF).all()
+        setsInDatabaseModified = OaiSet.objects(registry=str(registry.id), pk__in=twoFirstSet).all()
+        metadataFormatsInDatabase = OaiMetadataFormat.objects(registry=str(registry.id), pk__nin=twoFirstMF).all()
+        setsInDatabase = OaiSet.objects(registry=str(registry.id), pk__nin=twoFirstSet).all()
+        for metadataF in metadataFormatsInDatabaseModified:
+            self.assertEquals(metadataF.harvest, True)
+        for set in setsInDatabaseModified:
+            self.assertEquals(set.harvest, True)
+        for metadataF in metadataFormatsInDatabase:
+            self.assertEquals(metadataF.harvest, False)
+        for set in setsInDatabase:
+            self.assertEquals(set.harvest, False)
+
+    def test_update_registry_harvest_unauthorized(self):
+        data = {"id": FAKE_ID, 'metadataFormats': [], 'sets': []}
+        req = self.doRequestPut(url=reverse("api_update_registry_harvest"), data=data, auth=None)
+        self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+    def test_update_registry_harvest_unauthorized_user(self):
+        data = {"id": FAKE_ID, 'metadataFormats': [], 'sets': []}
+        req = self.doRequestPut(url=reverse("api_update_registry_harvest"), data=data, auth=USER_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_update_registry_harvest_serializer_invalid(self):
+        data = {"idd": FAKE_ID, 'metadataFormats': [], 'sets': []}
+        req = self.doRequestPut(url=reverse("api_update_registry_harvest"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {"id": FAKE_ID, 'mmetadataFormats': [], 'sets': []}
+        req = self.doRequestPut(url=reverse("api_update_registry_harvest"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {"id": FAKE_ID, 'metadataFormats': [], 'ssets': []}
+        req = self.doRequestPut(url=reverse("api_update_registry_harvest"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {"id": FAKE_ID}
+        req = self.doRequestPut(url=reverse("api_update_registry_harvest"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {"metadataFormats": []}
+        req = self.doRequestPut(url=reverse("api_update_registry_harvest"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {"sets": []}
+        req = self.doRequestPut(url=reverse("api_update_registry_harvest"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {"id": FAKE_ID, 'metadataFormats': []}
+        req = self.doRequestPut(url=reverse("api_update_registry_harvest"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {"id": FAKE_ID, 'sets': []}
+        req = self.doRequestPut(url=reverse("api_update_registry_harvest"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {"metadataFormats": [], 'sets': []}
+        req = self.doRequestPut(url=reverse("api_update_registry_harvest"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    # def test_update_registry_harvest_bad_entries(self):
+        #TODO Control charfield
+        # data = {"id": 1000, 'metadataFormats': 1000, 'sets': 200}
+        # req = self.doRequestPut(url=reverse("api_update_registry_harvest"), data=data, auth=ADMIN_AUTH)
+        # self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+
+################################################################################
+
 ################################################################################
 ########################## Common assert controls ##############################
 ################################################################################

@@ -26,6 +26,11 @@ class UpdateRegistrySerializer(serializers.Serializer):
 class RegistryIdSerializer(serializers.Serializer):
     RegistryId  = serializers.CharField(required=True)
 
+class UpdateRegistryHarvestSerializer(serializers.Serializer):
+    id = serializers.CharField(required=True)
+    metadataFormats = serializers.CharField(required=True)
+    sets = serializers.CharField(required=True)
+
 class ListRecordsSerializer(serializers.Serializer):
     url  = serializers.URLField(required=True)
     metadataprefix = serializers.CharField(required=True)
