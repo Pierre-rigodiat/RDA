@@ -386,7 +386,7 @@ def update_registry(request):
                 raise OAIAPILabelledException(message='Unable to update registry. \n%s'%e.message,
                                               status=status.HTTP_400_BAD_REQUEST)
         else:
-            raise OAIAPILabelledException(message='Serializer failed validation. ', status=status.HTTP_400_BAD_REQUEST)
+            raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
         return e.response()
 
@@ -434,7 +434,7 @@ def update_my_registry(request):
                 raise OAIAPILabelledException(message='Unable to update the registry. \n%s'%e.message,
                                               status=status.HTTP_400_BAD_REQUEST)
         else:
-            raise OAIAPILabelledException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
         return e.response()
 
@@ -487,7 +487,7 @@ def delete_registry(request):
                 raise OAIAPILabelledException(message='Unable to delete the registry. \n%s'%e.message,
                                               status=status.HTTP_400_BAD_REQUEST)
         else:
-            raise OAIAPILabelledException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
         return e.response()
     except Exception as e:
@@ -534,7 +534,7 @@ def deactivate_registry(request):
                 raise OAIAPILabelledException(message='Unable to deactivate the registry. \n%s'%e.message,
                                               status=status.HTTP_400_BAD_REQUEST)
         else:
-            raise OAIAPILabelledException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
         return e.response()
     except Exception as e:
@@ -581,7 +581,7 @@ def reactivate_registry(request):
                 raise OAIAPILabelledException(message='Unable to reactivated the registry. \n%s'%e.message,
                                               status=status.HTTP_400_BAD_REQUEST)
         else:
-            raise OAIAPILabelledException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
         return e.response()
     except Exception as e:
@@ -629,7 +629,7 @@ def getRecord(request):
             serializer = RecordSerializer(rtn)
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
         return e.response()
     except Exception as e:
@@ -917,7 +917,7 @@ def listIdentifiers(request):
             content = APIMessage.getMessageLabelled(rtn)
             return Response(content, status=status.HTTP_200_OK)
         else:
-            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     except OAIAPIException as e:
         return e.response()
@@ -1217,7 +1217,7 @@ def update_registry_harvest(request):
                 OaiSet.objects(pk__in=sets).update(set__harvest=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            raise OAIAPILabelledException(message='Serializer failed validation.',
+            raise OAIAPISerializeLabelledException(errors=serializer.errors,
                                           status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
         return e.response()
@@ -1273,7 +1273,9 @@ def update_registry_info(request):
             serializerIdentify = IdentifyObjectSerializer(data=identifyData)
             #If it's not valid, return with a bad request
             if not serializerIdentify.is_valid():
-                raise OAIAPILabelledException(message=serializerIdentify.errors, status=status.HTTP_400_BAD_REQUEST)
+                raise OAIAPISerializeLabelledException(message="Identify serialization error.",
+                                                           errors=serializerIdentify.errors,
+                                                           status=status.HTTP_400_BAD_REQUEST)
         else:
             raise OAIAPILabelledException(message=identify.data[APIMessage.label], status=identify.status_code)
 
@@ -1286,7 +1288,9 @@ def update_registry_info(request):
             serializerSet = SetSerializer(data=setsData)
             #If it's not valid, return with a bad request
             if not serializerSet.is_valid():
-                raise OAIAPILabelledException(serializerSet.errors, status=sets.HTTP_400_BAD_REQUEST)
+                raise OAIAPISerializeLabelledException(message="Sets serialization error.",
+                                                           errors=serializerSet.errors,
+                                                           status=status.HTTP_400_BAD_REQUEST)
         elif sets.status_code != status.HTTP_204_NO_CONTENT:
             raise OAIAPILabelledException(message=sets.data[APIMessage.label], status=sets.status_code)
 
@@ -1299,8 +1303,9 @@ def update_registry_info(request):
             serializerMetadataFormat = MetadataFormatSerializer(data=metadataformatsData)
             #If it's not valid, return with a bad request
             if not serializerMetadataFormat.is_valid():
-                raise OAIAPILabelledException(message=serializerMetadataFormat.errors,
-                                              status=status.HTTP_400_BAD_REQUEST)
+                raise OAIAPISerializeLabelledException(message="Metadata formats serialization error.",
+                                                           errors=serializerMetadataFormat.errors,
+                                                           status=status.HTTP_400_BAD_REQUEST)
         elif metadataformats.status_code != status.HTTP_204_NO_CONTENT:
             raise OAIAPILabelledException(message=metadataformats.data[APIMessage.label],
                                           status=metadataformats.status_code)
@@ -1489,7 +1494,7 @@ def listObjectAllRecords(request):
             serializer = RecordSerializer(rtn)
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     except OAIAPIException as e:
         return e.response()
@@ -1638,7 +1643,7 @@ def add_my_metadataFormat(request):
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
-            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     except OAIAPIException as e:
         return e.response()
@@ -1711,7 +1716,7 @@ def add_my_template_metadataFormat(request):
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
-            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
         return e.response()
     except Exception, e:
@@ -1755,7 +1760,7 @@ def delete_my_metadataFormat(request):
 
             return Response(content, status=status.HTTP_200_OK)
         else:
-            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
         return e.response()
     except Exception as e:
@@ -1812,7 +1817,7 @@ def update_my_metadataFormat(request):
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
-            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
         return e.response()
 
@@ -1863,7 +1868,7 @@ def add_my_set(request):
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
-            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
         return e.response()
 
@@ -1905,7 +1910,7 @@ def delete_my_set(request):
 
             return Response(content, status=status.HTTP_200_OK)
         else:
-            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
         return e.response()
     except Exception as e:
@@ -1976,7 +1981,7 @@ def update_my_set(request):
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
-            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
         return e.response()
 
@@ -2020,7 +2025,7 @@ def delete_oai_pmh_xslt(request):
 
             return Response(content, status=status.HTTP_200_OK)
         else:
-            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
         return e.response()
     except Exception as e:
@@ -2071,7 +2076,7 @@ def edit_oai_pmh_xslt(request):
 
             return Response(content, status=status.HTTP_200_OK)
         else:
-            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
         return e.response()
     except Exception as e:
@@ -2130,7 +2135,7 @@ def oai_pmh_conf_xslt(request):
 
             return Response(content, status=status.HTTP_200_OK)
         else:
-            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
         return e.response()
     except Exception as e:
@@ -2184,7 +2189,7 @@ def upload_oai_pmh_xslt(request):
                 raise OAIAPILabelledException(message='An error occurred when attempting to save the XSLT',
                                               status=status.HTTP_400_BAD_REQUEST)
         else:
-            raise OAIAPIException(message=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
         return e.response()
     except Exception as e:
