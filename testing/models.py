@@ -28,6 +28,7 @@ from os.path import join
 from django.test import Client
 import base64
 import json
+from lxml import etree
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
 MONGODB_URI = settings.MONGODB_URI
@@ -59,6 +60,8 @@ ADMIN_APPLICATION = 'remote_mdcs'
 ADMIN_AUTH = 'admin:admin'
 USER_AUTH = 'user:user'
 ADMIN_AUTH_GET = ('admin', 'admin')
+
+XMLParser = etree.XMLParser(remove_blank_text=True, recover=True)
 
 class RegressionTest(LiveServerTestCase):
 
@@ -148,6 +151,20 @@ class RegressionTest(LiveServerTestCase):
 
     def createTemplateVersionDeleted(self):
         return TemplateVersion(nbVersions=1, isDeleted=True).save()
+
+    def checkTagErrorCode(self, text, error):
+        for tag in etree.XML(text.encode("utf8"), parser=XMLParser).iterfind('.//' + '{http://www.openarchives.org/OAI/2.0/}' + 'error'):
+            self.assertEqual(tag.attrib['code'], error)
+
+    def checkTagExist(self, text, checkTag):
+        for tag in etree.XML(text.encode("utf8"), parser=XMLParser).iterfind('.//' + '{http://www.openarchives.org/OAI/2.0/}' + checkTag):
+            self.assertTrue(tag)
+
+    def checkTagCount(self, text, checkTag, number):
+        count = 0
+        for tag in etree.XML(text.encode("utf8"), parser=XMLParser).iterfind('.//' + '{http://www.openarchives.org/OAI/2.0/}' + checkTag):
+            count+=1
+        self.assertEquals(number, count)
 
     def tearDown(self):
         self.clean_db()
