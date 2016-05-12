@@ -15,11 +15,8 @@ from oai_pmh.tests.models import OAI_PMH_Test
 from mgi.models import OaiSettings, OaiMySet, OaiMyMetadataFormat
 from exceptions import BAD_VERB, NO_SET_HIERARCHY, BAD_ARGUMENT, DISSEMINATE_FORMAT, NO_RECORDS_MATCH, NO_METADATA_FORMAT, ID_DOES_NOT_EXIST
 from testing.models import OAI_SCHEME, OAI_REPO_IDENTIFIER
-from lxml import etree
 
 URL = '/oai_pmh/server'
-
-XMLParser = etree.XMLParser(remove_blank_text=True, recover=True)
 
 class tests_OAI_PMH_server(OAI_PMH_Test):
 
@@ -32,20 +29,6 @@ class tests_OAI_PMH_server(OAI_PMH_Test):
         information = OaiSettings.objects.get()
         information.enableHarvesting = harvest
         information.save()
-
-    def checkTagErrorCode(self, text, error):
-        for tag in etree.XML(text.encode("utf8"), parser=XMLParser).iterfind('.//' + '{http://www.openarchives.org/OAI/2.0/}' + 'error'):
-            self.assertEqual(tag.attrib['code'], error)
-
-    def checkTagExist(self, text, checkTag):
-        for tag in etree.XML(text.encode("utf8"), parser=XMLParser).iterfind('.//' + '{http://www.openarchives.org/OAI/2.0/}' + checkTag):
-            self.assertTrue(tag)
-
-    def checkTagCount(self, text, checkTag, number):
-        count = 0
-        for tag in etree.XML(text.encode("utf8"), parser=XMLParser).iterfind('.//' + '{http://www.openarchives.org/OAI/2.0/}' + checkTag):
-            count+=1
-        self.assertEquals(number, count)
 
     def doRequestServer(self, data=None):
         return self.doRequestGet(URL, params=data)
