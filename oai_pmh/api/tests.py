@@ -14,16 +14,18 @@
 from oai_pmh.tests.models import OAI_PMH_Test
 from oai_pmh.api.views import createRegistry, createOaiIdentify, setDataToRegistry, createMetadataformatsForRegistry,\
     sickleListObjectMetadataFormats, sickleListObjectSets, setMetadataFormatXMLSchema, createSetsForRegistry, \
-    sickleObjectIdentify
+    sickleObjectIdentify, getListRecords
 from mgi.models import OaiRegistry, OaiIdentify, OaiMetadataFormat, OaiMyMetadataFormat, OaiSettings, Template, OaiSet,\
-    OaiMySet, OaiRecord
+    OaiMySet, OaiRecord, XMLdata
 import xmltodict
 import lxml.etree as etree
 from testing.models import URL_TEST, ADMIN_AUTH, ADMIN_AUTH_GET, USER_AUTH
 from django.core.urlresolvers import reverse
 from rest_framework import status
 import mongoengine.errors as MONGO_ERRORS
+from oai_pmh.server.exceptions import BAD_RESUMPTION_TOKEN
 from testing.models import FAKE_ID
+import oai_pmh.datestamp as datestamp
 URL_TEST_SERVER = URL_TEST + "/oai_pmh/server/"
 import requests
 from django.conf import settings
@@ -833,6 +835,88 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
 
 ################################################################################
 
+########################### listObjectAllRecords tests #########################
+
+    def test_listObjectAllRecords(self):
+        self.dump_oai_settings()
+        self.dump_oai_my_metadata_format()
+        self.dump_oai_my_set()
+        self.dump_xmldata()
+        self.dump_oai_templ_mf_xslt()
+        self.dump_oai_xslt()
+        self.setHarvest(True)
+        metadataPrefix = "oai_soft"
+        data = {"url": URL_TEST_SERVER, "metadataprefix": metadataPrefix}
+        req = self.doRequestPost(url=reverse("api_listObjectAllRecords"), data=data, auth=ADMIN_AUTH)
+        self.isStatusOK(req)
+        self.assert_OaiListRecords(metadataPrefix, req.data)
+
+    def test_listObjectAllRecords_unauthorized(self):
+        self.dump_oai_settings()
+        data = {"url": URL_TEST_SERVER}
+        #No authentification
+        req = self.doRequestPost(url=reverse("api_listObjectAllRecords"), data=data, auth=None)
+        self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_listObjectAllRecords_server_not_found(self):
+        self.dump_oai_settings()
+        url= "http://127.0.0.1:8000/noserver"
+        metadataPrefix = "oai_dc"
+        data = {"url": url, "metadataprefix": metadataPrefix}
+        req = self.doRequestPost(url=reverse("api_listObjectAllRecords"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_listObjectAllRecords_internal_error(self):
+        self.dump_oai_settings()
+        url= "http://127.0.0.2.:8000/noserver"
+        metadataPrefix = "oai_dc"
+        req, resumptionToken = getListRecords(url, metadataPrefix)
+        self.assertEquals(req.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def test_listObjectAllRecords_serializer_invalid(self):
+        self.dump_oai_settings()
+        data = {"urlBad": URL_TEST_SERVER, "metadataprefix": "oai_soft"}
+        req = self.doRequestPost(url=reverse("api_listObjectAllRecords"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_getListRecords_function_metadataPrefix(self):
+        self.dump_oai_settings()
+        self.dump_oai_my_metadata_format()
+        self.dump_oai_my_set()
+        self.dump_xmldata()
+        self.dump_oai_templ_mf_xslt()
+        self.dump_oai_xslt()
+        self.setHarvest(True)
+        url= URL_TEST_SERVER
+        metadataPrefix = "oai_soft"
+        req, resumptionToken = getListRecords(url=url, metadataPrefix=metadataPrefix)
+        self.isStatusOK(req)
+        self.assert_OaiListRecords(metadataPrefix, req.data)
+
+    def test_getListRecords_function_dummy_resumptionToken(self):
+        self.dump_oai_settings()
+        self.setHarvest(True)
+        url= URL_TEST_SERVER
+        metadataPrefix = "oai_dc"
+        resumptionToken = "dummyResumptionToken"
+        req, resumptionToken = getListRecords(url=url, metadataPrefix=metadataPrefix, resumptionToken=resumptionToken)
+        self.assertEquals(req.status_code, status.HTTP_200_OK)
+        #No data
+        self.assertTrue(len(req.data) == 0)
+
+    def test_getListRecords_function_server_not_found(self):
+        self.dump_oai_settings()
+        url= "http://127.0.0.1:8000/noserver"
+        metadataPrefix = "oai_dc"
+        req, resumptionToken = getListRecords(url, metadataPrefix)
+        self.assertEquals(req.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_getListRecords_function_internal_error(self):
+        self.dump_oai_settings()
+        url= "http://127.0.0.2.:8000/noserver"
+        metadataPrefix = "oai_dc"
+        req, resumptionToken = getListRecords(url, metadataPrefix)
+        self.assertEquals(req.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 ################################################################################
@@ -902,6 +986,29 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
             self.assertNotEquals(el, None)
             self.assertEquals(el['setName'], set.setName)
             # self.assertEquals(el['raw'], set.raw)
+
+    def assert_OaiListRecords(self, metadataPrefix, data):
+        myMetadataFormat = OaiMyMetadataFormat.objects().get(metadataPrefix=metadataPrefix)
+        if myMetadataFormat.isTemplate:
+            query = dict()
+            query['schema'] = str(myMetadataFormat.template.id)
+            #Get all records for this template
+            dataInDatabase = XMLdata.executeQueryFullResult(query)
+            self.assertEquals(len(dataInDatabase), len(data))
+        for obj in data:
+            identifier = obj['identifier'].split('/')[1]
+            objInDatabase = XMLdata.get(identifier)
+            if 'publicationdate' in objInDatabase:
+                date = str(datestamp.datetime_to_datestamp(objInDatabase['publicationdate']))
+                self.assertEquals(date, obj['datestamp'])
+            self.assertEquals(False, obj['deleted'])
+            sets = OaiMySet.objects(templates__in=[str(objInDatabase['schema'])]).all()
+            if sets:
+                setSpecs = [x.setSpec for x in sets]
+            self.assertEquals(setSpecs, obj['sets'])
+            self.assertEquals(metadataPrefix, obj['metadataPrefix'])
+            self.assertNotEquals(obj['metadata'], '')
+            self.assertNotEquals(obj['raw'], '')
 
 ################################################################################
 ################################################################################
