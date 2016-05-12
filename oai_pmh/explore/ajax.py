@@ -77,11 +77,15 @@ def get_results_by_instance_keyword(request):
         for schema in schemas:
             t = json.loads(schema)
             mergedSchemas += t['oai-pmh']
-        onlySuggestions = json.loads(request.GET['onlySuggestions'])
+        if 'onlySuggestions' in request.GET:
+            onlySuggestions = json.loads(request.GET['onlySuggestions'])
+        else:
+            onlySuggestions = False
     except:
         keyword = ''
         schemas = []
         onlySuggestions = True
+        mergedSchemas = []
 
     instanceResults = OaiRecord.executeFullTextQuery(keyword, mergedSchemas)
     if len(instanceResults) > 0:
