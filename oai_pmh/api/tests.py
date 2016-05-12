@@ -860,7 +860,7 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
 
     def test_listObjectAllRecords_server_not_found(self):
         self.dump_oai_settings()
-        url= "http://127.0.0.1:8000/noserver"
+        url= "http://127.0.0.1:8082/noserver"
         metadataPrefix = "oai_dc"
         data = {"url": url, "metadataprefix": metadataPrefix}
         req = self.doRequestPost(url=reverse("api_listObjectAllRecords"), data=data, auth=ADMIN_AUTH)
@@ -906,7 +906,7 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
 
     def test_getListRecords_function_server_not_found(self):
         self.dump_oai_settings()
-        url= "http://127.0.0.1:8000/noserver"
+        url= "http://127.0.0.1:8082/noserver"
         metadataPrefix = "oai_dc"
         req, resumptionToken = getListRecords(url, metadataPrefix)
         self.assertEquals(req.status_code, status.HTTP_404_NOT_FOUND)
