@@ -63,7 +63,7 @@ class RecordSerializer(serializers.Serializer):
 class GetRecordSerializer(serializers.Serializer):
     url = serializers.URLField(required=True)
     identifier = serializers.CharField(required=True)
-    metadataprefix = serializers.CharField()
+    metadataprefix = serializers.CharField(required=True)
 
 class IdentifySerializer(serializers.Serializer):
     url = serializers.URLField(required=True)

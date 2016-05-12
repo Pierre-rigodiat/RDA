@@ -623,7 +623,8 @@ def getRecord(request):
                       "deleted": record.deleted,
                       "sets": record.header.setSpecs,
                       "metadataPrefix": metadataprefix,
-                      "metadata": etree.tostring(record.xml.find('.//' + '{http://www.openarchives.org/OAI/2.0/}' + 'metadata/')),
+                      "metadata": etree.tostring(record.xml.find('.//' + '{http://www.openarchives.org/OAI/2.0/}' +
+                                                                 'metadata/')),
                       "raw": record.raw})
 
             serializer = RecordSerializer(rtn)

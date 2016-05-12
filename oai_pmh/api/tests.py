@@ -918,6 +918,75 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         req, resumptionToken = getListRecords(url, metadataPrefix)
         self.assertEquals(req.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+################################################################################
+
+################################ Get Record tests ##############################
+    def test_getRecord(self):
+        self.dump_oai_settings()
+        self.dump_oai_my_metadata_format()
+        self.dump_oai_my_set()
+        self.dump_xmldata()
+        self.setHarvest(True)
+        metadataPrefix = "oai_soft"
+        myMetadataFormat = OaiMyMetadataFormat.objects().get(metadataPrefix=metadataPrefix)
+        query = dict()
+        query['schema'] = str(myMetadataFormat.template.id)
+        #Get all records for this template
+        dataInDatabase = XMLdata.executeQueryFullResult(query)
+        for elt in dataInDatabase:
+            identifier = '%s:%s:id/%s' % (settings.OAI_SCHEME, settings.OAI_REPO_IDENTIFIER, str(elt['_id']))
+            data = {"url": URL_TEST_SERVER, "metadataprefix": metadataPrefix, "identifier": identifier}
+            req = self.doRequestPost(url=reverse("api_getRecord"), data=data, auth=ADMIN_AUTH)
+            self.isStatusOK(req)
+            self.assertTrue(len(req.data) == 1)
+            self.assert_OaiRecord(metadataPrefix, req.data[0])
+
+    def test_getRecord_unauthorized(self):
+        self.dump_oai_settings()
+        metadataPrefix = "oai_soft"
+        identifier = "dummyIdentifier"
+        data = {"url": URL_TEST_SERVER, "metadataprefix": metadataPrefix, "identifier": identifier}
+        #No authentification
+        req = self.doRequestPost(url=reverse("api_getRecord"), data=data, auth=None)
+        self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_getRecord_serializer_invalid(self):
+        self.dump_oai_settings()
+        metadataPrefix = "oai_soft"
+        identifier = "dummyIdentifier"
+        data = {"uurl": URL_TEST_SERVER}
+        req = self.doRequestPost(url=reverse("api_getRecord"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {"url": URL_TEST_SERVER, "metadataprefix": metadataPrefix}
+        req = self.doRequestPost(url=reverse("api_getRecord"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {"url": URL_TEST_SERVER, "identifier": identifier}
+        req = self.doRequestPost(url=reverse("api_getRecord"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {"identifier": identifier}
+        req = self.doRequestPost(url=reverse("api_getRecord"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {"metadataprefix": metadataPrefix}
+        req = self.doRequestPost(url=reverse("api_getRecord"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {"metadataprefix": metadataPrefix, "identifier": identifier}
+        req = self.doRequestPost(url=reverse("api_getRecord"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_getRecord_bad_entries(self):
+        self.dump_oai_settings()
+        data = {"url": 1000, "metadataprefix": "oai_soft", "identifier": "dummyIdentifier"}
+        req = self.doRequestPost(url=reverse("api_getRecord"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_getRecord_internal_error(self):
+        #The value of the identifier argument (dummyIdentifier) is unknown or illegal in this repository.
+        data = {"url": URL_TEST_SERVER, "metadataprefix": "oai_soft", "identifier": "dummyIdentifier"}
+        req = self.doRequestPost(url=reverse("api_getRecord"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+################################################################################
+
 
 ################################################################################
 ########################## Common assert controls ##############################
@@ -996,19 +1065,22 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
             dataInDatabase = XMLdata.executeQueryFullResult(query)
             self.assertEquals(len(dataInDatabase), len(data))
         for obj in data:
-            identifier = obj['identifier'].split('/')[1]
-            objInDatabase = XMLdata.get(identifier)
-            if 'publicationdate' in objInDatabase:
-                date = str(datestamp.datetime_to_datestamp(objInDatabase['publicationdate']))
-                self.assertEquals(date, obj['datestamp'])
-            self.assertEquals(False, obj['deleted'])
-            sets = OaiMySet.objects(templates__in=[str(objInDatabase['schema'])]).all()
-            if sets:
-                setSpecs = [x.setSpec for x in sets]
-            self.assertEquals(setSpecs, obj['sets'])
-            self.assertEquals(metadataPrefix, obj['metadataPrefix'])
-            self.assertNotEquals(obj['metadata'], '')
-            self.assertNotEquals(obj['raw'], '')
+            self.assert_OaiRecord(metadataPrefix, obj)
+
+    def assert_OaiRecord(self, metadataPrefix, data):
+        identifier = data['identifier'].split('/')[1]
+        objInDatabase = XMLdata.get(identifier)
+        if 'publicationdate' in objInDatabase:
+            date = str(datestamp.datetime_to_datestamp(objInDatabase['publicationdate']))
+            self.assertEquals(date, data['datestamp'])
+        self.assertEquals(False, data['deleted'])
+        sets = OaiMySet.objects(templates__in=[str(objInDatabase['schema'])]).all()
+        if sets:
+            setSpecs = [x.setSpec for x in sets]
+        self.assertEquals(setSpecs, data['sets'])
+        self.assertEquals(metadataPrefix, data['metadataPrefix'])
+        self.assertNotEquals(data['metadata'], '')
+        self.assertNotEquals(data['raw'], '')
 
 ################################################################################
 ################################################################################
