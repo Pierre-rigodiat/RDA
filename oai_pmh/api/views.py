@@ -1166,7 +1166,7 @@ def harvestRecords(url, registry_id, metadataFormat, lastUpdate, registryAllSets
                 obj.save(metadata=metadata)
         #Else, we get the status code with the error message provided by the http_response
         else:
-            error = {'status_code': http_response.status_code, 'error': http_response.data['error']}
+            error = {'status_code': http_response.status_code, 'error': http_response.data[APIMessage.label]}
             errors.append(error)
         #There is more records if we have a resumption token.
         dataLeft = resumptionToken != None and resumptionToken != ''
@@ -1470,32 +1470,25 @@ def listObjectAllRecords(request):
         serializer = ListRecordsSerializer(data=request.DATA)
         if serializer.is_valid():
             url = request.DATA['url']
-            metadataPrefix = request.DATA['metadataprefix']
-            set_h = None
-            if 'set' in request.DATA:
-                set_h = request.DATA['set']
-
-            fromDate = None
-            if 'fromDate' in request.DATA:
-                fromDate = request.DATA['fromDate']
-
-            untilDate = None
-            if 'until' in request.DATA:
-                untilDate = request.DATA['until']
-
-            http_response, token = getListRecords(url, metadataPrefix, set_h, fromDate, untilDate)
+            metadataPrefix = request.DATA.get('metadataprefix', None)
+            set_h = request.DATA.get('set', None)
+            fromDate = request.DATA.get('fromDate', None)
+            untilDate = request.DATA.get('untilDate', None)
+            resumptionToken = request.DATA.get('resumptionToken', None)
+            http_response, token = getListRecords(url=url, metadataPrefix=metadataPrefix,
+                                                  resumptionToken=resumptionToken, set_h=set_h,
+                                                  fromDate=fromDate, untilDate=untilDate)
             if http_response.status_code == status.HTTP_200_OK:
                 rtn = http_response.data
             #Else, we return a bad request response with the message provided by the API
             else:
-                content = http_response.data['error']
-                raise OAIAPIException(message=content, status=http_response.status_code)
-
+                content = http_response.data[APIMessage.label]
+                raise OAIAPILabelledException(message=content, status=http_response.status_code)
             serializer = RecordSerializer(rtn)
+
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
     except OAIAPIException as e:
         return e.response()
     except Exception as e:
@@ -1520,41 +1513,21 @@ def getListRecords(url, metadataPrefix=None, resumptionToken=None, set_h=None, f
     """
     XMLParser = etree.XMLParser(remove_blank_text=True, recover=True)
     try:
-        # needed = True
-        metadataPrefixQuery = ''
-        if metadataPrefix != None:
-            metadataPrefixQuery = '&metadataPrefix=%s' % metadataPrefix
-
-        resumptionTokenQuery = ""
+        params = {'verb': 'ListRecords'}
         if resumptionToken != None:
-            resumptionTokenQuery = '&resumptionToken=%s' % resumptionToken
-
-        setQuery = ""
-        if set_h != None:
-            setQuery = '&set=%s' % set_h
-
-        fromDateQuery = ""
-        if fromDate != None:
-            fromDateQuery = '&from=%s' % fromDate
-
-        untilDateQuery = ""
-        if untilDate != None:
-            untilDateQuery = '&until=%s' % untilDate
-        rtn = []
-
-        #Check if the resumptionToken is None
-        if resumptionToken == None:
-            callUrl = url + '?verb=ListRecords' + metadataPrefixQuery + setQuery  + fromDateQuery + untilDateQuery
-        #If not None, call the ListRecords verb with only the resumption tokem
+            params['resumptionToken'] = resumptionToken
         else:
-            callUrl = url + '?verb=ListRecords' + resumptionTokenQuery
-
-        # while needed:
-        http_response = requests.get(callUrl)
+            params['metadataPrefix'] = metadataPrefix
+            params['set'] = set_h
+            params['from'] = fromDate
+            params['until'] = untilDate
+        rtn = []
+        http_response = requests.get(url, params=params)
         resumptionToken = None
         if http_response.status_code == status.HTTP_200_OK:
             xml = http_response.text
-            elements = etree.XML(xml.encode("utf8"), parser=XMLParser).iterfind('.//' + '{http://www.openarchives.org/OAI/2.0/}' + 'record')
+            elements = etree.XML(xml.encode("utf8"),
+                                 parser=XMLParser).iterfind('.//' + '{http://www.openarchives.org/OAI/2.0/}' + 'record')
             for elt in elements:
                 record = Record(elt)
                 rtn.append({"identifier": record.header.identifier,
@@ -1562,24 +1535,26 @@ def getListRecords(url, metadataPrefix=None, resumptionToken=None, set_h=None, f
                           "deleted": record.deleted,
                           "sets": record.header.setSpecs,
                           "metadataPrefix": metadataPrefix,
-                          "metadata": etree.tostring(record.xml.find('.//' + '{http://www.openarchives.org/OAI/2.0/}' + 'metadata/')),
+                          "metadata": etree.tostring(record.xml.find('.//' +
+                                                     '{http://www.openarchives.org/OAI/2.0/}' + 'metadata/')),
                           "raw": record.raw})
-
-            resumptionTokenElt = etree.XML(xml.encode("utf8"), parser=XMLParser).iterfind('.//' + '{http://www.openarchives.org/OAI/2.0/}' + 'resumptionToken')
+            resumptionTokenElt = etree.XML(xml.encode("utf8"),
+                                           parser=XMLParser).iterfind('.//' + '{http://www.openarchives.org/OAI/2.0/}' +
+                                                                      'resumptionToken')
             for res in resumptionTokenElt:
                 resumptionToken = res.text
-
         elif http_response.status_code == status.HTTP_404_NOT_FOUND:
-            content = {'error':'Server not found.'}
-            return Response(content, status=status.HTTP_404_NOT_FOUND), resumptionToken
+            raise OAIAPILabelledException(message='Impossible to get data from the server. Server not found',
+                                          status=status.HTTP_404_NOT_FOUND)
         else:
-            content = {'error': 'An error occurred.'}
-            return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR), resumptionToken
+            raise OAIAPILabelledException(message='An error occurred while trying to get data from the server.',
+                                          status=http_response.status_code)
 
         return Response(rtn, status=status.HTTP_200_OK), resumptionToken
-
+    except OAIAPIException as e:
+        return e.response(), resumptionToken
     except Exception as e:
-        content = {'error':'An error occurred when attempting to identify resource: %s'%e.message}
+        content = APIMessage.getMessageLabelled('An error occurred during the getListRecords process: %s'%e.message)
         return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR), resumptionToken
 
 ################################################################################

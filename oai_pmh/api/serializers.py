@@ -38,11 +38,11 @@ class UpdateRegistryHarvestSerializer(serializers.Serializer):
 
 class ListRecordsSerializer(serializers.Serializer):
     url  = serializers.URLField(required=True)
-    metadataprefix = serializers.CharField(required=True)
+    metadataprefix = serializers.CharField(required=False)
     set = serializers.CharField(required=False)
     resumptionToken = serializers.CharField(required=False)
-    fromDate = serializers.DateField(required=False)
-    untilDate  = serializers.DateField(required=False)
+    fromDate = serializers.CharField(required=False)
+    untilDate  = serializers.CharField(required=False)
 
 class RegistryURLSerializer(serializers.Serializer):
     url = serializers.URLField(required=True)
