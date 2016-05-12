@@ -16,6 +16,48 @@ from oai_pmh.tests.models import OAI_PMH_Test
 import json
 from bson.objectid import ObjectId
 
+class tests_OAI_PMH_ajax(OAI_PMH_Test):
+
+    def test_results_by_instance_keyword_no_data(self):
+        url = '/oai_pmh/explore/get_results_by_instance_keyword/'
+        r = self.doRequestGetAdminClientLogged(url=url)
+        self.isStatusOK(r)
+        self.assertIsNotNone(r.content)
+        result = json.loads(r.content)
+        self.assertEquals(result.get('count'), 0)
+        self.assertEquals(result.get('resultString'), '')
+        self.assertEquals(result.get('resultsByKeyword'), [])
+
+    def test_results_by_instance_keyword_with_data(self):
+        OaiRecord.initIndexes()
+        self.dump_oai_registry()
+        self.dump_template()
+        data = {'keyword': 'MGI', 'schemas[]': json.dumps({'oai-pmh': ['5731fc80a530af33ed232f78']})}
+        url = '/oai_pmh/explore/get_results_by_instance_keyword/'
+        r = self.doRequestGetAdminClientLogged(url=url, data=data)
+        self.isStatusOK(r)
+        self.assertIsNotNone(r.content)
+        result = json.loads(r.content)
+        self.assertIsNotNone(result.get('resultString'))
+        self.assertEquals(result.get('count'), 1)
+        self.assertEquals(result.get('resultsByKeyword'), [])
+
+    def test_results_by_instance_keyword_with_data_and_suggestions(self):
+        OaiRecord.initIndexes()
+        self.dump_oai_registry()
+        self.dump_template()
+        data = {'keyword': 'MGI', 'schemas[]': json.dumps({'oai-pmh': ['5731fc80a530af33ed232f78']}), 'onlySuggestions': json.dumps(True)}
+        url = '/oai_pmh/explore/get_results_by_instance_keyword/'
+        r = self.doRequestGetAdminClientLogged(url=url, data=data)
+        self.isStatusOK(r)
+        self.assertIsNotNone(r.content)
+        result = json.loads(r.content)
+        self.assertEquals(result.get('resultString'), '')
+        self.assertEquals(result.get('count'), 1)
+        self.assertEquals(result.get('resultsByKeyword')[0].get('label'), 'mgi')
+        self.assertEquals(result.get('resultsByKeyword')[0].get('value'), 'mgi')
+
+
 class tests_OAI_PMH_explore(OAI_PMH_Test):
 
     def test_keyword(self):

@@ -75,7 +75,10 @@ def get_results_by_instance_keyword(request):
         schemas = request.GET.getlist('schemas[]')
         userSchemas = request.GET.getlist('userSchemas[]')
         refinements = refinements_to_mongo(request.GET.getlist('refinements[]'))
-        onlySuggestions = json.loads(request.GET['onlySuggestions'])
+        if 'onlySuggestions' in request.GET:
+            onlySuggestions = json.loads(request.GET['onlySuggestions'])
+        else:
+            onlySuggestions = False
     except:
         keyword = ''
         schemas = []
