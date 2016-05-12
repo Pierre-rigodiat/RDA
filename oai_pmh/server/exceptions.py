@@ -17,6 +17,7 @@ DISSEMINATE_FORMAT = 'cannotDisseminateFormat'
 BAD_ARGUMENT = 'badArgument'
 NO_SET_HIERARCHY = 'noSetHierarchy'
 BAD_VERB = 'badVerb'
+BAD_RESUMPTION_TOKEN = 'badResumptionToken'
 
 
 class OAIExceptions(Exception):

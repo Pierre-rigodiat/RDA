@@ -572,8 +572,12 @@ class OAIProvider(TemplateView):
             legal = ['verb']
             required = ['verb']
         elif self.oai_verb== 'ListIdentifiers':
-            legal = ['verb', 'metadataPrefix', 'from', 'until', 'set', 'resumptionToken']
-            required = ['verb', 'metadataPrefix']
+            if 'resumptionToken' in data:
+                legal = ['verb', 'resumptionToken']
+                required = ['verb']
+            else:
+                legal = ['verb', 'metadataPrefix', 'from', 'until', 'set']
+                required = ['verb', 'metadataPrefix']
         elif self.oai_verb == 'ListSets':
             legal = ['verb', 'resumptionToken']
             required = ['verb']
@@ -584,8 +588,12 @@ class OAIProvider(TemplateView):
             legal = ['verb', 'identifier', 'metadataPrefix']
             required = ['verb', 'identifier', 'metadataPrefix']
         elif self.oai_verb == 'ListRecords':
-            legal = ['verb', 'metadataPrefix', 'from', 'until', 'set', 'resumptionToken']
-            required = ['verb', 'metadataPrefix']
+            if 'resumptionToken' in data:
+                legal = ['verb', 'resumptionToken']
+                required = ['verb']
+            else:
+                legal = ['verb', 'metadataPrefix', 'from', 'until', 'set']
+                required = ['verb', 'metadataPrefix']
         else:
             error_msg = 'The verb "%s" is illegal' % self.oai_verb
             raise badVerb(error_msg)
@@ -634,12 +642,21 @@ class OAIProvider(TemplateView):
                 self.set = request.GET.get('set', None)
                 self.resumptionToken = request.GET.get('resumptionToken', None)
                 self.metadataPrefix = request.GET.get('metadataPrefix', None)
-                return self.list_identifiers()
+                #TODO Support resumptionToken
+                if self.resumptionToken != None:
+                    raise badResumptionToken(self.resumptionToken)
+                else:
+                    return self.list_identifiers()
             elif self.oai_verb == 'ListSets':
                 return self.list_sets()
             elif self.oai_verb == 'ListMetadataFormats':
+                self.resumptionToken = request.GET.get('resumptionToken', None)
                 self.identifier = request.GET.get('identifier', None)
-                return self.list_metadata_formats()
+                #TODO Support resumptionToken
+                if self.resumptionToken != None:
+                    raise badResumptionToken(self.resumptionToken)
+                else:
+                    return self.list_metadata_formats()
             elif self.oai_verb == 'GetRecord':
                 self.identifier = request.GET.get('identifier', None)
                 self.metadataPrefix = request.GET.get('metadataPrefix', None)
@@ -650,7 +667,11 @@ class OAIProvider(TemplateView):
                 self.set = request.GET.get('set', None)
                 self.resumptionToken = request.GET.get('resumptionToken', None)
                 self.metadataPrefix = request.GET.get('metadataPrefix', None)
-                return self.list_records()
+                #TODO Support resumptionToken
+                if self.resumptionToken != None:
+                    raise badResumptionToken(self.resumptionToken)
+                else:
+                    return self.list_records()
 
         except OAIExceptions, e:
             return self.errors(e.errors)
