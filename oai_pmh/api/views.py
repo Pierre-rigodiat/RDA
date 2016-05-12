@@ -29,7 +29,8 @@ from oai_pmh.api.serializers import IdentifyObjectSerializer, MetadataFormatSeri
     UpdateMyRegistrySerializer, MyMetadataFormatSerializer, DeleteMyMetadataFormatSerializer,\
     UpdateMyMetadataFormatSerializer, GetRecordSerializer, UpdateMySetSerializer, DeleteMySetSerializer,\
     MySetSerializer, MyTemplateMetadataFormatSerializer, DeleteXSLTSerializer, OaiConfXSLTSerializer, \
-    OaiXSLTSerializer, RegistryIdSerializer, UpdateRegistryHarvestSerializer, AddRegistrySerializer
+    OaiXSLTSerializer, RegistryIdSerializer, UpdateRegistryHarvestSerializer, AddRegistrySerializer,\
+    ListIdentifierSerializer
 # Models
 from mgi.models import OaiRegistry, OaiSet, OaiMetadataFormat, OaiIdentify, OaiSettings, Template, OaiRecord,\
 OaiMyMetadataFormat, OaiMySet, OaiMetadataformatSet, OaiXslt, OaiTemplMfXslt
@@ -902,10 +903,7 @@ def listIdentifiers(request):
         if serializer.is_valid():
             url = request.DATA['url']
             metadataprefix = request.DATA['metadataprefix']
-            if 'set' in request.DATA:
-                setH = request.DATA['set']
-            else:
-                setH = ""
+            setH = request.DATA.get('set', None)
             sickle = Sickle(url)
             rsp = sickle.ListIdentifiers(metadataPrefix=metadataprefix, set=setH)
             rtn = []
@@ -915,11 +913,10 @@ def listIdentifiers(request):
             except StopIteration:
                 pass
 
-            content = APIMessage.getMessageLabelled(rtn)
-            return Response(content, status=status.HTTP_200_OK)
+            serializer = ListIdentifierSerializer(rtn)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
     except OAIAPIException as e:
         return e.response()
     except Exception as e:

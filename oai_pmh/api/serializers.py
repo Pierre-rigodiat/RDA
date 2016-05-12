@@ -140,3 +140,8 @@ class OaiXSLTSerializer(serializers.Serializer):
     name = serializers.CharField(required=True)
     filename = serializers.CharField(required=True)
     content = serializers.CharField(required=True)
+
+class ListIdentifierSerializer(serializers.Serializer):
+    identifier = serializers.CharField(required=True)
+    setSpecs = serializers.CharField(required=True)
+    datestamp = serializers.CharField(required=True)

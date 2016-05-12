@@ -25,6 +25,7 @@ from rest_framework import status
 import mongoengine.errors as MONGO_ERRORS
 from oai_pmh.server.exceptions import BAD_RESUMPTION_TOKEN
 from testing.models import FAKE_ID
+from bson.objectid import ObjectId
 import oai_pmh.datestamp as datestamp
 URL_TEST_SERVER = URL_TEST + "/oai_pmh/server/"
 import requests
@@ -987,6 +988,74 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
 
 ################################################################################
 
+################################ listIdentifiers tests ##############################
+
+    def test_listIdentifiers(self):
+        self.dump_oai_settings()
+        self.dump_oai_my_metadata_format()
+        self.dump_oai_my_set()
+        self.dump_xmldata()
+        self.setHarvest(True)
+        metadataPrefix = "oai_soft"
+        data = {"url": URL_TEST_SERVER, "metadataprefix": metadataPrefix}
+        req = self.doRequestPost(url=reverse("api_listIdentifiers"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_200_OK)
+        self.assert_OaiListIdentifiers(metadataPrefix, req.data)
+
+    def test_listIdentifiers_set(self):
+        self.dump_oai_settings()
+        self.dump_oai_my_metadata_format()
+        self.dump_oai_my_set()
+        self.dump_oai_templ_mf_xslt()
+        self.dump_oai_xslt()
+        self.dump_xmldata()
+        self.setHarvest(True)
+        metadataPrefix = "oai_dc"
+        set = "soft"
+        data = {"url": URL_TEST_SERVER, "metadataprefix": metadataPrefix, "set": set}
+        req = self.doRequestPost(url=reverse("api_listIdentifiers"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_200_OK)
+
+    def test_listIdentifiers_unauthorized(self):
+        self.dump_oai_settings()
+        metadataPrefix = "oai_soft"
+        data = {"url": URL_TEST_SERVER, "metadataprefix": metadataPrefix}
+        #No authentification
+        req = self.doRequestPost(url=reverse("api_listIdentifiers"), data=data, auth=None)
+        self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_listIdentifiers_serializer_invalid(self):
+        self.dump_oai_settings()
+        metadataPrefix = "oai_soft"
+        data = {"uurl": URL_TEST_SERVER, "metadataprefix": metadataPrefix}
+        req = self.doRequestPost(url=reverse("api_listIdentifiers"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {"url": URL_TEST_SERVER, "mmetadataprefix": metadataPrefix}
+        req = self.doRequestPost(url=reverse("api_listIdentifiers"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {"url": URL_TEST_SERVER}
+        req = self.doRequestPost(url=reverse("api_listIdentifiers"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {"metadataprefix": metadataPrefix}
+        req = self.doRequestPost(url=reverse("api_listIdentifiers"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_listIdentifiers_bad_entries(self):
+        self.dump_oai_settings()
+        data = {"url": 1000, "metadataprefix": "oai_soft"}
+        req = self.doRequestPost(url=reverse("api_listIdentifiers"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_listIdentifiers_internal_error(self):
+        #'The metadata format identified by the value given for the metadataPrefix argument (oai_xsoft)
+        # is not supported by the item or by the repository.'
+        self.dump_oai_settings()
+        data = {"url": URL_TEST_SERVER, "metadataprefix": "oai_xsoft"}
+        req = self.doRequestPost(url=reverse("api_listIdentifiers"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+################################################################################
+
 
 ################################################################################
 ########################## Common assert controls ##############################
@@ -1077,10 +1146,29 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         sets = OaiMySet.objects(templates__in=[str(objInDatabase['schema'])]).all()
         if sets:
             setSpecs = [x.setSpec for x in sets]
-        self.assertEquals(setSpecs, data['sets'])
+            self.assertEquals(setSpecs, data['sets'])
         self.assertEquals(metadataPrefix, data['metadataPrefix'])
         self.assertNotEquals(data['metadata'], '')
         self.assertNotEquals(data['raw'], '')
+
+    def assert_OaiListIdentifiers(self, metadataPrefix, data):
+        myMetadataFormat = OaiMyMetadataFormat.objects().get(metadataPrefix=metadataPrefix)
+        query = dict()
+        query['schema'] = str(myMetadataFormat.template.id)
+        #Get all records for this template
+        dataInDatabase = XMLdata.executeQueryFullResult(query)
+        self.assertEquals(len(dataInDatabase), len(data))
+        for obj in data:
+            identifier = obj['identifier'].split('/')[1]
+            objInDatabase = next(x for x in dataInDatabase if x['_id'] == ObjectId(identifier))
+            self.assertTrue(objInDatabase != None)
+            if 'publicationdate' in objInDatabase:
+                date = str(datestamp.datetime_to_datestamp(objInDatabase['publicationdate']))
+                self.assertEquals(date, obj['datestamp'])
+            sets = OaiMySet.objects(templates__in=[str(objInDatabase['schema'])]).all()
+            if sets:
+                setSpecs = [x.setSpec for x in sets]
+                self.assertEquals(setSpecs, obj['setSpecs'])
 
 ################################################################################
 ################################################################################
