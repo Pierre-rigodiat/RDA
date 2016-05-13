@@ -62,7 +62,6 @@ def oai_pmh(request):
     registry_form = RegistryForm();
     registries = OaiRegistry.objects.all()
     context = RequestContext(request, {
-        'contacts': Message.objects,
         'registry_form': registry_form,
         'registries': registries,
     })
@@ -87,7 +86,7 @@ def check_registry(request):
         if form.is_valid():
             #Call the identify function from the API.
             uri= OAI_HOST_URI + reverse("api_objectIdentify")
-            req = requests.post(uri, {"url":request.POST.get("url")}, auth=(OAI_USER, OAI_PASS))
+            req = requests.post(uri, {"url":request.POST.get("url")})#, auth=(OAI_USER, OAI_PASS))
             #If the return status is HTTP_200_OK, the OAI Registry is available
             isAvailable = req.status_code == status.HTTP_200_OK
         else:
