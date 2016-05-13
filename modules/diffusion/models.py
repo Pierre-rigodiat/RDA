@@ -67,7 +67,7 @@ class PeriodicTableMultipleModule(PopupModule):
     def _get_display(self, request):
         if 'data' in request.GET:
             if len(request.GET['data']) > 0:
-                constituents = etree.XML(request.GET['data'])
+                constituents = etree.fromstring("<constituents>" + request.GET['data'] + "</constituents>")
                 
                 if len(constituents) == 0:
                     return 'No element selected.'
@@ -126,14 +126,7 @@ class PeriodicTableMultipleModule(PopupModule):
 
     def _get_result(self, request):
         if 'data' in request.GET:
-            result = ''
-            if len(request.GET['data']) > 0:
-                constituents = etree.XML(request.GET['data'])
-                for constituent in constituents:
-                    result += etree.tostring(constituent)
-                return result
-            else:
-                return ''
+            return request.GET['data']
         return ''
 
     def _post_display(self, request):
@@ -207,7 +200,7 @@ class ExcelUploaderModule(PopupModule):
     def _get_module(self, request):
         if 'data' in request.GET:
             if len(request.GET['data']) > 0:
-                xml_table = etree.XML(request.GET['data'])
+                xml_table = etree.fromstring("<table>" + request.GET['data'] + "</table>")
     
                 self.table_name = 'name'
                 self.table = {
@@ -243,8 +236,7 @@ class ExcelUploaderModule(PopupModule):
 
     def _get_result(self, request):
         if 'data' in request.GET:
-            return self.extract_xml_from_table()
-
+            return request.GET['data']
         return ''
 
     def is_valid_table(self):

@@ -299,7 +299,10 @@ def get_xml_element_data(xsd_element, xml_element):
                 reload_data = ''
         else:  # branch: return children
             try:
-                reload_data = list(xml_element)
+                if list(xml_element) > 0:
+                    reload_data = ''
+                    for child in list(xml_element):
+                        reload_data += etree.tostring(child)
             except:
                 # FIXME in which case would we need that?
                 reload_data = str(xml_element)
