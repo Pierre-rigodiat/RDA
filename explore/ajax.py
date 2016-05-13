@@ -1027,9 +1027,9 @@ def get_results_by_instance_keyword(request):
         result_json['resultString'] = resultString
 
     request.session[sessionName] = results
-    print 'END def getResultsKeyword(request)'
-
+    
     #Call to OAI-PMH keyword search
+    nbOAI = 0
     try:
         dumpJson = OAIExplore.get_results_by_instance_keyword(request)
         info = json.loads(dumpJson)
@@ -1038,6 +1038,8 @@ def get_results_by_instance_keyword(request):
         nbOAI = info['count']
     except Exception, e:
         pass
+
+    print 'END def getResultsKeyword(request)'
 
     return HttpResponse(json.dumps({'resultsByKeyword' : resultsByKeyword, 'resultString' : resultString, 'count' : len(instanceResults) + nbOAI}), content_type='application/javascript')
 

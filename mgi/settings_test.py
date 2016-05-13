@@ -40,7 +40,7 @@ if DEBUG == True:
     DATABASES = {
     'default': {
          'ENGINE': 'django.db.backends.sqlite3',
-         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+         'NAME': os.path.join(BASE_DIR, 'db_test.sqlite3'),
          }
     }
 
@@ -84,13 +84,13 @@ BLOB_HOSTER = 'GridFS'
 BLOB_HOSTER_URI = MONGODB_URI
 BLOB_HOSTER_USER = MONGO_MGI_USER
 BLOB_HOSTER_PSWD = MONGO_MGI_PASSWORD
-MDCS_URI = 'http://127.0.0.1:8000'
+MDCS_URI = 'http://127.0.0.1:8082'
 
 # OAI_PMH parameters
 OAI_ADMINS = (
     ('Administrator', 'admin@curator.com'),
 )
-OAI_HOST_URI = 'http://127.0.0.1:8000'
+OAI_HOST_URI = 'http://127.0.0.1:8082'
 OAI_USER = 'admin'
 OAI_PASS = 'admin'
 OAI_NAME = 'MDCS Admin 127.0.0.1 '

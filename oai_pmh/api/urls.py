@@ -20,13 +20,15 @@ urlpatterns = patterns(
     url(r'^listobjectmetadataformats$', 'listObjectMetadataFormats'), #ListMF
     url(r'^listobjectsets$', 'listObjectSets'), #List Set
     url(r'^listidentifiers$', 'listIdentifiers'), #List Identify
-    url(r'^getrecord', 'getRecord'), #GetRecord
+    url(r'^getrecord$', 'getRecord'), #GetRecord
     #Manage Data Providers
     url(r'^select/registry$', 'select_registry'),
     url(r'^add/registry$', 'add_registry', name='api_add_registry'),
     url(r'^update/registry$', 'update_registry', name='api_update_registry'),
     url(r'^update/registry-info$', 'update_registry_info', name='api_update_registry_info'),
     url(r'^delete/registry$', 'delete_registry', name='api_delete_registry'),
+    url(r'^deactivate/registry$', 'deactivate_registry', name='api_deactivate_registry'),
+    url(r'^reactivate/registry$', 'reactivate_registry', name='api_reactivate_registry'),
     #Manage my server
     url(r'^update/my-registry$', 'update_my_registry', name="api_update_my_registry"),
     #Manage my server's metadata formats
@@ -39,15 +41,17 @@ urlpatterns = patterns(
     url(r'^update/my-set$', 'update_my_set', name='api_update_my_set'),
     url(r'^delete/my-set$', 'delete_my_set', name='api_delete_my_set'),
     #Get data
-    url(r'^getdata/$', 'getData'),
+    url(r'^getdata/$', 'getData', name='api_get_data'),
     #Harvest data
     url(r'^harvest$', 'harvest', name='api_harvest'),
     #Harvest configuration
     url(r'^update/registry-harvest$', 'update_registry_harvest', name='api_update_registry_harvest'),
+    #Manage XSLT
+    url(r'^upload/xslt$', 'upload_oai_pmh_xslt', name='api_upload_oai_pmh_xslt'),
+    url(r'^oai-pmh-conf/xslt$', 'oai_pmh_conf_xslt', name='api_oai_pmh_conf_xslt'),
+    url(r'^edit/xslt', 'edit_oai_pmh_xslt', name='api_edit_oai_pmh_xslt'),
+    url(r'^delete/xslt$', 'delete_oai_pmh_xslt', name='api_delete_oai_pmh_xslt'),
+
 
     url(r'^select/all/registries$', 'select_all_registries'),
-    url(r'^select/all/records', 'select_all_records'),
-    url(r'^select/record$', 'select_record'),
-    url(r'^update/record$', 'update_record'),
-    url(r'^delete/record$', 'delete_record'),
 )

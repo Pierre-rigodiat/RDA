@@ -20,7 +20,7 @@
 {% endcomment %}
 
 {% block extrastyle %}
-
+<link rel="stylesheet" type="text/css" href="{% static 'css/nmrr/admin.css' %}" />
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}" media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/oai_pmh.css' %}" media="screen" />
 {% endblock %}
@@ -41,6 +41,12 @@
 </div>
 <br/><br/><br/>
     {% if registries %}
+    <div id="Refreshing" style="display: none;"><i class="fa fa-spinner fa-spin"></i> Refreshing...</div>
+    <div id="RefreshInfo">
+        <i class='fa fa-refresh' aria-hidden='true'></i>
+            Refresh in <div id="countdown" style="display:inline-block;"></div> sec.
+    </div>
+
     <table class="data-table font-medium">
         <tr>
             <th>Name</th>
@@ -56,18 +62,18 @@
         {% for registry in registries %}
             {% cycle 'even' '' as rowcolors silent %}
             {% if registry.isHarvesting %}
-            <tr id="banner{{registry.id}}"  class="alertTr">
+                <tr id="banner{{registry.id}}"  class="alertTr">
             {% else %}
-            <tr id="banner{{registry.id}}" class="alertTr" style="display: none;">
+                <tr id="banner{{registry.id}}" class="alertTr" style="display: none;">
             {% endif %}
                 <td class="alert alert-warning" colspan="7">
                     <h4><i class='fa fa-circle-o-notch fa-spin fa-1x'></i>&nbsp;&nbsp;Data harvesting ...</h4>
                 </td>
             </tr>
             {% if registry.isUpdating %}
-            <tr id="bannerUpdate{{registry.id}}"  class="alertTr">
+                <tr id="bannerUpdate{{registry.id}}"  class="alertTr">
             {% else %}
-            <tr id="bannerUpdate{{registry.id}}" class="alertTr" style="display: none;">
+                <tr id="bannerUpdate{{registry.id}}" class="alertTr" style="display: none;">
             {% endif %}
                 <td class="alert alert-warning" colspan="7">
                     <h4><i class='fa fa-circle-o-notch fa-spin fa-1x'></i>&nbsp;&nbsp;Updating Data Provider information ...</h4>
@@ -77,9 +83,13 @@
                 <td width="200em;" id="name{{registry.id}}">{{ registry.name }}</td>
                 <td>{{ registry.url }}</td>
                 <td>{{ registry.harvestrate }}</td>
-                <td style="text-align:center;" url="{{registry.url}}" registryID="{{registry.id}}" id="Status{{registry.id}}">
-                    <span class="btn" onclick="checkStatus('{{registry.id}}', '{{registry.url}}');" style="text-decoration:none">Check status</span>
-                </td>
+                {% if registry.isDeactivated %}
+                    <td style='color:red'>Deactivated</td>
+                {% else %}
+                     <td style="text-align:center;" url="{{registry.url}}" registryID="{{registry.id}}" id="Status{{registry.id}}">
+                        <span class="btn" onclick="checkStatus('{{registry.id}}', '{{registry.url}}');" style="text-decoration:none">Check status</span>
+                    </td>
+                {% endif %}
                 <td id="ButtonSet{{registry.id}}">
                         {% if registry.harvest %}
                             <input id="{{registry.id}}" class="cmn-toggle cmn-toggle-round" disabled="True" type="checkbox" checked >
@@ -91,20 +101,26 @@
                 <td width="100em;" id="lastUpdate{{registry.id}}">{{ registry.lastUpdate }}</td>
                 <!--<td>{{ registry.records|length }}</td>-->
                 <td width="150em;">
-                    <span class="icon legend result" onclick="viewRegistry('{{ registry.id }}')">View</span>
-                    <span class="icon legend edit" onclick="editRegistry('{{ registry.id }}')">Edit</span>
-                    <span class="icon legend edit" onclick="editHarvestRegistry('{{ registry.id }}')">Edit harvest</span>
-                    <span class="icon legend delete" onclick="deleteRegistry('{{ registry.id }}')">Delete</span>
-                    <hr class="action">
-                    {% if not registry.isUpdating %}
-                    <span id="update{{registry.id}}" class="icon legend update" onclick="updateRegistryInfos('{{ registry.id }}')">Update information</span>
+                    {% if registry.isDeactivated %}
+                        <span class="icon legend result" onclick="viewRegistry('{{ registry.id }}')">View</span>
+                        <span class="icon legend retrieve" onclick="reactivateRegistry('{{ registry.id }}')">Restore</span>
+                    <span class="icon legend remove" onclick="deleteRegistry('{{ registry.id }}')">Delete definitely</span>
                     {% else %}
-                    <span id="update{{registry.id}}" class="icon legend update" onclick="updateRegistryInfos('{{ registry.id }}')" style="display: none;">Update information</span>
-                    {% endif %}
-                    {% if not registry.isHarvesting %}
-                    <span id="harvest{{registry.id}}" registryID="{{registry.id}}"  class="icon legend refresh" onclick="harvestData('{{ registry.id }}')">Harvest data</span>
-                    {% else %}
-                    <span id="harvest{{registry.id}}" registryID="{{registry.id}}"  class="icon legend refresh" onclick="harvestData('{{ registry.id }}')" style="display: none;">Harvest data</span>
+                        <span class="icon legend result" onclick="viewRegistry('{{ registry.id }}')">View</span>
+                        <span class="icon legend edit" onclick="editRegistry('{{ registry.id }}')">Edit</span>
+                        <span class="icon legend edit" onclick="editHarvestRegistry('{{ registry.id }}')">Edit harvest</span>
+                        <span class="icon legend delete" onclick="deactivateRegistry('{{ registry.id }}')">Delete</span>
+                        <hr class="action">
+                        {% if not registry.isUpdating %}
+                        <span id="update{{registry.id}}" class="icon legend update" onclick="updateRegistryInfos('{{ registry.id }}')">Update information</span>
+                        {% else %}
+                        <span id="update{{registry.id}}" class="icon legend update" onclick="updateRegistryInfos('{{ registry.id }}')" style="display: none;">Update information</span>
+                        {% endif %}
+                        {% if not registry.isHarvesting %}
+                        <span id="harvest{{registry.id}}" registryID="{{registry.id}}"  class="icon legend refresh" onclick="harvestData('{{ registry.id }}')">Harvest data</span>
+                        {% else %}
+                        <span id="harvest{{registry.id}}" registryID="{{registry.id}}"  class="icon legend refresh" onclick="harvestData('{{ registry.id }}')" style="display: none;">Harvest data</span>
+                        {% endif %}
                     {% endif %}
                 </td>
             </tr>
@@ -185,7 +201,7 @@
 <script src="{% static 'libs/duration/jquery-duration-picker.js' %}"></script>
 <script src="{% static 'inc/controllers/js/oai_pmh.js' %}"></script>
 <script>
-	Init();
+	InitOaiPmh();
 </script>
 
 {% endblock %}  

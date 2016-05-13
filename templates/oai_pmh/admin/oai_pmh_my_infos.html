@@ -24,6 +24,7 @@
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}" media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/oai_pmh.css' %}" media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/fSelect.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/nmrr/admin.css' %}" />
 {% endblock %}
 
 {% block title %}<h1>My Server's configuration</h1>{% endblock %}
@@ -483,7 +484,7 @@
 <script src="{% static 'inc/controllers/js/oai_pmh.js' %}"></script>
 <script src="{% static 'libs/fSelect/fSelect.js' %}"></script>
 <script>
-	Init();
+	InitOaiPmhMyInfos();
 </script>
 
 {% endblock %}  

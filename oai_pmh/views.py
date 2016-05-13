@@ -24,7 +24,13 @@ from django.shortcuts import redirect
 import requests
 from oai_pmh.forms import RequestForm
 import json
-from mgi.settings import OAI_HOST_URI, OAI_USER, OAI_PASS
+import os
+from django.utils.importlib import import_module
+settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
+settings = import_module(settings_file)
+OAI_HOST_URI = settings.OAI_HOST_URI
+OAI_USER = settings.OAI_USER
+OAI_PASS = settings.OAI_PASS
 from django.template import RequestContext, loader
 from mgi.models import XML2Download
 import datetime
@@ -34,6 +40,7 @@ from django.conf import settings
 import lxml.etree as etree
 import os
 from StringIO import StringIO
+from django.core.urlresolvers import reverse
 
 ################################################################################
 #
@@ -149,7 +156,7 @@ def all_metadataprefix(request, registry):
 def getData(request):
     url = request.POST['url']
 
-    uri= OAI_HOST_URI + "/oai_pmh/api/getdata/"
+    uri= OAI_HOST_URI + reverse("api_get_data")
     req = requests.post(uri, {"url":url}, auth=(OAI_USER, OAI_PASS))
 
     if req.status_code == status.HTTP_200_OK:

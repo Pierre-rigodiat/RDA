@@ -68,21 +68,6 @@ def get_results_by_instance_keyword(request):
     json_instances.append(instance.to_json())
     request.session['instancesExplore'] = json_instances
     sessionName = "resultsExplore" + instance['name']
-
-
-    # try:
-    #     keyword = request.GET['keyword']
-    #     schemas = request.GET.getlist('schemas[]')
-    #     mergedSchemas = []
-    #     for schema in schemas:
-    #         t = json.loads(schema)
-    #         mergedSchemas += t['oai-pmh']
-    #     onlySuggestions = json.loads(request.GET['onlySuggestions'])
-    # except:
-    #     keyword = ''
-    #     schemas = []
-    #     onlySuggestions = True
-
     try:
         keyword = request.GET['keyword']
         schemas = request.GET.getlist('schemas[]')
@@ -95,8 +80,6 @@ def get_results_by_instance_keyword(request):
         userSchemas = []
         refinements = {}
         onlySuggestions = True
-
-
     #We get all template versions for the given schemas
     #First, we take care of user defined schema
     templatesIDUser = Template.objects(title__in=userSchemas).distinct(field="id")
@@ -112,7 +95,10 @@ def get_results_by_instance_keyword(request):
     templatesIDCommon = list(set(allTemplatesIDCommon) - set(allTemplatesIDCommonRemoved))
 
     templatesID = templatesIDUser + templatesIDCommon
-    metadataFormatsID = OaiMetadataFormat.objects(template__in=templatesID).distinct(field="id")
+    #We retrieve deactivated registries so as not to get their metadata formats
+    deactivatedRegistries = [str(x.id) for x in OaiRegistry.objects(isDeactivated=True).order_by('id')]
+    metadataFormatsID = OaiMetadataFormat.objects(template__in=templatesID, registry__not__in=deactivatedRegistries).only('id').all()
+
 
     instanceResults = OaiRecord.executeFullTextQuery(keyword, metadataFormatsID, refinements)
     if len(instanceResults) > 0:
@@ -187,8 +173,8 @@ def get_results_by_instance_keyword(request):
                     if not result_json in resultsByKeyword:
                         resultsByKeyword.append(result_json)
 
-
-    request.session[sessionName] = results
+    #We don't need those results in session
+    # request.session[sessionName] = results
     print 'END def getResultsKeyword(request)'
 
     # return HttpResponse(json.dumps({'resultsByKeyword' : resultsByKeyword, 'resultString' : resultString, 'count' : len(instanceResults)}), content_type='application/javascript')

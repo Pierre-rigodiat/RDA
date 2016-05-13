@@ -10,12 +10,17 @@
 #
 ################################################################################
 from django.conf import settings
-from mgi.models import OaiSettings, OaiMyMetadataFormat, Template
+from mgi.models import OaiSettings, OaiMyMetadataFormat, Template, OaiMySet, OaiRegistry
 from lxml import etree
 from lxml.etree import XMLSyntaxError
 import os
-from mgi.settings import SITE_ROOT, OAI_HOST_URI
+from django.utils.importlib import import_module
+settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
+settings = import_module(settings_file)
+SITE_ROOT = settings.SITE_ROOT
+OAI_HOST_URI = settings.OAI_HOST_URI
 from django.core.urlresolvers import reverse
+
 
 def init_settings():
     """
@@ -90,3 +95,43 @@ def load_metadata_prefixes():
                                    isTemplate=True, template=template).save()
             except Exception, e:
                 print('ERROR : Impossible to set the template "{!s}" as a metadata prefix. {!s}'.format(template_name, e.message))
+
+
+def load_sets():
+    """
+    Load default metadata prefixes for OAI-PMH
+    """
+    sets = OaiMySet.objects.all()
+    if len(sets) == 0:
+        #Add NMRR templates as sets
+        templates = {
+            'all': {'path': 'AllResources.xsd', 'setSpec': 'all', 'setName': 'all', 'description': 'Get all records'},
+            'organization': {'path': 'Organization.xsd', 'setSpec': 'org', 'setName': 'organization', 'description': 'Get organization records'},
+            'datacollection': {'path': 'DataCollection.xsd', 'setSpec': 'datacol', 'setName': 'datacollection', 'description': 'Get datacollection records'},
+            'repository': {'path': 'Repository.xsd', 'setSpec': 'repo', 'setName': 'repository', 'description': 'Get repository records'},
+            'projectarchive': {'path': 'ProjectArchive.xsd', 'setSpec': 'proj', 'setName': 'projectarchive', 'description': 'Get projectarchive records'},
+            'database': {'path': 'Database.xsd', 'setSpec': 'database', 'setName': 'database', 'description': 'Get database records'},
+            'dataset': {'path': 'Dataset.xsd', 'setSpec': 'dataset', 'setName': 'dataset', 'description': 'Get dataset records'},
+            'service': {'path': 'Service.xsd', 'setSpec': 'serv', 'setName': 'service', 'description': 'Get service records'},
+            'informational': {'path': 'Informational.xsd', 'setSpec': 'info', 'setName': 'informational', 'description': 'Get informational records'},
+            'software': {'path': 'Software.xsd', 'setSpec': 'soft', 'setName': 'software', 'description': 'Get software records'},
+        }
+
+        for template_name, info in templates.iteritems():
+            try:
+                template = Template.objects.get(title=template_name, filename=info['path'])
+                #Add in database
+                OaiMySet(setSpec=info['setSpec'], setName=info['setName'], description=info['description'], templates=[template]).save()
+            except Exception, e:
+                print('ERROR : Impossible to set the template "{!s}" as a set. {!s}'.format(template_name, e.message))
+
+
+def init_registries_status():
+    """
+    Init registries status. Avoid a wrong state due to a bad server shutdown
+    """
+    registries = OaiRegistry.objects.all()
+    for registry in registries:
+        registry.isUpdating = False
+        registry.isHarvesting = False
+        registry.save()

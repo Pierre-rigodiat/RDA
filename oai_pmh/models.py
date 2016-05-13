@@ -11,7 +11,7 @@
 #
 ################################################################################
 from django.db import models
-import mgi.rights as RIGHTS
+import oai_pmh.rights as RIGHTS
 
 class OAIPMH(models.Model):
     class Meta:

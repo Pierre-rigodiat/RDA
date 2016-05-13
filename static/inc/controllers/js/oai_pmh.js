@@ -1,5 +1,6 @@
 var emptyEntry = '----------'
-
+//Refresh Time in second
+var refreshTime = 30;
 ////////////////////////////////////////////////
 ///////// OAI Data Provider Management /////////
 ////////////////////////////////////////////////
@@ -252,6 +253,74 @@ delete_registry = function(registry_id){
 
 
 /**
+ * Deactive the registry
+ * @param registry_id Registry Id
+ */
+deactivateRegistry = function(registry_id)
+{
+ $(function() {
+    $( "#dialog-confirm-delete" ).dialog({
+      modal: true,
+      buttons:{
+                Cancel: function() {
+	                $( this ).dialog( "close" );
+                },
+            	Delete: function() {
+            		deactivate_registry(registry_id);
+                },
+
+		    }
+    });
+  });
+}
+
+/**
+ * AJAX call, Deactive a Registry
+ * @param registry_id id of the registry
+ */
+deactivate_registry = function(registry_id){
+    $("#banner_delete_wait").show(200);
+    $.ajax({
+        url : 'deactivate/registry',
+        type : "POST",
+        dataType: "json",
+        data : {
+        	RegistryId : registry_id,
+        },
+        success: function(data){
+            window.location = 'oai-pmh'
+        },
+        error:function(data){
+            $("#banner_delete_wait").hide(200);
+            $("#form_delete_errors").html(data.responseText);
+            $("#banner_delete_errors").show(200);
+	    }
+    });
+}
+
+/**
+ * AJAX call, Reactive a Registry
+ * @param registry_id id of the registry
+ */
+reactivateRegistry = function(registry_id){
+    $("#banner_delete_wait").show(200);
+    $.ajax({
+        url : 'reactivate/registry',
+        type : "POST",
+        dataType: "json",
+        data : {
+        	RegistryId : registry_id,
+        },
+        success: function(data){
+            window.location = 'oai-pmh'
+        },
+        error:function(data){
+
+	    }
+    });
+}
+
+/**
  * AJAX call, Check all status
  */
 checkAllStatus = function ()
@@ -368,7 +437,7 @@ harvestData = function(registry_id){
  */
 checkHarvestData = function()
 {
-    $.ajax({
+    return $.ajax({
         url : 'check/harvest-data',
         type : "POST",
         dataType: "json",
@@ -424,7 +493,7 @@ updateRegistryInfos = function(registry_id)
  */
 checkUpdateData = function()
 {
-    $.ajax({
+    return $.ajax({
         url : 'check/update-info',
         type : "POST",
         dataType: "json",
@@ -449,6 +518,31 @@ checkUpdateData = function()
         error:function(data){
 	    }
     });
+}
+
+
+/**
+ * AJAX call, check data providers info
+ */
+checkInfo = function() {
+    $.when(checkUpdateData(), checkHarvestData()).done(function(a1, a2){
+        $('#Refreshing').hide();
+        $('#RefreshInfo').show();
+        //Refresh every 30 seconds
+        refreshInfo(refreshTime);
+    });
+}
+
+refreshInfo = function(remaining) {
+    if(remaining === 0)
+    {
+        $('#RefreshInfo').hide();
+        $('#Refreshing').show();
+        checkInfo();
+        return;
+    }
+    $('#countdown').html(remaining);
+    setTimeout(function(){ refreshInfo(remaining - 1); }, 1000);
 }
 
 ////////////////////////////////////////////////
@@ -1148,8 +1242,8 @@ displayAddSet = function()
     clearAddSet();
     $( "#dialog-add-set" ).dialog({
       modal: true,
-      width: 550,
-      height: 485,
+      width: 720,
+      height: 560,
       buttons:
       [
       {
@@ -1283,8 +1377,8 @@ editSet = function(setId)
     $(function() {
         $( "#dialog-set-edit" ).dialog({
           modal: true,
-          width: 550,
-          height: 492,
+          width: 720,
+          height: 560,
           buttons:
               [
                {
@@ -1464,80 +1558,6 @@ HarvestButton = function(){
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
 
-
-
-Init = function(){
-    var buttonsetElts = $("td[id^=ButtonSet]")
-    $.each(buttonsetElts, function(index, props) {
-         $("#"+props.id).buttonset();
-         $(props).css("visibility", "visible");
-    });
-    enterKeyPressSubscription();
-
-    InitSelectMultipleTemplates("#id_templates");
-
-    //    Refresh every 30 seconds
-    setTimeout(checkHarvestData, 30000);
-    //    Refresh every 30 seconds
-    setTimeout(checkUpdateData, 30000);
-}
-
-InitSelectMultipleTemplates = function (path_elt)
-{
-    $(path_elt).fSelect({
-                placeholder: 'Select templates',
-                numDisplayed: 500,
-                overflowText: '{n} selected',
-                searchText: 'Search',
-                showSearch: true
-            });
-}
-
-Reinit = function(){
-    var buttonsetElts = $("#form_edit_current td[id^=ButtonSet]")
-    $.each(buttonsetElts, function(index, props) {
-         $("#"+props.id).buttonset();
-         $(props).css("visibility", "visible");
-    });
-    enterKeyPressSubscription();
-}
-
-init = function(){
-    populateSelect();
-    $("select").on('change', function() {
-      $("#build_errors").html("");
-      $("#banner_build_errors").hide(200);
-    });
-    $("input").on('change', function() {
-      $("#build_errors").html("");
-      $("#banner_build_errors").hide(200);
-    });
-
-    $("select#id_dataProvider").on('change', function() {
-      populateSelect();
-    });
-
-    $('#id_until').datetimepicker({
-        weekStart: 1,
-        todayBtn:  1,
-		autoclose: 1,
-		todayHighlight: 1,
-		startView: 2,
-		forceParse: 0,
-        showMeridian: 1
-    });
-    $('#id_From').datetimepicker({
-        weekStart: 1,
-        todayBtn:  1,
-		autoclose: 1,
-		todayHighlight: 1,
-		startView: 2,
-		forceParse: 0,
-        showMeridian: 1
-    });
-}
-
-
 /**
  * Show/hide
  * @param event
@@ -1588,4 +1608,86 @@ enterKeyPressSubscription = function ()
             event.stopPropagation();
         }
     });
+}
+
+////////////////////////////////////////////////
+////////////////   INIT    /////////////////////
+////////////////////////////////////////////////
+
+InitBuildRequest = function(){
+    populateSelect();
+    $("select").on('change', function() {
+      $("#build_errors").html("");
+      $("#banner_build_errors").hide(200);
+    });
+    $("input").on('change', function() {
+      $("#build_errors").html("");
+      $("#banner_build_errors").hide(200);
+    });
+
+    $("select#id_dataProvider").on('change', function() {
+      populateSelect();
+    });
+
+    $('#id_until').datetimepicker({
+        weekStart: 1,
+        todayBtn:  1,
+		autoclose: 1,
+		todayHighlight: 1,
+		startView: 2,
+		forceParse: 0,
+        showMeridian: 1
+    });
+    $('#id_From').datetimepicker({
+        weekStart: 1,
+        todayBtn:  1,
+		autoclose: 1,
+		todayHighlight: 1,
+		startView: 2,
+		forceParse: 0,
+        showMeridian: 1
+    });
+}
+
+InitOaiPmh = function(){
+    var buttonsetElts = $("td[id^=ButtonSet]")
+    $.each(buttonsetElts, function(index, props) {
+         $("#"+props.id).buttonset();
+         $(props).css("visibility", "visible");
+    });
+    enterKeyPressSubscription();
+
+    //Refresh every 30 seconds
+    refreshInfo(refreshTime);
+}
+
+InitOaiPmhMyInfos = function(){
+    var buttonsetElts = $("td[id^=ButtonSet]")
+    $.each(buttonsetElts, function(index, props) {
+         $("#"+props.id).buttonset();
+         $(props).css("visibility", "visible");
+    });
+    enterKeyPressSubscription();
+
+    InitSelectMultipleTemplates("#id_templates");
+}
+
+InitSelectMultipleTemplates = function (path_elt)
+{
+    $(path_elt).fSelect({
+                placeholder: 'Select templates',
+                numDisplayed: 500,
+                overflowText: '{n} selected',
+                searchText: 'Search',
+                showSearch: true
+            });
+}
+
+Reinit = function(){
+    var buttonsetElts = $("#form_edit_current td[id^=ButtonSet]")
+    $.each(buttonsetElts, function(index, props) {
+         $("#"+props.id).buttonset();
+         $(props).css("visibility", "visible");
+    });
+    enterKeyPressSubscription();
 }

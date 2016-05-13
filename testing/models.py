@@ -1,22 +1,38 @@
-from django.test import TestCase
+################################################################################
+#
+# File Name: models.py
+# Application: testing
+# Purpose:
+#
+# Author: Xavier SCHMITT
+#         xavier.schmitt@nist.gov
+#
+# Sponsor: National Institute of Standards and Technology (NIST)
+#
+################################################################################
+
+from django.test import LiveServerTestCase
 from pymongo import MongoClient
 from pymongo.errors import OperationFailure
 import requests
 from datetime import datetime, timedelta
-from mgi.models import Instance, XMLdata, Template, TemplateVersion
+from mgi.models import Instance, XMLdata, Template, TemplateVersion, OaiMySet, OaiSettings, OaiMyMetadataFormat, ResultXslt
 from utils.XSDhash import XSDhash
-
+from django.contrib.auth.models import User
+from oauth2_provider.models import Application
+from admin_mdcs import discover
 import os
 from django.utils.importlib import import_module
+from bson import decode_all
+from os.path import join
 
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
 MONGODB_URI = settings.MONGODB_URI
 MGI_DB = settings.MGI_DB
+BASE_DIR = settings.BASE_DIR
 
-#from mgi.settings_test import MGI_DB, MONGODB_URI
-
-URL_TEST = "http://127.0.0.1:8000"
+URL_TEST = "http://127.0.0.1:8082"
 OPERATION_GET = "get"
 OPERATION_POST = "post"
 OPERATION_DELETE = "delete"
@@ -26,7 +42,71 @@ TEMPLATE_VALID_CONTENT = '<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchem
 XMLDATA_VALID_CONTENT  = '<?xml version="1.0" encoding="utf-8"?> <root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"></root>'
 FAKE_ID = 'abcdefghijklmn'
 
-class RegressionTest(TestCase):
+DUMP_OAI_PMH_TEST_PATH = os.path.join(BASE_DIR, 'oai_pmh', 'tests', 'dump')
+DUMP_TEST_PATH = os.path.join(BASE_DIR, 'testing', 'dump')
+
+# Constante for application token
+CLIENT_ID_ADMIN = 'client_id'
+CLIENT_SECRET_ADMIN = 'client_secret'
+CLIENT_ID_USER = 'client_id_user'
+CLIENT_SECRET_USER = 'client_secret_user'
+USER_APPLICATION = 'remote_mdcs'
+ADMIN_APPLICATION = 'remote_mdcs'
+ADMIN_AUTH = ('admin', 'admin')
+USER_AUTH = ('user', 'user')
+
+class RegressionTest(LiveServerTestCase):
+
+    def setUp(self):
+        discover.init_rules()
+
+        user, userCreated = User.objects.get_or_create(username='user')
+        if userCreated:
+            user.set_password('user')
+            user.save()
+
+        admin, adminCreated = User.objects.get_or_create(username='admin', is_staff=1, is_superuser=1)
+        if adminCreated:
+            admin.set_password('admin')
+            admin.save()
+
+    def doRequestGet(self, url, data=None, params=None, auth=None):
+        return requests.get(URL_TEST + url, data=data, params=params, auth=auth)
+
+    def doRequestPost(self, url, data=None, params=None, auth=None):
+        return requests.post(URL_TEST + url, data=data, params=params, auth=auth)
+
+    def doRequestPut(self, url, data=None, params=None, auth=None):
+        return requests.put(URL_TEST + url, data=data, params=params, auth=auth)
+
+    def dump_result_xslt(self):
+        self.assertEquals(len(ResultXslt.objects()), 0)
+        self.restoreDump(join(DUMP_TEST_PATH, 'result_xslt.bson'), 'result_xslt')
+        self.assertTrue(len(ResultXslt.objects()) > 0)
+
+    def dump_template_version(self):
+        self.assertEquals(len(TemplateVersion.objects()), 0)
+        self.restoreDump(join(DUMP_TEST_PATH, 'template_version.bson'), 'template_version')
+        self.assertTrue(len(TemplateVersion.objects()) > 0)
+
+    def dump_template(self):
+        self.assertEquals(len(Template.objects()), 0)
+        self.dump_template_version()
+        self.restoreDump(join(DUMP_TEST_PATH, 'template.bson'), 'template')
+        self.assertTrue(len(Template.objects()) > 0)
+
+    def dump_xmldata(self):
+        self.assertEquals(len(XMLdata.objects()), 0)
+        self.dump_template()
+        self.restoreDump(join(DUMP_TEST_PATH, 'xmldata.bson'), 'xmldata')
+        self.assertTrue(len(XMLdata.objects()) > 0)
+
+    def restoreDump(self, file, collectionName):
+        client = MongoClient(MONGODB_URI)
+        db = client[MGI_DB]
+        target_collection = db[collectionName]
+        re = open(file, 'rb').read()
+        target_collection.insert(decode_all(re))
 
     def createXMLData(self):
         return XMLdata(schemaID='', xml='<test>test xmldata</test>', title='test', iduser=1).save()
@@ -66,10 +146,45 @@ class RegressionTest(TestCase):
             except OperationFailure:
                 pass
 
+    def isStatusOK(self, r):
+        self.assertTrue(r.status_code == 200)
+
+    def isStatusNotFound(self, r):
+        self.assertTrue(r.status_code == 404)
+
+    def isStatusBadRequest(self, r):
+        self.assertTrue(r.status_code == 400)
+
+    def isStatusUnauthorized(self, r):
+        self.assertTrue(r.status_code == 401)
+
+    def isStatusNoContent(self, r):
+        self.assertTrue(r.status_code == 204)
+
+    def isStatusCreated(self, r):
+        self.assertTrue(r.status_code == 201)
+
+    def isStatusInternalError(self, r):
+        self.assertTrue(r.status_code == 500)
 
 class TokenTest(RegressionTest):
 
-    def get_token(self, username, password, client_id, client_secret):
+    def setUp(self):
+        super(TokenTest, self).setUp()
+        self.createApplication(User.objects.get(username='user'), USER_APPLICATION, CLIENT_ID_USER, CLIENT_SECRET_USER)
+        self.createApplication(User.objects.get(username='admin'), ADMIN_APPLICATION, CLIENT_ID_ADMIN, CLIENT_SECRET_ADMIN)
+
+    def createApplication(self, user, name, id, secret):
+        application = Application()
+        application.user = user
+        application.client_type = 'confidential'
+        application.authorization_grant_type = 'password'
+        application.name = name
+        application.client_id = id
+        application.client_secret = secret
+        application.save()
+
+    def get_token(self, username, password, client_id, client_secret, application):
         try:
             url = URL_TEST + "/o/token/"
             headers = {'content-type': 'application/x-www-form-urlencoded'}
@@ -86,7 +201,7 @@ class TokenTest(RegressionTest):
                 delta = timedelta(seconds=int(eval(r.content)["expires_in"]))
                 expires = now + delta
 
-                token = Instance(name='remote_mdcs', protocol='http', address='127.0.0.1', port='8000',
+                token = Instance(name=application, protocol='http', address='127.0.0.1', port='8082',
                                  access_token=eval(r.content)["access_token"],
                                  refresh_token=eval(r.content)["refresh_token"], expires=expires).save()
                 return token
@@ -96,54 +211,25 @@ class TokenTest(RegressionTest):
             return ''
 
     def get_token_admin(self):
-        return self.get_token('admin', 'admin', 'client_id', 'client_secret')
+        return self.get_token('admin', 'admin', CLIENT_ID_ADMIN, CLIENT_SECRET_ADMIN, ADMIN_APPLICATION)
 
     def get_token_user(self):
-        return self.get_token('user', 'user', 'client_id_user', 'client_secret_user')
+        return self.get_token('user', 'user', CLIENT_ID_USER, CLIENT_SECRET_USER, USER_APPLICATION)
 
-    def doRequest(self, token, url, data, params, operation):
+    def doRequestGet(self, token, url, data=None, params=None):
         if token == '':
             self.assertTrue(False)
         headers = {'Authorization': 'Bearer ' + token.access_token}
-        if operation == OPERATION_GET:
-            return requests.get(URL_TEST + url, data=data, params=params, headers=headers)
-        elif operation == OPERATION_DELETE:
-            return requests.delete(URL_TEST + url, data=data, params=params, headers=headers)
-        elif operation == OPERATION_POST:
-            return requests.post(URL_TEST + url, data=data, params=params, headers=headers)
+        return requests.get(URL_TEST + url, data=data, params=params, headers=headers)
 
-    def isStatusOK(self, r):
-        if r.status_code == 200:
-            self.assertTrue(True)
-        else:
+    def doRequestPost(self, token, url, data=None, params=None):
+        if token == '':
             self.assertTrue(False)
+        headers = {'Authorization': 'Bearer ' + token.access_token}
+        return requests.post(URL_TEST + url, data=data, params=params, headers=headers)
 
-    def isStatusNotFound(self, r):
-        if r.status_code == 404:
-            self.assertTrue(True)
-        else:
+    def doRequestDelete(self, token, url, data=None, params=None):
+        if token == '':
             self.assertTrue(False)
-
-    def isStatusBadRequest(self, r):
-        if r.status_code == 400:
-            self.assertTrue(True)
-        else:
-            self.assertTrue(False)
-
-    def isStatusUnauthorized(self, r):
-        if r.status_code == 401:
-            self.assertTrue(True)
-        else:
-            self.assertTrue(False)
-
-    def isStatusNoContent(self, r):
-        if r.status_code == 204:
-            self.assertTrue(True)
-        else:
-            self.assertTrue(False)
-
-    def isStatusCreated(self, r):
-        if r.status_code == 201:
-            self.assertTrue(True)
-        else:
-            self.assertTrue(False)
+        headers = {'Authorization': 'Bearer ' + token.access_token}
+        return requests.delete(URL_TEST + url, data=data, params=params, headers=headers)

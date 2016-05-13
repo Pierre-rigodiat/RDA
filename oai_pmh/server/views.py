@@ -26,6 +26,7 @@ import datetime
 from exporter.builtin.models import XSLTExporter
 from django.shortcuts import HttpResponse
 from StringIO import StringIO
+from rest_framework.status import HTTP_500_INTERNAL_SERVER_ERROR
 
 RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'oai_pmh/server/resources/')
 
@@ -152,7 +153,7 @@ class OAIProvider(TemplateView):
         except OAIException, e:
             return self.error(e)
         except Exception, e:
-            return self.error(e.code, e.message)
+            return HttpResponse({'content':e.message}, status=HTTP_500_INTERNAL_SERVER_ERROR)
         except badResumptionToken, e:
             return self.error(badResumptionToken.code, badResumptionToken.message)
 
@@ -207,7 +208,7 @@ class OAIProvider(TemplateView):
         except OAIException, e:
             return self.error(e)
         except Exception, e:
-            return self.error(e.code, e.message)
+            return HttpResponse({'content':e.message}, status=HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 ################################################################################
@@ -250,6 +251,8 @@ class OAIProvider(TemplateView):
                 #Retrieve sets for this template
                 sets = OaiMySet.objects(templates=template).all()
                 query['schema'] = template
+                #The record has to be published
+                query['ispublished'] = True
                 #Get all records for this template
                 data = XMLdata.executeQueryFullResult(query)
                 #IF no records, go to the next template
@@ -274,7 +277,7 @@ class OAIProvider(TemplateView):
         except OAIException, e:
             return self.error(e)
         except Exception, e:
-            return self.error(e.code, e.message)
+            return HttpResponse({'content':e.message}, status=HTTP_500_INTERNAL_SERVER_ERROR)
         except badResumptionToken, e:
             return self.error(badResumptionToken.code, badResumptionToken.message)
 
@@ -299,6 +302,8 @@ class OAIProvider(TemplateView):
             #Convert id to ObjectId
             try:
                 query['_id'] = ObjectId(id)
+                #The record has to be published
+                query['ispublished'] = True
             except Exception:
                 raise idDoesNotExist(self.identifier)
             data = XMLdata.executeQueryFullResult(query)
@@ -347,7 +352,7 @@ class OAIProvider(TemplateView):
         except OAIException, e:
             return self.error(e)
         except Exception, e:
-            return self.error(e.code, e.message)
+            return HttpResponse({'content':e.message}, status=HTTP_500_INTERNAL_SERVER_ERROR)
 
 ################################################################################
 #
@@ -391,6 +396,8 @@ class OAIProvider(TemplateView):
                 #Retrieve sets for this template
                 sets = OaiMySet.objects(templates=template).all()
                 query['schema'] = template
+                #The record has to be published
+                query['ispublished'] = True
                 #Get all records for this template
                 data = XMLdata.executeQueryFullResult(query)
                 #IF no records, go to the next template
@@ -428,7 +435,7 @@ class OAIProvider(TemplateView):
         except OAIException, e:
             return self.error(e)
         except Exception, e:
-            return self.error(e.code, e.message)
+            return HttpResponse({'content':e.message}, status=HTTP_500_INTERNAL_SERVER_ERROR)
         except badResumptionToken, e:
             return self.error(badResumptionToken.code, badResumptionToken.message)
 
@@ -655,7 +662,7 @@ class OAIProvider(TemplateView):
         except OAIException, e:
             return self.error(e)
         except Exception, e:
-            return self.error(e.code, e.message)
+            return HttpResponse({'content':e.message}, status=HTTP_500_INTERNAL_SERVER_ERROR)
 
 ################################################################################
 #

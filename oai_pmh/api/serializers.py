@@ -9,11 +9,9 @@
 #
 ################################################################################
 
-
 from rest_framework import serializers
 from rest_framework_mongoengine.serializers import MongoEngineModelSerializer
-from mgi.models import OaiRegistry, UpdateRecord, DeleteRecord, SelectRecord, OaiSettings,\
-OaiMyMetadataFormat
+from mgi.models import OaiRegistry, OaiSettings
 
 class RegistrySerializer(MongoEngineModelSerializer):
     class Meta:
@@ -73,18 +71,6 @@ class IdentifyObjectSerializer(serializers.Serializer):
     scheme = serializers.CharField(required=False)
     raw = serializers.CharField(required=False)
 
-class UpdateRecordSerializer(MongoEngineModelSerializer):
-    class Meta:
-        model = UpdateRecord
-
-class DeleteRecordSerializer(MongoEngineModelSerializer):
-    class Meta:
-        model = DeleteRecord
-
-class SelectRecordSerializer(MongoEngineModelSerializer):
-    class Meta:
-        model = SelectRecord
-
 class SetSerializer(serializers.Serializer):
     setName = serializers.CharField()
     setSpec = serializers.CharField()
@@ -128,3 +114,17 @@ class UpdateMySetSerializer(serializers.Serializer):
     id = serializers.CharField(required=True)
     setSpec = serializers.CharField(required=True)
     setName = serializers.CharField(required=True)
+
+class DeleteXSLTSerializer(serializers.Serializer):
+    xslt_id = serializers.CharField(required=True)
+
+class OaiConfXSLTSerializer(serializers.Serializer):
+    template_id = serializers.CharField(required=True)
+    my_metadata_format_id = serializers.CharField(required=True)
+    xslt_id = serializers.CharField(required=False)
+    activated = serializers.CharField(required=True)
+
+class OaiXSLTSerializer(serializers.Serializer):
+    name = serializers.CharField(required=True)
+    filename = serializers.CharField(required=True)
+    content = serializers.CharField(required=True)
