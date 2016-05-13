@@ -54,7 +54,7 @@ class Module(object):
             template_data['module'] = self._get_module(request)
             template_data['display'] = self._get_display(request)
 
-            result = sanitize(self._get_result(request))
+            result = self._get_result(request)
             template_data['result'] = result
 
             module_element = SchemaElement.objects.get(pk=request.GET['module_id'])
@@ -89,7 +89,6 @@ class Module(object):
 
             module_element = SchemaElement.objects.get(pk=request.POST['module_id'])
             template_data['display'] = self._post_display(request)
-            # template_data['result'] = sanitize(self._post_result(request))
             options = module_element.options
 
             # FIXME temporary solution
