@@ -182,26 +182,26 @@ class RegressionTest(LiveServerTestCase):
             except OperationFailure:
                 pass
 
-    def isStatusOK(self, r):
-        self.assertTrue(r.status_code == 200)
+    def isStatusOK(self, code):
+        self.assertEqual(code, 200)
 
-    def isStatusNotFound(self, r):
-        self.assertTrue(r.status_code == 404)
+    def isStatusNotFound(self, code):
+        self.assertEqual(code, 404)
 
-    def isStatusBadRequest(self, r):
-        self.assertTrue(r.status_code == 400)
+    def isStatusBadRequest(self, code):
+        self.assertEqual(code, 400)
 
-    def isStatusUnauthorized(self, r):
-        self.assertTrue(r.status_code == 401)
+    def isStatusUnauthorized(self, code):
+        self.assertEqual(code, 401)
 
-    def isStatusNoContent(self, r):
-        self.assertTrue(r.status_code == 204)
+    def isStatusNoContent(self, code):
+        self.assertEqual(code, 204)
 
-    def isStatusCreated(self, r):
-        self.assertTrue(r.status_code == 201)
+    def isStatusCreated(self, code):
+        self.assertEqual(code, 201)
 
-    def isStatusInternalError(self, r):
-        self.assertTrue(r.status_code == 500)
+    def isStatusInternalError(self, code):
+        self.assertEqual(code, 500)
 
 class TokenTest(RegressionTest):
 
