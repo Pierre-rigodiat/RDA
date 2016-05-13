@@ -34,7 +34,7 @@ class AddRegistrySerializer(serializers.Serializer):
 class UpdateRegistryHarvestSerializer(serializers.Serializer):
     id = serializers.CharField(required=True)
     metadataFormats = serializers.CharField(required=True)
-    sets = serializers.CharField(required=True)
+    sets = serializers.CharField(required=False)
 
 class ListRecordsSerializer(serializers.Serializer):
     url  = serializers.URLField(required=True)

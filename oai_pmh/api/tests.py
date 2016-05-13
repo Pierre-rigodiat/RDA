@@ -798,31 +798,16 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_update_registry_harvest_serializer_invalid(self):
-        data = {"idd": FAKE_ID, 'metadataFormats': [], 'sets': []}
+        data = {"idd": FAKE_ID, 'metadataFormats': []}
         req = self.doRequestPut(url=reverse("api_update_registry_harvest"), data=data, auth=ADMIN_AUTH)
         self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
-        data = {"id": FAKE_ID, 'mmetadataFormats': [], 'sets': []}
-        req = self.doRequestPut(url=reverse("api_update_registry_harvest"), data=data, auth=ADMIN_AUTH)
-        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
-        data = {"id": FAKE_ID, 'metadataFormats': [], 'ssets': []}
+        data = {"id": FAKE_ID, 'mmetadataFormats': []}
         req = self.doRequestPut(url=reverse("api_update_registry_harvest"), data=data, auth=ADMIN_AUTH)
         self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
         data = {"id": FAKE_ID}
         req = self.doRequestPut(url=reverse("api_update_registry_harvest"), data=data, auth=ADMIN_AUTH)
         self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
         data = {"metadataFormats": []}
-        req = self.doRequestPut(url=reverse("api_update_registry_harvest"), data=data, auth=ADMIN_AUTH)
-        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
-        data = {"sets": []}
-        req = self.doRequestPut(url=reverse("api_update_registry_harvest"), data=data, auth=ADMIN_AUTH)
-        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
-        data = {"id": FAKE_ID, 'metadataFormats': []}
-        req = self.doRequestPut(url=reverse("api_update_registry_harvest"), data=data, auth=ADMIN_AUTH)
-        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
-        data = {"id": FAKE_ID, 'sets': []}
-        req = self.doRequestPut(url=reverse("api_update_registry_harvest"), data=data, auth=ADMIN_AUTH)
-        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
-        data = {"metadataFormats": [], 'sets': []}
         req = self.doRequestPut(url=reverse("api_update_registry_harvest"), data=data, auth=ADMIN_AUTH)
         self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
 
