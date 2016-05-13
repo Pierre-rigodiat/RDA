@@ -297,9 +297,9 @@ def get_xml_element_data(xsd_element, xml_element):
                 reload_data = xml_element.text
             else:  # xml_element.text is None
                 reload_data = ''
-        else:  # branch: get the whole branch
+        else:  # branch: return children
             try:
-                reload_data = etree.tostring(xml_element)
+                reload_data = list(xml_element)
             except:
                 # FIXME in which case would we need that?
                 reload_data = str(xml_element)
