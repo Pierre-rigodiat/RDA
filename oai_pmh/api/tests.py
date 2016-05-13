@@ -1038,9 +1038,55 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         data = {"url": URL_TEST_SERVER, "metadataprefix": "oai_xsoft"}
         req = self.doRequestPost(url=reverse("api_listIdentifiers"), data=data, auth=ADMIN_AUTH)
         self.assertEquals(req.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+#
+# ################################################################################
+
+################################## getData tests ###############################
+
+    def test_getData(self):
+        self.dump_oai_settings()
+        self.dump_oai_my_metadata_format()
+        self.dump_oai_my_set()
+        self.dump_xmldata()
+        self.setHarvest(True)
+        metadataPrefix = "oai_soft"
+        data = {"url": URL_TEST_SERVER + "?ListRecords&metadataprefix="+metadataPrefix}
+        req = self.doRequestPost(url=reverse("api_get_data"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_200_OK)
+        self.assertNotEquals(req.data, '')
+
+    def test_getData_server_not_found(self):
+        self.dump_oai_settings()
+        url = "http://127.0.0.1:8082/noserver"
+        metadataPrefix = "oai_soft"
+        data = {"url": url + "?metadataprefix="+metadataPrefix}
+        req = self.doRequestPost(url=reverse("api_get_data"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_getData_unauthorized(self):
+        self.dump_oai_settings()
+        metadataPrefix = "oai_soft"
+        data = {"url": URL_TEST_SERVER + "?metadataprefix="+metadataPrefix}
+        #No authentification
+        req = self.doRequestPost(url=reverse("api_get_data"), data=data, auth=None)
+        self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_getData_bad_url_no_args(self):
+        self.dump_oai_settings()
+        url= "http://127.0.0.1:8082/noserver"
+        data = {"url": url}
+        req = self.doRequestPost(url=reverse("api_get_data"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_getData_serializer_invalid(self):
+        self.dump_oai_settings()
+        url= "http://127.0.0.1:8082/noserver"
+        data = {}
+        req = self.doRequestPost(url=reverse("api_get_data"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
 
 ################################################################################
-
 
 ################################################################################
 ########################## Common assert controls ##############################

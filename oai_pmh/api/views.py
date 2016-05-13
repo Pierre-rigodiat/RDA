@@ -54,6 +54,7 @@ from oai_pmh.api.messages import APIMessage
 from admin_mdcs.models import api_permission_required, api_staff_member_required
 import oai_pmh.rights as RIGHTS
 from django.http.request import QueryDict
+import urllib2
 
 ################################################################################
 #
@@ -944,30 +945,26 @@ def getData(request):
     url: string
     """
     try:
-        if 'url' in request.POST:
+        serializer = IdentifySerializer(data=request.DATA)
+        if serializer.is_valid():
             url = request.POST['url']
-        else:
-            content = {'url':['This field is required.']}
-            raise OAIAPIException(message=content, status=status.HTTP_400_BAD_REQUEST)
-        if str(url).__contains__('?'):
-            registryURl = str(url).split('?')[0]
-            #Check if the OAI Registry is available
-            try:
+            if str(url).__contains__('?'):
+                registryURl = str(url).split('?')[0]
+                #Check if the OAI Registry is available
                 sickle = Sickle(registryURl)
                 sickle.Identify()
-            except Exception:
-                raise OAIAPIException(message='An error occurred when attempting to identify resource.', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            http_response = requests.get(url)
-            if http_response.status_code == status.HTTP_200_OK:
-
-                return Response(http_response.text, status=status.HTTP_200_OK)
-            elif http_response.status_code == status.HTTP_404_NOT_FOUND:
-                raise OAIAPIException(message='Server not found.', status=status.HTTP_404_NOT_FOUND)
+                http_response = requests.get(url)
+                if http_response.status_code == status.HTTP_200_OK:
+                    return Response(http_response.text, status=status.HTTP_200_OK)
+                else:
+                    raise OAIAPIException(message='An error occurred.', status=http_response.status_code)
             else:
-                raise OAIAPIException(message='An error occurred.', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                raise OAIAPIException(message='An error occurred, url malformed.', status=status.HTTP_400_BAD_REQUEST)
         else:
-            raise OAIAPIException(message='An error occurred, url malformed.', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+            raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except requests.HTTPError, err:
+        content = APIMessage.getMessageLabelled(err.message)
+        return Response(content, status=err.response.status_code)
     except OAIAPIException as e:
         return e.response()
     except Exception as e:
