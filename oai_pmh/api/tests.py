@@ -849,7 +849,7 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         metadataPrefix = "oai_soft"
         data = {"url": URL_TEST_SERVER, "metadataprefix": metadataPrefix}
         req = self.doRequestPost(url=reverse("api_listObjectAllRecords"), data=data, auth=ADMIN_AUTH)
-        self.isStatusOK(req)
+        self.isStatusOK(req.status_code)
         self.assert_OaiListRecords(metadataPrefix, req.data)
 
     def test_listObjectAllRecords_unauthorized(self):
@@ -891,7 +891,7 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         url= URL_TEST_SERVER
         metadataPrefix = "oai_soft"
         req, resumptionToken = getListRecords(url=url, metadataPrefix=metadataPrefix)
-        self.isStatusOK(req)
+        self.isStatusOK(req.status_code)
         self.assert_OaiListRecords(metadataPrefix, req.data)
 
     def test_getListRecords_function_dummy_resumptionToken(self):
@@ -938,7 +938,7 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
             identifier = '%s:%s:id/%s' % (settings.OAI_SCHEME, settings.OAI_REPO_IDENTIFIER, str(elt['_id']))
             data = {"url": URL_TEST_SERVER, "metadataprefix": metadataPrefix, "identifier": identifier}
             req = self.doRequestPost(url=reverse("api_getRecord"), data=data, auth=ADMIN_AUTH)
-            self.isStatusOK(req)
+            self.isStatusOK(req.status_code)
             self.assertTrue(len(req.data) == 1)
             self.assert_OaiRecord(metadataPrefix, req.data[0])
 
