@@ -300,7 +300,7 @@ def generate_xsd_form(request):
         renderer = ListRenderer(root_element, request)
         html_form = renderer.render()
     except Exception as e:
-        renderer = DefaultRenderer(None, {})
+        renderer = DefaultRenderer(SchemaElement(), {})
         html_form = renderer._render_form_error(e.message)
 
     return HttpResponse(json.dumps({'xsdForm': html_form}), content_type='application/javascript')
