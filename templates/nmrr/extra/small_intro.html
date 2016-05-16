@@ -40,6 +40,20 @@
     <div id="main-wrapper">
         <div id="main">
             <div class="post">
+                {% block messages %}
+                    {% if messages %}
+                        <ul class="messagelist">
+                            {% for message in messages %}
+                            <li style="display:block">
+                                <div class="alert alert-info">
+                                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                    <i class="fa fa-check"></i> {{message}}
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endblock messages %}
                 <div class="post-title">{% block title %}{% endblock %}</div>
                 <div class="post-body">
                     <p class="large">{% block description %}{% endblock %}</p>

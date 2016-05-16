@@ -74,7 +74,8 @@ else:
 from mongoengine import connect
 MONGO_MGI_USER = "mgi_user"
 MONGO_MGI_PASSWORD = "mgi_password"
-MONGODB_URI = "mongodb://" + MONGO_MGI_USER + ":" + MONGO_MGI_PASSWORD + "@localhost/mgi"
+MGI_DB = "mgi"
+MONGODB_URI = "mongodb://" + MONGO_MGI_USER + ":" + MONGO_MGI_PASSWORD + "@localhost/" + MGI_DB
 connect("mgi", host=MONGODB_URI)
 
 # BLOB Hoster module parameters
@@ -83,6 +84,30 @@ BLOB_HOSTER_URI = MONGODB_URI
 BLOB_HOSTER_USER = MONGO_MGI_USER
 BLOB_HOSTER_PSWD = MONGO_MGI_PASSWORD
 MDCS_URI = 'http://127.0.0.1:8000'
+
+# OAI_PMH parameters
+OAI_ADMINS = (
+    ('Administrator', 'admin@nmrr.com'),
+)
+OAI_HOST_URI = 'http://127.0.0.1:8000'
+OAI_USER = 'admin'
+OAI_PASS = 'admin'
+OAI_NAME = 'NMRR 127.0.0.1'
+OAI_DELIMITER = ':'
+OAI_DESCRIPTION = 'OAI-PMH NMRR'
+OAI_GRANULARITY = 'YYYY-MM-DDThh:mm:ssZ' #the finest harvesting granularity supported by the repository
+OAI_PROTOCOLE_VERSION = '2.0' #the version of the OAI-PMH supported by the repository
+OAI_SCHEME = 'oai'
+OAI_REPO_IDENTIFIER = 'server-127.0.0.1'
+OAI_SAMPLE_IDENTIFIER = OAI_SCHEME+OAI_DELIMITER+OAI_REPO_IDENTIFIER+OAI_DELIMITER+'id/12345678a123aff6ff5f2d9e'
+OAI_DELETED_RECORD = 'no' #no ; transient ; persistent
+
+#Celery configuration
+BROKER_URL = 'redis://localhost:6379/0'
+BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+BROKER_TRANSPORT_OPTIONS = {'fanout_prefix': True}
+BROKER_TRANSPORT_OPTIONS = {'fanout_patterns': True}
 
 # Handle system module parameters
 HANDLE_SERVER_URL = ''
@@ -140,6 +165,9 @@ INSTALLED_APPS = (
     'compose',
     'modules',
     'user_dashboard',
+    'oai_pmh',
+    'testing',
+
 )
 
 OAUTH2_PROVIDER = {

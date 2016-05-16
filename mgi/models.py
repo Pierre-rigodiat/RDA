@@ -15,17 +15,23 @@
 ################################################################################
 
 from mongoengine import *
+import json
 
 # Specific to MongoDB ordered inserts
 from collections import OrderedDict
 from bson.objectid import ObjectId
 import xmltodict
-from pymongo import MongoClient, TEXT, ASCENDING, DESCENDING
-from mgi.settings import MONGODB_URI
+from pymongo import MongoClient, TEXT, ASCENDING, DESCENDING, errors
+
+import os
+from django.utils.importlib import import_module
+settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
+settings = import_module(settings_file)
+MONGODB_URI = settings.MONGODB_URI
+MGI_DB = settings.MGI_DB
 import re
 import datetime
-from mgi import settings
-import datetime
+
 
 class Request(Document):
     """Represents a request sent by an user to get an account"""
@@ -216,7 +222,7 @@ class XMLdata():
         # create a connection                                                                                                                                                                                                 
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         self.xmldata = db['xmldata']
         # create a new dict to keep the mongoengine order                                                                                                                                                                     
@@ -244,7 +250,7 @@ class XMLdata():
         #create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         # create the full text index
@@ -268,7 +274,7 @@ class XMLdata():
         # create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         # find all objects of the collection
@@ -289,7 +295,7 @@ class XMLdata():
         # create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         # find all objects of the collection
@@ -307,7 +313,7 @@ class XMLdata():
         # create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         # query mongo db
@@ -325,7 +331,7 @@ class XMLdata():
         # create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         # query mongo db
@@ -336,6 +342,7 @@ class XMLdata():
             results.append(result)
         return results
 
+
     @staticmethod
     def get(postID):
         """
@@ -344,7 +351,7 @@ class XMLdata():
         # create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         return xmldata.find_one({'_id': ObjectId(postID)}, as_class = OrderedDict)
@@ -358,11 +365,40 @@ class XMLdata():
         # create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         listIDs = [ObjectId(x) for x in listIDs]
         return xmldata.find({'_id': { '$in': listIDs }}, as_class = OrderedDict).distinct(distinctBy)
+
+    @staticmethod
+    def getMinValue(attr):
+        """
+            Returns the object with the given id
+        """
+        # create a connection
+        client = MongoClient(MONGODB_URI)
+        # connect to the db 'mgi'
+        db = client[MGI_DB]
+        # get the xmldata collection
+        xmldata = db['xmldata']
+        cursor  = xmldata.aggregate(
+           [
+             {
+               '$group':
+               {
+                 '_id': {},
+                 'minAttr': { '$min': '$'+attr}
+               }
+             }
+           ]
+          );
+        results = []
+        for result in cursor['result']:
+            results.append(result['minAttr'])
+
+        return results[0] if results[0] else None
+
 
     
     @staticmethod
@@ -373,7 +409,7 @@ class XMLdata():
         # create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         xmldata.remove({'_id': ObjectId(postID)})
@@ -387,7 +423,7 @@ class XMLdata():
 #         # create a connection
 #         client = MongoClient(MONGODB_URI)
 #         # connect to the db 'mgi'
-#         db = client['mgi']
+#         db = client[MGI_DB]
 #         # get the xmldata collection
 #         xmldata = db['xmldata']
 #         
@@ -410,7 +446,7 @@ class XMLdata():
         # create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
                 
@@ -427,7 +463,7 @@ class XMLdata():
         # create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         xmldata.update({'_id': ObjectId(postID)}, {'$set':{'publicationdate': datetime.datetime.now(), 'ispublished': True}}, upsert=False)
@@ -440,7 +476,7 @@ class XMLdata():
         # create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         xmldata.update({'_id': ObjectId(postID)}, {'$set':{'ispublished': False}}, upsert=False)
@@ -453,7 +489,7 @@ class XMLdata():
         #create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         wordList = re.sub("[^\w]", " ",  text).split()
@@ -478,3 +514,299 @@ class XMLdata():
         return results
 
 
+class OaiSettings(Document):
+    repositoryName = StringField(required=True)
+    repositoryIdentifier = StringField(required=True)
+    enableHarvesting = BooleanField()
+
+class OaiIdentify(Document):
+    """
+        An identity object
+    """
+    adminEmail = StringField(required=False)
+    baseURL = URLField(required=True, unique=True)
+    repositoryName = StringField(required=False)
+    deletedRecord = StringField(required=False)
+    delimiter = StringField(required=False)
+    description = StringField(required=False)
+    earliestDatestamp = StringField(required=False)
+    granularity = StringField(required=False)
+    oai_identifier = StringField(required=False)
+    protocolVersion = StringField(required=False)
+    repositoryIdentifier = StringField(required=False)
+    sampleIdentifier = StringField(required=False)
+    scheme = StringField(required=False)
+    raw = DictField(required=False)
+
+class OaiSet(Document):
+    """
+        A set object
+    """
+    setSpec  = StringField(required=True, unique=True)
+    setName = StringField(required=True, unique=True)
+    raw = DictField(required=True)
+    registry = StringField(required=False)
+    harvest = BooleanField()
+
+class OaiMetadataFormat(Document):
+    """
+        A OaiMetadataFormat object
+    """
+    metadataPrefix  = StringField(required=True)
+    schema = StringField(required=True)
+    xmlSchema = StringField(required=False)
+    metadataNamespace  = StringField(required=True)
+    raw = DictField(required=True)
+    template = ReferenceField(Template, reverse_delete_rule=PULL)
+    registry = StringField(required=False)
+    hash = StringField(required=False)
+    harvest = BooleanField()
+    lastUpdate = DateTimeField(required=False)
+
+class OaiMyMetadataFormat(Document):
+    """
+        A OaiMyMetadataFormat object
+    """
+    metadataPrefix  = StringField(required=True, unique=True)
+    schema = StringField(required=True)
+    metadataNamespace  = StringField(required=True)
+    xmlSchema = StringField(required=True)
+    isDefault = BooleanField(required=False)
+    isTemplate = BooleanField()
+    template = ReferenceField(Template, reverse_delete_rule=CASCADE)
+
+class OaiMySet(Document):
+    """
+        A set object
+    """
+    setSpec  = StringField(required=True, unique=True)
+    setName = StringField(required=True, unique=True)
+    templates = ListField(ReferenceField(Template, reverse_delete_rule=PULL), required=True)
+    description = StringField(required=False)
+
+class OaiRecord(Document):
+    """
+        A record object
+    """
+    identifier = StringField(required=True)
+    datestamp = DateTimeField(required=True)
+    deleted = BooleanField()
+    sets = ListField(ReferenceField(OaiSet, reverse_delete_rule=PULL))
+    metadataformat = ReferenceField(OaiMetadataFormat, reverse_delete_rule=PULL)
+    metadata = DictField(required=False)
+    raw = DictField(required=True)
+    registry = StringField(required=False)
+
+    def getMetadataOrdered(self):
+        """
+            Returns the object with the given id
+        """
+        # create a connection
+        client = MongoClient(MONGODB_URI)
+        # connect to the db 'mgi'
+        db = client[MGI_DB]
+        # get the xmldata collection
+        xmldata = db['oai_record']
+        data =  xmldata.find_one({'_id': ObjectId(self.id)}, as_class = OrderedDict)
+        return data['metadata']
+
+    def save(self, metadata=None, force_insert=False, validate=True, clean=True,
+             write_concern=None,  cascade=None, cascade_kwargs=None,
+             _refs=None, **kwargs):
+        """Save the :class:`~mongoengine.Document` to the database. If the
+        document already exists, it will be updated, otherwise it will be
+        created.
+
+        :param force_insert: only try to create a new document, don't allow
+            updates of existing documents
+        :param validate: validates the document; set to ``False`` to skip.
+        :param clean: call the document clean method, requires `validate` to be
+            True.
+        :param write_concern: Extra keyword arguments are passed down to
+            :meth:`~pymongo.collection.Collection.save` OR
+            :meth:`~pymongo.collection.Collection.insert`
+            which will be used as options for the resultant
+            ``getLastError`` command.  For example,
+            ``save(..., write_concern={w: 2, fsync: True}, ...)`` will
+            wait until at least two servers have recorded the write and
+            will force an fsync on the primary server.
+        :param cascade: Sets the flag for cascading saves.  You can set a
+            default by setting "cascade" in the document __meta__
+        :param cascade_kwargs: (optional) kwargs dictionary to be passed throw
+            to cascading saves.  Implies ``cascade=True``.
+        :param _refs: A list of processed references used in cascading saves
+
+        .. versionchanged:: 0.5
+            In existing documents it only saves changed fields using
+            set / unset.  Saves are cascaded and any
+            :class:`~bson.dbref.DBRef` objects that have changes are
+            saved as well.
+        .. versionchanged:: 0.6
+            Added cascading saves
+        .. versionchanged:: 0.8
+            Cascade saves are optional and default to False.  If you want
+            fine grain control then you can turn off using document
+            meta['cascade'] = True.  Also you can pass different kwargs to
+            the cascade save using cascade_kwargs which overwrites the
+            existing kwargs with custom values.
+        """
+        if validate:
+            self.validate(clean=clean)
+
+        if write_concern is None:
+            write_concern = {"w": 1}
+
+        doc = self.to_mongo()
+        doc['metadata'] = metadata
+
+        created = ('_id' not in doc or self._created or force_insert)
+
+        try:
+            collection = self._get_collection()
+
+            if created:
+                if force_insert:
+                    object_id = collection.insert(doc, **write_concern)
+                else:
+                    object_id = collection.save(doc, **write_concern)
+            else:
+                object_id = doc['_id']
+                updates, removals = self._delta()
+                # Need to add shard key to query, or you get an error
+                select_dict = {'_id': object_id}
+                shard_key = self.__class__._meta.get('shard_key', tuple())
+                for k in shard_key:
+                    actual_key = self._db_field_map.get(k, k)
+                    select_dict[actual_key] = doc[actual_key]
+
+                def is_new_object(last_error):
+                    if last_error is not None:
+                        updated = last_error.get("updatedExisting")
+                        if updated is not None:
+                            return not updated
+                    return created
+
+                update_query = {}
+
+                if updates:
+                    #Always modified the metadata to have the lastest version. 'self._delta' not working with metadata field
+                    updates['metadata'] = metadata
+                    update_query["$set"] = updates
+                if removals:
+                    update_query["$unset"] = removals
+                if updates or removals:
+                    last_error = collection.update(select_dict, update_query,
+                                                   upsert=True, **write_concern)
+                    created = is_new_object(last_error)
+
+            if cascade is None:
+                cascade = self._meta.get('cascade', False) or cascade_kwargs is not None
+
+            if cascade:
+                kwargs = {
+                    "force_insert": force_insert,
+                    "validate": validate,
+                    "write_concern": write_concern,
+                    "cascade": cascade
+                }
+                if cascade_kwargs:  # Allow granular control over cascades
+                    kwargs.update(cascade_kwargs)
+                kwargs['_refs'] = _refs
+                self.cascade_save(**kwargs)
+        except errors.DuplicateKeyError, err:
+            message = u'Tried to save duplicate unique keys (%s)'
+            raise NotUniqueError(message % unicode(err))
+        except errors.OperationFailure, err:
+            message = 'Could not save document (%s)'
+            if re.match('^E1100[01] duplicate key', unicode(err)):
+                # E11000 - duplicate key error index
+                # E11001 - duplicate key on update
+                message = u'Tried to save duplicate unique keys (%s)'
+                raise NotUniqueError(message % unicode(err))
+            raise OperationError(message % unicode(err))
+        id_field = self._meta['id_field']
+        if id_field not in self._meta.get('shard_key', []):
+            self[id_field] = self._fields[id_field].to_python(object_id)
+
+        self._clear_changed_fields()
+        self._created = False
+        return self
+
+    @staticmethod
+    def initIndexes():
+        #create a connection
+        client = MongoClient(MONGODB_URI)
+        # connect to the db 'mgi'
+        db = client[MGI_DB]
+        # get the xmldata collection
+        xmldata = db['oai_record']
+        # create the full text index
+        xmldata.create_index([('$**', TEXT)], default_language="en", language_override="en")
+
+    @staticmethod
+    def executeFullTextQuery(text, listMetadataFormatId, refinements={}):
+        """
+        Execute a full text query with possible refinements
+        """
+        #create a connection
+        client = MongoClient(MONGODB_URI)
+        # connect to the db 'mgi'
+        db = client[MGI_DB]
+        # get the xmldata collection
+        xmlrecord = db['oai_record']
+        wordList = re.sub("[^\w]", " ",  text).split()
+        wordList = ['"{0}"'.format(x) for x in wordList]
+        wordList = ' '.join(wordList)
+        listMetadataFormatObjectId = [ObjectId(x) for x in listMetadataFormatId]
+
+        if len(wordList) > 0:
+            full_text_query = {'$text': {'$search': wordList}, 'metadataformat' : {'$in': listMetadataFormatObjectId}, }
+        else:
+            full_text_query = {'metadataformat' : {'$in': listMetadataFormatObjectId} }
+
+        if len(refinements.keys()) > 0:
+            full_text_query.update(refinements)
+
+        cursor = xmlrecord.find(full_text_query, as_class = OrderedDict)
+
+        results = []
+        for result in cursor:
+            results.append(result)
+        return results
+
+class OaiRegistry(Document):
+    """
+        A registry object
+    """
+    name = StringField(required=True)
+    url = URLField(required=True, unique=True)
+    harvestrate = IntField(required=False)
+    identify = ReferenceField(OaiIdentify, reverse_delete_rule=NULLIFY)
+    description = StringField(required=False)
+    harvest = BooleanField()
+    lastUpdate = DateTimeField(required=False)
+    isHarvesting = BooleanField()
+    isUpdating = BooleanField()
+    isDeactivated = BooleanField(required=True)
+    isQueued = BooleanField()
+
+class OaiXslt(Document):
+    """Represents an xslt file for Oai-Pmh"""
+    name = StringField(required=True, unique=True)
+    filename = StringField(required=True)
+    content = StringField(required=True)
+
+class OaiTemplMfXslt(Document):
+    """Represents an xslt file for Oai-Pmh"""
+    template = ReferenceField(Template, reverse_delete_rule=CASCADE)
+    myMetadataFormat = ReferenceField(OaiMyMetadataFormat, reverse_delete_rule=CASCADE)
+    xslt = ReferenceField(OaiXslt, reverse_delete_rule=CASCADE, unique_with=['template', 'myMetadataFormat'])
+    activated = BooleanField()
+
+class OaiMetadataformatSet(Document):
+    """
+        A record object
+    """
+    set = ReferenceField(OaiSet, reverse_delete_rule=CASCADE)
+    metadataformat = ReferenceField(OaiMetadataFormat, reverse_delete_rule=CASCADE)
+    lastUpdate = DateTimeField(required=False)
