@@ -604,7 +604,7 @@ class OaiRecord(Document):
         # create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['oai_record']
         data =  xmldata.find_one({'_id': ObjectId(self.id)}, as_class = OrderedDict)

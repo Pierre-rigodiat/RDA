@@ -16,7 +16,7 @@ from pymongo import MongoClient
 from pymongo.errors import OperationFailure
 import requests
 from datetime import datetime, timedelta
-from mgi.models import Instance, XMLdata, Template, TemplateVersion, ResultXslt
+from mgi.models import Instance, XMLdata, Template, TemplateVersion, ResultXslt, OaiMyMetadataFormat, OaiMySet, OaiSettings
 from utils.XSDhash import XSDhash
 from django.contrib.auth.models import User
 from oauth2_provider.models import Application
@@ -167,8 +167,10 @@ class RegressionTest(LiveServerTestCase):
             self.assertEqual(tag.attrib['code'], error)
 
     def checkTagExist(self, text, checkTag):
+        tagFound = False
         for tag in etree.XML(text.encode("utf8"), parser=XMLParser).iterfind('.//' + '{http://www.openarchives.org/OAI/2.0/}' + checkTag):
-            self.assertTrue(tag)
+            tagFound = True
+        self.assertTrue(tagFound)
 
     def checkTagCount(self, text, checkTag, number):
         count = 0

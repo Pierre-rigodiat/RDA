@@ -218,7 +218,7 @@ class tests_OAI_PMH_server(OAI_PMH_Test):
         self.dump_oai_my_set()
         self.dump_xmldata()
         self.dump_oai_my_metadata_format()
-        identifier = '%s:%s:id/%s' % (OAI_SCHEME, OAI_REPO_IDENTIFIER, '572a51dca530afee94f3b35c')
+        identifier = '%s:%s:id/%s' % (OAI_SCHEME, OAI_REPO_IDENTIFIER, '572a51cba530afee94f3b300')
         data = {'verb': 'GetRecord', 'identifier': identifier, 'metadataPrefix': 'oai_dc'}
         r = self.doRequestServer(data=data)
         self.isStatusOK(r.status_code)
@@ -230,7 +230,7 @@ class tests_OAI_PMH_server(OAI_PMH_Test):
         self.dump_oai_my_metadata_format()
         self.dump_oai_templ_mf_xslt()
         self.dump_oai_xslt()
-        identifier = '%s:%s:id/%s' % (OAI_SCHEME, OAI_REPO_IDENTIFIER, '572a51dca530afee94f3b35c')
+        identifier = '%s:%s:id/%s' % (OAI_SCHEME, OAI_REPO_IDENTIFIER, '572a51cba530afee94f3b300')
         data = {'verb': 'GetRecord', 'identifier': identifier, 'metadataPrefix': 'oai_dc'}
         r = self.doRequestServer(data=data)
         self.isStatusOK(r.status_code)
