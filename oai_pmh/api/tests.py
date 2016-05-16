@@ -923,9 +923,12 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
             identifier = '%s:%s:id/%s' % (settings.OAI_SCHEME, settings.OAI_REPO_IDENTIFIER, str(elt['_id']))
             data = {"url": URL_TEST_SERVER, "metadataprefix": metadataPrefix, "identifier": identifier}
             req = self.doRequestPost(url=reverse("api_getRecord"), data=data, auth=ADMIN_AUTH)
-            self.isStatusOK(req.status_code)
-            self.assertTrue(len(req.data) == 1)
-            self.assert_OaiRecord(metadataPrefix, req.data[0])
+            if elt['ispublished'] == True:
+                self.isStatusOK(req.status_code)
+                self.assertTrue(len(req.data) == 1)
+                self.assert_OaiRecord(metadataPrefix, req.data[0])
+            else:
+                self.isStatusInternalError(req.status_code)
 
     def test_getRecord_unauthorized(self):
         self.dump_oai_settings()
@@ -971,9 +974,9 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         req = self.doRequestPost(url=reverse("api_getRecord"), data=data, auth=ADMIN_AUTH)
         self.assertEquals(req.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-################################################################################
+###############################################################################
 
-################################ listIdentifiers tests ##############################
+############################### listIdentifiers tests ##############################
 
     def test_listIdentifiers(self):
         self.dump_oai_settings()
@@ -1161,6 +1164,7 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         if myMetadataFormat.isTemplate:
             query = dict()
             query['schema'] = str(myMetadataFormat.template.id)
+            query['ispublished'] = True
             #Get all records for this template
             dataInDatabase = XMLdata.executeQueryFullResult(query)
             self.assertEquals(len(dataInDatabase), len(data))
@@ -1186,6 +1190,7 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         myMetadataFormat = OaiMyMetadataFormat.objects().get(metadataPrefix=metadataPrefix)
         query = dict()
         query['schema'] = str(myMetadataFormat.template.id)
+        query['ispublished'] = True
         #Get all records for this template
         dataInDatabase = XMLdata.executeQueryFullResult(query)
         self.assertEquals(len(dataInDatabase), len(data))
