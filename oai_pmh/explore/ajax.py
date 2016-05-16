@@ -102,7 +102,7 @@ def get_results_by_instance_keyword(request):
     templatesID = templatesIDUser + templatesIDCommon
     #We retrieve deactivated registries so as not to get their metadata formats
     deactivatedRegistries = [str(x.id) for x in OaiRegistry.objects(isDeactivated=True).order_by('id')]
-    metadataFormatsID = OaiMetadataFormat.objects(template__in=templatesID, registry__not__in=deactivatedRegistries).only('id').all()
+    metadataFormatsID = OaiMetadataFormat.objects(template__in=templatesID, registry__not__in=deactivatedRegistries).distinct(field="id")
 
 
     instanceResults = OaiRecord.executeFullTextQuery(keyword, metadataFormatsID, refinements)
