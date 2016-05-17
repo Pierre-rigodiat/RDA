@@ -16,7 +16,7 @@
 
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.contrib.auth import logout
+from django.contrib.auth import authenticate, logout
 from django.template import RequestContext, loader
 from django.shortcuts import redirect
 from mgi.models import Template, Request, Message, TermsOfUse, PrivacyPolicy, Help

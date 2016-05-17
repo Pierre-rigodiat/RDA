@@ -371,4 +371,4 @@ class TypeModule(InputModule):
 
     def _post_result(self, request):
         return str(request.POST['data'])
-    
+

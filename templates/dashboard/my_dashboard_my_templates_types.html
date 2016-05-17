@@ -1,0 +1,125 @@
+{% extends "mdcs/extra/one_column.html" %}
+{% load staticfiles %}
+{% comment %}
+<!--
+################################################################################
+#
+# File Name: my_profile_dashboard_my_templates_types.html
+# Application: user dashboard
+# Description:
+#
+# Author: Sharief Youssef
+#         sharief.youssef@nist.gov
+#
+#		  Xavier SCHMITT
+#		  xavier.schmitt@nist.gov
+#
+# Sponsor: National Institute of Standards and Technology (NIST)
+#
+################################################################################
+-->
+{% endcomment %}
+
+{% block extrastyle %}
+<link rel="stylesheet" type="text/css" href="{% static 'resources/css/bucket.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}" media="screen" />
+{% endblock %}
+
+{% block title %}<h1><span>My {{ objectType }}s</span></h1>{% endblock %}
+{% block menu %}{% include 'mdcs/menus/main.html' with active_tab='profile' %}{% endblock %}
+
+{% block submenu %}
+    {% if objectType == "Template" %}
+        {% include 'mdcs/menus/submenu/dashboard.html' with active_tab='tab3' %}
+    {% elif objectType == "Type" %}
+        {% include 'mdcs/menus/submenu/dashboard.html' with active_tab='tab4' %}
+    {% endif %}
+{% endblock %}
+
+{% block content%}
+
+{% if objects %}
+
+<table class="data-table">
+    <tr>
+        <th>{{ objectType }} name</th>
+        <th>Filename</th>
+        <th>Actions</th>
+    </tr>
+    {% for object in objects %}
+        {% cycle 'even' '' as rowcolors silent %}
+        <tr class="{{ rowcolors }}">
+            <td>{{ object.title }}</td>
+            <td>{{ object.filename }}</td>
+                <td>
+                    {% autoescape on %}
+                    <span class="icon legend result" objectType="{{ objectType }}" objectid="{{ object.id }}"  content="{{ object.content|escape }}" >
+                        View
+                    </span>
+                    {% endautoescape %}
+                    <span class="icon legend edit" objectfilename="{{ object.filename }}" objectname="{{ object.title }}" objecttype="{{ objectType }}" objectid="{{ object.id }}">
+                        Edit
+                    </span>
+                    <span class="icon legend modules" objectType="{{ objectType }}" objectid="{{ object.id }}">
+                        Modules
+                    </span>
+                    <span class="icon legend delete" objectfilename="{{ object.filename }}" objectname="{{ object.title }}" objecttype="{{ objectType }}" objectid="{{ object.id }}">
+                        Delete
+                    </span>
+                </td>
+        </tr>
+    {% endfor %}
+</table>
+
+{% else %}
+<div class="empty-table">
+    You don't currently own any {{ objectType }}.
+</div>
+{% endif %}
+{% endblock %}
+
+{% block popups %}
+
+<div id="dialog-view-info" title="View {{ objectType }}" style="display:none;">
+    <div id="XMLHolder">
+    </div>
+</div>
+
+<div id="dialog-edit-info" title="Edit {{ objectType }} Information" style="display:none;">
+<p>
+    <b>{{ objectType }} name:</b> <input type="text" id="edit-name"/><br/>
+    <b>Filename:</b> <input type="text" id="edit-filename"/><br/>
+</p>
+</div>
+
+
+<div id="dialog-deleteconfirm-message" title="Confirm Delete" style="display:none;">
+<p></p>
+  <p>
+    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 10px 0;"></span>
+    Are you sure you want to delete <b id="object-to-delete"></b>?
+  </p>
+</div>
+
+<div id="dialog-error-edit" title="Error Edit Information" style="display:none;">
+<p></p>
+  <p>
+  </p>
+</div>
+
+<div id="dialog-error-delete" title="Error Delete" style="display:none;">
+<p></p>
+  <p>
+  </p>
+</div>
+
+{% endblock %}
+
+{% block extrajs %}
+<script src="{% static 'inc/controllers/js/dashboard.js' %}"></script>
+<script>
+  loadUploadManagerHandler();
+</script>
+
+
+{% endblock %}

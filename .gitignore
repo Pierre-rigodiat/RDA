@@ -1,3 +1,6 @@
+### VS Code
+.vscode
+
 ### Eclipse template
 *.pydevproject
 .metadata
@@ -194,6 +197,25 @@ atlassian-ide-plugin.xml
 com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
+
+# Inno
+WinPython-*
+jre7
+mongodb
+install/*
+
+# Apache deployment
+apache
+
+# mongodb
+conf/my-mongodb.conf
+
+# tests
+curate/tests/data/parser/schema/namespace/results*
+curate/tests/data/parser/extension/explicit-implicit/results*
+
+# redis server
+*.rdb
 
 #Source tree orig files (diff)
 *.orig

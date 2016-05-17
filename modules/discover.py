@@ -63,8 +63,8 @@ def __flatten_patterns_tree__(patterns, prefix='', filter_path=None, excluded=[]
 
 def discover_modules():
     patterns = __flatten_patterns_tree__(urls.urlpatterns, excluded=urls.excluded)
-    for pattern in patterns:
-        print pattern
+    # for pattern in patterns:
+    #     print pattern
 
     # Remove all existing modules
     Module.objects.all().delete()

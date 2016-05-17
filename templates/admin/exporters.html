@@ -24,8 +24,6 @@
 
 {% block extrastyle %}
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/exporters.css' %}" media="screen" />
-
-    <link rel="stylesheet" type="text/css" href="{% static 'css/nmrr/admin.css' %}" />
 {% endblock %}
 
 {% block title %}
@@ -35,8 +33,8 @@ Select exporters you want to associate with the template.
 </p>
 {% endblock %}
 
-{% block admin_menu %}{% include 'admin/menu/main.html' with active_tab='tab1' %}{% endblock %}
-{% block admin_submenu %}{% include 'admin/menu/submenu/template.html' with active_tab='tab1' %}{% endblock %}
+{% block menu %}{% include 'admin/menu/main.html' with active_tab='tab1' %}{% endblock %}
+{% block submenu %}{% include 'admin/menu/submenu/template.html' with active_tab='tab1' %}{% endblock %}
 
 {% block content%}
 <div id="dialog-exporters" title="Manage Exporter">
