@@ -194,7 +194,11 @@ delete_version = function(objectid, objectType, newCurrent){
         success: function(data){
         	if(data.deleted == 'object'){
                 $("#delete_custom_message").html("");
-                window.parent.versionDialog.dialog("close");  
+                if (objectType === "Template"){
+                    window.location = '/admin/xml-schemas';
+                }else if (objectType === "Type"){
+                    window.location = '/admin/xml-schemas/manage-types';
+                }
         	}else if(data.deleted == 'version'){
                 $("#delete_custom_message").html("");   
                 $('#model_version').load(document.URL +  ' #model_version', function() {}); 
