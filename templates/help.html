@@ -1,4 +1,4 @@
-{% extends "mdcs/extra/one_column.html" %}
+{% extends "nmrr/extra/small_intro.html" %}
 {% load staticfiles %}
 
 {% comment %}
@@ -21,8 +21,10 @@
 -->
 {% endcomment %}
 
-{% block title %}<h1><span>Help</span></h1>{% endblock %}
-{% block menu %}{% include 'mdcs/menus/main.html' with active_tab='help' %}{% endblock %}
+{% block title %}<h3><span>Help</span></h3>{% endblock %}
+{% block menu %}
+    {% include 'nmrr/menus/main.html' with active_tab='tab4' %}
+{% endblock %}
 
 {% block content%}
 <div class="left" style="width: 830px">
@@ -30,55 +32,59 @@
 	{% if help %}
 	    {{ help.content | safe}}
 	{% else %}
-		<div class="left" style="width: 400px">
-			<p>
-			  <a href="#What-is-the-Curation-System">What is the {{CUSTOM_DATA}} Curation System (Curator)?</a><br/>
-			  <a href="#How-do-I-get-access">How do I get access to the Curator?</a><br/>
-			  <a href="#What-are-activities">What are some of the activities I can do on the Curator?</a><br/>
-			  <a href="#Can-I-use-RESTful-API">Can I use Curator using a RESTful API?</a><br/>
-			  <a href="#How-do-I-contact-the-admin">How do I contact the Curator administrator for questions?</a><br/>
-			</p>
-		</div>
-		<div class="clearer">&nbsp;</div>
-		<hr/>
-		<br/>
-		
-		<h3 id="What-is-the-Curation-System">What is the {{CUSTOM_DATA}} Curation System (Curator)?</h3>
-		<p class="large">
-		    The Curator allows for the curation of materials data into a repository using predefined templates. The system also allows
-		    for browsing and exploring of the materials data using the predefined templates as well.
-		</p>
-		
-		<div class="clearer">&nbsp;</div>
-		
-		<h3 id="How-do-I-get-access">How do I get access to the Curator?</h3>
-		<p class="large">
-		    An individual may make a request to access Curator using the online request form. Once the Curator administrator accepts
-		    the account request, the user is notified that the account is created with the appropriate credentials.
-		</p>
-		
-		<div class="clearer">&nbsp;</div>
-		
-		<h3 id="What-are-activities">What are some of the activities I can do on the Curator?</h3>
-		<p class="large">
-		    A user can enter and curate materials data, search and explore materials data, and perform a federation of queries
-		    across several Curator instances.
-		</p>
-		
-		<div class="clearer">&nbsp;</div>
-		
-		<h3 id="Can-I-use-RESTful-API">Can I use Curator using a RESTful API?</h3>
-		<p class="large">
-		    Yes, Curator supports RESTful APIs. The Curator REST-based APIs allow the integration with other Web services, data entry,
-		    query, and retrieval. The RESTful API documentation can be accessed <a href="/docs/api">here</a>.
-		</p>
-		
-		<div class="clearer">&nbsp;</div>
-		
-		<h3 id="How-do-I-contact-the-admin">How do I contact the Curator administrator for questions?</h3>
-		<p class="large">
-		    You can contact the Curator administrator using this <a href="/contact">form</a>.
-		</p>		
+<div class="left" style="width: 600px">
+
+	<p class="large">
+	  <a href="#What-is-the-NIST-Materials-Resource-Registry">What is the NIST Materials Resource Registry (NMRR)?</a><br/>
+	  <a href="#How-do-I-get-access">How do I get access to the NMRR?</a><br/>
+	  <a href="#What-are-activities">What are some of the activities I can do on the NMRR?</a><br/>
+	  <a href="#How-do-I-contact-the-admin">How do I contact the NMRR administrator for questions?</a><br/>
+	</p>
+
+</div>
+
+<hr>
+
+<a name="What-is-the-NIST-Materials-Resource-Registry"></a>
+<h5>
+What is the NIST Materials Resource Registry (NMRR)?
+</h5>
+<p class="large">
+NMRR allows for materials resources into various repository registered with our system to be discoverable. The system also allows for browsing and search of the materials resources using advanced search.
+</p>
+
+<div class="clearer">&nbsp;</div>
+
+<a name="How-do-I-get-access"></a>
+<h5>
+How do I get access to the NMRR?
+</h5>
+<p class="large">
+Any individual may search for and discover materials resources without registration. If you are a materials resource repository owner and would like to add your repository to our system for search and discovery, then please make a request for an account to access NMRR using the online request form. Once the NMRR administrator accepts your account request, your will be notified that the account is created with the appropriate credentials.
+</p>
+
+<div class="clearer">&nbsp;</div>
+
+<a name="What-are-activities"></a>
+<h5>
+What are some of the activities I can do on the NMRR?
+</h5>
+<p class="large">
+A user can search and discovery materials resources, add a new repository of materials resources for harvesting and discovery, and perform a federation of queries across several NMRR instanes.
+</p>
+
+<div class="clearer">&nbsp;</div>
+					
+<a name="How-do-I-contact-the-admin"></a>
+<h5>
+How do I contact the NMRR administrator for questions?
+</h5>
+<p class="large">
+You can contact the NMRR administrator using this <a href="/contact">form</a>.
+</p>
+
+<div class="clearer">&nbsp;</div>
+
 	{% endif %}
 </div>
 <div class="clearer">&nbsp;</div>

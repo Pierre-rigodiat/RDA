@@ -1,4 +1,4 @@
-{% extends "mdcs/extra/one_column.html" %}
+{% extends "nmrr/extra/small_intro.html" %}
 {% load staticfiles %}
 
 {% comment %}
@@ -21,8 +21,10 @@
 -->
 {% endcomment %}
 
-{% block title %}<h1>Contact</h1>{% endblock %}
-{% block menu %}{% include 'mdcs/menus/main.html' with active_tab='contact' %}{% endblock %}
+{% block title %}<h3>Contact</h3>{% endblock %}
+{% block menu %}
+    {% include 'nmrr/menus/main.html' with active_tab='tab5' %}
+{% endblock %}
 
 {% block content %}
 <div>
