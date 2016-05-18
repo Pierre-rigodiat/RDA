@@ -19,7 +19,8 @@ from django.conf.urls.static import static
 from django.conf.urls import patterns, include, url
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     url(r'^$', 'mgi.views.home', name='home'),
     url(r'^admin/', include('admin_mdcs.urls')),
     url(r'^curate/', include('curate.urls')),
@@ -39,9 +40,9 @@ urlpatterns = patterns('',
     url(r'^privacy-policy', 'mgi.views.privacy_policy', name='privacy-policy'),
     url(r'^terms-of-use', 'mgi.views.terms_of_use', name='terms-of-use'),
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
-
     url(r'^oai_pmh/', include('oai_pmh.urls')),
-)+static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 
 urlpatterns += staticfiles_urlpatterns()

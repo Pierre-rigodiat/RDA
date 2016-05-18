@@ -1,6 +1,6 @@
 Required Python Packages
 
-This document provides a list of all python packages that are required to make the MRR run well. 
+This document provides a list of all python packages that are required to make the MRR run well.
 To install a specific version of a package, the following command can be used:
 pip install <PACKAGE_NAME>==<PACKAGE_VERSION>
 

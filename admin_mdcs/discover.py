@@ -17,7 +17,7 @@
 ################################################################################
 from django.contrib.auth.models import Permission, Group
 from mgi.rights import anonymous_group, default_group, explore_access, curate_access, \
-    curate_edit_document, curate_delete_document
+    curate_edit_document, curate_delete_document, api_access
 from pymongo import MongoClient
 import os
 from django.utils.importlib import import_module
@@ -59,6 +59,11 @@ def init_rules():
         defaultGroup.permissions.add(curate_access_perm)
         defaultGroup.permissions.add(curate_edit_perm)
         defaultGroup.permissions.add(curate_delete_perm)
+
+        #### API ####
+        api_access_perm = Permission.objects.get(codename=api_access)
+        defaultGroup.permissions.add(api_access_perm)
+        #### END API ####
     except Exception, e:
         print('ERROR : Impossible to init the rules : ' + e.message)
 

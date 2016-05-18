@@ -1371,7 +1371,7 @@ initAutocomplete = function() {
                         }
                  }));}
                 )},
-              minLength: 2,              
+              minLength: 2,
                 select: function( event, ui ) {
                   this.value = ui.item.label;
                   $("#id_search_entry").tagit("createTag", this.value);
