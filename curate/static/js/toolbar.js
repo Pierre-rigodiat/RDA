@@ -47,5 +47,5 @@
     };
 
     // Handling toolbars events
-    $(document).on('click', '.btn.save-form', saveForm); 
+    $(document).on('click', '.save-form', saveForm);
 })();
