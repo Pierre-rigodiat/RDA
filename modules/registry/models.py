@@ -1,13 +1,16 @@
 from modules.builtin.models import CheckboxesModule, OptionsModule, InputModule,\
     TextAreaModule
 from modules.models import Module
-from django.conf import settings
 import os
 from forms import NamePIDForm, DateForm
 import lxml.etree as etree
 from django.template import Context, Template
 from pymongo import MongoClient
-from mgi.settings import MONGODB_URI
+from django.utils.importlib import import_module
+settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
+settings = import_module(settings_file)
+MONGODB_URI = settings.MONGODB_URI
+MGI_DB = settings.MGI_DB
 from mgi import models as mgi_models
 import random
 import string
@@ -251,7 +254,7 @@ class LocalIDModule(InputModule):
             # create a connection
             client = MongoClient(MONGODB_URI)
             # connect to the db 'mgi'
-            db = client['mgi']
+            db = client[MGI_DB]
             # get the xmldata collection
             xmldata = db['xmldata']
             # find all objects of the collection

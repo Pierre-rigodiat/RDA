@@ -30,12 +30,16 @@ from django.conf import settings
 import os
 from mongoengine import *
 from pymongo import MongoClient
-from mgi.settings import MONGODB_URI, MGI_DB
 from django.utils.importlib import import_module
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
 MONGODB_URI = settings.MONGODB_URI
 MGI_DB = settings.MGI_DB
+BLOB_HOSTER = settings.BLOB_HOSTER
+BLOB_HOSTER_URI = settings.BLOB_HOSTER_URI
+BLOB_HOSTER_USER = settings.BLOB_HOSTER_USER
+BLOB_HOSTER_PSWD = settings.BLOB_HOSTER_PSWD
+MDCS_URI = settings.MDCS_URI
 from bson.objectid import ObjectId
 import re
 import requests
@@ -54,7 +58,6 @@ from utils.XSDflattenerMDCS.XSDflattenerMDCS import XSDFlattenerMDCS
 from datetime import datetime
 from datetime import timedelta
 from mgi import common
-from mgi.settings import BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI
 from utils.BLOBHoster.BLOBHosterFactory import BLOBHosterFactory
 from mimetypes import guess_type
 from exporter import get_exporter

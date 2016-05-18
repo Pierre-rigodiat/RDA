@@ -21,7 +21,12 @@ from io import BytesIO
 from cStringIO import StringIO
 from mgi.models import Template, XMLdata, XML2Download, Module, MetaSchema
 from mgi.models import FormElement, XMLElement, FormData
-from mgi.settings import CURATE_MIN_TREE, CURATE_COLLAPSE
+import os
+from django.utils.importlib import import_module
+settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
+settings = import_module(settings_file)
+CURATE_MIN_TREE = settings.CURATE_MIN_TREE
+CURATE_COLLAPSE = settings.CURATE_COLLAPSE
 import json
 from bson.objectid import ObjectId
 from mgi import common

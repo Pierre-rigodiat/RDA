@@ -17,6 +17,11 @@ from pymongo import MongoClient
 import gridfs
 from urlparse import urlparse
 from bson.objectid import ObjectId
+import os
+from django.utils.importlib import import_module
+settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
+settings = import_module(settings_file)
+MGI_DB = settings.MGI_DB
 
 class GridFSHoster(BLOBHoster):
     
@@ -24,7 +29,7 @@ class GridFSHoster(BLOBHoster):
         BLOBHoster.__init__(self, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD)        
         
         self.client = MongoClient(self.BLOB_HOSTER_URI)    
-        self.db = self.client['mgi']
+        self.db = self.client[MGI_DB]
         self.fs = gridfs.GridFS(self.db)
         
         if MDCS_URI is not None:   

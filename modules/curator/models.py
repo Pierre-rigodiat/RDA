@@ -3,10 +3,21 @@ from modules.builtin.models import PopupModule, TextAreaModule, InputModule
 from modules.exceptions import ModuleError
 from modules.curator.forms import BLOBHosterForm, URLForm
 from django.template import Context, Template
-from django.conf import settings
 import os
-from mgi.settings import BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI,\
-    HANDLE_SERVER_URL, HANDLE_SERVER_SCHEMA, HANDLE_SERVER_USER, HANDLE_SERVER_PSWD
+from django.utils.importlib import import_module
+settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
+settings = import_module(settings_file)
+MONGODB_URI = settings.MONGODB_URI
+MGI_DB = settings.MGI_DB
+BLOB_HOSTER = settings.BLOB_HOSTER
+BLOB_HOSTER_URI = settings.BLOB_HOSTER_URI
+BLOB_HOSTER_USER = settings.BLOB_HOSTER_USER
+BLOB_HOSTER_PSWD = settings.BLOB_HOSTER_PSWD
+MDCS_URI = settings.MDCS_URI
+HANDLE_SERVER_URL = settings.HANDLE_SERVER_URL
+HANDLE_SERVER_SCHEMA = settings.HANDLE_SERVER_SCHEMA
+HANDLE_SERVER_USER = settings.HANDLE_SERVER_USER
+HANDLE_SERVER_PSWD = settings.HANDLE_SERVER_PSWD
 from utils.BLOBHoster.BLOBHosterFactory import BLOBHosterFactory
 from lxml import etree
 from lxml.etree import XMLSyntaxError

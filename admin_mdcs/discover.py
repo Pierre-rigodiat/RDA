@@ -19,8 +19,13 @@ from django.contrib.auth.models import Permission, Group
 from mgi.rights import anonymous_group, default_group, explore_access, curate_access, \
     curate_edit_document, curate_delete_document
 from pymongo import MongoClient
-from mgi.settings import MONGODB_URI, SITE_ROOT
 import os
+from django.utils.importlib import import_module
+settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
+settings = import_module(settings_file)
+MONGODB_URI = settings.MONGODB_URI
+SITE_ROOT = settings.SITE_ROOT
+MGI_DB = settings.MGI_DB
 from mgi.models import Template, TemplateVersion
 from utils.XSDhash import XSDhash
 
@@ -93,7 +98,7 @@ def load_templates():
         # connect to mongo
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         
         # Add the templates
         for template_name, template_path in templates.iteritems():
