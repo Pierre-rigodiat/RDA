@@ -61,7 +61,7 @@ def change_owner_form(request):
             form_data.save()
             messages.add_message(request, messages.INFO, 'Form Owner changed with success !')
         except Exception, e:
-            return HttpResponse({},status=400)
+            return HttpResponse({}, status=400)
     return HttpResponse({})
 
 

@@ -159,13 +159,12 @@ def curate_from_schema(request):
             if len(set(templates.values_list('templateVersion'))) == 1:
                 template_id = TemplateVersion.objects().get(pk=templates[0].templateVersion).current
                 request.session['currentTemplateID'] = template_id
-
-                form_data = FormData(user=str(request.user.id), template=template_id, name=schema_name)
-                form_data.save()
-
-                request.session['curateFormData'] = str(form_data.pk)
-                request.session['curate_edit'] = False
-
+                #
+                # form_data = FormData(user=str(request.user.id), template=template_id, name=schema_name)
+                # form_data.save()
+                #
+                # request.session['curateFormData'] = str(form_data.pk)
+                # request.session['curate_edit'] = False
 
                 if 'useForm' in request.GET and request.GET['useForm'] == 'true':
                     pass
