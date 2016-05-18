@@ -1,3 +1,6 @@
+from io import BytesIO
+
+from mgi.common import LXML_SCHEMA_NAMESPACE
 from modules.builtin.models import CheckboxesModule, OptionsModule, InputModule,\
     TextAreaModule
 from modules.models import Module
@@ -8,7 +11,7 @@ import lxml.etree as etree
 from django.template import Context, Template
 from pymongo import MongoClient
 from mgi.settings import MONGODB_URI
-from mgi import models as mgi_models
+from mgi import models as mgi_models, common
 import random
 import string
 
@@ -16,6 +19,7 @@ RESOURCES_PATH = os.path.join(settings.SITE_ROOT, 'modules', 'registry', 'resour
 TEMPLATES_PATH = os.path.join(RESOURCES_PATH, 'html')
 SCRIPTS_PATH = os.path.join(RESOURCES_PATH, 'js')
 STYLES_PATH = os.path.join(RESOURCES_PATH, 'css')
+
 
 class RegistryCheckboxesModule(CheckboxesModule):
     """
@@ -29,31 +33,30 @@ class RegistryCheckboxesModule(CheckboxesModule):
 
     def _get_module(self, request):
         # get the values of the enumeration
-        namespaces = request.session['namespaces']
-        defaultPrefix = request.session['defaultPrefix']
-        xmlDocTreeStr = request.session['xmlDocTree']
-        xmlDocTree = etree.fromstring(xmlDocTreeStr)
-    
-        namespace = namespaces[defaultPrefix]
-    
-        xpath_namespaces = {}
-        for prefix, ns in request.session['namespaces'].iteritems():
-            xpath_namespaces[prefix] = ns[1:-1]
-        
+        xml_doc_tree_str = request.session['xmlDocTree']
+        xml_doc_tree = etree.fromstring(xml_doc_tree_str)
+
+        namespaces = common.get_namespaces(BytesIO(str(xml_doc_tree_str)))
+
         # get the element where the module is attached
-        xsd_element = xmlDocTree.xpath(request.GET['xsd_xpath'], namespaces=xpath_namespaces)[0]
+        xsd_element = xml_doc_tree.xpath(request.GET['xsd_xpath'], namespaces=namespaces)[0]
         xsd_element_type = xsd_element.attrib['type']
-        xpath_type = "./{0}simpleType[@name='{1}']".format(namespace, xsd_element_type)
-        elementType = xmlDocTree.find(xpath_type)
-        enumeration_list = elementType.findall('./{0}restriction/{0}enumeration'.format(namespace))
+        # remove ns prefix if present
+        if ':' in xsd_element_type:
+            xsd_element_type = xsd_element_type.split(':')[1]
+        xpath_type = "./{0}simpleType[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, xsd_element_type)
+        elementType = xml_doc_tree.find(xpath_type)
+        enumeration_list = elementType.findall('./{0}restriction/{0}enumeration'.format(LXML_SCHEMA_NAMESPACE))
         
         for enumeration in enumeration_list:
             self.options[enumeration.attrib['value']] = enumeration.attrib['value']
         if 'data' in request.GET:
-            if isinstance(request.GET['data'], str):
-                self.selected = [request.GET['data']]
+            data = request.GET['data']
+            if data.startswith('[') and data.endswith(']'):
+                data = eval(data)
+                self.selected = data
             else:
-                self.selected = request.GET['data']
+                self.selected = [data]
         
         return CheckboxesModule.get_module(self, request)
 
@@ -144,14 +147,12 @@ class NamePIDModule(Module):
         return '<' + request.POST['tag'] + '></' + request.POST['tag'] + '>'
 
 
-  
 class RelevantDateModule(Module):
     """
     Relevant Date Module
     """
     def __init__(self):
         Module.__init__(self, scripts=[os.path.join(SCRIPTS_PATH, 'relevantdate.js')])
-
 
     def _get_module(self, request):
         with open(os.path.join(TEMPLATES_PATH, 'relevant_date.html'), 'r') as template_file:
@@ -175,20 +176,16 @@ class RelevantDateModule(Module):
             context = Context({'form': DateForm(self.params)})
             return template.render(context)        
 
-
     def _get_display(self, request):
         return ''
-
 
     def _get_result(self, request):
         role = ' role="'+ self.params['role'] +'"' if 'role' in self.params else ''
         date = self.params['date'] if 'date' in self.params else ''
         return '<' + self.params['tag'] + role + '>' +  date + '</' + self.params['tag'] + '>'
 
-
     def _post_display(self, request):
         return ''
-
 
     def _post_result(self, request):
         result_xml = ''
@@ -201,7 +198,6 @@ class RelevantDateModule(Module):
             
         return '<' + request.POST['tag'] + '></' + request.POST['tag'] + '>'
     
-
 
 class StatusModule(OptionsModule):
     """
