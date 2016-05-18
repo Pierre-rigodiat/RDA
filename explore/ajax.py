@@ -2806,6 +2806,7 @@ def subElementfieldsToPrettyQuery(request, liElements, listLeavesId):
         
     return query 
 
+
 ################################################################################
 #
 # Function Name: load_refinements(request)
@@ -2826,54 +2827,59 @@ def load_refinements(request):
 
     # find the namespaces
     namespaces = common.get_namespaces(BytesIO(schema.content.encode('utf-8')))
-    default_namespace = "{http://www.w3.org/2001/XMLSchema}"
-    for prefix, url in namespaces.items():
-        if (url == default_namespace):
-            defaultPrefix = prefix
-            break
+
+    target_ns_prefix = common.get_target_namespace_prefix(namespaces, xmlDocTree)
+    target_ns_prefix = "{}:".format(target_ns_prefix) if target_ns_prefix != '' else ''
 
     # building refinement options based on the schema
     refinement_options = "<a onclick='clearRefinements();' style='cursor:pointer;'>Clear Refinements</a> <br/><br/>"
 
     # TODO: change enumeration look up by something more generic (using annotations in the schema)
     # looking for enumerations
-    simple_types = xmlDocTree.findall("./{0}simpleType".format(default_namespace))
+    simple_types = xmlDocTree.findall("./{0}simpleType".format(LXML_SCHEMA_NAMESPACE))
     for simple_type in simple_types:
         try:
-            enums = simple_type.findall("./{0}restriction/{0}enumeration".format(default_namespace))
+            enums = simple_type.findall("./{0}restriction/{0}enumeration".format(LXML_SCHEMA_NAMESPACE))
             refinement = ""
             if len(enums) > 0:
                 # build dot notation query
                 # find the element using the enumeration
-                element = xmlDocTree.findall(".//{0}element[@type='{1}']".format(default_namespace, simple_type.attrib['name']))
+                element = xmlDocTree.findall(".//{0}element[@type='{1}']".format(LXML_SCHEMA_NAMESPACE,
+                                                                                 target_ns_prefix + simple_type.attrib['name']))
                 if len(element) > 1:
-                    print "error: more than one element using the enumeration (" +str(len(element)) +")"
+                    print "error: more than one element using the enumeration (" + str(len(element)) + ")"
                 else:
                     element = element[0]
 
                     # get the label of refinements
-                    app_info = common.getAppInfo(element, default_namespace)
+                    app_info = common.getAppInfo(element)
                     label = app_info['label'] if 'label' in app_info else element.attrib['name']
                     label = label if label is not None else ''
                     query = []
                     while element is not None:
-                        if element.tag == "{0}element".format(default_namespace):
-                            query.insert(0,element.attrib['name'])
-                        elif element.tag == "{0}simpleType".format(default_namespace):
-                            element = xmlDocTree.findall(".//{0}element[@type='{1}']".format(default_namespace, element.attrib['name']))
-                            if len(element) > 1:
-                                print "error: more than one element using the enumeration (" +str(len(element)) +")"
-                            else:
-                                element = element[0]
-                                query.insert(0,element.attrib['name'])
-                        elif element.tag == "{0}complexType".format(default_namespace):
+                        if element.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
+                            query.insert(0, element.attrib['name'])
+                        elif element.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE)\
+                                or element.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
                             try:
-                                element = xmlDocTree.findall(".//{0}element[@type='{1}']".format(default_namespace, element.attrib['name']))
+                                element = xmlDocTree.findall(".//{0}element[@type='{1}']".format(LXML_SCHEMA_NAMESPACE,
+                                                                                                 target_ns_prefix + element.attrib['name']))
                                 if len(element) > 1:
-                                    print "error: more than one element using the enumeration (" +str(len(element)) +")"
+                                    print "error: more than one element using the enumeration (" + str(len(element)) + ")"
                                 else:
                                     element = element[0]
-                                    query.insert(0,element.attrib['name'])
+                                    query.insert(0, element.attrib['name'])
+                            except:
+                                pass
+                        elif element.tag == "{0}extension".format(LXML_SCHEMA_NAMESPACE):
+                            try:
+                                element = xmlDocTree.findall(".//{0}element[@type='{1}']".format(LXML_SCHEMA_NAMESPACE,
+                                                                                                 element.attrib['base']))
+                                if len(element) > 1:
+                                    print "error: more than one element using the enumeration (" + str(len(element)) + ")"
+                                else:
+                                    element = element[0]
+                                    query.insert(0, element.attrib['name'])
                             except:
                                 pass
                         element = element.getparent()
@@ -2892,6 +2898,7 @@ def load_refinements(request):
         refinement_options += refinement
 
     return HttpResponse(json.dumps({'refinements': refinement_options}), content_type='application/javascript')
+
 
 ################################################################################
 #
@@ -2927,7 +2934,6 @@ def refinements_to_mongo(refinements):
         return []
 
 
-
 ################################################################################
 #
 # Function Name: custom_view(request)
@@ -2946,9 +2952,8 @@ def custom_view(request):
 
     # find the namespaces
     namespaces = common.get_namespaces(BytesIO(schema.content.encode('utf-8')))
-    default_namespace = "{http://www.w3.org/2001/XMLSchema}"
     for prefix, url in namespaces.items():
-        if (url == default_namespace):
+        if url == SCHEMA_NAMESPACE:
             defaultPrefix = prefix
             break
 
@@ -2956,26 +2961,26 @@ def custom_view(request):
     custom_fields = ""
 
     # look for elements
-    elements = xmlDocTree.findall(".//{0}element".format(default_namespace))
+    elements = xmlDocTree.findall(".//{0}element".format(LXML_SCHEMA_NAMESPACE))
     added_element_names = []
     for element in elements:
         if element.attrib['name'] not in added_element_names:
             added_element_names.append(element.attrib['name'])
-            if is_field(element, xmlDocTree, default_namespace, defaultPrefix):
-                app_info = common.getAppInfo(element, default_namespace)
+            if is_field(element, xmlDocTree, defaultPrefix):
+                app_info = common.getAppInfo(element)
                 label = app_info['label'] if 'label' in app_info else element.attrib['name']
                 label = label if label is not None else ''
                 value = 'line_' + element.attrib['name']
                 custom_fields += "<input type='checkbox' value='" + value + "'> " + label + "<br/>"
 
     # look for attributes
-    attributes = xmlDocTree.findall(".//{0}attribute".format(default_namespace))
+    attributes = xmlDocTree.findall(".//{0}attribute".format(LXML_SCHEMA_NAMESPACE))
     added_attribute_names = []
     for attribute in attributes:
         if attribute.attrib['name'] not in added_attribute_names:
             added_attribute_names.append(attribute.attrib['name'])
-            if is_field(attribute, xmlDocTree, default_namespace, defaultPrefix):
-                app_info = common.getAppInfo(attribute, default_namespace)
+            if is_field(attribute, xmlDocTree, defaultPrefix):
+                app_info = common.getAppInfo(attribute)
                 label = app_info['label'] if 'label' in app_info else attribute.attrib['name']
                 label = label if label is not None else ''
                 value = 'line_' + attribute.attrib['name']
@@ -2993,30 +2998,30 @@ def custom_view(request):
 # Description:   Look if the element is a field, and not a node
 #
 ################################################################################
-def is_field(element, xmlDocTree, default_namespace, defaultPrefix):
+def is_field(element, xmlDocTree, defaultPrefix):
     # the element has a type
     if 'type' in element.attrib:
         # the element's type i
         if element.attrib['type'] in common.getXSDTypes(defaultPrefix):
             return True
         else:
-            simple_type = xmlDocTree.find(".//{0}simpleType[@name='{1}']".format(default_namespace, element.attrib['type']))
+            simple_type = xmlDocTree.find(".//{0}simpleType[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, element.attrib['type']))
             if simple_type is not None:
                 return True
             else:
-                complex_type = xmlDocTree.find(".//{0}complexType[@name='{1}']".format(default_namespace, element.attrib['type']))
+                complex_type = xmlDocTree.find(".//{0}complexType[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, element.attrib['type']))
                 if complex_type is not None:
-                    simple_content = complex_type.find("./{0}simpleContent".format(default_namespace))
+                    simple_content = complex_type.find("./{0}simpleContent".format(LXML_SCHEMA_NAMESPACE))
                     if simple_content is not None:
                         return True
     else:
-        simple_type = xmlDocTree.find("./{0}simpleType".format(default_namespace))
+        simple_type = xmlDocTree.find("./{0}simpleType".format(LXML_SCHEMA_NAMESPACE))
         if simple_type is not None:
             return True
         else:
-            complex_type = xmlDocTree.find(".//{0}complexType".format(default_namespace))
+            complex_type = xmlDocTree.find(".//{0}complexType".format(LXML_SCHEMA_NAMESPACE))
             if complex_type is not None:
-                simple_content = complex_type.find("./{0}simpleContent".format(default_namespace))
+                simple_content = complex_type.find("./{0}simpleContent".format(LXML_SCHEMA_NAMESPACE))
                 if simple_content is not None:
                     return True
     return False
