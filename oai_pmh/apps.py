@@ -32,6 +32,8 @@ class OAIPMHConfig(AppConfig):
         discover.load_metadata_prefixes()
         #Load sets
         discover.load_sets()
+        #Load xslt
+        discover.load_xslt()
         #Check registries state
         discover.init_registries_status()
         #Launch background tasks
