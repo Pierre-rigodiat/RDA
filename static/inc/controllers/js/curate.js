@@ -116,6 +116,7 @@ init_curate = function(){
         url : "/curate/init_curate",
         type : "GET",
         dataType: "json",
+        async: false,
     });
 }
 
@@ -565,7 +566,7 @@ saveToRepository = function()
               [
                {
                    text: "Save",
-                   click: function() {            	   
+                   click: function() {
 	            	   saveToRepositoryProcess();
 	            	   $( "#dialog-save-data-message" ).dialog( "close" );
                    }
@@ -573,7 +574,7 @@ saveToRepository = function()
               ]
         });
       });
-    
+
 
     console.log('END [saveToRepository]');
 }
@@ -597,6 +598,52 @@ saveToRepositoryProcess = function(successFunction)
         },
     });
 }
+
+
+XMLDataSavedToPublish = function()
+{
+    console.log('XMLDataSavedToPublish');
+    $( "#dialog-save-redirect-dashboard-message" ).dialog({
+        modal: true,
+        width: 390,
+        autoResize: 'auto',
+        close: function(){
+            window.location = "/"
+        },
+        buttons: {
+            "Home": function() {
+                $( this ).dialog( "close" );
+                window.location = "/"
+            },
+            "Go to My Dashboard": function() {
+                $( this ).dialog( "close" );
+                window.location = "/dashboard/resources?ispublished=false"
+            }
+        }
+    });
+}
+
+XMLDataUpdated = function(){
+    $( "#dialog-update-redirect-dashboard-message" ).dialog({
+        modal: true,
+        width: 390,
+        autoResize: 'auto',
+        close: function(){
+            window.location = "/"
+        },
+        buttons: {
+            "Home": function() {
+                $( this ).dialog( "close" );
+                window.location = "/"
+            },
+            "Go to My Resources": function() {
+                $( this ).dialog( "close" );
+                window.location = "/dashboard/resources?ispublished=false"
+            }
+        }
+    });
+}
+
 
 enterKeyPressSaveRepositorySubscription = function ()
 {
@@ -624,7 +671,7 @@ XMLDataSaved = function()
             },
             buttons: {
                 Ok: function() {
-                    $( this ).dialog( "close" );                    
+                    $( this ).dialog( "close" );
                 }
             }
         });
@@ -941,13 +988,6 @@ load_start_form = function(){
     });
 }
 
-syncRadioButtons =function()
-{
-    // auto set radio buttons value according to what option the user is choosing
-    $("#id_document_name").on("click", function(){$("input:radio[name=curate_form][value='new']").prop("checked", true)});
-    $("#id_forms").on("change", function(){$("input:radio[name=curate_form][value='open']").prop("checked", true)});
-    $("#id_file").on("change", function(){$("input:radio[name=curate_form][value='upload']").prop("checked", true)});
-}
 
 /**
  * 
@@ -961,6 +1001,15 @@ enterKeyPressSubscription = function ()
             displayTemplateProcess();
         }
     });
+}
+
+
+syncRadioButtons =function()
+{
+	// auto set radio buttons value according to what option the user is choosing
+	$("#id_document_name").on("click", function(){$("input:radio[name=curate_form][value='new']").prop("checked", true)});
+	$("#id_forms").on("change", function(){$("input:radio[name=curate_form][value='open']").prop("checked", true)});
+	$("#id_file").on("change", function(){$("input:radio[name=curate_form][value='upload']").prop("checked", true)});
 }
 
 
@@ -1163,6 +1212,64 @@ cancelForm = function(){
     });
 }
 
+cancelChanges = function(){
+    // GET the form, if not loaded (1 because at least csrf token)
+    if( $( "#cancel-form" ).children().size() == 1){
+        $.ajax({
+            url : "/curate/cancel-changes",
+            type : "GET",
+            dataType: "json",
+            success: function(data){
+                $("#cancel-form").append(data.form);
+            },
+        });
+    }
+
+    $( "#dialog-cancel-changes-message" ).dialog({
+        modal: true,
+        autoResize: 'auto',
+        width: 650,
+        buttons: {
+            "Cancel": function() {
+                $( this ).dialog( "close" );
+            },
+            "OK": function() {
+                // POST the form
+                var formData = new FormData($( "#cancel-form" )[0]);
+                $.ajax({
+                    url : "/curate/cancel-changes",
+                    type : "POST",
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    async:false,
+                    data: formData,
+                    success: function(data){
+                        if(data == 'revert'){
+                            reload_form();
+                        }else{
+                            window.location = '/curate';
+                        }
+                    },
+                });
+                $( this ).dialog( "close" );
+            },
+        }
+    });
+}
+
+
+reload_form = function(){
+    $.ajax({
+        url : "/curate/reload-form",
+        type : "GET",
+        dataType: "json",
+        success: function(data){
+            $("#xsdForm").html(data.xsdForm);
+        },
+    });
+}
+
 
 /**
  * Check required, recommended elements
@@ -1227,4 +1334,50 @@ initBanner = function()
     $("[data-hide]").on("click", function(){
         $(this).closest("." + $(this).attr("data-hide")).hide(200);
     });
+}
+
+check_leaving_page = function(){
+    window.btn_clicked = false;         // set btn_clicked to false on load
+    document.querySelector('.save-to-repo').addEventListener("click", function(){
+        window.btn_clicked = true;      //set btn_clicked to true
+    });
+
+    $(window).bind('beforeunload', function(){
+        if(!window.btn_clicked){
+            return 'Are you sure you want to leave the page. All unsaved changes will be lost.';
+        }
+    });
+}
+
+/**
+* AJAX call, redirects to enter data
+*/
+load_enter_data = function (template_name)
+{
+    if (validateStartCurate()){
+        var formData = new FormData($( "#form_start" )[0]);
+        $.ajax({
+            url: "/curate/start_curate",
+            type: 'POST',
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false,
+            async:false,
+            success: function(data){
+                init_curate();
+                window.location = '/curate/enter-data?template=' + template_name
+            },
+            error:function(data){
+                if (data.responseText != ""){
+                    $("#form_start_errors").html(data.responseText);
+                    $("#banner_errors").show(500)
+                    return (false);
+                }else{
+                    return (true)
+                }
+            },
+        })
+        ;
+   }
 }
