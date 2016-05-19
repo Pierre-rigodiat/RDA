@@ -2266,6 +2266,7 @@ def generate_module(request, element, xsd_xpath=None, xml_xpath=None, xml_tree=N
             'data': None,
             'attributes': None,
             'params': None,
+            'multiple': False
         },
         'children': []
     }
@@ -2307,28 +2308,9 @@ def generate_module(request, element, xsd_xpath=None, xml_xpath=None, xml_tree=N
 
         # check that the url is registered in the system
         if url in Module.objects.all().values_list('url'):
-            # view = get_module_view(url)
-
-            # build a request to send to the module to initialize it
-            mod_req = request
-            mod_req.method = 'GET'
-
-            mod_req.GET = {
-                'url': url,
-                'xsd_xpath': xsd_xpath,
-                'xml_xpath': xml_xpath,
-            }
-
-            # if the loaded doc has data, send them to the module for initialization
-            if reload_data is not None:
-                mod_req.GET['data'] = reload_data
-
             # add extra parameters coming from url parameters
             if parsed_url.query != '':
                 db_element['options']['params'] = dict(parse_qsl(parsed_url.query))
-
-            if reload_attrib is not None:
-                mod_req.GET['attributes'] = reload_attrib
 
             db_element['options']['xpath'] = {
                 'xsd': xsd_xpath,
@@ -2338,10 +2320,6 @@ def generate_module(request, element, xsd_xpath=None, xml_xpath=None, xml_tree=N
             db_element['options']['url'] = url
             db_element['options']['data'] = reload_data
             db_element['options']['attributes'] = reload_attrib
-
-            # renders the module
-            # form_string += view(mod_req).content.decode("utf-8")
-            form_string += ''
 
     return form_string, db_element
 
