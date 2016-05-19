@@ -219,6 +219,7 @@ class Module(Document):
     name = StringField(required=True)
     url = StringField(required=True)
     view = StringField(required=True)
+    multiple = BooleanField(required=True)
 
     
 class XML2Download(Document):
