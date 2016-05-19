@@ -679,7 +679,6 @@ def generate_form(request, xsd_doc_data, xml_doc_data=None):
     Returns:
         rendered HTMl form
     """
-
     request.session['implicit_extension'] = True
 
     # flatten the includes
