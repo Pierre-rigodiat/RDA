@@ -610,3 +610,25 @@ def remove_element(request):
             response['html'] = html_form
 
         return HttpResponse(json.dumps(response))
+
+
+def reload_form(request):
+    """
+    Reload the form string from latest version saved
+    :param request:
+    :return:
+    """
+    try:
+        form_data_id = request.session['curateFormData']
+        form_data = FormData.objects().get(pk=form_data_id)
+        xml_data = form_data.xml_data
+        # TODO: use generate_xsd_form from parser once merged
+        # the form has been saved already
+        if xml_data is not None:
+            request.session['curate_edit'] = True
+            form_response = generate_xsd_form(request)
+        else: # the form has never been saved
+            form_response = generate_xsd_form(request)
+        return HttpResponse(form_response, content_type='application/javascript')
+    except Exception, e:
+        return HttpResponse({}, status=400)

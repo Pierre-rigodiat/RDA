@@ -49,5 +49,5 @@ urlpatterns = patterns(
     url(r'^generate-absent', ajax.generate_absent),
     url(r'^remove-element', ajax.remove_element),
     url(r'^cancel-changes', 'curate.views.cancel_changes'),
-    # url(r'^reload-form', 'curate.ajax.reload_form'),
+    url(r'^reload-form', 'curate.ajax.reload_form'),
 )
