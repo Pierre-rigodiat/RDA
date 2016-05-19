@@ -126,7 +126,7 @@ def load_xml(request):
     xml_renderer = XmlRenderer(xml_form_id)
     xml_string = xml_renderer.render()
 
-    xslt_path = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
+    xslt_path = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'nmrr-detail.xsl')
     xslt = etree.parse(xslt_path)
     transform = etree.XSLT(xslt)
 
