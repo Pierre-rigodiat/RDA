@@ -397,8 +397,7 @@
     </xs:simpleContent>
   </xs:complexType>
 
-  <xs:complexType name="RelevantDate" xmlns:ns0="http://mdcs.ns"
-    ns0:_mod_mdcs_="/registry/relevant-date">
+  <xs:complexType name="RelevantDate">
     <xs:simpleContent>
       <xs:extension base="nr:Date">
 
