@@ -137,20 +137,25 @@ class ListRenderer(AbstractListRenderer):
             # FIXME Use tuples instead
             sub_elements = []
             sub_inputs = []
+            sub_buttons = []
 
             for child in children[child_key]:
                 if child.tag == 'complex_type':
                     sub_elements.append(self.render_complex_type(child))
                     sub_inputs.append(False)
+                    sub_buttons.append(True)
                 elif child.tag == 'simple_type':
                     sub_elements.append(self.render_simple_type(child))
                     sub_inputs.append(True)
+                    sub_buttons.append(True)
                 elif child.tag == 'input':
                     sub_elements.append(self._render_input(child))
                     sub_inputs.append(True)
+                    sub_buttons.append(True)
                 elif child.tag == 'module':
                     sub_elements.append(self.render_module(child))
                     sub_inputs.append(False)
+                    sub_buttons.append(not child.options['multiple'])
                 else:
                     message = 'render_element: ' + child.tag + ' not handled'
                     self.warnings.append(message)
@@ -162,10 +167,15 @@ class ListRenderer(AbstractListRenderer):
                 li_class = str(element.pk)
                 html_content = ''
                 for child_index in xrange(len(sub_elements)):
+                    html_buttons = buttons
+
+                    if not sub_buttons[child_index]:
+                        html_buttons = self._render_buttons(False, del_button)
+
                     if sub_inputs[child_index]:
-                        html_content += element_name + sub_elements[child_index] + buttons
+                        html_content += element_name + sub_elements[child_index] + html_buttons
                     else:
-                        html_content += self._render_collapse_button() + element_name + buttons
+                        html_content += self._render_collapse_button() + element_name + html_buttons
                         html_content += self._render_ul(sub_elements[child_index], None)
 
             # FIXME temp fix, do it in a cleaner way
@@ -242,20 +252,23 @@ class ListRenderer(AbstractListRenderer):
         element_name = element.options['name']
 
         for child_key in child_keys:
-            # li_class = ''
             sub_elements = []
             sub_inputs = []
+            sub_buttons = []
 
             for child in children[child_key]:
                 if child.tag == 'simple_type':
                     sub_elements.append(self.render_simple_type(child))
                     sub_inputs.append(True)
+                    sub_buttons.append(True)
                 elif child.tag == 'input':
                     sub_elements.append(self._render_input(child))
                     sub_inputs.append(True)
+                    sub_buttons.append(True)
                 elif child.tag == 'module':
                     sub_elements.append(self.render_module(child))
                     sub_inputs.append(False)
+                    sub_buttons.append(not child.options['multiple'])
                 else:
                     message = 'render_attribute: ' + child.tag + ' not handled'
                     self.warnings.append(message)
@@ -267,10 +280,14 @@ class ListRenderer(AbstractListRenderer):
                 li_class = str(element.pk)
                 html_content = ''
                 for child_index in xrange(len(sub_elements)):
+                    html_buttons = buttons
+                    if not sub_buttons[child_index]:
+                        html_buttons = self._render_buttons(False, del_button)
+
                     if sub_inputs[child_index]:
-                        html_content += element_name + sub_elements[child_index] + buttons
+                        html_content += element_name + sub_elements[child_index] + html_buttons
                     else:
-                        html_content += self._render_collapse_button() + element_name + buttons
+                        html_content += self._render_collapse_button() + element_name + html_buttons
                         html_content += self._render_ul(sub_elements[child_index], None)
 
             # FIXME temp fix, do it in a cleaner way

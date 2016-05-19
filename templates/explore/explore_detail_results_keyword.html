@@ -1,9 +1,8 @@
-
-
+{% load render_extras %}
 {% block content %}
 
 {% autoescape off %}
-{{XMLHolder}}
+{% render_as_template XMLHolder %}
 {% endautoescape %}
 
 

@@ -1,5 +1,6 @@
 {% extends "nmrr/extra/small_intro.html" %}
 {% load staticfiles %}
+{% load render_extras %}
 
 {% comment %}
 <!--
@@ -41,7 +42,7 @@
 
 <div id="XMLHolder">
         {% autoescape off %}
-    	{{XMLHolder}}
+    	{% render_as_template XMLHolder %}
     	{% endautoescape %} </div>
 <br/><br/>
 
