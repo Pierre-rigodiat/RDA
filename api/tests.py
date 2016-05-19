@@ -57,7 +57,7 @@ class tests_token(TokenTest):
 
     def test_explore_user(self):
         r = self.doRequestGet(self.get_token_user(), url="/rest/explore/select/all")
-        self.isStatusUnauthorized(r.status_code)
+        self.isStatusOK(r.status_code)
 
     def test_explore_delete_error_no_param(self):
         r = self.doRequestDelete(self.get_token_admin(), url="/rest/explore/delete")
@@ -67,9 +67,10 @@ class tests_token(TokenTest):
         r = self.doRequestDelete(self.get_token_admin(), url="/rest/explore/delete", params={'id': 'test'})
         self.isStatusNotFound(r.status_code)
 
-    def test_explore_delete_error_user(self):
-        r = self.doRequestDelete(self.get_token_user(), url="/rest/explore/delete", params={'id': 'test'})
-        self.isStatusUnauthorized(r.status_code)
+    def test_explore_delete_user(self):
+        id = str(self.createXMLData())
+        r = self.doRequestDelete(self.get_token_user(), url="/rest/explore/delete", params={'id': id})
+        self.isStatusNoContent(r.status_code)
 
     def test_explore_delete_admin(self):
         id = str(self.createXMLData())
@@ -241,4 +242,5 @@ class tests_token(TokenTest):
         template1 = self.createTemplateWithTemplateVersionValidContent(str(templateVersion1.id))
         data = {'title': 'test', 'schema': str(template1.id), 'content': XMLDATA_VALID_CONTENT}
         r = self.doRequestPost(self.get_token_user(), url="/rest/curate", data=data)
-        self.isStatusUnauthorized(r.status_code)
+        self.isStatusCreated(r.status_code)
+        self.assertTrue(len(XMLdata.objects()) == 1)

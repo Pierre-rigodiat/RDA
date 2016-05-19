@@ -604,6 +604,7 @@ def manage_versions(request):
                                 'versions': versions,
                                 'object_versions': object_versions,
                                 'object_type':  object_type,
+                                'object_id': str(object_id),
                                 'errors': utils.html.escape(error),
                             })
                             return HttpResponse(template.render(context))
