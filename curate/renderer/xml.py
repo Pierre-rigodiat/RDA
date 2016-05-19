@@ -477,7 +477,8 @@ class XmlRenderer(AbstractXmlRenderer):
         return content
 
     def render_module(self, element):
+
         return [
-            element.options['attributes'] if element.options['attributes'] is not None else '',
-            element.options['data'] if element.options['data'] is not None else ''
+            '',
+            element.options['data'],
         ]
