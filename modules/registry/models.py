@@ -37,6 +37,7 @@ class RegistryCheckboxesModule(CheckboxesModule):
         self.is_managing_occurences = True
 
     def _get_module(self, request):
+        self.selected = []
         # get the values of the enumeration
         xml_doc_tree_str = request.session['xmlDocTree']
         xml_doc_tree = etree.fromstring(xml_doc_tree_str)
@@ -57,11 +58,10 @@ class RegistryCheckboxesModule(CheckboxesModule):
             self.options[enumeration.attrib['value']] = enumeration.attrib['value']
         if 'data' in request.GET:
             data = request.GET['data']
-            if data.startswith('[') and data.endswith(']'):
-                data = eval(data)
-                self.selected = data
-            else:
-                self.selected = [data]
+            # get XML to reload
+            reload_data = etree.fromstring("<root>" + data + "</root>")
+            for child in reload_data:
+                self.selected.append(child.text)
         
         return CheckboxesModule.get_module(self, request)
 

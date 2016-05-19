@@ -2272,31 +2272,6 @@ def generate_module(request, element, xsd_xpath=None, xml_xpath=None, xml_tree=N
     }
 
     form_string = ""
-    reload_data = None
-    reload_attrib = None
-
-    if request.session['curate_edit']:
-        # get the schema namespaces
-        xml_tree_str = etree.tostring(xml_tree)
-        namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
-        edit_elements = edit_data_tree.xpath(xml_xpath, namespaces=namespaces)
-        
-        if len(edit_elements) > 0:
-            if len(edit_elements) == 1:
-                edit_element = edit_elements[0]
-
-                # get attributes
-                if 'attribute' not in xsd_xpath and len(edit_element.attrib) > 0:
-                    reload_attrib = dict(edit_element.attrib)
-
-                reload_data = get_xml_element_data(element, edit_element)
-            else:
-                reload_data = []
-                reload_attrib = []
-
-                for edit_element in edit_elements:
-                    reload_attrib.append(dict(edit_element.attrib))
-                    reload_data.append(get_xml_element_data(element, edit_element))
 
     # check if a module is set for this element
     if '{http://mdcs.ns}_mod_mdcs_' in element.attrib:
@@ -2306,8 +2281,9 @@ def generate_module(request, element, xsd_xpath=None, xml_xpath=None, xml_tree=N
         parsed_url = urlparse(url)
         url = parsed_url.path
 
-        # check that the url is registered in the system
-        if url in Module.objects.all().values_list('url'):
+        try:
+            module = Module.objects().get(url=url)
+
             # add extra parameters coming from url parameters
             if parsed_url.query != '':
                 db_element['options']['params'] = dict(parse_qsl(parsed_url.query))
@@ -2317,9 +2293,43 @@ def generate_module(request, element, xsd_xpath=None, xml_xpath=None, xml_tree=N
                 'xml': xml_xpath
             }
 
+            # Get data to reload the module
+            reload_data = None
+            reload_attrib = None
+
+            if request.session['curate_edit']:
+                # get the schema namespaces
+                xml_tree_str = etree.tostring(xml_tree)
+                namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
+                edit_elements = edit_data_tree.xpath(xml_xpath, namespaces=namespaces)
+
+                if module.multiple:
+                    reload_data = ""
+                    for edit_element in edit_elements:
+                        reload_data += etree.tostring(edit_element)
+                else:
+                    if len(edit_elements) > 0:
+                        if len(edit_elements) == 1:
+                            edit_element = edit_elements[0]
+
+                            # get attributes
+                            if 'attribute' not in xsd_xpath and len(edit_element.attrib) > 0:
+                                reload_attrib = dict(edit_element.attrib)
+
+                            reload_data = get_xml_element_data(element, edit_element)
+                        else:
+                            reload_data = []
+                            reload_attrib = []
+
+                            for edit_element in edit_elements:
+                                reload_attrib.append(dict(edit_element.attrib))
+                                reload_data.append(get_xml_element_data(element, edit_element))
+
             db_element['options']['url'] = url
             db_element['options']['data'] = reload_data
             db_element['options']['attributes'] = reload_attrib
+        except:
+            raise MDCSError('Module not found.')
 
     return form_string, db_element
 
