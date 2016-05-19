@@ -105,6 +105,7 @@ class XmlRenderer(AbstractXmlRenderer):
         for child_key in child_keys:
             for child in children[child_key]:
                 content = ['', '']
+                untagged_content = ""
 
                 # add XML Schema instance prefix if root
                 if self.isRoot:
@@ -125,8 +126,12 @@ class XmlRenderer(AbstractXmlRenderer):
                     content[1] += tmp_content[1]
                 elif child.tag == 'module':
                     tmp_content = self.render_module(child)
-                    content[0] += tmp_content[0]
-                    content[1] += tmp_content[1]
+
+                    if child.options['multiple']:
+                        untagged_content += tmp_content[0]
+                    else:
+                        content[0] += tmp_content[0]
+                        content[1] += tmp_content[1]
                 else:
                     message = 'render_element: ' + child.tag + ' not handled'
                     self.warnings.append(message)
@@ -143,7 +148,7 @@ class XmlRenderer(AbstractXmlRenderer):
                         xmlns = ' xmlns="{}"'.format(element.options['xmlns'])
                         content[0] += xmlns
 
-                xml_string += self._render_xml(element_name, content[0], content[1])
+                xml_string += self._render_xml(element_name, content[0], content[1]) + untagged_content
 
         return xml_string
 
@@ -184,9 +189,8 @@ class XmlRenderer(AbstractXmlRenderer):
                 parent = get_parent_element(element)
                 xmlns = ''
                 if parent is not None:
-                    if 'xmlns' in parent.options \
-                        and parent.options['xmlns'] is not None \
-                        and parent.options['xmlns'] == element.options['xmlns']:
+                    if 'xmlns' in parent.options and parent.options['xmlns'] is not None and \
+                                    parent.options['xmlns'] == element.options['xmlns']:
                             xmlns = ''
                     else:  # parent element is in a different namespace
                         if element.options['xmlns'] != '':
