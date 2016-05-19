@@ -21,6 +21,8 @@ from io import BytesIO
 from django.core.servers.basehttp import FileWrapper
 from cStringIO import StringIO
 from rest_framework.status import HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST, HTTP_200_OK, HTTP_501_NOT_IMPLEMENTED
+
+from curate import parser
 from curate.models import SchemaElement
 from curate.parser import generate_form, generate_element, generate_sequence, load_schema_data_in_db, \
     delete_branch_from_db, update_branch_xpath, generate_element_absent, generate_choice_absent
@@ -622,13 +624,23 @@ def reload_form(request):
         form_data_id = request.session['curateFormData']
         form_data = FormData.objects().get(pk=form_data_id)
         xml_data = form_data.xml_data
+
+        template_id = request.session['currentTemplateID']
+        template_object = Template.objects.get(pk=template_id)
+        xsd_doc_data = template_object.content
         # TODO: use generate_xsd_form from parser once merged
         # the form has been saved already
         if xml_data is not None:
             request.session['curate_edit'] = True
-            form_response = generate_xsd_form(request)
+            request.session['xmlDocTree'] = xml_data
+            root_element_id = parser.generate_form(request, xsd_doc_data, xml_data)
         else: # the form has never been saved
-            form_response = generate_xsd_form(request)
-        return HttpResponse(form_response, content_type='application/javascript')
+            root_element_id = parser.generate_form(request, xsd_doc_data)
+
+        root_element = SchemaElement.objects.get(pk=root_element_id)
+        renderer = ListRenderer(root_element, request)
+        html_form = renderer.render()
+        request.session['form_id'] = str(root_element_id)
+        return HttpResponse(json.dumps({'xsdForm': html_form}), content_type='application/javascript')
     except Exception, e:
         return HttpResponse({}, status=400)
