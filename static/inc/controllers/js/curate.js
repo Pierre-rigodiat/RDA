@@ -116,6 +116,7 @@ init_curate = function(){
         url : "/curate/init_curate",
         type : "GET",
         dataType: "json",
+        async: false,
     });
 }
 
@@ -1351,8 +1352,8 @@ check_leaving_page = function(){
 load_enter_data = function (template_name)
 {
     if (validateStartCurate()){
-       var formData = new FormData($( "#form_start" )[0]);
-       $.ajax({
+        var formData = new FormData($( "#form_start" )[0]);
+        $.ajax({
             url: "/curate/start_curate",
             type: 'POST',
             data: formData,
@@ -1361,7 +1362,8 @@ load_enter_data = function (template_name)
             processData: false,
             async:false,
             success: function(data){
-            	window.location = '/curate/enter-data?template=' + template_name
+                init_curate();
+                window.location = '/curate/enter-data?template=' + template_name
             },
             error:function(data){
                 if (data.responseText != ""){

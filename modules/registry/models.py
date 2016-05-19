@@ -77,7 +77,7 @@ class RegistryCheckboxesModule(CheckboxesModule):
         xml_result = ''
         for value in self.selected:
             if value not in self.wrong_values:
-                xml_result += '<' + self.xml_tag + '>' + value + '</' + self.xml_tag + '>'
+                xml_result += value
         return xml_result
 
     def _post_display(self, request):
@@ -87,7 +87,7 @@ class RegistryCheckboxesModule(CheckboxesModule):
         xml_result = ''
         if 'data[]' in request.POST:
             for value in dict(request.POST)['data[]']:
-                xml_result += '<' + self.xml_tag + '>' + value + '</' + self.xml_tag + '>'
+                xml_result += value
         return xml_result
 
 
