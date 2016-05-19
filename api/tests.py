@@ -67,9 +67,10 @@ class tests_token(TokenTest):
         r = self.doRequestDelete(self.get_token_admin(), url="/rest/explore/delete", params={'id': 'test'})
         self.isStatusNotFound(r.status_code)
 
-    def test_explore_delete_error_user(self):
-        r = self.doRequestDelete(self.get_token_user(), url="/rest/explore/delete", params={'id': 'test'})
-        self.isStatusUnauthorized(r.status_code)
+    def test_explore_delete_user(self):
+        id = str(self.createXMLData())
+        r = self.doRequestDelete(self.get_token_user(), url="/rest/explore/delete", params={'id': id})
+        self.isStatusNoContent(r.status_code)
 
     def test_explore_delete_admin(self):
         id = str(self.createXMLData())

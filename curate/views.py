@@ -124,6 +124,7 @@ def curate_edit_data(request):
             )
             form_data.save()
             request.session['curateFormData'] = str(form_data.id)
+
             if 'form_id' in request.session:
                 del request.session['form_id']
             if 'formString' in request.session:
@@ -171,8 +172,8 @@ def curate_from_schema(request):
                 else:
                     if 'formString' in request.session:
                         del request.session['formString']
-                    if 'xmlDocTree' in request.session:
-                        del request.session['xmlDocTree']
+                    # if 'xmlDocTree' in request.session:
+                    #     del request.session['xmlDocTree']
             else:
                 error_message = "The selection of template by name can't be used if the MDCS contain more than one "
                 error_message += "template with the same name."
