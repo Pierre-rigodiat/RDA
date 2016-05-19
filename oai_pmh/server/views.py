@@ -55,6 +55,7 @@ class OAIProvider(TemplateView):
             'url': self.request.build_absolute_uri(self.request.path),
             'from': self.From if hasattr(self, 'From') else None,
             'until': self.until if hasattr(self, 'until') else None,
+            'set': self.set if hasattr(self, 'set') else None,
         })
         #Render the template with the context information
         return super(TemplateView, self) \
@@ -630,11 +631,11 @@ class OAIProvider(TemplateView):
             self.until = None
             self.set = None
             self.resumptionToken = None
-            #Check entry
-            self.check_bad_argument(request.GET)
 
             #Verb processing. Get informations depending of the verb
             if self.oai_verb == 'Identify':
+                #Check entry
+                self.check_bad_argument(request.GET)
                 return self.identify()
             elif self.oai_verb == 'ListIdentifiers':
                 self.From = request.GET.get('from', None)
@@ -642,16 +643,22 @@ class OAIProvider(TemplateView):
                 self.set = request.GET.get('set', None)
                 self.resumptionToken = request.GET.get('resumptionToken', None)
                 self.metadataPrefix = request.GET.get('metadataPrefix', None)
+                #Check entry
+                self.check_bad_argument(request.GET)
                 #TODO Support resumptionToken
                 if self.resumptionToken != None:
                     raise badResumptionToken(self.resumptionToken)
                 else:
                     return self.list_identifiers()
             elif self.oai_verb == 'ListSets':
+                #Check entry
+                self.check_bad_argument(request.GET)
                 return self.list_sets()
             elif self.oai_verb == 'ListMetadataFormats':
                 self.resumptionToken = request.GET.get('resumptionToken', None)
                 self.identifier = request.GET.get('identifier', None)
+                #Check entry
+                self.check_bad_argument(request.GET)
                 #TODO Support resumptionToken
                 if self.resumptionToken != None:
                     raise badResumptionToken(self.resumptionToken)
@@ -660,6 +667,8 @@ class OAIProvider(TemplateView):
             elif self.oai_verb == 'GetRecord':
                 self.identifier = request.GET.get('identifier', None)
                 self.metadataPrefix = request.GET.get('metadataPrefix', None)
+                #Check entry
+                self.check_bad_argument(request.GET)
                 return self.get_record()
             elif self.oai_verb == 'ListRecords':
                 self.From = request.GET.get('from', None)
@@ -667,11 +676,16 @@ class OAIProvider(TemplateView):
                 self.set = request.GET.get('set', None)
                 self.resumptionToken = request.GET.get('resumptionToken', None)
                 self.metadataPrefix = request.GET.get('metadataPrefix', None)
+                #Check entry
+                self.check_bad_argument(request.GET)
                 #TODO Support resumptionToken
                 if self.resumptionToken != None:
                     raise badResumptionToken(self.resumptionToken)
                 else:
                     return self.list_records()
+            else:
+                error_msg = 'The verb "%s" is illegal' % self.oai_verb
+                raise badVerb(error_msg)
 
         except OAIExceptions, e:
             return self.errors(e.errors)
