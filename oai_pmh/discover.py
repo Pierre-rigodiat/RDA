@@ -10,7 +10,7 @@
 #
 ################################################################################
 from django.conf import settings
-from mgi.models import OaiSettings, OaiMyMetadataFormat, Template, OaiMySet, OaiRegistry
+from mgi.models import OaiSettings, OaiMyMetadataFormat, Template, OaiMySet, OaiRegistry, ResultXslt
 from lxml import etree
 from lxml.etree import XMLSyntaxError
 import os
@@ -20,7 +20,6 @@ settings = import_module(settings_file)
 SITE_ROOT = settings.SITE_ROOT
 OAI_HOST_URI = settings.OAI_HOST_URI
 from django.core.urlresolvers import reverse
-
 
 def init_settings():
     """
@@ -125,6 +124,27 @@ def load_sets():
             except Exception, e:
                 print('ERROR : Impossible to set the template "{!s}" as a set. {!s}'.format(template_name, e.message))
 
+
+def load_xslt():
+    # Add OAI Xslt
+    xsltFullName = 'full-oai_pmh'
+    xsltFullPath = 'nmrr-full-oai_pmh.xsl'
+    xsltDetailName = 'detail-oai_pmh'
+    sltDetailPath = 'nmrr-detail-oai_pmh.xsl'
+
+    objFull = ResultXslt.objects(filename='nmrr-full-oai_pmh.xsl')
+    if not objFull:
+        file = open(os.path.join(SITE_ROOT, 'oai_pmh', 'resources', 'xsl', xsltFullPath),'r')
+        fileContent = file.read()
+        objFull = ResultXslt(name=xsltFullName, filename=xsltFullPath, content=fileContent).save()
+        Template.objects().update(set__ResultXsltList=str(objFull.id), upsert=True)
+
+    objDetail = ResultXslt.objects(filename='nmrr-detail-oai_pmh.xsl')
+    if not objDetail:
+        file = open(os.path.join(SITE_ROOT, 'oai_pmh', 'resources', 'xsl', sltDetailPath),'r')
+        fileContent = file.read()
+        objDetail = ResultXslt(name=xsltDetailName, filename=sltDetailPath, content=fileContent).save()
+        Template.objects().update(set__ResultXsltDetailed=str(objDetail.id), upsert=True)
 
 def init_registries_status():
     """
