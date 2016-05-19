@@ -2292,6 +2292,8 @@ def generate_module(request, element, xsd_xpath=None, xml_xpath=None, xml_tree=N
                 'xml': xml_xpath
             }
 
+            db_element['options']['multiple'] = module.multiple
+
             # Get data to reload the module
             reload_data = None
             reload_attrib = None

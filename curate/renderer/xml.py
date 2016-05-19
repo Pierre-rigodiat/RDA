@@ -104,8 +104,7 @@ class XmlRenderer(AbstractXmlRenderer):
 
         for child_key in child_keys:
             for child in children[child_key]:
-                content = ['', '']
-                untagged_content = ""
+                content = ['', '', '']
 
                 # add XML Schema instance prefix if root
                 if self.isRoot:
@@ -117,6 +116,7 @@ class XmlRenderer(AbstractXmlRenderer):
                     tmp_content = self.render_complex_type(child)
                     content[0] += tmp_content[0]
                     content[1] += tmp_content[1]
+                    content[2] += tmp_content[2]
                 elif child.tag == 'input':
                     tmp_content = child.value if child.value is not None else ''
                     content[1] += tmp_content
@@ -124,13 +124,13 @@ class XmlRenderer(AbstractXmlRenderer):
                     tmp_content = self.render_simple_type(child)
                     content[0] += tmp_content[0]
                     content[1] += tmp_content[1]
+                    content[2] += tmp_content[2]
                 elif child.tag == 'module':
                     tmp_content = self.render_module(child)
 
                     if child.options['multiple']:
-                        untagged_content += tmp_content[0]
+                        content[2] += tmp_content[1]
                     else:
-                        content[0] += tmp_content[0]
                         content[1] += tmp_content[1]
                 else:
                     message = 'render_element: ' + child.tag + ' not handled'
@@ -148,7 +148,10 @@ class XmlRenderer(AbstractXmlRenderer):
                         xmlns = ' xmlns="{}"'.format(element.options['xmlns'])
                         content[0] += xmlns
 
-                xml_string += self._render_xml(element_name, content[0], content[1]) + untagged_content
+                if child.tag == 'module' and child.options['multiple']:
+                    xml_string += content[2]
+                else:
+                    xml_string += self._render_xml(element_name, content[0], content[1]) + content[2]
 
         return xml_string
 
@@ -217,10 +220,11 @@ class XmlRenderer(AbstractXmlRenderer):
         :param element:
         :return:
         """
-        content = ['', '']
+        # XML content: attributes, inner content, outer content
+        content = ['', '', '']
 
         for child in element.children:
-            tmp_content = ['', '']
+            tmp_content = ['', '', '']
 
             # add XML Schema instance prefix if root
             if self.isRoot:
@@ -239,13 +243,17 @@ class XmlRenderer(AbstractXmlRenderer):
             elif child.tag == 'choice':
                 tmp_content = self.render_choice(child)
             elif child.tag == 'module':
-                tmp_content = self.render_module(child)
+                if child.options['multiple']:
+                    tmp_content[2] = self.render_module(child)[1]
+                else:
+                    tmp_content[1] = self.render_module(child)[1]
             else:
                 message = 'render_complex_type: ' + child.tag + ' not handled'
                 self.warnings.append(message)
 
             content[0] = ' '.join([content[0], tmp_content[0]]).strip()
             content[1] += tmp_content[1]
+            content[2] += tmp_content[2]
 
         return content
 
@@ -255,7 +263,7 @@ class XmlRenderer(AbstractXmlRenderer):
         :param element:
         :return:
         """
-        content = ['', '']
+        content = ['', '', '']
         children = []
 
         for child in element.children:
@@ -266,7 +274,7 @@ class XmlRenderer(AbstractXmlRenderer):
                 self.warnings.append(message)
 
         for child in children:
-            tmp_content = ['', '']
+            tmp_content = ['', '', '']
 
             if child.tag == 'element':
                 tmp_content[1] += self.render_element(child)
@@ -280,6 +288,7 @@ class XmlRenderer(AbstractXmlRenderer):
 
             content[0] = ' '.join([content[0], tmp_content[0]]).strip()
             content[1] += tmp_content[1]
+            content[2] += tmp_content[2]
 
         return content
 
@@ -289,10 +298,10 @@ class XmlRenderer(AbstractXmlRenderer):
         :param element:
         :return:
         """
-        content = ['', '']
+        content = ['', '', '']
 
         for child in element.children:
-            tmp_content = ['', '']
+            tmp_content = ['', '', '']
 
             if child.tag == 'extension':
                 tmp_content = self.render_extension(child)
@@ -304,6 +313,7 @@ class XmlRenderer(AbstractXmlRenderer):
 
             content[0] = ' '.join([content[0], tmp_content[0]]).strip()
             content[1] += tmp_content[1]
+            content[2] += tmp_content[2]
 
         return content
 
@@ -313,10 +323,10 @@ class XmlRenderer(AbstractXmlRenderer):
         :param element:
         :return:
         """
-        content = ['', '']
+        content = ['', '', '']
 
         for child in element.children:
-            tmp_content = ['', '']
+            tmp_content = ['', '', '']
 
             if child.tag == 'extension':
                 tmp_content = self.render_extension(child)
@@ -328,6 +338,7 @@ class XmlRenderer(AbstractXmlRenderer):
 
             content[0] = ' '.join([content[0], tmp_content[0]]).strip()
             content[1] += tmp_content[1]
+            content[2] += tmp_content[2]
 
         return content
 
@@ -337,7 +348,7 @@ class XmlRenderer(AbstractXmlRenderer):
         :param element:
         :return:
         """
-        content = ['', '']
+        content = ['', '', '']
         children = {}
         child_keys = []
         choice_values = {}
@@ -353,7 +364,7 @@ class XmlRenderer(AbstractXmlRenderer):
 
         for iter_element in child_keys:
             for child in children[iter_element]:
-                tmp_content = ['', '']
+                tmp_content = ['', '', '']
 
                 # FIXME change orders of conditions
                 if child.tag == 'element':
@@ -396,6 +407,7 @@ class XmlRenderer(AbstractXmlRenderer):
 
                 content[0] = ' '.join([content[0], tmp_content[0]]).strip()
                 content[1] += tmp_content[1]
+                content[2] += tmp_content[2]
 
         return content
 
@@ -405,10 +417,10 @@ class XmlRenderer(AbstractXmlRenderer):
         :param element:
         :return:
         """
-        content = ['', '']
+        content = ['', '', '']
 
         for child in element.children:
-            tmp_content = ['', '']
+            tmp_content = ['', '', '']
 
             if child.tag == 'restriction':
                 tmp_content = self.render_restriction(child)
@@ -419,22 +431,26 @@ class XmlRenderer(AbstractXmlRenderer):
             elif child.tag == 'list':
                 tmp_content[1] = child.value if child.value is not None else ''
             elif child.tag == 'module':
-                tmp_content = self.render_module(child)
+                if child.options['multiple']:
+                    tmp_content[2] = self.render_module(child)[1]
+                else:
+                    tmp_content[1] = self.render_module(child)[1]
             else:
                 message = 'render_simple_type: ' + child.tag + ' not handled'
                 self.warnings.append(message)
 
             content[0] = ' '.join([content[0], tmp_content[0]]).strip()
             content[1] += tmp_content[1]
+            content[2] += tmp_content[2]
 
         return content
 
     def render_restriction(self, element):
-        content = ['', '']
+        content = ['', '', '']
         value = element.value
 
         for child in element.children:
-            tmp_content = ['', '']
+            tmp_content = ['', '', '']
 
             if child.tag == 'enumeration':
                 tmp_content[1] = value if value is not None else ''
@@ -449,6 +465,7 @@ class XmlRenderer(AbstractXmlRenderer):
 
             content[0] = ' '.join([content[0], tmp_content[0]]).strip()
             content[1] += tmp_content[1]
+            content[2] += tmp_content[2]
 
         return content
 
@@ -458,10 +475,10 @@ class XmlRenderer(AbstractXmlRenderer):
         :param element:
         :return:
         """
-        content = ['', '']
+        content = ['', '', '']
 
         for child in element.children:
-            tmp_content = ['', '']
+            tmp_content = ['', '', '']
 
             if child.tag == 'input':
                 tmp_content[1] = child.value if child.value is not None else ''
@@ -477,11 +494,11 @@ class XmlRenderer(AbstractXmlRenderer):
 
             content[0] = ' '.join([content[0], tmp_content[0]]).strip()
             content[1] += tmp_content[1]
+            content[2] += tmp_content[2]
 
         return content
 
     def render_module(self, element):
-
         return [
             '',
             element.options['data'],
