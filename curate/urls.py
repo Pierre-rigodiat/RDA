@@ -47,5 +47,7 @@ urlpatterns = patterns(
     url(r'^cancel-form', 'curate.ajax.cancel_form'),
     url(r'^change-owner-form', 'curate.ajax.change_owner_form'),
     url(r'^generate-absent', ajax.generate_absent),
-    url(r'^remove-element', ajax.remove_element)
+    url(r'^remove-element', ajax.remove_element),
+    url(r'^cancel-changes', 'curate.views.cancel_changes'),
+    url(r'^reload-form', 'curate.ajax.reload_form'),
 )
