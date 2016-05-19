@@ -29,10 +29,12 @@ class RegistryCheckboxesModule(CheckboxesModule):
     Module to transform an enumeration in checkboxes
     """
     def __init__(self, xml_tag):
-
         self.xml_tag = xml_tag
         self.selected = []
         CheckboxesModule.__init__(self, options={}, label='', name='')
+
+        # This modules automatically manages occurences
+        self.is_managing_occurences = True
 
     def _get_module(self, request):
         # get the values of the enumeration

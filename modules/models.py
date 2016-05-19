@@ -17,6 +17,9 @@ class Module(object):
         self.scripts = scripts
         self.styles = styles
 
+        # Is the module managing occurences by its own? (False by default)
+        self.is_managing_occurences = False
+
         # Skeleton of the modules
         self.template = os.path.join(settings.SITE_ROOT, 'templates', 'module.html')
 
@@ -32,6 +35,8 @@ class Module(object):
         if request.method == 'GET':
             if 'resources' in request.GET:
                 return self._get_resources()
+            elif 'managing_occurences' in request.GET:
+                return HttpResponse(json.dumps(self.is_managing_occurences), HTTP_200_OK)
             else:
                 return self._get(request)
         elif request.method == 'POST':
