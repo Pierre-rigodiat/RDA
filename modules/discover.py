@@ -75,7 +75,14 @@ def is_module_managing_occurencies(module):
 
     module_view = get_module_view(module.url)
 
-    return module_view(request).content.decode("utf-8")
+    response = module_view(request).content.decode("utf-8")
+
+    if response == 'false':
+        return False
+    elif response == 'true':
+        return True
+    else:
+        raise ValueError("Unexpected value (expected 'true'|'false', got {})".format(response))
 
 
 def discover_modules():
