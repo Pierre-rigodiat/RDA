@@ -628,13 +628,14 @@ def reload_form(request):
         template_id = request.session['currentTemplateID']
         template_object = Template.objects.get(pk=template_id)
         xsd_doc_data = template_object.content
-        # TODO: use generate_xsd_form from parser once merged
+
         # the form has been saved already
-        if xml_data is not None:
+        if xml_data is not None and xml_data != '':
             request.session['curate_edit'] = True
             request.session['xmlDocTree'] = xml_data
             root_element_id = parser.generate_form(request, xsd_doc_data, xml_data)
-        else: # the form has never been saved
+        # the form has never been saved
+        else:
             root_element_id = parser.generate_form(request, xsd_doc_data)
 
         root_element = SchemaElement.objects.get(pk=root_element_id)
