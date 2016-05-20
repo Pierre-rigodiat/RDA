@@ -14,9 +14,9 @@
 from oai_pmh.tests.models import OAI_PMH_Test
 from oai_pmh.api.views import createRegistry, createOaiIdentify, setDataToRegistry, createMetadataformatsForRegistry,\
     sickleListObjectMetadataFormats, sickleListObjectSets, setMetadataFormatXMLSchema, createSetsForRegistry, \
-    sickleObjectIdentify, getListRecords
+    sickleObjectIdentify, getListRecords, harvestRecords, harvestByMF, harvestBySetsAndMF
 from mgi.models import OaiRegistry, OaiIdentify, OaiMetadataFormat, OaiMyMetadataFormat, OaiSettings, Template, OaiSet,\
-    OaiMySet, OaiRecord, XMLdata
+    OaiMySet, OaiRecord, XMLdata, OaiTemplMfXslt, OaiMetadataformatSet
 import xmltodict
 import lxml.etree as etree
 from testing.models import URL_TEST, ADMIN_AUTH, ADMIN_AUTH_GET, USER_AUTH
@@ -29,6 +29,7 @@ from bson.objectid import ObjectId
 import oai_pmh.datestamp as datestamp
 URL_TEST_SERVER = URL_TEST + "/oai_pmh/server/"
 import requests
+import datetime
 from django.conf import settings
 
 class tests_OAI_PMH_API(OAI_PMH_Test):
@@ -865,45 +866,6 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         req = self.doRequestPost(url=reverse("api_listObjectAllRecords"), data=data, auth=ADMIN_AUTH)
         self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_getListRecords_function_metadataPrefix(self):
-        self.dump_oai_settings()
-        self.dump_oai_my_metadata_format()
-        self.dump_oai_my_set()
-        self.dump_xmldata()
-        self.dump_oai_templ_mf_xslt()
-        self.dump_oai_xslt()
-        self.setHarvest(True)
-        url= URL_TEST_SERVER
-        metadataPrefix = "oai_soft"
-        req, resumptionToken = getListRecords(url=url, metadataPrefix=metadataPrefix)
-        self.isStatusOK(req.status_code)
-        self.assert_OaiListRecords(metadataPrefix, req.data)
-
-    def test_getListRecords_function_dummy_resumptionToken(self):
-        self.dump_oai_settings()
-        self.setHarvest(True)
-        url= URL_TEST_SERVER
-        metadataPrefix = "oai_dc"
-        resumptionToken = "dummyResumptionToken"
-        req, resumptionToken = getListRecords(url=url, metadataPrefix=metadataPrefix, resumptionToken=resumptionToken)
-        self.assertEquals(req.status_code, status.HTTP_200_OK)
-        #No data
-        self.assertTrue(len(req.data) == 0)
-
-    def test_getListRecords_function_server_not_found(self):
-        self.dump_oai_settings()
-        url= "http://127.0.0.1:8082/noserver"
-        metadataPrefix = "oai_dc"
-        req, resumptionToken = getListRecords(url, metadataPrefix)
-        self.assertEquals(req.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_getListRecords_function_internal_error(self):
-        self.dump_oai_settings()
-        url= "http://127.0.0.2.:8000/noserver"
-        metadataPrefix = "oai_dc"
-        req, resumptionToken = getListRecords(url, metadataPrefix)
-        self.assertEquals(req.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 ################################################################################
 
 ################################ Get Record tests ##############################
@@ -1091,6 +1053,338 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
 
 ################################################################################
 
+
+################################## Harvest tests ###############################
+
+    #Harvest all sets = harvest by MF
+    def test_harvest_by_MF(self):
+        self.initDataBaseHarvest()
+        allMetadataPrefixes = [x.metadataPrefix for x in OaiMyMetadataFormat.objects.all()]
+        allSets = [x.setSpec for x in OaiMySet.objects.all()]
+        self.harvest(allMetadataPrefixes, allSets)
+
+    def test_harvest_by_Set_MF(self):
+        self.initDataBaseHarvest()
+        allMetadataPrefixes = [x.metadataPrefix for x in OaiMyMetadataFormat.objects.all().limit(3)]
+        allSets = [x.setSpec for x in OaiMySet.objects.all().limit(3)]
+        self.harvest(allMetadataPrefixes, allSets)
+
+    def test_harvest_bad_url(self):
+        self.initDataBaseHarvest()
+        #Modify server url, bad port
+        registry = OaiRegistry.objects.get()
+        registry.url = "http://127.0.0.1:8000/api_pmh/server"
+        registry.save()
+        data = {"registry_id": str(registry.id)}
+        req = self.doRequestPost(url=reverse("api_harvest"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_200_OK)
+
+    def harvest(self, metadataPrefixes, setSpecs):
+        metadataPrefixes = metadataPrefixes
+        setSpecs = setSpecs
+        registrySetsToHarvest, metadataformatsToHarvest, registry_id, registryAllSets = self.initHarvest(metadataPrefixes, setSpecs)
+        data = {"registry_id": registry_id}
+        req = self.doRequestPost(url=reverse("api_harvest"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_200_OK)
+        self.assert_harvest_lastUpdate_not_none(metadataformatsToHarvest, registrySetsToHarvest)
+        for metadataFormat in metadataformatsToHarvest:
+            for set in registrySetsToHarvest:
+                self.assert_OaiRecords_In_Database(metadataPrefix=metadataFormat.metadataPrefix, setSpec=set.setSpec)
+
+    def test_harvest_unauthorized(self):
+        self.dump_oai_settings()
+        data = {"registry_id": FAKE_ID}
+        req = self.doRequestPost(url=reverse("api_harvest"), data=data, auth=USER_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_harvest_not_found(self):
+        self.dump_oai_settings()
+        data = {"registry_id": FAKE_ID}
+        req = self.doRequestPost(url=reverse("api_harvest"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_harvest_serializer_invalid(self):
+        self.dump_oai_settings()
+        data = {"registry_idd": FAKE_ID}
+        req = self.doRequestPost(url=reverse("api_harvest"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {}
+        req = self.doRequestPost(url=reverse("api_harvest"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_harvestBySetsAndMF_function(self):
+        self.initDataBaseHarvest()
+        url = URL_TEST_SERVER
+        metadataPrefixes = ["oai_dc"]
+        setSpecs = ["soft"]
+        registrySetsToHarvest, metadataformatsToHarvest, registry_id, registryAllSets = self.initHarvest(metadataPrefixes, setSpecs)
+        allErrors = harvestBySetsAndMF(registrySetsToHarvest, metadataformatsToHarvest, url, registry_id, registryAllSets)
+        self.assertEquals(len(allErrors), 0)
+        self.assert_harvest_lastUpdate_not_none(metadataformatsToHarvest, registrySetsToHarvest)
+        for metadataFormat in metadataformatsToHarvest:
+            for set in registrySetsToHarvest:
+                self.assert_OaiRecords_In_Database(metadataPrefix=metadataFormat.metadataPrefix, setSpec=set.setSpec)
+        beforeDataInDatabase = len(OaiRecord.objects.all())
+        #Add new record
+        self.addNewSoftwareXmlData()
+        allErrors = harvestBySetsAndMF(registrySetsToHarvest, metadataformatsToHarvest, url, registry_id, registryAllSets)
+        self.assertEquals(len(allErrors), 0)
+        afterDataInDatabase = len(OaiRecord.objects.all())
+        self.assertEquals(afterDataInDatabase, beforeDataInDatabase+1)
+
+    def test_harvestBySetsAndMF_function_add_wrong_set(self):
+        self.initDataBaseHarvest()
+        url = URL_TEST_SERVER
+        metadataPrefixes = ["oai_dc"]
+        setSpecs = ["soft"]
+        registrySetsToHarvest, metadataformatsToHarvest, registry_id, registryAllSets = self.initHarvest(metadataPrefixes, setSpecs)
+        allErrors = harvestBySetsAndMF(registrySetsToHarvest, metadataformatsToHarvest, url, registry_id, registryAllSets)
+        self.assertEquals(len(allErrors), 0)
+        self.assert_harvest_lastUpdate_not_none(metadataformatsToHarvest, registrySetsToHarvest)
+        for metadataFormat in metadataformatsToHarvest:
+            for set in registrySetsToHarvest:
+                self.assert_OaiRecords_In_Database(metadataPrefix=metadataFormat.metadataPrefix, setSpec=set.setSpec)
+        beforeDataInDatabase = len(OaiRecord.objects.all())
+        #Add new record
+        self.addNewDataCollectionXmlData()
+        allErrors = harvestBySetsAndMF(registrySetsToHarvest, metadataformatsToHarvest, url, registry_id, registryAllSets)
+        self.assertEquals(len(allErrors), 0)
+        afterDataInDatabase = len(OaiRecord.objects.all())
+        #Same number of OaiRecords
+        self.assertEquals(afterDataInDatabase, beforeDataInDatabase)
+
+    def test_harvestBySetsAndMF_function_bad_url(self):
+        self.initDataBaseHarvest()
+        url = ""
+        metadataPrefixes = ["oai_dc"]
+        setSpecs = ["soft"]
+        registrySetsToHarvest, metadataformatsToHarvest, registry_id, registryAllSets = self.initHarvest(metadataPrefixes, setSpecs)
+        allErrors = harvestBySetsAndMF(registrySetsToHarvest, metadataformatsToHarvest, url, registry_id, registryAllSets)
+        self.assertTrue(len(allErrors) > 0)
+        #No lastUpdate modification
+        self.assert_harvest_lastUpdate_none(metadataformatsToHarvest, registrySetsToHarvest)
+
+    def test_harvestByMF_function(self):
+        self.initDataBaseHarvest()
+        url = URL_TEST_SERVER
+        metadataPrefixes = ["oai_soft"]
+        registrySetsToHarvest, metadataformatsToHarvest, registry_id, registryAllSets = self.initHarvest(metadataPrefixes)
+        allErrors = harvestByMF(registrySetsToHarvest, metadataformatsToHarvest, url, registry_id, registryAllSets)
+        self.assertEquals(len(allErrors), 0)
+        self.assert_harvest_lastUpdate_not_none(metadataformatsToHarvest, registrySetsToHarvest)
+        for metadataFormat in metadataformatsToHarvest:
+            self.assert_OaiRecords_In_Database(metadataFormat.metadataPrefix)
+        beforeDataInDatabase = len(OaiRecord.objects.all())
+        #Add new record
+        self.addNewSoftwareXmlData()
+        allErrors = harvestByMF(registrySetsToHarvest, metadataformatsToHarvest, url, registry_id, registryAllSets)
+        self.assertEquals(len(allErrors), 0)
+        afterDataInDatabase = len(OaiRecord.objects.all())
+        self.assertEquals(afterDataInDatabase, beforeDataInDatabase+1)
+
+    def test_harvestByMF_function_bad_url(self):
+        self.initDataBaseHarvest()
+        url = ""
+        metadataPrefixes = ["oai_soft"]
+        registrySetsToHarvest, metadataformatsToHarvest, registry_id, registryAllSets = self.initHarvest(metadataPrefixes)
+        allErrors = harvestByMF(registrySetsToHarvest, metadataformatsToHarvest, url, registry_id, registryAllSets)
+        self.assertTrue(len(allErrors) > 0)
+        #No lastUpdate modification
+        self.assert_harvest_lastUpdate_none(metadataformatsToHarvest, registrySetsToHarvest)
+
+    def initHarvest(self, metadataPrefixes, setSpecs=[]):
+        registry = OaiRegistry.objects.get()
+        registry.url = URL_TEST_SERVER
+        registry.save()
+        registry_id = str(registry.id)
+        #Disable all MF
+        OaiMetadataFormat.objects.filter(registry=registry_id).update(set__harvest=False, set__lastUpdate=None)
+        #Enable MF in parameter
+        OaiMetadataFormat.objects.filter(registry=registry_id, metadataPrefix__in=metadataPrefixes).update(set__harvest=True)
+        #Disable all sets
+        OaiSet.objects.filter(registry=registry_id).update(set__harvest=False)
+        #Enable sets in parameter
+        OaiSet.objects.filter(registry=registry_id, setSpec__in=setSpecs).update(set__harvest=True)
+        #Get all available MF
+        metadataformatsToHarvest = OaiMetadataFormat.objects(registry=registry_id, harvest=True).all()
+        #Get all available  sets
+        registrySetsToHarvest = OaiSet.objects(registry=registry_id, harvest=True).order_by("setName")
+        #Get all sets
+        registryAllSets = OaiSet.objects(registry=registry_id).order_by("setName")
+        return registrySetsToHarvest, metadataformatsToHarvest, registry_id, registryAllSets
+
+    def initDataBaseHarvest(self):
+        self.dump_oai_settings()
+        self.dump_oai_my_metadata_format()
+        self.dump_oai_my_set()
+        self.dump_xmldata()
+        self.dump_oai_templ_mf_xslt()
+        self.dump_oai_xslt()
+        self.dump_oai_registry(dumpRecords=False)
+
+    # ####
+    def test_harvestRecords_function_mf(self):
+        self.dump_oai_settings()
+        self.dump_oai_my_metadata_format()
+        self.dump_oai_my_set()
+        self.dump_xmldata()
+        self.dump_oai_registry(dumpRecords=False)
+        dataInDatabase = OaiRecord.objects.all()
+        self.assertEquals(len(dataInDatabase), 0)
+        self.harvestRecords_function_mf_process()
+
+    def test_harvestRecords_function_mf_last_update(self):
+        self.dump_oai_settings()
+        self.dump_oai_my_metadata_format()
+        self.dump_oai_my_set()
+        self.dump_xmldata()
+        self.dump_oai_registry(dumpRecords=False)
+        dataInDatabase = OaiRecord.objects.all()
+        self.assertEquals(len(dataInDatabase), 0)
+        beforeDataInDatabase = len(OaiRecord.objects.all())
+        self.assertEquals(beforeDataInDatabase, 0)
+        lastUpdate = datetime.datetime.now()
+        lastUpdate = str(datestamp.datetime_to_datestamp(lastUpdate))
+        self.harvestRecords_function_mf_process()
+        beforeDataInDatabase = len(OaiRecord.objects.all())
+        self.assertTrue(beforeDataInDatabase > 0)
+        #Add new record
+        self.addNewSoftwareXmlData()
+        #Harvest it
+        self.harvestRecords_function_mf_process(lastUpdate=lastUpdate)
+        afterDataInDatabase = len(OaiRecord.objects.all())
+        self.assertEquals(afterDataInDatabase, beforeDataInDatabase+1)
+
+    def harvestRecords_function_mf_process(self, lastUpdate=None):
+        registry = OaiRegistry.objects.get()
+        registry_id = str(registry.id)
+        url = URL_TEST_SERVER
+        metadataPrefix = "oai_soft"
+        metadataformat = OaiMetadataFormat.objects(metadataPrefix=metadataPrefix).get()
+        registryAllSets = OaiSet.objects(registry=registry_id).order_by("setName")
+        allErrors = harvestRecords(url=url, registry_id=registry_id, metadataFormat=metadataformat, lastUpdate=lastUpdate,
+                       registryAllSets=registryAllSets, set=None)
+        self.assertEquals(len(allErrors), 0)
+        dataInDatabase = OaiRecord.objects.all()
+        self.assertTrue(len(dataInDatabase) > 0)
+        self.assert_OaiRecords_In_Database(metadataPrefix)
+
+    def test_harvestRecords_function_set(self):
+        self.dump_oai_settings()
+        self.dump_oai_my_metadata_format()
+        self.dump_oai_my_set()
+        self.dump_xmldata()
+        self.dump_oai_templ_mf_xslt()
+        self.dump_oai_xslt()
+        self.dump_oai_registry(dumpRecords=False)
+        dataInDatabase = OaiRecord.objects.all()
+        self.assertEquals(len(dataInDatabase), 0)
+        registry = OaiRegistry.objects.get()
+        registry_id = str(registry.id)
+        url = URL_TEST_SERVER
+        metadataPrefix = "oai_dc"
+        metadataformat = OaiMetadataFormat.objects(metadataPrefix=metadataPrefix).get()
+        set = OaiMySet.objects(setSpec="soft").get()
+        registryAllSets = OaiSet.objects(registry=registry_id).order_by("setName")
+        allErrors = harvestRecords(url=url, registry_id=registry_id, metadataFormat=metadataformat, lastUpdate=None,
+               registryAllSets=registryAllSets, set=set)
+        self.assertEquals(len(allErrors), 0)
+        dataInDatabase = OaiRecord.objects.all()
+        self.assertTrue(len(dataInDatabase) > 0)
+        self.assert_OaiRecords_In_Database(metadataPrefix, setSpec="soft")
+
+
+    def test_harvestRecords_function_bad_url(self):
+        self.dump_oai_settings()
+        self.dump_oai_my_metadata_format()
+        self.dump_oai_registry(dumpRecords=False)
+        registry = OaiRegistry.objects.get()
+        registry_id = str(registry.id)
+        url = ""
+        metadataPrefix = "oai_dc"
+        metadataformat = OaiMetadataFormat.objects(metadataPrefix=metadataPrefix).get()
+        registryAllSets = OaiSet.objects(registry=registry_id).order_by("setName")
+        allErrors = harvestRecords(url=url, registry_id=registry_id, metadataFormat=metadataformat, lastUpdate=None,
+               registryAllSets=registryAllSets)
+        self.assertTrue(len(allErrors) > 0)
+
+    def test_getListRecords_function_metadataPrefix(self):
+        self.dump_oai_settings()
+        self.dump_oai_my_metadata_format()
+        self.dump_oai_my_set()
+        self.dump_xmldata()
+        self.dump_oai_templ_mf_xslt()
+        self.dump_oai_xslt()
+        self.setHarvest(True)
+        url= URL_TEST_SERVER
+        metadataPrefix = "oai_soft"
+        req, resumptionToken = getListRecords(url=url, metadataPrefix=metadataPrefix)
+        self.isStatusOK(req.status_code)
+        self.assert_OaiListRecords(metadataPrefix, req.data)
+
+    def test_getListRecords_function_set(self):
+        self.dump_oai_settings()
+        self.dump_oai_my_metadata_format()
+        self.dump_oai_my_set()
+        self.dump_xmldata()
+        self.dump_oai_templ_mf_xslt()
+        self.dump_oai_xslt()
+        self.setHarvest(True)
+        url= URL_TEST_SERVER
+        metadataPrefix = "oai_dc"
+        setSpec = "soft"
+        req, resumptionToken = getListRecords(url=url, metadataPrefix=metadataPrefix, set_h=setSpec)
+        self.isStatusOK(req.status_code)
+        self.assert_OaiListRecords(metadataPrefix, req.data, setSpec)
+
+    def test_getListRecords_function_from(self):
+        self.dump_oai_settings()
+        self.dump_oai_my_metadata_format()
+        self.dump_oai_my_set()
+        self.dump_xmldata()
+        self.dump_oai_templ_mf_xslt()
+        self.dump_oai_xslt()
+        self.setHarvest(True)
+        url= URL_TEST_SERVER
+        metadataPrefix = "oai_dc"
+        setSpec = "soft"
+        fromDate = "2016-05-04T15:23:00Z"
+        req, resumptionToken = getListRecords(url=url, metadataPrefix=metadataPrefix, fromDate=fromDate)
+        self.isStatusOK(req.status_code)
+        self.assert_OaiListRecords(metadataPrefix, req.data, fromDate=fromDate)
+        fromDate = "2016-05-04T20:23:00Z"
+        req, resumptionToken = getListRecords(url=url, metadataPrefix=metadataPrefix, fromDate=fromDate)
+        self.isStatusOK(req.status_code)
+        self.assert_OaiListRecords(metadataPrefix, req.data, fromDate=fromDate)
+
+    def test_getListRecords_function_dummy_resumptionToken(self):
+        self.dump_oai_settings()
+        self.setHarvest(True)
+        url= URL_TEST_SERVER
+        metadataPrefix = "oai_dc"
+        resumptionToken = "dummyResumptionToken"
+        req, resumptionToken = getListRecords(url=url, metadataPrefix=metadataPrefix, resumptionToken=resumptionToken)
+        self.assertEquals(req.status_code, status.HTTP_200_OK)
+        #No data
+        self.assertTrue(len(req.data) == 0)
+
+    def test_getListRecords_function_server_not_found(self):
+        self.dump_oai_settings()
+        url= "http://127.0.0.1:8082/noserver"
+        metadataPrefix = "oai_dc"
+        req, resumptionToken = getListRecords(url, metadataPrefix)
+        self.assertEquals(req.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_getListRecords_function_internal_error(self):
+        self.dump_oai_settings()
+        url= "http://127.0.0.2.:8000/noserver"
+        metadataPrefix = "oai_dc"
+        req, resumptionToken = getListRecords(url, metadataPrefix)
+        self.assertEquals(req.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+################################################################################
+
+
 ################################################################################
 ########################## Common assert controls ##############################
 ################################################################################
@@ -1159,15 +1453,27 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
             self.assertEquals(el['setName'], set.setName)
             # self.assertEquals(el['raw'], set.raw)
 
-    def assert_OaiListRecords(self, metadataPrefix, data):
+    def assert_OaiListRecords(self, metadataPrefix, data, setSpec=None, fromDate=None):
         myMetadataFormat = OaiMyMetadataFormat.objects().get(metadataPrefix=metadataPrefix)
         if myMetadataFormat.isTemplate:
-            query = dict()
-            query['schema'] = str(myMetadataFormat.template.id)
-            query['ispublished'] = True
-            #Get all records for this template
-            dataInDatabase = XMLdata.executeQueryFullResult(query)
-            self.assertEquals(len(dataInDatabase), len(data))
+            templates = [str(myMetadataFormat.template.id)]
+        else:
+            oaiTemlXslt =  OaiTemplMfXslt.objects(myMetadataFormat=myMetadataFormat.id,
+                                                  activated=True).distinct(field='template')
+            templates = [str(x.id) for x in oaiTemlXslt]
+        if setSpec:
+            mySetTemplates = OaiMySet.objects().get(setSpec=setSpec)
+            templatesInSet = [str(x.id) for x in mySetTemplates.templates]
+            templates = list(set.intersection(set(templates), set(templatesInSet)))
+        query = dict()
+        query['schema'] = { '$in': templates }
+        query['ispublished'] = True
+        if fromDate:
+            startDate = datestamp.datestamp_to_datetime(fromDate)
+            query['publicationdate'] = { "$gte" : startDate}
+        #Get all records for this template
+        dataInDatabase = XMLdata.executeQueryFullResult(query)
+        self.assertEquals(len(dataInDatabase), len(data))
         for obj in data:
             self.assert_OaiRecord(metadataPrefix, obj)
 
@@ -1185,6 +1491,64 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         self.assertEquals(metadataPrefix, data['metadataPrefix'])
         self.assertNotEquals(data['metadata'], '')
         self.assertNotEquals(data['raw'], '')
+
+    def assert_harvest_lastUpdate_not_none(self, metadataformatsToHarvest, registrySetsToHarvest):
+        #lastUpdate modification
+        for metadataformat in metadataformatsToHarvest:
+            for set in registrySetsToHarvest:
+                try:
+                    obj = OaiMetadataformatSet.objects.get(metadataformat=metadataformat, set=set)
+                    self.assertNotEquals(obj, None)
+                except MONGO_ERRORS.DoesNotExist:
+                    self.assertTrue(True)
+            self.assertNotEquals(metadataformat.lastUpdate, None)
+
+    def assert_harvest_lastUpdate_none(self, metadataformatsToHarvest, registrySetsToHarvest):
+        #lastUpdate modification
+        for metadataformat in metadataformatsToHarvest:
+            for set in registrySetsToHarvest:
+                try:
+                    obj = OaiMetadataformatSet.objects.get(metadataformat=metadataformat, set=set)
+                    self.assertTrue(False)
+                except MONGO_ERRORS.DoesNotExist:
+                    self.assertTrue(True)
+            self.assertEquals(metadataformat.lastUpdate, None)
+
+    def assert_OaiRecords_In_Database(self, metadataPrefix, lastUpdate=None, setSpec=None):
+        myMetadataFormat = OaiMyMetadataFormat.objects().get(metadataPrefix=metadataPrefix)
+        if myMetadataFormat.isTemplate:
+            templates = [str(myMetadataFormat.template.id)]
+        else:
+            oaiTemlXslt =  OaiTemplMfXslt.objects(myMetadataFormat=myMetadataFormat.id,
+                                                  activated=True).distinct(field='template')
+            templates = [str(x.id) for x in oaiTemlXslt]
+        if setSpec:
+            mySet = OaiMySet.objects().get(setSpec=setSpec)
+            templatesInSet = [str(x.id) for x in mySet.templates]
+            templates = list(set.intersection(set(templates), set(templatesInSet)))
+        query = dict()
+        query['schema'] = { '$in': templates }
+        query['ispublished'] = True
+        if lastUpdate:
+            startDate = datestamp.datestamp_to_datetime(lastUpdate)
+            query['publicationdate'] = { "$gte" : startDate}
+        #Get all records for this template
+        dataInDatabase = XMLdata.executeQueryFullResult(query)
+        for dataDB in dataInDatabase:
+            identifier = '%s:%s:id/%s' % (settings.OAI_SCHEME, settings.OAI_REPO_IDENTIFIER, str(dataDB['_id']))
+            records = OaiRecord.objects(identifier=identifier).all()
+            for record in records:
+                if 'publicationdate' in dataDB:
+                    self.assertEquals(str(datestamp.datetime_to_datestamp(record.datestamp)),
+                                      str(datestamp.datetime_to_datestamp(dataDB['publicationdate'])))
+                self.assertEquals(record.deleted, False)
+                sets = OaiMySet.objects(templates__in=[str(dataDB['schema'])]).all().distinct('setSpec')
+                if sets:
+                    recordSets = [x.setSpec for x in record.sets]
+                    self.assertEquals(recordSets, sets)
+                # self.assertEquals(metadataPrefix, data['metadataPrefix'])
+                self.assertNotEquals(record['metadata'], '')
+                self.assertNotEquals(record['raw'], '')
 
     def assert_OaiListIdentifiers(self, metadataPrefix, data):
         myMetadataFormat = OaiMyMetadataFormat.objects().get(metadataPrefix=metadataPrefix)
@@ -1352,6 +1716,27 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
                                       '<schema>http://www.openarchives.org/OAI/2.0/oai_dc.xsd</schema>/metadataFormat>'}
                             ]
         return metadataFormatData
+
+
+    def addNewSoftwareXmlData(self):
+        template = Template.objects.get(filename="Software.xsd")
+        xml = "<Resource localid='' status='active'><identity>" \
+               "<title>My new software</title></identity><curation><publisher>PF</publisher><contact><name></name>" \
+               "</contact></curation><content><description>This is a new record</description><subject></subject>" \
+               "<referenceURL></referenceURL></content></Resource>"
+        schemaId = str(template.id)
+        XMLdata(schemaID=schemaId, xml=xml, title='newRecord', iduser=1, ispublished=True,
+                publicationdate=datetime.datetime.now()).save()
+
+    def addNewDataCollectionXmlData(self):
+        template = Template.objects.get(filename="DataCollection.xsd")
+        xml = "<Resource localid='' status='active'><identity>" \
+               "<title>My new software</title></identity><curation><publisher>PF</publisher><contact><name></name>" \
+               "</contact></curation><content><description>This is a data collection</description><subject></subject>" \
+               "<referenceURL></referenceURL></content></Resource>"
+        schemaId = str(template.id)
+        XMLdata(schemaID=schemaId, xml=xml, title='newDataCollection', iduser=1, ispublished=True,
+                publicationdate=datetime.datetime.now()).save()
 
 
     def getRegistryData(self):

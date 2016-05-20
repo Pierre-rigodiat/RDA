@@ -30,7 +30,7 @@ from oai_pmh.api.serializers import IdentifyObjectSerializer, MetadataFormatSeri
     UpdateMyMetadataFormatSerializer, GetRecordSerializer, UpdateMySetSerializer, DeleteMySetSerializer,\
     MySetSerializer, MyTemplateMetadataFormatSerializer, DeleteXSLTSerializer, OaiConfXSLTSerializer, \
     OaiXSLTSerializer, RegistryIdSerializer, UpdateRegistryHarvestSerializer, AddRegistrySerializer,\
-    ListIdentifierSerializer
+    ListIdentifierSerializer, HarvestSerializer
 # Models
 from mgi.models import OaiRegistry, OaiSet, OaiMetadataFormat, OaiIdentify, OaiSettings, Template, OaiRecord,\
 OaiMyMetadataFormat, OaiMySet, OaiMetadataformatSet, OaiXslt, OaiTemplMfXslt
@@ -993,51 +993,50 @@ def harvest(request):
     #List of errors
     allErrors = []
     try:
-        if 'registry_id' in request.DATA:
+        serializer = HarvestSerializer(data=request.DATA)
+        if serializer.is_valid():
             registry_id = request.DATA['registry_id']
-        else:
-            content = {'registry_id':['This field is required.']}
-            raise OAIAPIException(message=content, status=status.HTTP_400_BAD_REQUEST)
+            #We retrieve the registry (data provider)
+            try:
+                registry = OaiRegistry.objects(pk=registry_id).get()
+                url = registry.url
+            except:
+                raise OAIAPILabelledException(message='No registry found with the given parameters.',
+                                              status=status.HTTP_404_NOT_FOUND)
+            #We are harvesting
+            registry.isHarvesting = True
+            registry.save()
+            #Set the last update date
+            harvestDate = datetime.datetime.now()
+            #Get all available metadata formats
+            metadataformats = OaiMetadataFormat.objects(registry=registry_id, harvest=True)
+            #Get all sets
+            registryAllSets = OaiSet.objects(registry=registry_id).order_by("setName")
+            #Get all available  sets
+            registrySetsToHarvest = OaiSet.objects(registry=registry_id, harvest=True).order_by("setName")
+            #Check if we have to retrieve all sets or not. If all sets, no need to provide the set parameter in the
+            #harvest request. Avoid to retrieve same records for nothing (If records are in many sets).
+            searchBySets = len(registryAllSets) != len(registrySetsToHarvest)
+            #Search by sets
+            if searchBySets and len(registryAllSets) != 0:
+                allErrors = harvestBySetsAndMF(registrySetsToHarvest, metadataformats, url, registry_id, registryAllSets)
+            #If we don't have to search by set or the OAI Registry doesn't support sets
+            else:
+                allErrors = harvestByMF(registrySetsToHarvest, metadataformats, url, registry_id, registryAllSets)
+            #Stop harvesting
+            registry.isHarvesting = False
+            #Set the last update date
+            registry.lastUpdate = harvestDate
+            registry.save()
+            #Return the harvest status
+            if len(allErrors) == 0:
+                content = APIMessage.getMessageLabelled('Harvest data succeeded without errors.')
+            else:
+                content = APIMessage.getMessageLabelled(allErrors)
 
-        #We retrieve the registry (data provider)
-        try:
-            registry = OaiRegistry.objects(pk=registry_id).get()
-            url = registry.url
-        except:
-            raise OAIAPILabelledException(message='No registry found with the given parameters.',
-                                          status=status.HTTP_404_NOT_FOUND)
-        #We are harvesting
-        registry.isHarvesting = True
-        registry.save()
-        #Set the last update date
-        harvestDate = datetime.datetime.now()
-        #Get all available metadata formats
-        metadataformats = OaiMetadataFormat.objects(registry=registry_id, harvest=True)
-        #Get all sets
-        registryAllSets = OaiSet.objects(registry=registry_id).order_by("setName")
-        #Get all available  sets
-        registrySetsToHarvest = OaiSet.objects(registry=registry_id, harvest=True).order_by("setName")
-        #Check if we have to retrieve all sets or not. If all sets, no need to provide the set parameter in the
-        #harvest request. Avoid to retrieve same records for nothing (If records are in many sets).
-        searchBySets = len(registryAllSets) != len(registrySetsToHarvest)
-        #Search by sets
-        if searchBySets and len(registryAllSets) != 0:
-            allErrors = harvestBySetsAndMF(registrySetsToHarvest, metadataformats, url, registry_id, registryAllSets)
-        #If we don't have to search by set or the OAI Registry doesn't support sets
+            return Response(content, status=status.HTTP_200_OK)
         else:
-            allErrors = harvestByMF(registrySetsToHarvest, metadataformats, url, registry_id, registryAllSets)
-        #Stop harvesting
-        registry.isHarvesting = False
-        #Set the last update date
-        registry.lastUpdate = harvestDate
-        registry.save()
-        #Return the harvest status
-        if len(allErrors) == 0:
-            content = APIMessage.getMessageLabelled('Harvest data succeeded without errors.')
-        else:
-            content = APIMessage.getMessageLabelled(allErrors)
-
-        return Response(content, status=status.HTTP_200_OK)
+            raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
         return e.response()
     except Exception as e:
@@ -1059,29 +1058,31 @@ def harvest(request):
 ################################################################################
 def harvestBySetsAndMF(registrySetsToHarvest, metadataformats, url, registry_id, registryAllSets):
     allErrors = []
-    for set in registrySetsToHarvest:
-        for metadataFormat in metadataformats:
-            currentDate = datetime.datetime.now()
+    for metadataFormat in metadataformats:
+        currentUpdateMF = datetime.datetime.now()
+        errorsDuringUpdate = False
+        for set in registrySetsToHarvest:
+            currentUpdateSetMF = datetime.datetime.now()
             try:
                 #Retrieve the last update for this metadata format and this set
                 objOaiMFSets = OaiMetadataformatSet.objects(metadataformat=metadataFormat, set=set).get()
                 lastUpdate = datestamp.datetime_to_datestamp(objOaiMFSets.lastUpdate)
-                #Set the new date
-                objOaiMFSets.lastUpdate = currentDate
             except:
                 lastUpdate = None
-                #Set the new date
-                objOaiMFSets = OaiMetadataformatSet(metadataformat=metadataFormat, set=set, lastUpdate=currentDate)
             errors = harvestRecords(url, registry_id, metadataFormat, lastUpdate, registryAllSets, set)
             #If no exceptions was thrown and no errors occured, we can update the lastUpdate date
             if len(errors) == 0:
-                #Set the last update date
-                metadataFormat.lastUpdate = datetime.datetime.now()
-                metadataFormat.save()
-                objOaiMFSets.save()
+                OaiMetadataformatSet.objects.filter(metadataformat=metadataFormat, set=set)\
+                        .update(set__metadataformat=metadataFormat, set__set=set, set__lastUpdate=currentUpdateSetMF,
+                                upsert=True)
             else:
+                errorsDuringUpdate = True
                 allErrors.append(errors)
-
+        #Set the last update date if no exceptions was thrown
+        #Would be useful if we do a harvestByMF in the futur: we won't retrieve everything
+        if not errorsDuringUpdate:
+            metadataFormat.lastUpdate = currentUpdateMF
+            metadataFormat.save()
     return allErrors
 
 ################################################################################
@@ -1102,23 +1103,23 @@ def harvestByMF(registrySetsToHarvest, metadataformats, url, registry_id, regist
         except:
             lastUpdate = None
         #Update the new date for the metadataFormat
-        currentDate = datetime.datetime.now()
+        currentUpdateMF = datetime.datetime.now()
         errors = harvestRecords(url, registry_id, metadataFormat, lastUpdate, registryAllSets)
         #If no exceptions was thrown and no errors occured, we can update the lastUpdate date
         if len(errors) == 0:
-            #Update the update date for all sets
+            #Update the update date for all sets in the OaiMetadataformatSet Collection
+            #Would be useful if we do a harvestBySetsAndMF in the futur: we won't retrieve everything
             if len(registrySetsToHarvest) != 0:
                 for set in registrySetsToHarvest:
-                    set.lastUpdate = currentDate
-                    set.save()
+                    OaiMetadataformatSet.objects.filter(metadataformat=metadataFormat, set=set)\
+                        .update(set__metadataformat=metadataFormat, set__set=set, set__lastUpdate=currentUpdateMF,
+                                upsert=True)
             #Update the update date
-            metadataFormat.lastUpdate = currentDate
+            metadataFormat.lastUpdate = currentUpdateMF
             metadataFormat.save()
         else:
             allErrors.append(errors)
-
     return allErrors
-
 
 ################################################################################
 #
@@ -1151,7 +1152,7 @@ def harvestRecords(url, registry_id, metadataFormat, lastUpdate, registryAllSets
                 except:
                     obj = OaiRecord()
                 obj.identifier=info['identifier']
-                obj.datestamp=info['datestamp']
+                obj.datestamp=datestamp.datestamp_to_datetime(info['datestamp'])
                 obj.deleted=info['deleted']
                 obj.metadataformat=metadataFormat
                 obj.sets=sets
