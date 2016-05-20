@@ -61,14 +61,15 @@ class OAI_PMH_Test(RegressionTest):
         self.restoreDump(join(DUMP_OAI_PMH_TEST_PATH, 'oai_xslt.bson'), 'oai_xslt')
         self.assertTrue(len(OaiXslt.objects()) > 0)
 
-    def dump_oai_registry(self):
+    def dump_oai_registry(self, dumpRecords=True):
         self.assertEquals(len(OaiRegistry.objects()), 0)
         self.restoreDump(join(DUMP_OAI_PMH_TEST_PATH, 'oai_registry.bson'), 'oai_registry')
         self.assertTrue(len(OaiRegistry.objects()) > 0)
         self.dump_oai_identify()
         self.dump_oai_metadata_format()
         self.dump_oai_set()
-        self.dump_oai_record()
+        if dumpRecords:
+            self.dump_oai_record()
 
     def dump_oai_identify(self):
         self.assertEquals(len(OaiIdentify.objects()), 0)
