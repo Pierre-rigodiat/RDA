@@ -21,10 +21,14 @@
 -->
 {% endcomment %}
 
+{% block extrastyle %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/nmrr/admin.css' %}" media="screen" />
+{% endblock %}
+
 {% block title %}<h1>Upload {{ object_type }} Version</h1>{% endblock %}
 
-{% block menu %}{% include 'admin/menu/main.html' with active_tab='tab3' %}{% endblock %}
-{% block submenu %}
+{% block admin_menu %}{% include 'admin/menu/main.html' with active_tab='tab3' %}{% endblock %}
+{% block admin_submenu %}
     {% if object_type == "Template" %}
         {% include 'admin/menu/submenu/template.html' with active_tab='tab1' %}
     {% elif object_type == "Type" %}
