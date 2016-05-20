@@ -145,3 +145,6 @@ class ListIdentifierSerializer(serializers.Serializer):
     identifier = serializers.CharField(required=True)
     setSpecs = serializers.CharField(required=True)
     datestamp = serializers.CharField(required=True)
+
+class HarvestSerializer(serializers.Serializer):
+    registry_id = serializers.CharField(required=True)
