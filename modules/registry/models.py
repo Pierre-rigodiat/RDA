@@ -61,7 +61,7 @@ class RegistryCheckboxesModule(CheckboxesModule):
             # get XML to reload
             reload_data = etree.fromstring("<root>" + data + "</root>")
             for child in reload_data:
-                self.selected.append(child.text)
+                self.selected.append(child.text.strip())
         
         return CheckboxesModule.get_module(self, request)
 
