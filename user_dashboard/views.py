@@ -251,6 +251,8 @@ def dashboard_detail_resource(request) :
                 newdom = shortTransform(dom)
             else:
                 newdom = transform(dom)
+        else:
+            newdom = "No data to display"
     except Exception, e:
         #We use the default one
         newdom = transform(dom)
