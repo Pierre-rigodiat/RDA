@@ -14,7 +14,8 @@
 from oai_pmh.tests.models import OAI_PMH_Test
 from oai_pmh.api.views import createRegistry, createOaiIdentify, setDataToRegistry, createMetadataformatsForRegistry,\
     sickleListObjectMetadataFormats, sickleListObjectSets, setMetadataFormatXMLSchema, createSetsForRegistry, \
-    sickleObjectIdentify, getListRecords, harvestRecords, harvestByMF, harvestBySetsAndMF
+    sickleObjectIdentify, getListRecords, harvestRecords, harvestByMF, harvestBySetsAndMF, modifyRegistry, \
+    modifyOaiIdentify, modifyMetadataformatsForRegistry, modifySetsForRegistry
 from mgi.models import OaiRegistry, OaiIdentify, OaiMetadataFormat, OaiMyMetadataFormat, OaiSettings, Template, OaiSet,\
     OaiMySet, OaiRecord, XMLdata, OaiTemplMfXslt, OaiMetadataformatSet
 import xmltodict
@@ -47,6 +48,24 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         self.dump_oai_settings()
         self.dump_oai_my_set()
         self.dump_oai_my_metadata_format()
+        self.setHarvest(True)
+        data = {"url": URL_TEST_SERVER, "harvestrate": 5000, "harvest": True}
+        req = self.doRequestPost(url=reverse("api_add_registry"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_201_CREATED)
+
+    def test_add_registry_no_sets(self):
+        self.dump_oai_settings()
+        # self.dump_oai_my_set()
+        self.dump_oai_my_metadata_format()
+        self.setHarvest(True)
+        data = {"url": URL_TEST_SERVER, "harvestrate": 5000, "harvest": True}
+        req = self.doRequestPost(url=reverse("api_add_registry"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_201_CREATED)
+
+    def test_add_registry_no_metadataFormats(self):
+        self.dump_oai_settings()
+        self.dump_oai_my_set()
+        # self.dump_oai_my_metadata_format()
         self.setHarvest(True)
         data = {"url": URL_TEST_SERVER, "harvestrate": 5000, "harvest": True}
         req = self.doRequestPost(url=reverse("api_add_registry"), data=data, auth=ADMIN_AUTH)
@@ -396,16 +415,8 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         identify, registry = self.call_createRegistry()
         metadataformatsData = self.getMetadataFormatData()
         createMetadataformatsForRegistry(metadataformatsData, registry)
+        self.assert_OaiMetadataFormat_Registry(metadataformatsData, registry)
 
-        for metadataformat in metadataformatsData:
-            objInDatabase = OaiMetadataFormat.objects.get(metadataPrefix=metadataformat['metadataPrefix'],
-                                                          registry=str(registry.id))
-            self.assertEquals(metadataformat['metadataPrefix'], objInDatabase.metadataPrefix)
-            self.assertEquals(metadataformat['metadataNamespace'], objInDatabase.metadataNamespace)
-            self.assertEquals(metadataformat['schema'], objInDatabase.schema)
-            self.assertEquals(str(registry.id), objInDatabase.registry)
-            self.assertEquals(True, objInDatabase.harvest)
-            # self.assertEquals(metadataformat['raw'], objInDatabase.raw)
 
     def test_createMetadataformatsForRegistry_function_bad_raw(self):
         self.dump_oai_settings()
@@ -1382,7 +1393,261 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         req, resumptionToken = getListRecords(url, metadataPrefix)
         self.assertEquals(req.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+###############################################################################
+
+######################## update_registry_info tests ###########################
+
+
+    def test_update_registry_info(self):
+        self.dump_oai_settings()
+        self.dump_oai_registry(dumpRecords=False, dumpSets=False, dumpMetadataFormats=False)
+        self.setHarvest(True)
+        lenBeforeMF = len(OaiMetadataFormat.objects.all())
+        lenBeforeSets = len(OaiSet.objects.all())
+        self.assertEquals(lenBeforeMF, 0)
+        self.assertEquals(lenBeforeSets, 0)
+        #Dump new MF and Set for the server
+        self.dump_oai_my_metadata_format()
+        self.dump_oai_my_set()
+        registry = OaiRegistry.objects.get()
+        registry.url = URL_TEST_SERVER
+        registry.save()
+        registry_id = str(registry.id)
+        data = {"registry_id": registry_id}
+        #Update the information
+        req = self.doRequestPut(url=reverse("api_update_registry_info"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_200_OK)
+        #Check the update
+        lenAfterMF = len(OaiMetadataFormat.objects.all())
+        lenAfterSets = len(OaiSet.objects.all())
+        lenMyMF = len(OaiMyMetadataFormat.objects.all())
+        lenMySets = len(OaiMySet.objects.all())
+        self.assertTrue(lenAfterMF,lenMyMF)
+        self.assertTrue(lenAfterSets, lenMySets)
+
+
+    def test_update_registry_info_no_set(self):
+        self.dump_oai_settings()
+        self.dump_oai_my_metadata_format()
+        # self.dump_oai_my_set()
+        self.dump_xmldata()
+        self.dump_oai_registry()
+        self.setHarvest(True)
+        registry = OaiRegistry.objects.get()
+        registry.url = URL_TEST_SERVER
+        registry.save()
+        registry_id = str(registry.id)
+        data = {"registry_id": registry_id}
+        req = self.doRequestPut(url=reverse("api_update_registry_info"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_200_OK)
+
+    def test_update_registry_info_no_mf(self):
+        self.dump_oai_settings()
+        # self.dump_oai_my_metadata_format()
+        self.dump_oai_my_set()
+        self.dump_xmldata()
+        self.dump_oai_registry()
+        self.setHarvest(True)
+        registry = OaiRegistry.objects.get()
+        registry.url = URL_TEST_SERVER
+        registry.save()
+        registry_id = str(registry.id)
+        data = {"registry_id": registry_id}
+        req = self.doRequestPut(url=reverse("api_update_registry_info"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_200_OK)
+
+    def test_update_registry_info_bad_identify(self):
+        self.dump_oai_settings_bad()
+        self.dump_oai_my_metadata_format()
+        self.dump_oai_my_set()
+        self.dump_oai_registry()
+        registry = OaiRegistry.objects.get()
+        registry.url = URL_TEST_SERVER
+        registry.save()
+        registry_id = str(registry.id)
+        data = {"registry_id": registry_id}
+        req = self.doRequestPut(url=reverse("api_update_registry_info"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def test_update_registry_info_bad_mf(self):
+        self.dump_oai_settings()
+        self.dump_oai_my_metadata_format_bad()
+        self.dump_oai_my_set()
+        self.dump_oai_registry()
+        registry = OaiRegistry.objects.get()
+        registry.url = URL_TEST_SERVER
+        registry.save()
+        registry_id = str(registry.id)
+        data = {"registry_id": registry_id}
+        req = self.doRequestPut(url=reverse("api_update_registry_info"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+    def test_update_registry_info_bad_set(self):
+        self.dump_oai_settings()
+        self.dump_oai_my_metadata_format()
+        self.dump_oai_my_set_bad()
+        self.dump_oai_registry()
+        registry = OaiRegistry.objects.get()
+        registry.url = URL_TEST_SERVER
+        registry.save()
+        registry_id = str(registry.id)
+        data = {"registry_id": registry_id}
+        req = self.doRequestPut(url=reverse("api_update_registry_info"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+    def test_update_registry_info_server_bad_url(self):
+        self.dump_oai_settings()
+        self.dump_oai_registry()
+        registry = OaiRegistry.objects.get()
+        url= "http://127.0.0.1:8082/noserver"
+        registry.url = url
+        registry.save()
+        registry_id = str(registry.id)
+        data = {"registry_id": registry_id}
+        req = self.doRequestPut(url=reverse("api_update_registry_info"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def test_update_registry_info_unauthorized(self):
+        self.dump_oai_settings()
+        data = {"registry_id": FAKE_ID}
+        req = self.doRequestPut(url=reverse("api_update_registry_info"), data=data, auth=USER_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_update_registry_info_serializer_invalid(self):
+        self.dump_oai_settings()
+        data = {"rrrrrregistry_id": FAKE_ID}
+        req = self.doRequestPut(url=reverse("api_update_registry_info"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_registry_info_registry_not_found(self):
+        self.dump_oai_settings()
+        data = {"registry_id": FAKE_ID}
+        req = self.doRequestPut(url=reverse("api_update_registry_info"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_modifyRegistry(self):
+        #Call the function to create the registry
+        identify, registry = self.call_createRegistry()
+        self.assert_OaiIdentify(identify)
+        modifiedIdentifyData = self.getModifiedIdentifyData()
+        identify, registry = modifyRegistry(modifiedIdentifyData, registry)
+        self.assert_OaiIdentify(identify, modifiedIdentifyData)
+        self.assertEqual(identify, registry.identify)
+        self.assertEqual(identify.repositoryName, registry.name)
+        self.assertEqual(identify.description, registry.description)
+
+    def test_modifyRegistry_bad_raw(self):
+        #Call the function to create the registry
+        identify, registry = self.call_createRegistry()
+        self.assert_OaiIdentify(identify)
+        identifyData = self.getIdentifyData()
+        identifyData['raw'] = '<test>hello<test>'
+        identifyData['repositoryName'] = "New fake name"
+        modifyRegistry(identifyData, registry)
+        identify = OaiRegistry.objects.get(pk=registry.id).identify
+        self.assert_OaiIdentify(identify, identifyData)
+
+    def test_modifyOaiIdentify(self):
+        identify, registry = self.call_createRegistry()
+        self.assert_OaiIdentify(identify)
+        identifyData = self.getModifiedIdentifyData()
+        raw = identifyData['raw']
+        identifyRaw = xmltodict.parse(raw)
+        modifiedIdentity = modifyOaiIdentify(identifyData, identifyRaw, identify.id)
+        self.assert_OaiIdentify(modifiedIdentity, identifyData)
+
+    def test_modifyMetadataformatsForRegistry(self):
+        self.dump_template()
+        self.dump_oai_settings()
+        self.dump_oai_my_metadata_format()
+        self.setHarvest(True)
+        identify, registry = self.call_createRegistry()
+        metadataformatsData = self.getMetadataFormatData()
+        createMetadataformatsForRegistry(metadataformatsData, registry)
+        self.assert_OaiMetadataFormat_Registry(metadataformatsData, registry)
+        modifiedMetadataformatsData = self.getModifiedMetadataFormatData()
+        modifyMetadataformatsForRegistry(registry, modifiedMetadataformatsData)
+        self.assert_OaiMetadataFormat_Registry(modifiedMetadataformatsData, registry)
+
+    def test_modifyMetadataformatsForRegistry_new_MF(self):
+        self.dump_template()
+        self.dump_oai_settings()
+        self.dump_oai_my_metadata_format()
+        self.setHarvest(True)
+        identify, registry = self.call_createRegistry()
+        metadataformatsData = self.getMetadataFormatData()
+        createMetadataformatsForRegistry(metadataformatsData, registry)
+        self.assert_OaiMetadataFormat_Registry(metadataformatsData, registry)
+        modifiedMetadataformatsData = self.getNewMetadataFormatData()
+        lenBeforeMF = len(OaiMetadataFormat.objects.all())
+        modifyMetadataformatsForRegistry(registry, modifiedMetadataformatsData)
+        lenAfterMF = len(OaiMetadataFormat.objects.all())
+        self.assertEqual(lenAfterMF, lenBeforeMF + 1)
+        self.assert_OaiMetadataFormat_Registry(modifiedMetadataformatsData, registry)
+
+    def test_modifyMetadataformatsForRegistry_bad_new_MF(self):
+        self.dump_template()
+        self.dump_oai_settings()
+        self.dump_oai_my_metadata_format()
+        self.setHarvest(True)
+        identify, registry = self.call_createRegistry()
+        metadataformatsData = self.getMetadataFormatData()
+        createMetadataformatsForRegistry(metadataformatsData, registry)
+        self.assert_OaiMetadataFormat_Registry(metadataformatsData, registry)
+        modifiedMetadataformatsData = self.getBadNewMetadataFormatData()
+        lenBeforeMF = len(OaiMetadataFormat.objects.all())
+        modifyMetadataformatsForRegistry(registry, modifiedMetadataformatsData)
+        lenAfterMF = len(OaiMetadataFormat.objects.all())
+        self.assertEqual(lenAfterMF, lenBeforeMF)
+
+    def test_modifySetsForRegistry(self):
+        self.dump_template()
+        self.dump_oai_settings()
+        self.dump_oai_my_set()
+        self.setHarvest(True)
+        identify, registry = self.call_createRegistry()
+        setsData = self.getSetData()
+        createSetsForRegistry(registry, setsData)
+        self.assert_OaiSet_Registry(setsData, registry)
+        modifiedSetsData = self.getModifiedSetData()
+        modifySetsForRegistry(registry, modifiedSetsData)
+        self.assert_OaiSet_Registry(modifiedSetsData, registry)
+
+    def test_modifySetsForRegistry_new_set(self):
+        self.dump_template()
+        self.dump_oai_settings()
+        self.dump_oai_my_metadata_format()
+        self.setHarvest(True)
+        identify, registry = self.call_createRegistry()
+        setsData = self.getSetData()
+        createSetsForRegistry(registry, setsData)
+        self.assert_OaiSet_Registry(setsData, registry)
+        modifiedSetsData = self.getNewSetData()
+        lenBeforeSet = len(OaiSet.objects.all())
+        modifySetsForRegistry(registry, modifiedSetsData)
+        lenAfterSet = len(OaiSet.objects.all())
+        self.assertEqual(lenAfterSet, lenBeforeSet + 1)
+        self.assert_OaiSet_Registry(modifiedSetsData, registry)
+
+    def test_modifySetsForRegistry_bad_new_set(self):
+        self.dump_template()
+        self.dump_oai_settings()
+        self.dump_oai_my_metadata_format()
+        self.setHarvest(True)
+        identify, registry = self.call_createRegistry()
+        setsData = self.getSetData()
+        createSetsForRegistry(registry, setsData)
+        self.assert_OaiSet_Registry(setsData, registry)
+        modifiedSetsData = self.getBadNewSetData()
+        lenBeforeSet = len(OaiSet.objects.all())
+        modifySetsForRegistry(registry, modifiedSetsData)
+        lenAfterSet = len(OaiSet.objects.all())
+        self.assertEqual(lenAfterSet, lenBeforeSet)
+
 ################################################################################
+
 
 
 ################################################################################
@@ -1402,10 +1667,13 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         self.assertEquals(retrievedIdentifyData['scheme'], settings.OAI_SCHEME)
 
 
-    def assert_OaiIdentify(self, objIdentify):
-        identifyData = self.getIdentifyData()
-        objInDatabaseXmlTree = etree.XML(xmltodict.unparse(objIdentify.raw).encode('utf-8'))
-        objInDatabaseXmlString = etree.tostring(objInDatabaseXmlTree, xml_declaration=False)
+    def assert_OaiIdentify(self, objIdentify, identifyData=None):
+        if identifyData is not None:
+            identifyData = identifyData
+        else:
+            identifyData = self.getIdentifyData()
+        #objInDatabaseXmlTree = etree.XML(xmltodict.unparse(objIdentify.raw).encode('utf-8'))
+        #objInDatabaseXmlString = etree.tostring(objInDatabaseXmlTree, xml_declaration=False)
         self.assertEquals(identifyData['adminEmail'], objIdentify.adminEmail)
         self.assertEquals(identifyData['baseURL'], objIdentify.baseURL)
         self.assertEquals(identifyData['repositoryName'], objIdentify.repositoryName)
@@ -1442,6 +1710,25 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
             self.assertEquals(el['metadataNamespace'], metadataFormat.metadataNamespace)
             self.assertEquals(el['schema'], metadataFormat.schema)
             # self.assertEquals(el['raw'], metadataFormat.raw)
+
+    def assert_OaiMetadataFormat_Registry(self, metadataformatsData, registry):
+        for metadataformat in metadataformatsData:
+            objInDatabase = OaiMetadataFormat.objects.get(metadataPrefix=metadataformat['metadataPrefix'],
+                                                          registry=str(registry.id))
+            self.assertEquals(metadataformat['metadataPrefix'], objInDatabase.metadataPrefix)
+            self.assertEquals(metadataformat['metadataNamespace'], objInDatabase.metadataNamespace)
+            self.assertEquals(metadataformat['schema'], objInDatabase.schema)
+            self.assertEquals(str(registry.id), objInDatabase.registry)
+            self.assertEquals(True, objInDatabase.harvest)
+            # self.assertEquals(metadataformat['raw'], objInDatabase.raw)
+
+    def assert_OaiSet_Registry(self, setsData, registry):
+        #Get metadata format in database
+        setsInDatabase = OaiSet.objects(registry=str(registry.id)).all()
+        for set in setsInDatabase:
+            el = [x for x in setsData if x['setSpec'] == set.setSpec][0]
+            self.assertNotEquals(el, None)
+            self.assertEquals(el['setName'], set.setName)
 
     def assert_OaiSet(self, retrievedSetsData):
         #Get metadata format in database
@@ -1618,6 +1905,41 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         return identifyData
 
 
+    def getModifiedIdentifyData(self):
+        identifyData = {"adminEmail": "test10@oai-pmh.us",
+              "baseURL": "http://127.0.0.1:8888/oai_pmh/server/",
+              "repositoryName": "Y Repository",
+              "deletedRecord": "yes",
+              "delimiter": "/",
+              "description": "One OAI-PMH server modified",
+              "earliestDatestamp": '1991-03-16T08:23Z',
+              "granularity": 'YY-MM-DDThh:mmZ',
+              "oai_identifier": 'oai-identifier-modified',
+              "protocolVersion": '22.0',
+              "repositoryIdentifier": 'server-127.0.0.1-modified',
+              "sampleIdentifier": "oai:server-127.0.0.1-modified:id/12345678a123aff6ff5f2d9e",
+              "scheme": 'oaii',
+              "raw": '<Identify xmlns="http://www.openarchives.org/OAI/2.0/" '
+                     'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+                     '<repositoryName>Y Repository</repositoryName>'
+                     '<baseURL>http://127.0.0.1:88888/oai_pmh/server/</baseURL>'
+                     '<protocolVersion>22.0</protocolVersion>'
+                     '<adminEmail>test10@oai-pmh.us</adminEmail>'
+                     '<earliestDatestamp>1991-03-16T15:23Z</earliestDatestamp>'
+                     '<deletedRecord>yes</deletedRecord>'
+                     '<granularity>YYYY-MM-DDThh:mmZ</granularity>'
+                     '<description><oai-identifier xmlns="http://www.openarchives.org/OAI/2.0/oai-identifier" '
+                     'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+                     'xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai-identifier '
+                     'http://www.openarchives.org/OAI/2.0/oai-identifier.xsd"><scheme>oaii</scheme>'
+                     '<repositoryIdentifier>server-127.0.0.1-modified</repositoryIdentifier><delimiter>/</delimiter>'
+                     '<sampleIdentifier>oai:server-127.0.0.1-modified:id/12345678a123aff6ff5f2d9e</sampleIdentifier>'
+                     '</oai-identifier></description>'
+                     '</Identify>'
+        }
+        return identifyData
+
+
     def getMetadataFormatData(self):
         metadataFormatData = [{'metadataPrefix': 'oai_dc',
                                'metadataNamespace': 'http://www.openarchives.org/OAI/2.0/oai_dc/',
@@ -1643,6 +1965,108 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
                                       '<metadataNamespace>http://www.w3.org/2001/XMLSchema</metadataNamespace>'
                                       '<metadataPrefix>oai_soft</metadataPrefix>'
                                       '<schema>http://127.0.0.1:8082/oai_pmh/server/XSD/Software.xsd</schema></metadataFormat>'}
+                            ]
+        return metadataFormatData
+
+
+    def getModifiedMetadataFormatData(self):
+        metadataFormatData = [{'metadataPrefix': 'oai_all',
+                               'metadataNamespace': 'http://www.openarchives.org/OAI/2.0/oai_dc/',
+                               'schema': 'http://127.0.0.1:8082/oai_pmh/server/XSD/Software.xsd',
+                               'raw': '<metadataFormat xmlns="http://www.openarchives.org/OAI/2.0/" '
+                                      'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+                                      '<metadataNamespace>http://www.openarchives.org/OAI/2.0/oai_dc/</metadataNamespace>'
+                                      '<metadataPrefix>oai_dc</metadataPrefix>'
+                                      '<schema>http://www.openarchives.org/OAI/2.0/oai_dc.xsd</schema></metadataFormat>'},
+                              {'metadataPrefix': 'oai_soft',
+                               'metadataNamespace': 'http://www.w3.org/2001/XMLSchema',
+                               'schema': 'http://127.0.0.1:8082/oai_pmh/server/XSD/AllResources.xsd',
+                               'raw': '<metadataFormat xmlns="http://www.openarchives.org/OAI/2.0/" '
+                                      'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+                                      '<metadataNamespace>http://www.w3.org/2001/XMLSchema</metadataNamespace>'
+                                      '<metadataPrefix>oai_all</metadataPrefix>'
+                                      '<schema>http://127.0.0.1:8082/oai_pmh/server/XSD/AllResources.xsd</schema></metadataFormat>'},
+                              {'metadataPrefix': 'oai_dc',
+                               'metadataNamespace': 'http://www.w3.org/2001/XMLSchema',
+                               'schema': 'http://127.0.0.1:8082/oai_pmh/server/XSD/Software.xsd',
+                               'raw': '<metadataFormat xmlns="http://www.openarchives.org/OAI/2.0/" '
+                                      'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+                                      '<metadataNamespace>http://www.w3.org/2001/XMLSchema</metadataNamespace>'
+                                      '<metadataPrefix>oai_soft</metadataPrefix>'
+                                      '<schema>http://127.0.0.1:8082/oai_pmh/server/XSD/Software.xsd</schema></metadataFormat>'}
+                            ]
+        return metadataFormatData
+
+
+    def getNewMetadataFormatData(self):
+        metadataFormatData = [{'metadataPrefix': 'oai_dc',
+                               'metadataNamespace': 'http://www.openarchives.org/OAI/2.0/oai_dc/',
+                               'schema': 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
+                               'raw': '<metadataFormat xmlns="http://www.openarchives.org/OAI/2.0/" '
+                                      'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+                                      '<metadataNamespace>http://www.openarchives.org/OAI/2.0/oai_dc/</metadataNamespace>'
+                                      '<metadataPrefix>oai_dc</metadataPrefix>'
+                                      '<schema>http://www.openarchives.org/OAI/2.0/oai_dc.xsd</schema></metadataFormat>'},
+                              {'metadataPrefix': 'oai_all',
+                               'metadataNamespace': 'http://www.w3.org/2001/XMLSchema',
+                               'schema': 'http://127.0.0.1:8082/oai_pmh/server/XSD/AllResources.xsd',
+                               'raw': '<metadataFormat xmlns="http://www.openarchives.org/OAI/2.0/" '
+                                      'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+                                      '<metadataNamespace>http://www.w3.org/2001/XMLSchema</metadataNamespace>'
+                                      '<metadataPrefix>oai_all</metadataPrefix>'
+                                      '<schema>http://127.0.0.1:8082/oai_pmh/server/XSD/AllResources.xsd</schema></metadataFormat>'},
+                              {'metadataPrefix': 'oai_soft',
+                               'metadataNamespace': 'http://www.w3.org/2001/XMLSchema',
+                               'schema': 'http://127.0.0.1:8082/oai_pmh/server/XSD/Software.xsd',
+                               'raw': '<metadataFormat xmlns="http://www.openarchives.org/OAI/2.0/" '
+                                      'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+                                      '<metadataNamespace>http://www.w3.org/2001/XMLSchema</metadataNamespace>'
+                                      '<metadataPrefix>oai_soft</metadataPrefix>'
+                                      '<schema>http://127.0.0.1:8082/oai_pmh/server/XSD/Software.xsd</schema></metadataFormat>'},
+                              {'metadataPrefix': 'oai_dataset',
+                               'metadataNamespace': 'http://www.w3.org/2001/XMLSchema',
+                               'schema': 'http://127.0.0.1:8082/oai_pmh/server/XSD/Dataset.xsd',
+                               'raw': '<metadataFormat xmlns="http://www.openarchives.org/OAI/2.0/" '
+                                      'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+                                      '<metadataNamespace>http://www.w3.org/2001/XMLSchema</metadataNamespace>'
+                                      '<metadataPrefix>oai_dataset</metadataPrefix>'
+                                      '<schema>http://127.0.0.1:8082/oai_pmh/server/XSD/Dataset.xsd</schema></metadataFormat>'}
+                            ]
+        return metadataFormatData
+
+    def getBadNewMetadataFormatData(self):
+        metadataFormatData = [{'metadataPrefix': 'oai_dc',
+                               'metadataNamespace': 'http://www.openarchives.org/OAI/2.0/oai_dc/',
+                               'schema': 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
+                               'raw': '<metadataFormat xmlns="http://www.openarchives.org/OAI/2.0/" '
+                                      'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+                                      '<metadataNamespace>http://www.openarchives.org/OAI/2.0/oai_dc/</metadataNamespace>'
+                                      '<metadataPrefix>oai_dc</metadataPrefix>'
+                                      '<schema>http://www.openarchives.org/OAI/2.0/oai_dc.xsd</schema></metadataFormat>'},
+                              {'metadataPrefix': 'oai_all',
+                               'metadataNamespace': 'http://www.w3.org/2001/XMLSchema',
+                               'schema': 'http://127.0.0.1:8082/oai_pmh/server/XSD/AllResources.xsd',
+                               'raw': '<metadataFormat xmlns="http://www.openarchives.org/OAI/2.0/" '
+                                      'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+                                      '<metadataNamespace>http://www.w3.org/2001/XMLSchema</metadataNamespace>'
+                                      '<metadataPrefix>oai_all</metadataPrefix>'
+                                      '<schema>http://127.0.0.1:8082/oai_pmh/server/XSD/AllResources.xsd</schema></metadataFormat>'},
+                              {'metadataPrefix': 'oai_soft',
+                               'metadataNamespace': 'http://www.w3.org/2001/XMLSchema',
+                               'schema': 'http://127.0.0.1:8082/oai_pmh/server/XSD/Software.xsd',
+                               'raw': '<metadataFormat xmlns="http://www.openarchives.org/OAI/2.0/" '
+                                      'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+                                      '<metadataNamespace>http://www.w3.org/2001/XMLSchema</metadataNamespace>'
+                                      '<metadataPrefix>oai_soft</metadataPrefix>'
+                                      '<schema>http://127.0.0.1:8082/oai_pmh/server/XSD/Software.xsd</schema></metadataFormat>'},
+                              {'metadataPrefix': 'oai_dataset',
+                               'metadataNamespace': 'http://www.w3.org/2001/XMLSchema',
+                               'schema': 'http://127.0.0.1:8000/oai_pmh/server/XSD/Dataset.xsd',
+                               'raw': '<metadataFormat xmlns="http://www.openarchives.org/OAI/2.0/" '
+                                      'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+                                      '<metadataNamespace>http://www.w3.org/2001/XMLSchema</metadataNamespace>'
+                                      '<metadataPrefix>oai_dataset</metadataPrefix>'
+                                      '<schema>http://127.0.0.1:8082/oai_pmh/server/XSD/Dataset.xsd</schema></metadataFormat>'}
                             ]
         return metadataFormatData
 
@@ -1673,6 +2097,117 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
                            'http://www.openarchives.org/OAI/2.0/oai_dc.xsd">'
                            '<dc:description xml:lang="en">\n                    Get software records\n                '
                            '</dc:description></oai_dc:dc></setDescription></set>'}
+                   ]
+        return setData
+
+    def getModifiedSetData(self):
+        setData = [{'setName': 'alll', 'setSpec': 'all',
+                    'raw': '<set xmlns="http://www.openarchives.org/OAI/2.0/" '
+                           'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+                           '<setSpec>all</setSpec>'
+                           '<setName>alll</setName>'
+                           '<setDescription><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" '
+                           'xmlns:dc="http://purl.org/dc/elements/1.1/"'
+                           ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+                           'xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/            '
+                           ' http://www.openarchives.org/OAI/2.0/oai_dc.xsd">'
+                           '<dc:description xml:lang="en">'
+                           '\n                    Get all recordssss\n                </dc:description>'
+                           '</oai_dc:dc></setDescription></set>'},
+                   {'setName': 'softwaree', 'setSpec': 'soft',
+                    'raw': '<set xmlns="http://www.openarchives.org/OAI/2.0/" '
+                           'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+                           '<setSpec>soft</setSpec>'
+                           '<setName>softwaree</setName>'
+                           '<setDescription><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" '
+                           'xmlns:dc="http://purl.org/dc/elements/1.1/" '
+                           'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+                           'xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/             '
+                           'http://www.openarchives.org/OAI/2.0/oai_dc.xsd">'
+                           '<dc:description xml:lang="en">\n                    Get software recordsssss\n                '
+                           '</dc:description></oai_dc:dc></setDescription></set>'}
+                   ]
+        return setData
+
+    def getNewSetData(self):
+        setData = [{'setName': 'all', 'setSpec': 'all',
+                    'raw': '<set xmlns="http://www.openarchives.org/OAI/2.0/" '
+                           'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+                           '<setSpec>all</setSpec>'
+                           '<setName>all</setName>'
+                           '<setDescription><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" '
+                           'xmlns:dc="http://purl.org/dc/elements/1.1/"'
+                           ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+                           'xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/            '
+                           ' http://www.openarchives.org/OAI/2.0/oai_dc.xsd">'
+                           '<dc:description xml:lang="en">'
+                           '\n                    Get all records\n                </dc:description>'
+                           '</oai_dc:dc></setDescription></set>'},
+                   {'setName': 'software', 'setSpec': 'soft',
+                    'raw': '<set xmlns="http://www.openarchives.org/OAI/2.0/" '
+                           'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+                           '<setSpec>soft</setSpec>'
+                           '<setName>software</setName>'
+                           '<setDescription><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" '
+                           'xmlns:dc="http://purl.org/dc/elements/1.1/" '
+                           'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+                           'xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/             '
+                           'http://www.openarchives.org/OAI/2.0/oai_dc.xsd">'
+                           '<dc:description xml:lang="en">\n                    Get software records\n                '
+                           '</dc:description></oai_dc:dc></setDescription></set>'},
+                   {'setName': 'toto', 'setSpec': 'to',
+                    'raw': '<set xmlns="http://www.openarchives.org/OAI/2.0/" '
+                           'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+                           '<setSpec>to</setSpec>'
+                           '<setName>toto</setName>'
+                           '<setDescription><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" '
+                           'xmlns:dc="http://purl.org/dc/elements/1.1/" '
+                           'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+                           'xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/             '
+                           'http://www.openarchives.org/OAI/2.0/oai_dc.xsd">'
+                           '<dc:description xml:lang="en">\n                    Get software records new\n                '
+                           '</dc:description></oai_dc:dc></setDescription></set>'}
+                   ]
+        return setData
+
+    def getBadNewSetData(self):
+        setData = [{'setName': 'all', 'setSpec': 'all',
+                    'raw': '<set xmlns="http://www.openarchives.org/OAI/2.0/" '
+                           'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+                           '<setSpec>all</setSpec>'
+                           '<setName>all</setName>'
+                           '<setDescription><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" '
+                           'xmlns:dc="http://purl.org/dc/elements/1.1/"'
+                           ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+                           'xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/            '
+                           ' http://www.openarchives.org/OAI/2.0/oai_dc.xsd">'
+                           '<dc:description xml:lang="en">'
+                           '\n                    Get all records\n                </dc:description>'
+                           '</oai_dc:dc></setDescription></set>'},
+                   {'setName': 'software', 'setSpec': 'soft',
+                    'raw': '<set xmlns="http://www.openarchives.org/OAI/2.0/" '
+                           'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+                           '<setSpec>soft</setSpec>'
+                           '<setName>software</setName>'
+                           '<setDescription><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" '
+                           'xmlns:dc="http://purl.org/dc/elements/1.1/" '
+                           'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+                           'xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/             '
+                           'http://www.openarchives.org/OAI/2.0/oai_dc.xsd">'
+                           '<dc:description xml:lang="en">\n                    Get software records\n                '
+                           '</dc:description></oai_dc:dc></setDescription></set>'},
+                   {'setName': 'toto', 'setSpec': 'to',
+                    'raw': '<set xmlns="http://www.openarchives.org/OAI/2.0/" '
+                           'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+                           '<setSpec>to</setSpec>'
+                           '<setName>toto</setName>'
+                           '<setDescription><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" '
+                           'xmlns:dc="http://purl.org/dc/elements/1.1/" '
+                           'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+                           'xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/             '
+                           'http://www.openarchives.org/OAI/2.0/oai_dc.xsd">'
+                           '<dc:description xml:lang="en">\n                    Get software records new\n                '
+                           '</dc:description></oai_dc:dc></setDescription>set>'}
                    ]
         return setData
 

@@ -148,3 +148,6 @@ class ListIdentifierSerializer(serializers.Serializer):
 
 class HarvestSerializer(serializers.Serializer):
     registry_id = serializers.CharField(required=True)
+
+class UpdateRegistryInfo(serializers.Serializer):
+    registry_id = serializers.CharField(required=True)
