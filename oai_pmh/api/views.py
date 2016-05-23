@@ -30,7 +30,7 @@ from oai_pmh.api.serializers import IdentifyObjectSerializer, MetadataFormatSeri
     UpdateMyMetadataFormatSerializer, GetRecordSerializer, UpdateMySetSerializer, DeleteMySetSerializer,\
     MySetSerializer, MyTemplateMetadataFormatSerializer, DeleteXSLTSerializer, OaiConfXSLTSerializer, \
     OaiXSLTSerializer, RegistryIdSerializer, UpdateRegistryHarvestSerializer, AddRegistrySerializer,\
-    ListIdentifierSerializer, HarvestSerializer
+    ListIdentifierSerializer, HarvestSerializer, UpdateRegistryInfo
 # Models
 from mgi.models import OaiRegistry, OaiSet, OaiMetadataFormat, OaiIdentify, OaiSettings, Template, OaiRecord,\
 OaiMyMetadataFormat, OaiMySet, OaiMetadataformatSet, OaiXslt, OaiTemplMfXslt
@@ -661,19 +661,8 @@ def objectIdentify(request):
         serializer = IdentifySerializer(data=request.DATA)
         if serializer.is_valid():
             url = request.DATA['url']
-            req = sickleObjectIdentify(url)
-            if req.status_code == status.HTTP_200_OK:
-                identifyData = req.data
-                serializerIdentify = IdentifyObjectSerializer(data=identifyData)
-                # If it's not valid, return with a bad request
-                if not serializerIdentify.is_valid():
-                    raise OAIAPISerializeLabelledException(message="Identify serialization error.",
-                                                           errors=serializerIdentify.errors,
-                                                           status=status.HTTP_400_BAD_REQUEST)
-
-                return Response(req.data, status=status.HTTP_200_OK)
-            else:
-                raise OAIAPILabelledException(message=req.data[APIMessage.label], status=req.status_code)
+            req = objectIdentifyByURL(url)
+            return Response(req.data, status=req.status_code)
         else:
             raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
@@ -681,6 +670,34 @@ def objectIdentify(request):
     except Exception:
         content = APIMessage.getMessageLabelled('An error occurred when attempting to identify resource')
         return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+################################################################################
+#
+# Function Name: objectIdentifyByURL(request)
+# Inputs:        request -
+# Outputs:       200 Response successful.
+# Exceptions:    400 Error getting URL.
+#                401 Unauthorized.
+#                500 An error occurred when attempting to identify resource.
+# Description:   OAI-PMH Identify by URL
+#
+################################################################################
+def objectIdentifyByURL(url):
+    req = sickleObjectIdentify(url)
+    if req.status_code == status.HTTP_200_OK:
+        identifyData = req.data
+        serializerIdentify = IdentifyObjectSerializer(data=identifyData)
+        # If it's not valid, return with a bad request
+        if not serializerIdentify.is_valid():
+            raise OAIAPISerializeLabelledException(message="Identify serialization error.",
+                                                   errors=serializerIdentify.errors,
+                                                   status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(req.data, status=status.HTTP_200_OK)
+    else:
+        raise OAIAPILabelledException(message=req.data[APIMessage.label], status=req.status_code)
 
 
 ################################################################################
@@ -740,18 +757,11 @@ def listObjectMetadataFormats(request):
         serializer = IdentifySerializer(data=request.DATA)
         if serializer.is_valid():
             url = request.DATA['url']
-            req = sickleListObjectMetadataFormats(url)
-            if req.status_code == status.HTTP_200_OK:
-                metadataformatsData = req.data
-                serializerMetadataFormat = MetadataFormatSerializer(data=metadataformatsData)
-                if not serializerMetadataFormat.is_valid():
-                    raise OAIAPISerializeLabelledException(message="Metadata formats serialization error.",
-                                                           errors=serializerMetadataFormat.errors,
-                                                           status=status.HTTP_400_BAD_REQUEST)
-
-                return Response(req.data, status=status.HTTP_200_OK)
-            else:
+            req = listObjectMetadataFormatsByURL(url)
+            if req.status_code != status.HTTP_200_OK:
                 raise OAIAPILabelledException(message=req.data[APIMessage.label], status=req.status_code)
+
+            return Response(req.data, status=status.HTTP_200_OK)
         else:
             raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
@@ -761,7 +771,33 @@ def listObjectMetadataFormats(request):
         return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+################################################################################
+#
+# Function Name: listObjectMetadataFormats(request)
+# Inputs:        request -
+# Outputs:       200 Response successful.
+# Exceptions:    204 No metadata formats
+#                400 Error in URL value.
+#                400 Serializer failed validation.
+#                401 Unauthorized.
+#                500 An error occurred when attempting to identify resource.
+# Description:   OAI-PMH List Object Metadata Formats
+#
+################################################################################
+################################################################################
+def listObjectMetadataFormatsByURL(url):
+    req = sickleListObjectMetadataFormats(url)
+    if req.status_code == status.HTTP_200_OK:
+        metadataformatsData = req.data
+        serializerMetadataFormat = MetadataFormatSerializer(data=metadataformatsData)
+        if not serializerMetadataFormat.is_valid():
+            raise OAIAPISerializeLabelledException(message="Metadata formats serialization error.",
+                                                   errors=serializerMetadataFormat.errors,
+                                                   status=status.HTTP_400_BAD_REQUEST)
 
+        return Response(req.data, status=status.HTTP_200_OK)
+    else:
+        return Response(req.data, status=req.status_code)
 ################################################################################
 #
 # Function Name: sickleListObjectMetadataFormats(request)
@@ -822,18 +858,11 @@ def listObjectSets(request):
         serializer = IdentifySerializer(data=request.DATA)
         if serializer.is_valid():
             url = request.DATA['url']
-            req = sickleListObjectSets(url)
-            if req.status_code == status.HTTP_200_OK:
-                setsData = req.data
-                serializerSet = SetSerializer(data=setsData)
-                if not serializerSet.is_valid():
-                    raise OAIAPISerializeLabelledException(message="Sets serialization error.",
-                                                           errors=serializerSet.errors,
-                                                           status=status.HTTP_400_BAD_REQUEST)
-
-                return Response(req.data, status=status.HTTP_200_OK)
-            else:
+            req = listObjectSetsByURL(url)
+            if req.status_code != status.HTTP_200_OK:
                 raise OAIAPILabelledException(message=req.data[APIMessage.label], status=req.status_code)
+
+            return Response(req.data, status=status.HTTP_200_OK)
         else:
             raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
@@ -842,6 +871,33 @@ def listObjectSets(request):
         content = APIMessage.getMessageLabelled('An error occurred when attempting to identify resource')
         return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+################################################################################
+#
+# Function Name: listObjectSetsByURL(request)
+# Inputs:        request -
+# Outputs:       200 Response successful.
+#                204 No Sets
+# Exceptions:    400 Error(s) in required values value.
+#                400 Serializer failed validation.
+#                401 Unauthorized.
+#                500 An error occurred when attempting to identify resource.
+# Description:   OAI-PMH List object Sets by URL
+#
+################################################################################
+def listObjectSetsByURL(url):
+    req = sickleListObjectSets(url)
+    if req.status_code == status.HTTP_200_OK:
+        setsData = req.data
+        serializerSet = SetSerializer(data=setsData)
+        if not serializerSet.is_valid():
+            raise OAIAPISerializeLabelledException(message="Sets serialization error.",
+                                                   errors=serializerSet.errors,
+                                                   status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(req.data, status=status.HTTP_200_OK)
+    else:
+        return Response(req.data, status=req.status_code)
 
 ################################################################################
 #
@@ -1245,88 +1301,65 @@ def update_registry_info(request):
     id: string
     """
     try:
-        try:
+        #Serialization of the input data
+        serializer = UpdateRegistryInfo(data=request.DATA)
+        registry = None
+        #If it's valid
+        if serializer.is_valid():
             registry_id = request.DATA['registry_id']
-        except Exception:
-            content = {'registry_id':['This field is required.']}
-            raise OAIAPIException(message=content, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                registry = OaiRegistry.objects(pk=registry_id).get()
+                url = registry.url
+                registry.isUpdating = True
+                registry.save()
+                #Get the identify information for the given URL
+                identify = objectIdentifyByURL(url)
+                if identify.status_code == status.HTTP_200_OK:
+                    identifyData = identify.data
+                else:
+                    raise OAIAPILabelledException(message=identify.data[APIMessage.label], status=identify.status_code)
+                #Get the sets information for the given URL
+                sets = listObjectSetsByURL(url)
+                setsData = []
+                #If status OK, we try to serialize data and check if it's valid
+                if sets.status_code == status.HTTP_200_OK:
+                    setsData = sets.data
+                elif sets.status_code != status.HTTP_204_NO_CONTENT:
+                    raise OAIAPILabelledException(message=sets.data[APIMessage.label], status=sets.status_code)
+                #Get the metadata formats information for the given URL
+                metadataformats = listObjectMetadataFormatsByURL(url)
+                metadataformatsData = []
+                #If status OK, we try to serialize data and check if it's valid
+                if metadataformats.status_code == status.HTTP_200_OK:
+                    metadataformatsData = metadataformats.data
+                elif metadataformats.status_code != status.HTTP_204_NO_CONTENT:
+                    raise OAIAPILabelledException(message=metadataformats.data[APIMessage.label],
+                                                  status=metadataformats.status_code)
+                #Modify information
+                modifyRegistry(identifyData, registry)
+                modifySetsForRegistry(registry, setsData)
+                modifyMetadataformatsForRegistry(registry, metadataformatsData)
+                #Save the registry
+                registry.isUpdating = False
+                registry.save()
+                content = APIMessage.getMessageLabelled('Data provider updated with success.')
 
-        #We retrieve the registry (data provider)
-        try:
-            registry = OaiRegistry.objects(pk=registry_id).get()
-            url = registry.url
-            registry.isUpdating = True
-            registry.save()
-        except:
-            raise OAIAPILabelledException(message='No registry found with the given parameters.',
-                                  status=status.HTTP_404_NOT_FOUND)
-
-        #Get the identify information for the given URL
-        identify = sickleObjectIdentify(url)
-        #If status OK, we try to serialize data and check if it's valid
-        if identify.status_code == status.HTTP_200_OK:
-            identifyData = identify.data
-            serializerIdentify = IdentifyObjectSerializer(data=identifyData)
-            #If it's not valid, return with a bad request
-            if not serializerIdentify.is_valid():
-                raise OAIAPISerializeLabelledException(message="Identify serialization error.",
-                                                           errors=serializerIdentify.errors,
-                                                           status=status.HTTP_400_BAD_REQUEST)
+                return Response(content, status=status.HTTP_200_OK)
+            except MONGO_ERRORS.DoesNotExist:
+                raise OAIAPILabelledException(message='No registry found with the given parameters.',
+                                      status=status.HTTP_404_NOT_FOUND)
+            except Exception as e:
+                raise OAIAPILabelledException(message='An error occurred during the Data Provider update. '
+                                                      'Please contact your administrator. %s'%e.message,
+                                                  status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
-            raise OAIAPILabelledException(message=identify.data[APIMessage.label], status=identify.status_code)
-
-        #Get the sets information for the given URL
-        sets = sickleListObjectSets(url)
-        setsData = []
-        #If status OK, we try to serialize data and check if it's valid
-        if sets.status_code == status.HTTP_200_OK:
-            setsData = sets.data
-            serializerSet = SetSerializer(data=setsData)
-            #If it's not valid, return with a bad request
-            if not serializerSet.is_valid():
-                raise OAIAPISerializeLabelledException(message="Sets serialization error.",
-                                                           errors=serializerSet.errors,
-                                                           status=status.HTTP_400_BAD_REQUEST)
-        elif sets.status_code != status.HTTP_204_NO_CONTENT:
-            raise OAIAPILabelledException(message=sets.data[APIMessage.label], status=sets.status_code)
-
-        #Get the metadata formats information for the given URL
-        metadataformats = sickleListObjectMetadataFormats(url)
-        metadataformatsData = []
-        #If status OK, we try to serialize data and check if it's valid
-        if metadataformats.status_code == status.HTTP_200_OK:
-            metadataformatsData = metadataformats.data
-            serializerMetadataFormat = MetadataFormatSerializer(data=metadataformatsData)
-            #If it's not valid, return with a bad request
-            if not serializerMetadataFormat.is_valid():
-                raise OAIAPISerializeLabelledException(message="Metadata formats serialization error.",
-                                                           errors=serializerMetadataFormat.errors,
-                                                           status=status.HTTP_400_BAD_REQUEST)
-        elif metadataformats.status_code != status.HTTP_204_NO_CONTENT:
-            raise OAIAPILabelledException(message=metadataformats.data[APIMessage.label],
-                                          status=metadataformats.status_code)
-        try:
-            modifyRegistry(identifyData, registry)
-            modifySetsForRegistry(registry, setsData)
-            modifyMetadataformatsForRegistry(registry, metadataformatsData)
-            #Save the registry
-            registry.isUpdating = False
-            registry.save()
-            content = APIMessage.getMessageLabelled('Data provider updated with success.')
-
-            return Response(content, status=status.HTTP_200_OK)
-        except NotUniqueError as e:
-            raise OAIAPILabelledException(message='Unable to update the registry. '
-                                                  'The registry already exists.%s'%e.message,
-                                              status=status.HTTP_409_CONFLICT)
-        except Exception as e:
-            raise OAIAPILabelledException(message='An error occurred during the Data Provider update. '
-                                                  'Please contact your administrator. %s'%e.message,
-                                              status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            raise OAIAPISerializeLabelledException(errors=serializer.errors,
+                                          status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
+        if registry is not None:
             registry.isUpdating = False
             registry.save()
-            return e.response()
+        return e.response()
     except Exception as e:
         content = APIMessage.getMessageLabelled(e.message)
         return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
