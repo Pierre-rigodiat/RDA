@@ -21,6 +21,7 @@ from django.shortcuts import redirect
 from django.core.servers.basehttp import FileWrapper
 from bson.objectid import ObjectId
 import lxml.etree as etree
+from io import BytesIO
 from lxml.etree import XMLSyntaxError
 import json
 import xmltodict
@@ -531,10 +532,12 @@ def curate_edit_form(request):
                     form_data = FormData.objects.get(pk=ObjectId(form_data_id))
                 except:
                     raise MDCSError("The form you are looking for doesn't exist.")
+
                 # parameters to build FormData object in db
                 request.session['currentTemplateID'] = form_data.template
                 request.session['curate_edit'] = True
                 request.session['curate_edit_data'] = form_data.xml_data
+
                 # parameters that will be used during curation
                 request.session['curateFormData'] = str(form_data.id)
 
@@ -543,8 +546,7 @@ def curate_edit_form(request):
                 if 'xmlDocTree' in request.session:
                     del request.session['xmlDocTree']
 
-                context = RequestContext(request, {
-                })
+                context = RequestContext(request, {})
                 template = loader.get_template('curate/curate_enter_data.html')
 
                 return HttpResponse(template.render(context))

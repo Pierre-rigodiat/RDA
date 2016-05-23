@@ -276,6 +276,16 @@ def generate_xsd_form(request):
     try:
         if 'form_id' in request.session:
             root_element_id = request.session['form_id']
+
+            template_id = request.session['currentTemplateID']
+            template_object = Template.objects.get(pk=template_id)
+            xsd_doc_data = template_object.content
+
+            flattener = XSDFlattenerURL(xsd_doc_data)
+            xml_doc_tree_str = flattener.get_flat()
+
+            request.session['xmlDocTree'] = xml_doc_tree_str
+            request.session['curate_edit'] = False
         else:  # If this is a new form, generate it and store the root ID
             # get the xsd tree when going back and forth with review step
             if 'xmlDocTree' in request.session:
