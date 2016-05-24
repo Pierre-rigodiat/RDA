@@ -67,6 +67,7 @@ import urllib2
 #                400 Serializer failed validation.
 #                401 Unauthorized.
 #                409 Registry already exists
+#                500 Internal error
 # Description:   OAI-PMH Add Registry
 #
 ################################################################################
@@ -74,8 +75,8 @@ import urllib2
 @api_staff_member_required()
 def add_registry(request):
     """
-    POST http://localhost/oai_pmh/add/registry
-    POST data query="{'url':'value','harvestrate':'number', 'harvest':'True or False'}"
+    POST http://localhost/oai_pmh/api/add/registry
+    POST data query='{"url":"value","harvestrate":"number", "harvest":"True or False"}'
     """
     try:
         #Serialization of the input data
@@ -361,8 +362,8 @@ def select_registry(request):
 @api_staff_member_required()
 def update_registry(request):
     """
-    PUT http://localhost/oai_pmh/update/registry
-    PUT data query="{'id':'value', 'harvestrate':'value', 'harvest':'True or False'}"
+    PUT http://localhost/oai_pmh/api/update/registry
+    PUT data query='{"id":"value", "harvestrate":"value", "harvest":"True or False"}'
     id: string
     """
     try:
@@ -411,8 +412,8 @@ def update_registry(request):
 @api_staff_member_required()
 def update_my_registry(request):
     """
-    PUT http://localhost/oai_pmh/update/my-registry
-    PUT data query="{'repositoryName':'value', 'enableHarvesting':'True or False'}"
+    PUT http://localhost/oai_pmh/api/update/my-registry
+    PUT data query='{"repositoryName":"value", "enableHarvesting":"True or False"}'
     """
     try:
         #Serialization of the input data
@@ -457,8 +458,8 @@ def update_my_registry(request):
 @api_staff_member_required()
 def delete_registry(request):
     """
-    POST http://localhost/oai_pmh/delete/registry
-    POST data query="{'RegistryId':'value'}"
+    POST http://localhost/oai_pmh/api/delete/registry
+    POST data query='{"RegistryId":"value"}'
     """
     try:
         #Serialization of the input data
@@ -514,7 +515,7 @@ def delete_registry(request):
 def deactivate_registry(request):
     """
     POST http://localhost/oai_pmh/api/deactivate/registry
-    POST data query="{'RegistryId':'value'}"
+    POST data query='{"RegistryId":"value"}'
     """
     try:
         #Serialization of the input data
@@ -560,8 +561,8 @@ def deactivate_registry(request):
 @api_staff_member_required()
 def reactivate_registry(request):
     """
-    POST http://localhost/oai_pmh/reactivate/registry
-    POST data query="{'RegistryId':'value'}"
+    POST http://localhost/oai_pmh/api/reactivate/registry
+    POST data query='{"RegistryId":"value"}'
     """
     try:
         #Serialization of the input data
@@ -607,8 +608,8 @@ def reactivate_registry(request):
 @api_permission_required(RIGHTS.oai_pmh_content_type, RIGHTS.oai_pmh_access)
 def getRecord(request):
     """
-    POST http://localhost/oai_pmh/rest/getrecord
-    POST data query="{'url':'value', 'identifier':'value', 'metadataprefix':'value'}"
+    POST http://localhost/oai_pmh/api/rest/getrecord
+    POST data query='{"url":"value", "identifier":"value", "metadataprefix":"value"}'
     """
     try:
         serializer = GetRecordSerializer(data=request.DATA)
@@ -654,8 +655,8 @@ def getRecord(request):
 @api_permission_required(RIGHTS.oai_pmh_content_type, RIGHTS.oai_pmh_access)
 def objectIdentify(request):
     """
-    POST http://localhost/oai_pmh/objectidentify
-    POST data query="{'url':'value'}"
+    POST http://localhost/oai_pmh/api/objectidentify
+    POST data query='{"url":"value"}'
     """
     try:
         serializer = IdentifySerializer(data=request.DATA)
@@ -750,8 +751,8 @@ def sickleObjectIdentify(url):
 @api_permission_required(RIGHTS.oai_pmh_content_type, RIGHTS.oai_pmh_access)
 def listObjectMetadataFormats(request):
     """
-    POST http://localhost/oai_pmh/listobjectmetadataformats
-    POST data query="{'url':'value'}"
+    POST http://localhost/oai_pmh/api/listobjectmetadataformats
+    POST data query='{"url":"value"}'
     """
     try:
         serializer = IdentifySerializer(data=request.DATA)
@@ -851,8 +852,8 @@ def sickleListObjectMetadataFormats(url):
 @api_permission_required(RIGHTS.oai_pmh_content_type, RIGHTS.oai_pmh_access)
 def listObjectSets(request):
     """
-    POST http://localhost/oai_pmh/listObjectSets
-    POST data query="{'url':'value'}"
+    POST http://localhost/oai_pmh/api/listObjectSets
+    POST data query='{"url":"value"}'
     """
     try:
         serializer = IdentifySerializer(data=request.DATA)
@@ -952,8 +953,8 @@ def sickleListObjectSets(url):
 @api_permission_required(RIGHTS.oai_pmh_content_type, RIGHTS.oai_pmh_access)
 def listIdentifiers(request):
     """
-    POST http://localhost/oai_pmh/listidentifiers
-    POST data query="{'url':'value', 'metadataprefix':'value'}" optional {'set':'value'}
+    POST http://localhost/oai_pmh/api/listidentifiers
+    POST data query='{"url":"value", "metadataprefix":"value"}' optional {"set":"value"}
     """
     try:
         serializer = RegistryURLSerializer(data=request.DATA)
@@ -997,8 +998,8 @@ def listIdentifiers(request):
 @api_permission_required(RIGHTS.oai_pmh_content_type, RIGHTS.oai_pmh_access)
 def getData(request):
     """
-    GET http://localhost/oai_pmh/api/getdata/
-    url: string
+    POST http://localhost/oai_pmh/api/getdata/
+    POST data query='{"url":"value"}'
     """
     try:
         serializer = IdentifySerializer(data=request.DATA)
@@ -1044,7 +1045,7 @@ def getData(request):
 def harvest(request):
     """
     POST http://localhost/oai_pmh/api/harvest
-    POST data query="{'registry_id':'value'}"
+    POST data query='{"registry_id":"value"}'
     """
     #List of errors
     allErrors = []
@@ -1242,8 +1243,8 @@ def harvestRecords(url, registry_id, metadataFormat, lastUpdate, registryAllSets
 @api_staff_member_required()
 def update_registry_harvest(request):
     """
-    PUT http://localhost/oai_pmh/update/registry-harvest
-    PUT data query="{'id':'value', metadataFormats:['id1', 'id2'..], sets:['id1', 'id2'..]}"
+    PUT http://localhost/oai_pmh/api/update/registry-harvest
+    PUT data query='{"id":"value", "metadataFormats":["id1", "id2"..], "sets":["id1", "id2"..]}'
     id: string
     """
     try:
@@ -1296,8 +1297,8 @@ def update_registry_harvest(request):
 @api_staff_member_required()
 def update_registry_info(request):
     """
-    PUT http://localhost/oai_pmh/update/registry-info
-    PUT data query="{'registry_id':'value'}"
+    PUT http://localhost/oai_pmh/api/update/registry-info
+    PUT data query='{"registry_id":"value"}'
     id: string
     """
     try:
@@ -1492,8 +1493,9 @@ def modifyOaiIdentify(identifyData, identifyRaw, identifyId):
 @api_permission_required(RIGHTS.oai_pmh_content_type, RIGHTS.oai_pmh_access)
 def listObjectAllRecords(request):
     """
-    POST http://localhost/oai_pmh/listobjectrecords
-    POST data query="{'url':'value', 'metadataprefix':'value'}" optional: {'set':'value', 'fromDate':'date', 'until':'date'}
+    POST http://localhost/oai_pmh/api/listobjectrecords
+    POST data query='{"url":"value", "metadataprefix":"value"}'
+    optional: '{"set":"value", "fromDate":"date", "untilDate":"date"}'
     """
     try:
         serializer = ListRecordsSerializer(data=request.DATA)
@@ -1537,9 +1539,6 @@ def listObjectAllRecords(request):
 #
 ################################################################################
 def getListRecords(url, metadataPrefix=None, resumptionToken=None, set_h=None, fromDate=None, untilDate=None):
-    """
-    POST http://localhost/oai_pmh/listrecords
-    """
     XMLParser = etree.XMLParser(remove_blank_text=True, recover=True)
     try:
         params = {'verb': 'ListRecords'}
@@ -1605,8 +1604,8 @@ def getListRecords(url, metadataPrefix=None, resumptionToken=None, set_h=None, f
 @api_staff_member_required()
 def add_my_metadataFormat(request):
     """
-    POST http://localhost/oai_pmh/add/my-metadataformat
-    POST data query="{'metadataPrefix':'value', 'schema':'schemaURL'}"
+    POST http://localhost/oai_pmh/api/add/my-metadataformat
+    POST data query='{"metadataPrefix":"value", "schema":"schemaURL"}'
     """
     try:
         serializer = MyMetadataFormatSerializer(data=request.DATA)
@@ -1669,8 +1668,8 @@ def add_my_metadataFormat(request):
 @api_staff_member_required()
 def add_my_template_metadataFormat(request):
     """
-    POST http://localhost/oai_pmh/add/my-template-metadataformat
-    POST data query="{'metadataPrefix':'value', 'template':'templateID'}"
+    POST http://localhost/oai_pmh/api/add/my-template-metadataformat
+    POST data query='{"metadataPrefix":"value", "template":"templateID"}'
     """
     try:
     #Serialization of the input data
@@ -1737,8 +1736,8 @@ def add_my_template_metadataFormat(request):
 @api_staff_member_required()
 def delete_my_metadataFormat(request):
     """
-    POST http://localhost/oai_pmh/delete/my-metadataFormat
-    POST data query="{'MetadataFormatId':'value'}"
+    POST http://localhost/oai_pmh/api/delete/my-metadataFormat
+    POST data query='{"MetadataFormatId":"value"}'
     """
     try:
         serializer = DeleteMyMetadataFormatSerializer(data=request.DATA)
@@ -1783,8 +1782,8 @@ def delete_my_metadataFormat(request):
 @api_staff_member_required()
 def update_my_metadataFormat(request):
     """
-    PUT http://localhost/oai_pmh/update/my-metadataFormat
-    PUT data query="{'id':'value', 'metadataPrefix':'value'}"
+    PUT http://localhost/oai_pmh/api/update/my-metadataFormat
+    PUT data query='{"id":"value", "metadataPrefix":"value"}'
     """
     try:
         serializer = UpdateMyMetadataFormatSerializer(data=request.DATA)
@@ -1831,8 +1830,9 @@ def update_my_metadataFormat(request):
 @api_staff_member_required()
 def add_my_set(request):
     """
-    PUT http://localhost/oai_pmh/add/my-set
-    PUT data query="{'setSpec':'value', 'setName':'value', 'description':'value'}"
+    PUT http://localhost/oai_pmh/api/add/my-set
+    PUT data query='{"setSpec":"value", "setName":"value", templates:["id1", "id2"..]}'
+    optional: {'description':'value'}"
     """
     try:
         #Serialization of the input data
@@ -1885,8 +1885,8 @@ def add_my_set(request):
 @api_staff_member_required()
 def delete_my_set(request):
     """
-    POST http://localhost/oai_pmh/delete/my-set
-    POST data query="{'set_id':'value'}"
+    POST http://localhost/oai_pmh/api/delete/my-set
+    POST data query='{"set_id":"value"}'
     """
     try:
         serializer = DeleteMySetSerializer(data=request.DATA)
@@ -1931,8 +1931,9 @@ def delete_my_set(request):
 @api_staff_member_required()
 def update_my_set(request):
     """
-    PUT http://localhost/oai_pmh/update/my-set
-    PUT data query="{'id':'value', 'setSpec':'value','setName':'value'}"
+    PUT http://localhost/oai_pmh/api/update/my-set
+    PUT data query='{"id":"value", "setSpec":"value","setName":"value"}'
+    optional: '{"description":"value", "templates":["id1", "id2"..]}'
     """
     try:
         #Serialization of the input data
@@ -1989,8 +1990,8 @@ def update_my_set(request):
 @api_staff_member_required()
 def delete_oai_pmh_xslt(request):
     """
-    POST http://localhost/oai_pmh/delete/xslt
-    POST data query="{'xslt_id':'value'}"
+    POST http://localhost/oai_pmh/api/delete/xslt
+    POST data query='{"xslt_id":"value"}'
     """
     try:
         serializer = DeleteXSLTSerializer(data=request.DATA)
@@ -2036,8 +2037,8 @@ def delete_oai_pmh_xslt(request):
 @api_staff_member_required()
 def edit_oai_pmh_xslt(request):
     """
-    POST http://localhost/oai_pmh/edit/xslt
-    POST data query="{'xslt_id':'value', 'name': 'value'}"
+    POST http://localhost/oai_pmh/api/edit/xslt
+    POST data query='{"xslt_id":"value", "name": "value"}'
     """
     try:
         serializer = DeleteXSLTSerializer(data=request.DATA)
@@ -2147,7 +2148,7 @@ def oai_pmh_conf_xslt(request):
 def upload_oai_pmh_xslt(request):
     """
     POST http://localhost/oai_pmh/api/upload/xslt
-    POST data query='{"name": ''value, 'filename': 'value', 'content': 'value'}
+    POST data query='{"name": ""value, "filename": "value", "content": "value"}
     """
     try:
         serializer = OaiXSLTSerializer(data=request.DATA)
