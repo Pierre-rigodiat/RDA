@@ -563,9 +563,9 @@ class OaiMyMetadataFormat(Document):
     """
         A OaiMyMetadataFormat object
     """
-    metadataPrefix  = StringField(required=True, unique=True)
+    metadataPrefix = StringField(required=True, unique=True)
     schema = StringField(required=True)
-    metadataNamespace  = StringField(required=True)
+    metadataNamespace = StringField(required=True)
     xmlSchema = StringField(required=True)
     isDefault = BooleanField(required=False)
     isTemplate = BooleanField()

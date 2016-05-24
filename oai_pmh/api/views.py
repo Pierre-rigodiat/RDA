@@ -126,7 +126,7 @@ def add_registry(request):
                     identify.delete()
                 OaiSet.objects(registry=registry.id).delete()
                 OaiMetadataFormat.objects(registry=registry.id).delete()
-                raise OAIAPILabelledException(message='An error occured when trying to save document.%s'%e.message,
+                raise OAIAPILabelledException(message='An error occurred when trying to save document.%s'%e.message,
                                               status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -1597,6 +1597,7 @@ def getListRecords(url, metadataPrefix=None, resumptionToken=None, set_h=None, f
 #                400 Serializer failed validation.
 #                401 Unauthorized.
 #                404 No registry found with the given identity.
+#                409 Metadata format already exists
 # Description:   OAI-PMH Add a new my_metadataFormat
 #
 ################################################################################
@@ -1608,47 +1609,41 @@ def add_my_metadataFormat(request):
     POST data query="{'metadataPrefix':'value', 'schema':'schemaURL'}"
     """
     try:
-    #Serialization of the input data
         serializer = MyMetadataFormatSerializer(data=request.DATA)
-        #If it's valid
         if serializer.is_valid():
-            #We retrieve all information
-            if 'metadataPrefix' in request.POST:
+            try:
                 metadataprefix = request.DATA['metadataPrefix']
-            if 'schema' in request.POST:
                 schema = request.DATA['schema']
-
-            #Try to get the schema
-            http_response = requests.get(schema)
-            if http_response.status_code == status.HTTP_200_OK:
-                #Check if the XML is well formed
-                try:
+                http_response = requests.get(schema)
+                if http_response.status_code == status.HTTP_200_OK:
                     xml_schema = http_response.text
                     dom = etree.fromstring(xml_schema.encode('utf-8'))
                     if 'targetNamespace' in dom.find(".").attrib:
                         metadataNamespace = dom.find(".").attrib['targetNamespace'] or "namespace"
                     else:
                         metadataNamespace = "http://www.w3.org/2001/XMLSchema"
-                except XMLSyntaxError:
-                    raise OAIAPILabelledException(message='Unable to add the new metadata format.',
+                     #Add in database
+                    OaiMyMetadataFormat(metadataPrefix=metadataprefix, schema=schema,
+                               metadataNamespace=metadataNamespace,
+                               xmlSchema=xml_schema, isDefault=False).save()
+
+                    return Response(serializer.data, status=status.HTTP_201_CREATED)
+                else:
+                    raise OAIAPILabelledException(message='Unable to add the new metadata format. '
+                                                          'Impossible to retrieve the schema at the given URL',
                                                   status=status.HTTP_400_BAD_REQUEST)
-            else:
-                raise OAIAPILabelledException(message='Unable to add the new metadata format. '
-                                                      'Impossible to retrieve the schema at the given URL',
+            except XMLSyntaxError:
+                raise OAIAPILabelledException(message='Unable to add the new metadata format.',
                                               status=status.HTTP_400_BAD_REQUEST)
-            try:
-                #Add in database
-               OaiMyMetadataFormat(metadataPrefix=metadataprefix, schema=schema,
-                                   metadataNamespace=metadataNamespace,
-                                   xmlSchema=xml_schema, isDefault=False).save()
+            except MONGO_ERRORS.NotUniqueError as e:
+                raise OAIAPILabelledException(message='Unable to create the metadata format. '
+                                                      'The metadata format already exists.',
+                                              status=status.HTTP_409_CONFLICT)
             except Exception as e:
                 raise OAIAPILabelledException(message='Unable to add the new metadata format. \n%s'%e.message,
-                                                  status=status.HTTP_400_BAD_REQUEST)
-
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+                                              status=status.HTTP_400_BAD_REQUEST)
         else:
             raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
     except OAIAPIException as e:
         return e.response()
     except Exception, e:
@@ -1666,7 +1661,7 @@ def add_my_metadataFormat(request):
 #                400 Unable to update record.
 #                400 Serializer failed validation.
 #                401 Unauthorized.
-#                404 No registry found with the given identity.
+#                404 No template found with the given identity.
 # Description:   OAI-PMH Add a new template_my_metadataFormat
 #
 ################################################################################
@@ -1682,43 +1677,40 @@ def add_my_template_metadataFormat(request):
         serializer = MyTemplateMetadataFormatSerializer(data=request.DATA)
         #If it's valid
         if serializer.is_valid():
-            #We retrieve all information
-            if 'metadataPrefix' in request.POST:
-                metadataprefix = request.DATA['metadataPrefix']
-            if 'template' in request.POST:
-                template = request.DATA['template']
-
-            #Try to get the template
             try:
+                metadataprefix = request.DATA['metadataPrefix']
+                template = request.DATA['template']
                 template = Template.objects.get(pk=template)
                 #Check if the XML is well formed
-                try:
-                    xml_schema = template.content
-                    dom = etree.fromstring(xml_schema.encode('utf-8'))
-                    if 'targetNamespace' in dom.find(".").attrib:
-                        metadataNamespace = dom.find(".").attrib['targetNamespace'] or "namespace"
-                    else:
-                        metadataNamespace = "http://www.w3.org/2001/XMLSchema"
-                except XMLSyntaxError:
-                    raise OAIAPILabelledException(message='Unable to add the new metadata format. XML Synthax error.',
-                                              status=status.HTTP_400_BAD_REQUEST)
-            except Exception, e:
-                raise OAIAPILabelledException(message='Unable to add the new metadata format. '
-                                                      'Impossible to retrieve the template with the given template',
-                                              status=status.HTTP_400_BAD_REQUEST)
-            try:
-               #Create a schema URL
-               schemaURL = OAI_HOST_URI + reverse('getXSD', args=[template.filename])
-               #Add in database
-               OaiMyMetadataFormat(metadataPrefix=metadataprefix,
+                xml_schema = template.content
+                dom = etree.fromstring(xml_schema.encode('utf-8'))
+                if 'targetNamespace' in dom.find(".").attrib:
+                    metadataNamespace = dom.find(".").attrib['targetNamespace'] or "namespace"
+                else:
+                    metadataNamespace = "http://www.w3.org/2001/XMLSchema"
+                #Create a schema URL
+                schemaURL = OAI_HOST_URI + reverse('getXSD', args=[template.filename])
+                #Add in database
+                OaiMyMetadataFormat(metadataPrefix=metadataprefix,
                                    schema=schemaURL,
                                    metadataNamespace=metadataNamespace, xmlSchema='', isDefault=False,
                                    isTemplate=True, template=template).save()
+
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            except XMLSyntaxError:
+                raise OAIAPILabelledException(message='Unable to add the new metadata format. XML Synthax error.',
+                                              status=status.HTTP_400_BAD_REQUEST)
+            except MONGO_ERRORS.DoesNotExist, e:
+                raise OAIAPILabelledException(message='Unable to add the new metadata format. '
+                                                      'Impossible to retrieve the template with the given template',
+                                              status=status.HTTP_404_NOT_FOUND)
+            except MONGO_ERRORS.NotUniqueError as e:
+                raise OAIAPILabelledException(message='Unable to create the metadata format. '
+                                                      'The metadata format already exists.',
+                                              status=status.HTTP_409_CONFLICT)
             except Exception as e:
                 raise OAIAPILabelledException(message='Unable to add the new metadata format. \n%s'%e.message,
                                               status=status.HTTP_400_BAD_REQUEST)
-
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
@@ -1751,18 +1743,20 @@ def delete_my_metadataFormat(request):
     try:
         serializer = DeleteMyMetadataFormatSerializer(data=request.DATA)
         if serializer.is_valid():
-            #Get the ID
-            id = request.DATA['MetadataFormatId']
             try:
+                id = request.DATA['MetadataFormatId']
                 metadataFormat = OaiMyMetadataFormat.objects.get(pk=id)
-            except Exception as e:
+                #We can now delete the metadataFormat for my server
+                metadataFormat.delete()
+                content = APIMessage.getMessageLabelled("Deleted metadata format with success.")
+
+                return Response(content, status=status.HTTP_200_OK)
+            except MONGO_ERRORS.DoesNotExist as e:
                 raise OAIAPILabelledException(message='No metadata format found with the given id.',
                                               status=status.HTTP_404_NOT_FOUND)
-            #We can now delete the metadataFormat for my server
-            metadataFormat.delete()
-            content = APIMessage.getMessageLabelled("Deleted metadata format with success.")
-
-            return Response(content, status=status.HTTP_200_OK)
+            except Exception as e:
+                raise OAIAPILabelledException(message='Unable to delete the metadata format. \n%s'%e.message,
+                                              status=status.HTTP_400_BAD_REQUEST)
         else:
             raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
@@ -1793,37 +1787,31 @@ def update_my_metadataFormat(request):
     PUT data query="{'id':'value', 'metadataPrefix':'value'}"
     """
     try:
-        #Serialization of the input data
         serializer = UpdateMyMetadataFormatSerializer(data=request.DATA)
-        #If it's valid
         if serializer.is_valid():
         #We retrieve all information
             try:
-                if 'id' in request.DATA:
-                    id = request.DATA['id']
-                    metadataFormat = OaiMyMetadataFormat.objects.get(pk=id)
-                else:
-                    rsp = {'id':'\'Id\' not found in request.'}
-                    return Response(rsp, status=status.HTTP_400_BAD_REQUEST)
-            except:
+                id = request.DATA['id']
+                metadataFormat = OaiMyMetadataFormat.objects.get(pk=id)
+                metadataprefix = request.DATA['metadataPrefix']
+                metadataFormat.metadataPrefix = metadataprefix
+                #Save the modifications
+                metadataFormat.save()
+
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            except MONGO_ERRORS.DoesNotExist:
                 raise OAIAPILabelledException(message='No metadata format found with the given id.',
                                               status=status.HTTP_404_NOT_FOUND)
-            if 'metadataPrefix' in request.DATA:
-                metadataprefix = request.DATA['metadataPrefix']
-                if metadataprefix:
-                    metadataFormat.metadataPrefix = metadataprefix
-            try:
-                #Save the modifications
-                 metadataFormat.save()
             except Exception as e:
                 raise OAIAPILabelledException(message='Unable to update the metadata format. \n%s'%e.message,
                                               status=status.HTTP_400_BAD_REQUEST)
-
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
         return e.response()
+    except Exception as e:
+        content = APIMessage.getMessageLabelled(e.message)
+        return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 ################################################################################

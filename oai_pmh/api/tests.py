@@ -32,6 +32,11 @@ URL_TEST_SERVER = URL_TEST + "/oai_pmh/server/"
 import requests
 import datetime
 from django.conf import settings
+import os
+from django.utils.importlib import import_module
+settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
+settings = import_module(settings_file)
+OAI_HOST_URI = settings.OAI_HOST_URI
 
 class tests_OAI_PMH_API(OAI_PMH_Test):
 
@@ -1646,8 +1651,246 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         lenAfterSet = len(OaiSet.objects.all())
         self.assertEqual(lenAfterSet, lenBeforeSet)
 
+###############################################################################
+
+
+####################### add_my_metadataFormat tests ###########################
+
+    def test_add_my_metadataFormat(self):
+        self.dump_oai_settings()
+        self.dump_template()
+        before = OaiMyMetadataFormat.objects.all()
+        self.assertEqual(len(before), 0)
+        metadataPrefix = 'oai_test'
+        schema = 'http://127.0.0.1:8082/oai_pmh/server/XSD/AllResources.xsd'
+        data = {"metadataPrefix": metadataPrefix, 'schema': schema}
+        req = self.doRequestPost(url=reverse("api_add_my_metadataFormat"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_201_CREATED)
+        after = OaiMyMetadataFormat.objects.all()
+        self.assertEquals(len(after), 1)
+        obj = after[0]
+        self.assertEquals(obj.metadataPrefix, metadataPrefix)
+        self.assertEquals(obj.schema, schema)
+        self.assertNotEquals(obj.metadataNamespace, '')
+        self.assertEquals(obj.isDefault, False)
+        self.assertNotEquals(obj.xmlSchema, '')
+
+    def test_add_my_metadataFormat_target_namespace(self):
+        self.dump_oai_settings()
+        templateVersion = self.createTemplateVersion()
+        template = self.createTemplateWithTemplateVersionValidContent(str(templateVersion.id))
+        metadataPrefix = 'oai_test'
+        schema = 'http://127.0.0.1:8082/oai_pmh/server/XSD/' + template.filename
+        data = {"metadataPrefix": metadataPrefix, 'schema': schema}
+        req = self.doRequestPost(url=reverse("api_add_my_metadataFormat"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_201_CREATED)
+        after = OaiMyMetadataFormat.objects.all()
+        self.assertEquals(len(after), 1)
+        obj = after[0]
+        self.assertNotEquals(obj.metadataNamespace, 'http://www.w3.org/2001/XMLSchema')
+
+    # def test_add_my_metadataFormat_duplicate(self):
+    #     self.dump_oai_settings()
+    #     self.dump_oai_my_metadata_format()
+    #     self.dump_template()
+    #     self.dump_oai_registry()
+    #     self.setHarvest(True)
+    #     data = {"metadataPrefix": 'oai_dc', 'schema':'http://www.openarchives.org/OAI/2.0/oai_dc.xsd'}
+    #     req = self.doRequestPost(url=reverse("api_add_my_metadataFormat"), data=data, auth=ADMIN_AUTH)
+    #     self.assertEquals(req.status_code, status.HTTP_409_CONFLICT)
+
+    def test_add_my_metadataFormat_bad_server_url(self):
+        self.dump_oai_settings()
+        self.dump_template()
+        data = {"metadataPrefix": 'oai_test', 'schema':'http://test:8082/oai_pmh/server/XSD/Fake.xsd'}
+        req = self.doRequestPost(url=reverse("api_add_my_metadataFormat"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_add_my_metadataFormat_bad_xml_url(self):
+        self.dump_oai_settings()
+        self.dump_template()
+        data = {"metadataPrefix": 'oai_test', 'schema':'http://127.0.0.1:8082/oai_pmh/server/XSD/Fake.xsd'}
+        req = self.doRequestPost(url=reverse("api_add_my_metadataFormat"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_add_my_metadataFormat_bad_xml_syntax(self):
+        self.dump_oai_identify()
+        templateVersion = self.createTemplateVersion()
+        template = self.createTemplateWithTemplateVersionInvalidContent(str(templateVersion.id))
+        #Add a bad xml
+        data = {"metadataPrefix": 'oai_test', 'schema':'http://127.0.0.1:8082/oai_pmh/server/XSD/'+ template.filename}
+        req = self.doRequestPost(url=reverse("api_add_my_metadataFormat"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_add_my_metadataFormat_invalid_serializer(self):
+        self.dump_oai_settings()
+        self.dump_template()
+        data = {"mmetadataPrefix": 'oai_test', 'schema':'http://127.0.0.1:8082/oai_pmh/server/XSD/AllResources.xsd'}
+        req = self.doRequestPost(url=reverse("api_add_my_metadataFormat"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {"metadataPrefix": 'oai_test', 'sschema':'http://127.0.0.1:8082/oai_pmh/server/XSD/AllResources.xsd'}
+        req = self.doRequestPost(url=reverse("api_add_my_metadataFormat"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_add_my_metadataFormat_unauthorized(self):
+        self.dump_oai_settings()
+        self.dump_template()
+        data = {"metadataPrefix": 'oai_test', 'schema':'http://127.0.0.1:8082/oai_pmh/server/XSD/AllResources.xsd'}
+        req = self.doRequestPost(url=reverse("api_add_my_metadataFormat"), data=data, auth=USER_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
+
 ################################################################################
 
+######################## add_my_template_metadataFormat tests ###########################
+
+    def test_add_my_template_metadataFormat(self):
+        self.dump_oai_settings()
+        template = self.createTemplate()
+        metadataPrefix = 'oai_test'
+        data = {"metadataPrefix": metadataPrefix, 'template': str(template.id)}
+        req = self.doRequestPost(url=reverse("api_add_my_template_metadataFormat"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_201_CREATED)
+        after = OaiMyMetadataFormat.objects.all()
+        self.assertEquals(len(after), 1)
+        obj = after[0]
+        self.assertEquals(obj.metadataPrefix, metadataPrefix)
+        self.assertEquals(obj.schema, OAI_HOST_URI + reverse('getXSD', args=[template.filename]))
+        self.assertNotEquals(obj.metadataNamespace, '')
+        self.assertEquals(obj.isDefault, False)
+        self.assertEquals(obj.isTemplate, True)
+        self.assertEquals(obj.template, template)
+        self.assertEquals(obj.xmlSchema, '')
+
+    def test_add_my_template_metadataFormat_target_namespace(self):
+        self.dump_oai_settings()
+        templateVersion = self.createTemplateVersion()
+        template = self.createTemplateWithTemplateVersionValidContent(str(templateVersion.id))
+        metadataPrefix = 'oai_test'
+        data = {"metadataPrefix": metadataPrefix,'template': str(template.id)}
+        req = self.doRequestPost(url=reverse("api_add_my_template_metadataFormat"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_201_CREATED)
+        after = OaiMyMetadataFormat.objects.all()
+        self.assertEquals(len(after), 1)
+        obj = after[0]
+        self.assertNotEquals(obj.metadataNamespace, 'http://www.w3.org/2001/XMLSchema')
+
+    # def test_add_my_template_metadataFormat_duplicate(self):
+    #     self.dump_oai_settings()
+    #     self.dump_oai_my_metadata_format()
+    #     self.dump_template()
+    #     self.dump_oai_registry()
+    #     template = Template.objects(filename='Software.xsd').get()
+    #     data = {"metadataPrefix": 'oai_soft', 'template': str(template.id)}
+    #     req = self.doRequestPost(url=reverse("api_add_my_template_metadataFormat"), data=data, auth=ADMIN_AUTH)
+    #     self.assertEquals(req.status_code, status.HTTP_409_CONFLICT)
+
+    def test_add_my_template_metadataFormat_bad_template(self):
+        self.dump_oai_settings()
+        self.dump_template()
+        data = {"metadataPrefix": 'oai_test', 'template':FAKE_ID}
+        req = self.doRequestPost(url=reverse("api_add_my_template_metadataFormat"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_add_my_template_metadataFormat_bad_xml_synthax(self):
+        self.dump_oai_identify()
+        templateVersion = self.createTemplateVersion()
+        template = self.createTemplateWithTemplateVersionInvalidContent(str(templateVersion.id))
+        #Add a bad xml
+        data = {"metadataPrefix": 'oai_test', 'template': str(template.id)}
+        req = self.doRequestPost(url=reverse("api_add_my_template_metadataFormat"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_add_my_template_metadataFormat_invalid_serializer(self):
+        self.dump_oai_settings()
+        self.dump_template()
+        data = {"mmetadataPrefix": 'oai_test', 'template':FAKE_ID}
+        req = self.doRequestPost(url=reverse("api_add_my_template_metadataFormat"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {"metadataPrefix": 'oai_test', 'ttemplate': FAKE_ID}
+        req = self.doRequestPost(url=reverse("api_add_my_template_metadataFormat"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_add_my_template_metadataFormat_unauthorized(self):
+        self.dump_oai_settings()
+        template = self.createTemplate()
+        data = {"metadataPrefix": 'oai_test', 'template': str(template.id)}
+        req = self.doRequestPost(url=reverse("api_add_my_template_metadataFormat"), data=data, auth=USER_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
+
+################################################################################
+
+###################### delete_my_metadataFormat tests ##########################
+
+    def test_delete_my_metadataFormat(self):
+        self.dump_oai_settings()
+        self.dump_oai_my_metadata_format()
+        all = OaiMyMetadataFormat.objects.all()
+        beforeAllRecords = len(all)
+        #Delete the first
+        data = {"MetadataFormatId": str(all[0].id)}
+        req = self.doRequestPost(url=reverse("api_delete_my_metadataFormat"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_200_OK)
+        afterAllRecords = len(OaiMyMetadataFormat.objects.all())
+        self.assertEquals(afterAllRecords, beforeAllRecords - 1)
+
+    def test_delete_my_metadataFormat_not_found(self):
+        self.dump_oai_settings()
+        data = {"MetadataFormatId": FAKE_ID}
+        req = self.doRequestPost(url=reverse("api_delete_my_metadataFormat"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_my_metadataFormat_invalid_serializer(self):
+        self.dump_oai_settings()
+        data = {"MMetadataFormatId": FAKE_ID}
+        req = self.doRequestPost(url=reverse("api_delete_my_metadataFormat"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_delete_my_metadataFormat_unauthorized(self):
+        self.dump_oai_settings()
+        data = {"MetadataFormatId": FAKE_ID}
+        req = self.doRequestPost(url=reverse("api_delete_my_metadataFormat"), data=data, auth=USER_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
+
+################################################################################
+
+
+###################### update_my_metadataFormat tests ##########################
+
+    def test_update_my_metadataFormat(self):
+        self.dump_oai_settings()
+        self.dump_oai_my_metadata_format()
+        firstMF = OaiMyMetadataFormat.objects.first()
+        newMetadataPrefix = 'oai_test'
+        self.assertNotEquals(firstMF.metadataPrefix, newMetadataPrefix)
+        #Delete the first
+        data = {"id": str(firstMF.id), "metadataPrefix": newMetadataPrefix}
+        req = self.doRequestPut(url=reverse("api_update_my_metadataFormat"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_200_OK)
+        objInDatabase =  OaiMyMetadataFormat.objects(pk=firstMF.id).get()
+        self.assertEquals(objInDatabase.metadataPrefix, newMetadataPrefix)
+
+    def test_update_my_metadataFormat_not_found(self):
+        self.dump_oai_settings()
+        data = {"id": FAKE_ID, "metadataPrefix": 'oai_test'}
+        req = self.doRequestPut(url=reverse("api_update_my_metadataFormat"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_my_metadataFormat_invalid_serializer(self):
+        self.dump_oai_settings()
+        data = {"iid": FAKE_ID, "metadataPrefix": 'oai_test'}
+        req = self.doRequestPut(url=reverse("api_update_my_metadataFormat"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {"id": FAKE_ID, "mmetadataPrefix": 'oai_test'}
+        req = self.doRequestPut(url=reverse("api_update_my_metadataFormat"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_my_metadataFormat_unauthorized(self):
+        self.dump_oai_settings()
+        data = {"id": FAKE_ID, "metadataPrefix": 'oai_test'}
+        req = self.doRequestPut(url=reverse("api_update_my_metadataFormat"), data=data, auth=USER_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
+
+################################################################################
 
 
 ################################################################################
