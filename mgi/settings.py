@@ -115,10 +115,13 @@ HANDLE_SERVER_PSWD = ''
 
 # Customization: Registry
 CUSTOM_TITLE = 'Materials Resource Registry'
+CUSTOM_ORGANIZATION = 'NIST'
+CUSTOM_NAME = 'NMRR'
 CUSTOM_SUBTITLE = 'Part of the Materials Genome Initiative'
 CUSTOM_DATA = 'Materials Data'
 CUSTOM_CURATE = 'Add your resource'
 CUSTOM_EXPLORE = 'Search for resources'
+CUSTOM_URL = 'http://www.nist.gov'
 
 #CURATE
 CURATE_MIN_TREE = True
