@@ -118,11 +118,14 @@ HANDLE_SERVER_PSWD = ''
 
 # Customization: MGI
 CUSTOM_TITLE = 'Materials Data'
+CUSTOM_ORGANIZATION = 'NIST'
+CUSTOM_NAME = 'Curator'
 CUSTOM_SUBTITLE = 'Part of the Materials Genome Initiative'
 CUSTOM_DATA = 'Materials Data'
 CUSTOM_CURATE = 'Data Curation'
 CUSTOM_EXPLORE = 'Data Exploration'
 CUSTOM_COMPOSE = 'Composer'
+CUSTOM_URL = 'http://www.nist.gov'
 
 #CURATE
 CURATE_MIN_TREE = True
