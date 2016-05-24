@@ -110,14 +110,14 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         req = self.doRequestPost(url=reverse("api_add_registry"), data=data, auth=ADMIN_AUTH)
         self.assertEquals(req.status_code, status.HTTP_409_CONFLICT)
 
-    def test_add_registry_bad_identify(self):
+    def test_add_registry_identify(self):
         self.dump_oai_settings()
         data = {"url": URL_TEST_SERVER, "harvestrate": 5000, "harvest": True}
         #No harvest TRUE Identify will fail
         req = self.doRequestPost(url=reverse("api_add_registry"), data=data, auth=ADMIN_AUTH)
         self.assertNotEquals(req.status_code, status.HTTP_200_OK)
 
-    def test_add_registry_bad_metadata_format(self):
+    def test_add_registry_metadata_format(self):
         self.dump_oai_settings()
         self.setHarvest(True)
         self.dump_oai_my_metadata_format()
@@ -525,7 +525,7 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
     #     self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-    def test_select_all_registries_one(self):
+    def test_select_registry_one(self):
         self.createFakeRegistry()
         self.assertEquals(len(OaiRegistry.objects()), 1)
         params = {"name": "Fake registry"}
@@ -538,12 +538,12 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         req = self.doRequestGet(url="/oai_pmh/api/select/registry", params=params, auth=ADMIN_AUTH_GET)
         self.assertEquals(req.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_select_all_registries_unauthorized(self):
+    def test_select_registry_unauthorized(self):
         params = {"name": "Fake registry"}
         req = self.doRequestGet(url="/oai_pmh/api/select/registry", params=params, auth=None)
         self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_select_all_registries_serializer_invalid(self):
+    def test_select_registry_serializer_invalid(self):
         params = {"nameBad": "Fake registry"}
         req = self.doRequestGet(url="/oai_pmh/api/select/registry", params=params, auth=ADMIN_AUTH_GET)
         self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
@@ -563,19 +563,19 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         self.assertEquals(objInDatabase.harvestrate, 1000)
         self.assertEquals(objInDatabase.harvest, True)
 
-    def test_select_registry_bad_id(self):
+    def test_update_registry_bad_id(self):
         registry = self.createFakeRegistry()
         self.assertNotEquals(registry.id, FAKE_ID)
         data = {"id": FAKE_ID, 'harvestrate': 1000, 'harvest': 'True'}
         req = self.doRequestPut(url="/oai_pmh/api/update/registry", data=data, auth=ADMIN_AUTH)
         self.assertEquals(req.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_select_all_registries_unauthorized(self):
+    def test_update_all_registries_unauthorized(self):
         data = {"id": FAKE_ID, 'harvestrate': 1000, 'harvest': 'True'}
         req = self.doRequestPut(url="/oai_pmh/api/update/registry", data=data, auth=None)
         self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_select_all_registries_unauthorized_user(self):
+    def test_update_all_registries_unauthorized_user(self):
         data = {"id": FAKE_ID, 'harvestrate': 1000, 'harvest': 'True'}
         req = self.doRequestPut(url="/oai_pmh/api/update/registry", data=data, auth=USER_AUTH)
         self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
