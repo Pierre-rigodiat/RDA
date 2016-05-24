@@ -2459,7 +2459,7 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
                                       '<schema>http://127.0.0.1:8082/oai_pmh/server/XSD/Software.xsd</schema></metadataFormat>'},
                               {'metadataPrefix': 'oai_dataset',
                                'metadataNamespace': 'http://www.w3.org/2001/XMLSchema',
-                               'schema': 'http://127.0.0.1:8000/oai_pmh/server/XSD/Dataset.xsd',
+                               'schema': 'http://127.0.0.1:80000088/oai_pmh/server/XSD/Dataset.xsd',
                                'raw': '<metadataFormat xmlns="http://www.openarchives.org/OAI/2.0/" '
                                       'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
                                       '<metadataNamespace>http://www.w3.org/2001/XMLSchema</metadataNamespace>'
