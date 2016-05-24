@@ -1892,6 +1892,161 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
 
 ################################################################################
 
+################################ Set tests #####################################
+
+    def test_add_my_set(self):
+        self.dump_oai_settings()
+        self.dump_template()
+        self.dump_oai_my_set()
+        setSpec = "test"
+        setName = "test set"
+        description = "set description"
+        templates = [str(x.id) for x in Template.objects.all().limit(3)]
+        data = {"setSpec": setSpec, "setName": setName, "templates": templates, "description": description}
+        req = self.doRequestPost(url=reverse("api_add_my_set"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_201_CREATED)
+        objInDatabase = OaiMySet.objects(setSpec=setSpec).get()
+        self.assertEquals(objInDatabase.setSpec, setSpec)
+        self.assertEquals(objInDatabase.setName, setName)
+        self.assertEquals([str(x.id) for x in objInDatabase.templates], templates)
+        self.assertEquals(objInDatabase.description, description)
+
+    # def test_add_my_set_not_unique(self):
+    #     self.dump_oai_settings()
+    #     self.dump_template()
+    #     self.dump_oai_my_set()
+    #     setSpec = "soft"
+    #     setName = "software"
+    #     templates = [str(Template.objects(title=setName).get().id)]
+    #     data = {"setSpec": setSpec, "setName": setName, "templates": templates, "description": 'set description'}
+    #     req = self.doRequestPost(url=reverse("api_add_my_set"), data=data, auth=ADMIN_AUTH)
+    #     self.assertEquals(req.status_code, status.HTTP_409_CONFLICT)
+
+    def test_add_my_set_invalid_serializer(self):
+        self.dump_oai_settings()
+        self.dump_template()
+        setSpec = "test"
+        setName = "test set"
+        templates = [str(x.id) for x in Template.objects.all().limit(3)]
+        data = {"ssetSpec": setSpec, "setName": setName, "templates": templates}
+        req = self.doRequestPost(url=reverse("api_add_my_set"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {"setSpec": setSpec, "ssetName": setName, "templates": templates}
+        req = self.doRequestPost(url=reverse("api_add_my_set"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {"setSpec": setSpec, "setName": setName, "ttemplates": templates}
+        req = self.doRequestPost(url=reverse("api_add_my_set"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_add_my_set_unauthorized(self):
+        self.dump_oai_settings()
+        self.dump_template()
+        setSpec = "test"
+        setName = "test set"
+        templates = [str(x.id) for x in Template.objects.all().limit(3)]
+        data = {"setSpec": setSpec, "setName": setName, "templates": templates, "description": 'set description'}
+        req = self.doRequestPost(url=reverse("api_add_my_set"), data=data, auth=USER_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+    def test_delete_my_set(self):
+        self.dump_oai_settings()
+        self.dump_template()
+        self.dump_oai_my_set()
+        set = OaiMySet.objects.first()
+        data = {"set_id": str(set.id)}
+        req = self.doRequestPost(url=reverse("api_delete_my_set"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_200_OK)
+        with self.assertRaises(MONGO_ERRORS.DoesNotExist):
+            OaiSet.objects.get(pk=set.id)
+
+    def test_delete_my_set_not_found(self):
+        self.dump_oai_settings()
+        data = {"set_id": FAKE_ID}
+        req = self.doRequestPost(url=reverse("api_delete_my_set"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_my_set_invalid_serializer(self):
+        self.dump_oai_settings()
+        data = {"sset_id": FAKE_ID}
+        req = self.doRequestPost(url=reverse("api_delete_my_set"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_delete_my_set_unauthorized(self):
+        self.dump_oai_settings()
+        data = {"set_id": FAKE_ID}
+        req = self.doRequestPost(url=reverse("api_delete_my_set"), data=data, auth=USER_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+    def test_update_my_set(self):
+        self.dump_oai_settings()
+        self.dump_oai_my_set()
+        self.dump_template()
+        setSpec = "modified setSpec"
+        setName = "modified name"
+        description = "modified description"
+        set = OaiMySet.objects.first()
+        templates = [str(x.id) for x in Template.objects.all().limit(3)]
+        data = {"id": str(set.id), "setSpec": setSpec, "setName": setName, "templates": templates,
+                "description": description}
+        req = self.doRequestPut(url=reverse("api_update_my_set"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_200_OK)
+        objInDatabase = OaiMySet.objects.get(pk=set.id)
+        self.assertEquals(objInDatabase.setSpec, setSpec)
+        self.assertEquals(objInDatabase.setName, setName)
+        self.assertEquals([str(x.id) for x in objInDatabase.templates], templates)
+        self.assertEquals(objInDatabase.description, description)
+
+    def test_update_my_set_not_found(self):
+        self.dump_oai_settings()
+        self.dump_oai_my_set()
+        self.dump_template()
+        setSpec = "modified setSpec"
+        setName = "modified name"
+        description = "modified description"
+        templates = [str(x.id) for x in Template.objects.all().limit(3)]
+        data = {"id": FAKE_ID, "setSpec": setSpec, "setName": setName, "templates": templates,
+                "description": description}
+        req = self.doRequestPut(url=reverse("api_update_my_set"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_my_set_invalid_serializer(self):
+        self.dump_oai_settings()
+        self.dump_template()
+        setSpec = "modified setSpec"
+        setName = "modified name"
+        description = "modified description"
+        templates = [str(x.id) for x in Template.objects.all().limit(3)]
+        data = {"iid": FAKE_ID, "setSpec": setSpec, "setName": setName, "templates": templates,
+                "description": description}
+        req = self.doRequestPut(url=reverse("api_update_my_set"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {"id": FAKE_ID, "ssetSpec": setSpec, "setName": setName, "templates": templates,
+                "description": description}
+        req = self.doRequestPut(url=reverse("api_update_my_set"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {"id": FAKE_ID, "setSpec": setSpec, "ssetName": setName, "templates": templates,
+                "description": description}
+        req = self.doRequestPut(url=reverse("api_update_my_set"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_my_set_unauthorized(self):
+        self.dump_oai_settings()
+        self.dump_oai_my_set()
+        self.dump_template()
+        setSpec = "modified setSpec"
+        setName = "modified name"
+        description = "modified description"
+        set = OaiMySet.objects.first()
+        templates = [str(x.id) for x in Template.objects.all().limit(3)]
+        data = {"id": str(set.id), "setSpec": setSpec, "setName": setName, "templates": templates,
+                "description": description}
+        req = self.doRequestPut(url=reverse("api_update_my_set"), data=data, auth=USER_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+################################################################################
 
 ################################################################################
 ########################## Common assert controls ##############################
