@@ -100,12 +100,12 @@ class UpdateMyRegistrySerializer(serializers.Serializer):
     enableHarvesting = serializers.BooleanField(required=True)
 
 class MyMetadataFormatSerializer(serializers.Serializer):
-    metadataPrefix = serializers.CharField()
-    schema = serializers.CharField()
+    metadataPrefix = serializers.CharField(required=True)
+    schema = serializers.CharField(required=True)
 
 class MyTemplateMetadataFormatSerializer(serializers.Serializer):
-    metadataPrefix = serializers.CharField()
-    template = serializers.CharField()
+    metadataPrefix = serializers.CharField(required=True)
+    template = serializers.CharField(required=True)
 
 class DeleteMyMetadataFormatSerializer(serializers.Serializer):
     MetadataFormatId  = serializers.CharField(required=True)

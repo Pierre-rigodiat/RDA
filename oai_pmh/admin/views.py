@@ -746,7 +746,7 @@ def update_my_metadataFormat(request):
                                         auth=(OAI_USER, OAI_PASS))
 
                 #If the status is OK, sucess message
-                if req.status_code == status.HTTP_201_CREATED:
+                if req.status_code == status.HTTP_200_OK:
                     messages.add_message(request, messages.INFO, 'Metadata Format edited with success.')
                     return HttpResponse(json.dumps({}), content_type='application/javascript')
                 #Else, we return a bad request response with the message provided by the API
