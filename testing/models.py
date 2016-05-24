@@ -43,9 +43,9 @@ OPERATION_POST = "post"
 OPERATION_DELETE = "delete"
 OPERATION_POST = "post"
 
-TEMPLATE_VALID_CONTENT = '<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:nist.gov/nmrr.res/1.0wd"> <xsd:element name="root" type="test"/> <xsd:complexType name="test"> <xsd:sequence> </xsd:sequence> </xsd:complexType> </xsd:schema>'
+TEMPLATE_VALID_CONTENT = '<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:mgi="urn:nist.gov/nmrr.res/1.0wd" targetNamespace="urn:nist.gov/nmrr.res/1.0wd"> <xsd:element name="root" type="mgi:test"/> <xsd:complexType name="test"> <xsd:sequence> </xsd:sequence> </xsd:complexType> </xsd:schema>'
 TEMPLATE_INVALID_CONTENT = 'd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"> :element name="root" type="test"/> <xsd:complexType name="test"> <xsd:sequence> </xsd:sequence> </xsd:complexType> </xsd:schema>'
-XMLDATA_VALID_CONTENT  = '<?xml version="1.0" encoding="utf-8"?> <root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"></root>'
+XMLDATA_VALID_CONTENT  = '<?xml version="1.0" encoding="utf-8"?><root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:nist.gov/nmrr.res/1.0wd"/>'
 FAKE_ID = '12345678a123aff6ff5f2d9e'
 
 DUMP_OAI_PMH_TEST_PATH = os.path.join(BASE_DIR, 'oai_pmh', 'tests', 'dump')
