@@ -113,6 +113,7 @@ class DeleteMyMetadataFormatSerializer(serializers.Serializer):
 class MySetSerializer(serializers.Serializer):
     setSpec = serializers.CharField(required=True)
     setName = serializers.CharField(required=True)
+    templates = serializers.CharField(required=True)
     description = serializers.CharField(required=False)
 
 class DeleteMySetSerializer(serializers.Serializer):
@@ -126,6 +127,8 @@ class UpdateMySetSerializer(serializers.Serializer):
     id = serializers.CharField(required=True)
     setSpec = serializers.CharField(required=True)
     setName = serializers.CharField(required=True)
+    description = serializers.CharField(required=False)
+    templates = serializers.CharField(required=False)
 
 class DeleteXSLTSerializer(serializers.Serializer):
     xslt_id = serializers.CharField(required=True)

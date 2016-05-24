@@ -1818,14 +1818,13 @@ def update_my_metadataFormat(request):
 #
 # Function Name: add_my_set(request)
 # Inputs:        request -
-# Outputs:       201 Registry updated.
-# Exceptions:    400 Error connecting to database.
-#                400 [Identifier] not found in request.
+# Outputs:       201 Set updated.
+# Exceptions:    400 Error connecting to database..
 #                400 Unable to update record.
 #                400 Serializer failed validation.
 #                401 Unauthorized.
-#                404 No registry found with the given identity.
-# Description:   OAI-PMH Update my_metadataFormat
+#                409 The set already exists
+# Description:   OAI-PMH Add new set
 #
 ################################################################################
 @api_view(['POST'])
@@ -1840,29 +1839,32 @@ def add_my_set(request):
         serializer = MySetSerializer(data=request.DATA)
         #If it's valid
         if serializer.is_valid():
-            #We retrieve all information
-            if 'setSpec' in request.POST:
-                setSpec = request.DATA['setSpec']
-            if 'setName' in request.POST:
-                setName = request.DATA['setName']
-            if 'description' in request.POST:
-                description = request.DATA['description']
-            if 'templates' in request.POST:
-                templates = request.DATA.getlist('templates')
-            else:
-                templates = []
             try:
-                #Add in databases
-               OaiMySet(setSpec=setSpec, setName=setName, description=description, templates=templates).save()
+                #We retrieve all information
+                setSpec = request.DATA['setSpec']
+                setName = request.DATA['setName']
+                if isinstance(request.DATA, QueryDict):
+                    templates = request.DATA.getlist('templates')
+                else:
+                    templates = request.DATA['templates']
+                description = request.DATA.get('description', None)
+                OaiMySet(setSpec=setSpec, setName=setName, description=description, templates=templates).save()
+
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            except MONGO_ERRORS.NotUniqueError as e:
+                raise OAIAPILabelledException(message='Unable to add the new set. '
+                                                      'The set already exists.',
+                                              status=status.HTTP_409_CONFLICT)
             except Exception as e:
                 raise OAIAPILabelledException(message='Unable to add the new set. \n%s'%e.message,
                                               status=status.HTTP_400_BAD_REQUEST)
-
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
         return e.response()
+    except Exception as e:
+        content = APIMessage.getMessageLabelled(e.message)
+        return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 ################################################################################
@@ -1889,18 +1891,19 @@ def delete_my_set(request):
     try:
         serializer = DeleteMySetSerializer(data=request.DATA)
         if serializer.is_valid():
-            #Get the ID
-            id = request.DATA['set_id']
             try:
+                id = request.DATA['set_id']
                 set = OaiMySet.objects.get(pk=id)
-            except Exception as e:
+                set.delete()
+                content = APIMessage.getMessageLabelled("Deleted set with success.")
+
+                return Response(content, status=status.HTTP_200_OK)
+            except MONGO_ERRORS.DoesNotExist:
                 raise OAIAPILabelledException(message='No set found with the given id.',
                                               status=status.HTTP_404_NOT_FOUND)
-            #We can now delete the set for my server
-            set.delete()
-            content = APIMessage.getMessageLabelled("Deleted set with success.")
-
-            return Response(content, status=status.HTTP_200_OK)
+            except Exception as e:
+                raise OAIAPILabelledException(message='Unable to delete the set. \n%s'%e.message,
+                                              status=status.HTTP_400_BAD_REQUEST)
         else:
             raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
@@ -1914,13 +1917,13 @@ def delete_my_set(request):
 #
 # Function Name: update_my_set(request)
 # Inputs:        request -
-# Outputs:       201 Registry updated.
+# Outputs:       200 Set updated.
 # Exceptions:    400 Error connecting to database.
 #                400 [Identifier] not found in request.
 #                400 Unable to update record.
 #                400 Serializer failed validation.
 #                401 Unauthorized.
-#                404 No registry found with the given identity.
+#                404 No set found with the given identity.
 # Description:   OAI-PMH Update my_metadataFormat
 #
 ################################################################################
@@ -1938,40 +1941,28 @@ def update_my_set(request):
         if serializer.is_valid():
             #We retrieve all information
             try:
-                if 'id' in request.DATA:
-                    id = request.DATA['id']
-                    set = OaiMySet.objects.get(pk=id)
+                id = request.DATA['id']
+                set = OaiMySet.objects.get(pk=id)
+                set.setSpec = request.DATA['setSpec']
+                set.setName = request.DATA['setName']
+                description = request.DATA.get('description', None)
+                if description is not None:
+                    set.description = description
+                if isinstance(request.DATA, QueryDict):
+                    templates = request.DATA.getlist('templates', None)
                 else:
-                    rsp = {'id':'\'Id\' not found in request.'}
-                    raise OAIAPIException(message=rsp, status=status.HTTP_400_BAD_REQUEST)
-            except:
+                    templates = request.DATA.get('templates', None)
+                if templates is not None:
+                    set.templates = Template.objects(pk__in=templates).all()
+                set.save()
+
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            except MONGO_ERRORS.DoesNotExist:
                 raise OAIAPILabelledException(message='No set found with the given id.',
                                               status=status.HTTP_404_NOT_FOUND)
-            if 'setSpec' in request.DATA:
-                setSpec = request.DATA['setSpec']
-                if setSpec:
-                    set.setSpec = setSpec
-            if 'setName' in request.DATA:
-                setName = request.DATA['setName']
-                if setName:
-                    set.setName = setName
-            description = None
-            if 'description' in request.DATA:
-                description = request.DATA['description']
-            set.description = description
-            if 'templates' in request.DATA:
-                templates = request.DATA.getlist('templates')
-                set.templates = Template.objects(pk__in=templates).all()
-            else:
-                set.templates = []
-            try:
-                #Save the modifications
-                 set.save()
             except Exception as e:
                 raise OAIAPILabelledException(message='Unable to update the set. \n%s'%e.message,
-                                              status=status.HTTP_400_BAD_REQUEST)
-
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+                                                status=status.HTTP_400_BAD_REQUEST)
         else:
             raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
