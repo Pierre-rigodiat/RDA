@@ -43,7 +43,8 @@ OPERATION_POST = "post"
 OPERATION_DELETE = "delete"
 OPERATION_POST = "post"
 
-TEMPLATE_VALID_CONTENT = '<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"> <xsd:element name="root" type="test"/> <xsd:complexType name="test"> <xsd:sequence> </xsd:sequence> </xsd:complexType> </xsd:schema>'
+TEMPLATE_VALID_CONTENT = '<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:nist.gov/nmrr.res/1.0wd"> <xsd:element name="root" type="test"/> <xsd:complexType name="test"> <xsd:sequence> </xsd:sequence> </xsd:complexType> </xsd:schema>'
+TEMPLATE_INVALID_CONTENT = 'd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"> :element name="root" type="test"/> <xsd:complexType name="test"> <xsd:sequence> </xsd:sequence> </xsd:complexType> </xsd:schema>'
 XMLDATA_VALID_CONTENT  = '<?xml version="1.0" encoding="utf-8"?> <root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"></root>'
 FAKE_ID = '12345678a123aff6ff5f2d9e'
 
@@ -154,7 +155,15 @@ class RegressionTest(LiveServerTestCase):
 
     def createTemplateWithTemplateVersionValidContent(self, templateVersionId):
         hash = XSDhash.get_hash(TEMPLATE_VALID_CONTENT)
-        return Template(title='test', filename='test', content=TEMPLATE_VALID_CONTENT, version=1, templateVersion=templateVersionId, hash=hash).save()
+        template = Template(title='test', filename='test', content=TEMPLATE_VALID_CONTENT, version=1, templateVersion=templateVersionId, hash=hash).save()
+        TemplateVersion.objects.get(pk=templateVersionId).update(set__current=template.id)
+        return template
+
+    def createTemplateWithTemplateVersionInvalidContent(self, templateVersionId):
+        hash = XSDhash.get_hash(TEMPLATE_VALID_CONTENT)
+        template = Template(title='test', filename='test', content=TEMPLATE_INVALID_CONTENT, version=1, templateVersion=templateVersionId, hash=hash).save()
+        TemplateVersion.objects.get(pk=templateVersionId).update(set__current=template.id)
+        return template
 
     def createTemplateVersion(self):
         return TemplateVersion(nbVersions=1, isDeleted=False, current=FAKE_ID).save()
