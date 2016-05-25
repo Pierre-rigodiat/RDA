@@ -86,23 +86,6 @@ BLOB_HOSTER_USER = MONGO_MGI_USER
 BLOB_HOSTER_PSWD = MONGO_MGI_PASSWORD
 MDCS_URI = 'http://127.0.0.1:8000'
 
-# OAI_PMH parameters
-OAI_ADMINS = (
-    ('Administrator', 'admin@curator.com'),
-)
-OAI_HOST_URI = 'http://127.0.0.1:8000'
-OAI_USER = 'admin'
-OAI_PASS = 'admin'
-OAI_NAME = 'MDCS Admin 127.0.0.1 '
-OAI_DELIMITER = ':'
-OAI_DESCRIPTION = 'OAI-PMH CURATOR'
-OAI_GRANULARITY = 'YYYY-MM-DDThh:mm:ssZ' #the finest harvesting granularity supported by the repository
-OAI_PROTOCOLE_VERSION = '2.0' #the version of the OAI-PMH supported by the repository
-OAI_SCHEME = 'oai'
-OAI_REPO_IDENTIFIER = 'server-127.0.0.1'
-OAI_SAMPLE_IDENTIFIER = OAI_SCHEME+OAI_DELIMITER+OAI_REPO_IDENTIFIER+OAI_DELIMITER+'id/12345678a123aff6ff5f2d9e'
-OAI_DELETED_RECORD = 'no' #no ; transient ; persistent
-
 #Celery configuration
 BROKER_URL = 'redis://localhost:6379/0'
 BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
@@ -126,6 +109,24 @@ CUSTOM_CURATE = 'Data Curation'
 CUSTOM_EXPLORE = 'Data Exploration'
 CUSTOM_COMPOSE = 'Composer'
 CUSTOM_URL = 'http://www.nist.gov'
+
+# OAI_PMH parameters
+OAI_ADMINS = (
+    ('Administrator', 'admin@curator.com'),
+)
+HOST = '127.0.0.1'
+OAI_HOST_URI = MDCS_URI
+OAI_USER = 'admin'
+OAI_PASS = 'admin'
+OAI_NAME = CUSTOM_NAME + ' ' + HOST
+OAI_DELIMITER = ':'
+OAI_DESCRIPTION = 'OAI-PMH ' + CUSTOM_NAME
+OAI_GRANULARITY = 'YYYY-MM-DDThh:mm:ssZ' #the finest harvesting granularity supported by the repository
+OAI_PROTOCOLE_VERSION = '2.0' #the version of the OAI-PMH supported by the repository
+OAI_SCHEME = 'oai'
+OAI_REPO_IDENTIFIER = 'server-' + HOST
+OAI_SAMPLE_IDENTIFIER = OAI_SCHEME+OAI_DELIMITER+OAI_REPO_IDENTIFIER+OAI_DELIMITER+'id/12345678a123aff6ff5f2d9e'
+OAI_DELETED_RECORD = 'no' #no ; transient ; persistent
 
 #CURATE
 CURATE_MIN_TREE = True
