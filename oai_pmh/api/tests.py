@@ -17,14 +17,13 @@ from oai_pmh.api.views import createRegistry, createOaiIdentify, setDataToRegist
     sickleObjectIdentify, getListRecords, harvestRecords, harvestByMF, harvestBySetsAndMF, modifyRegistry, \
     modifyOaiIdentify, modifyMetadataformatsForRegistry, modifySetsForRegistry
 from mgi.models import OaiRegistry, OaiIdentify, OaiMetadataFormat, OaiMyMetadataFormat, OaiSettings, Template, OaiSet,\
-    OaiMySet, OaiRecord, XMLdata, OaiTemplMfXslt, OaiMetadataformatSet
+    OaiMySet, OaiRecord, XMLdata, OaiTemplMfXslt, OaiMetadataformatSet, OaiXslt
 import xmltodict
-import lxml.etree as etree
-from testing.models import URL_TEST, ADMIN_AUTH, ADMIN_AUTH_GET, USER_AUTH
+from testing.models import URL_TEST, ADMIN_AUTH, ADMIN_AUTH_GET, USER_AUTH, TEMPLATE_VALID_CONTENT, \
+    TEMPLATE_INVALID_CONTENT
 from django.core.urlresolvers import reverse
 from rest_framework import status
 import mongoengine.errors as MONGO_ERRORS
-from oai_pmh.server.exceptions import BAD_RESUMPTION_TOKEN
 from testing.models import FAKE_ID
 from bson.objectid import ObjectId
 import oai_pmh.datestamp as datestamp
@@ -37,6 +36,7 @@ from django.utils.importlib import import_module
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
 OAI_HOST_URI = settings.OAI_HOST_URI
+from unittest import skip
 
 class tests_OAI_PMH_API(OAI_PMH_Test):
 
@@ -517,12 +517,11 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         req = self.doRequestGet(url="/oai_pmh/api/select/all/registries", auth=None)
         self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    #
-    # #TODO Find smthg to stop the database
-    # def test_select_all_registries_error_database(self):
-    #     self.assertEquals(len(OaiRegistry.objects()), 0)
-    #     req = self.doRequestGet(url="/oai_pmh/api/select/all/registries", auth=ADMIN_AUTH_GET)
-    #     self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+    @skip("Find smthg to stop the database")
+    def test_select_all_registries_error_database(self):
+        self.assertEquals(len(OaiRegistry.objects()), 0)
+        req = self.doRequestGet(url="/oai_pmh/api/select/all/registries", auth=ADMIN_AUTH_GET)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
 
 
     def test_select_registry_one(self):
@@ -828,11 +827,11 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         req = self.doRequestPut(url=reverse("api_update_registry_harvest"), data=data, auth=ADMIN_AUTH)
         self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
 
-    # def test_update_registry_harvest_bad_entries(self):
-        #TODO Control charfield
-        # data = {"id": 1000, 'metadataFormats': 1000, 'sets': 200}
-        # req = self.doRequestPut(url=reverse("api_update_registry_harvest"), data=data, auth=ADMIN_AUTH)
-        # self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+    @skip("Control charfield")
+    def test_update_registry_harvest_bad_entries(self):
+        data = {"id": 1000, 'metadataFormats': 1000, 'sets': 200}
+        req = self.doRequestPut(url=reverse("api_update_registry_harvest"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -1689,15 +1688,16 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         obj = after[0]
         self.assertNotEquals(obj.metadataNamespace, 'http://www.w3.org/2001/XMLSchema')
 
-    # def test_add_my_metadataFormat_duplicate(self):
-    #     self.dump_oai_settings()
-    #     self.dump_oai_my_metadata_format()
-    #     self.dump_template()
-    #     self.dump_oai_registry()
-    #     self.setHarvest(True)
-    #     data = {"metadataPrefix": 'oai_dc', 'schema':'http://www.openarchives.org/OAI/2.0/oai_dc.xsd'}
-    #     req = self.doRequestPost(url=reverse("api_add_my_metadataFormat"), data=data, auth=ADMIN_AUTH)
-    #     self.assertEquals(req.status_code, status.HTTP_409_CONFLICT)
+    @skip("Not working if launched with other tests")
+    def test_add_my_metadataFormat_duplicate(self):
+        self.dump_oai_settings()
+        self.dump_oai_my_metadata_format()
+        self.dump_template()
+        self.dump_oai_registry()
+        self.setHarvest(True)
+        data = {"metadataPrefix": 'oai_dc', 'schema':'http://www.openarchives.org/OAI/2.0/oai_dc.xsd'}
+        req = self.doRequestPost(url=reverse("api_add_my_metadataFormat"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_409_CONFLICT)
 
     def test_add_my_metadataFormat_bad_server_url(self):
         self.dump_oai_settings()
@@ -1774,15 +1774,16 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         obj = after[0]
         self.assertNotEquals(obj.metadataNamespace, 'http://www.w3.org/2001/XMLSchema')
 
-    # def test_add_my_template_metadataFormat_duplicate(self):
-    #     self.dump_oai_settings()
-    #     self.dump_oai_my_metadata_format()
-    #     self.dump_template()
-    #     self.dump_oai_registry()
-    #     template = Template.objects(filename='Software.xsd').get()
-    #     data = {"metadataPrefix": 'oai_soft', 'template': str(template.id)}
-    #     req = self.doRequestPost(url=reverse("api_add_my_template_metadataFormat"), data=data, auth=ADMIN_AUTH)
-    #     self.assertEquals(req.status_code, status.HTTP_409_CONFLICT)
+    @skip("Not working if launched with other tests")
+    def test_add_my_template_metadataFormat_duplicate(self):
+        self.dump_oai_settings()
+        self.dump_oai_my_metadata_format()
+        self.dump_template()
+        self.dump_oai_registry()
+        template = Template.objects(filename='Software.xsd').get()
+        data = {"metadataPrefix": 'oai_soft', 'template': str(template.id)}
+        req = self.doRequestPost(url=reverse("api_add_my_template_metadataFormat"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_409_CONFLICT)
 
     def test_add_my_template_metadataFormat_bad_template(self):
         self.dump_oai_settings()
@@ -1911,16 +1912,17 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         self.assertEquals([str(x.id) for x in objInDatabase.templates], templates)
         self.assertEquals(objInDatabase.description, description)
 
-    # def test_add_my_set_not_unique(self):
-    #     self.dump_oai_settings()
-    #     self.dump_template()
-    #     self.dump_oai_my_set()
-    #     setSpec = "soft"
-    #     setName = "software"
-    #     templates = [str(Template.objects(title=setName).get().id)]
-    #     data = {"setSpec": setSpec, "setName": setName, "templates": templates, "description": 'set description'}
-    #     req = self.doRequestPost(url=reverse("api_add_my_set"), data=data, auth=ADMIN_AUTH)
-    #     self.assertEquals(req.status_code, status.HTTP_409_CONFLICT)
+    @skip("Not working if launched with other tests")
+    def test_add_my_set_not_unique(self):
+        self.dump_oai_settings()
+        self.dump_template()
+        self.dump_oai_my_set()
+        setSpec = "soft"
+        setName = "software"
+        templates = [str(Template.objects(title=setName).get().id)]
+        data = {"setSpec": setSpec, "setName": setName, "templates": templates, "description": 'set description'}
+        req = self.doRequestPost(url=reverse("api_add_my_set"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_409_CONFLICT)
 
     def test_add_my_set_invalid_serializer(self):
         self.dump_oai_settings()
@@ -2045,6 +2047,200 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         req = self.doRequestPut(url=reverse("api_update_my_set"), data=data, auth=USER_AUTH)
         self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
 
+
+################################################################################
+
+
+############################ oai_pmh_xslt tests ################################
+
+    def test_upload_oai_pmh_xslt(self):
+        self.dump_oai_settings()
+        name = "testXslt"
+        fileName = "testXslt.xsd"
+        content = TEMPLATE_VALID_CONTENT
+        data = {"name": name, "filename": fileName, "content": content}
+        req = self.doRequestPost(url=reverse("api_upload_oai_pmh_xslt"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_201_CREATED)
+        obj = OaiXslt.objects.get()
+        self.assertEquals(obj.name, name)
+        self.assertEquals(obj.filename, fileName)
+        self.assertEquals(obj.content, content)
+
+    @skip("Not working if launched with other tests")
+    def test_upload_oai_pmh_xslt_not_unique(self):
+        self.dump_oai_settings()
+        name = "testXslt"
+        fileName = "testXslt.xsd"
+        content = TEMPLATE_VALID_CONTENT
+        data = {"name": name, "filename": fileName, "content": content}
+        req = self.doRequestPost(url=reverse("api_upload_oai_pmh_xslt"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_201_CREATED)
+        req = self.doRequestPost(url=reverse("api_upload_oai_pmh_xslt"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_409_CONFLICT)
+
+    def test_upload_oai_pmh_xslt_invalid_xml(self):
+        self.dump_oai_settings()
+        name = "testXslt"
+        fileName = "testXslt.xsd"
+        content = TEMPLATE_INVALID_CONTENT
+        data = {"name": name, "filename": fileName, "content": content}
+        req = self.doRequestPost(url=reverse("api_upload_oai_pmh_xslt"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_upload_oai_pmh_xslt_invalid_serializer(self):
+        self.dump_oai_settings()
+        self.dump_template()
+        name = "testXslt"
+        fileName = "testXslt.xsd"
+        content = TEMPLATE_VALID_CONTENT
+        data = {"nname": name, "filename": fileName, "content": content}
+        req = self.doRequestPost(url=reverse("api_upload_oai_pmh_xslt"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {"name": name, "ffilename": fileName, "content": content}
+        req = self.doRequestPost(url=reverse("api_upload_oai_pmh_xslt"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {"name": name, "filename": fileName, "ccontent": content}
+        req = self.doRequestPost(url=reverse("api_upload_oai_pmh_xslt"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_upload_oai_pmh_xslt_unauthorized(self):
+        self.dump_oai_settings()
+        name = "testXslt"
+        fileName = "testXslt.xsd"
+        content = TEMPLATE_VALID_CONTENT
+        data = {"name": name, "filename": fileName, "content": content}
+        req = self.doRequestPost(url=reverse("api_upload_oai_pmh_xslt"), data=data, auth=USER_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+    def test_delete_oai_pmh_xslt(self):
+        self.dump_oai_settings()
+        self.dump_oai_xslt()
+        xslt = OaiXslt.objects.first()
+        data = {"xslt_id": str(xslt.id)}
+        req = self.doRequestPost(url=reverse("api_delete_oai_pmh_xslt"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_200_OK)
+        with self.assertRaises(MONGO_ERRORS.DoesNotExist):
+            OaiXslt.objects.get(pk=xslt.id)
+
+    def test_delete_oai_pmh_xslt_not_found(self):
+        self.dump_oai_settings()
+        data = {"xslt_id": FAKE_ID}
+        req = self.doRequestPost(url=reverse("api_delete_oai_pmh_xslt"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_oai_pmh_xslt_invalid_serializer(self):
+        self.dump_oai_settings()
+        data = {"xxslt_id": FAKE_ID}
+        req = self.doRequestPost(url=reverse("api_delete_oai_pmh_xslt"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_delete_oai_pmh_xslt_unauthorized(self):
+        self.dump_oai_settings()
+        data = {"xslt_id": FAKE_ID}
+        req = self.doRequestPost(url=reverse("api_delete_oai_pmh_xslt"), data=data, auth=USER_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_edit_oai_pmh_xslt(self):
+        self.dump_oai_settings()
+        self.dump_oai_xslt()
+        xslt = OaiXslt.objects.first()
+        name = "modified name"
+        data = {"xslt_id": str(xslt.id), "name": name}
+        req = self.doRequestPut(url=reverse("api_edit_oai_pmh_xslt"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_200_OK)
+        objInDatabase = OaiXslt.objects.get(pk=xslt.id)
+        self.assertEquals(objInDatabase.name, name)
+
+    @skip("Not working if launched with other tests")
+    def test_edit_oai_pmh_xslt_not_unique(self):
+        self.dump_oai_settings()
+        self.dump_oai_xslt()
+        modifedName = "badName"
+        OaiXslt(name="badName", filename='BadName.xsd', content='').save()
+        xslt = OaiXslt.objects.first()
+        data = {"xslt_id": str(xslt.id), "name": modifedName}
+        req = self.doRequestPut(url=reverse("api_edit_oai_pmh_xslt"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_409_CONFLICT)
+
+    def test_edit_oai_pmh_xslt_not_found(self):
+        self.dump_oai_settings()
+        self.dump_oai_xslt()
+        name = "modified name"
+        data = {"xslt_id": FAKE_ID, "name": name}
+        req = self.doRequestPut(url=reverse("api_edit_oai_pmh_xslt"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_edit_oai_pmh_xslt_invalid_serializer(self):
+        self.dump_oai_settings()
+        self.dump_oai_xslt()
+        xslt = OaiXslt.objects.first()
+        name = "modified name"
+        data = {"xxslt_id": str(xslt.id), "name": name}
+        req = self.doRequestPut(url=reverse("api_edit_oai_pmh_xslt"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {"xslt_id": str(xslt.id), "nname": name}
+        req = self.doRequestPut(url=reverse("api_edit_oai_pmh_xslt"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_edit_oai_pmh_xslt_unauthorized(self):
+        self.dump_oai_settings()
+        self.dump_oai_xslt()
+        xslt = OaiXslt.objects.first()
+        name = "modified name"
+        data = {"xslt_id": str(xslt.id), "name": name}
+        req = self.doRequestPut(url=reverse("api_edit_oai_pmh_xslt"), data=data, auth=USER_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+################################################################################
+
+############################# oai_pmh_conf tests ###############################
+
+    def test_oai_pmh_conf_xslt(self):
+        self.dump_oai_settings()
+        self.dump_template()
+        self.dump_oai_xslt()
+        self.dump_oai_my_metadata_format()
+        self.assertEqual(len(OaiTemplMfXslt.objects.all()), 0)
+        template = Template.objects.first()
+        myMetadataFormat = OaiMyMetadataFormat.objects.first()
+        xslt = OaiXslt.objects.first()
+        activated = True
+        data = {"template_id": str(template.id), "my_metadata_format_id": str(myMetadataFormat.id),
+                "xslt_id": xslt.id, "activated": str(activated)}
+        req = self.doRequestPost(url=reverse("api_oai_pmh_conf_xslt"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_200_OK)
+        objInDatabase = OaiTemplMfXslt.objects.get()
+        self.assertEquals(objInDatabase.template, template)
+        self.assertEquals(objInDatabase.myMetadataFormat, myMetadataFormat)
+        self.assertEquals(objInDatabase.xslt, xslt)
+        self.assertEquals(objInDatabase.activated, activated)
+
+
+    def test_oai_pmh_conf_xslt_activated_but_no_xslt(self):
+        self.dump_oai_settings()
+        data = {"template_id": FAKE_ID, "my_metadata_format_id": FAKE_ID, "activated": "True"}
+        req = self.doRequestPost(url=reverse("api_oai_pmh_conf_xslt"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_oai_pmh_conf_xslt_invalid_serializer(self):
+        self.dump_oai_settings()
+        data = {"ttemplate_id": FAKE_ID, "my_metadata_format_id": FAKE_ID, "activated": "False"}
+        req = self.doRequestPost(url=reverse("api_oai_pmh_conf_xslt"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {"template_id": FAKE_ID, "mmy_metadata_format_id": FAKE_ID, "activated": "False"}
+        req = self.doRequestPost(url=reverse("api_oai_pmh_conf_xslt"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+        data = {"template_id": FAKE_ID, "my_metadata_format_id": FAKE_ID, "aactivated": "False"}
+        req = self.doRequestPost(url=reverse("api_oai_pmh_conf_xslt"), data=data, auth=ADMIN_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_oai_pmh_conf_xslt_unauthorized(self):
+        self.dump_oai_settings()
+        data = {"template_id": FAKE_ID, "my_metadata_format_id": FAKE_ID, "xslt_id": FAKE_ID, "activated": "True"}
+        req = self.doRequestPost(url=reverse("api_oai_pmh_conf_xslt"), data=data, auth=USER_AUTH)
+        self.assertEquals(req.status_code, status.HTTP_401_UNAUTHORIZED)
 
 ################################################################################
 

@@ -1209,7 +1209,7 @@ def edit_oai_pmh_xslt(request, id=None):
             xslt_id = request.POST['object_id']
             new_name = request.POST['new_name']
             new_name = new_name.strip(' \t\n\r')
-            req = requests.post(uri, {"xslt_id": xslt_id, "name": new_name}, auth=(OAI_USER, OAI_PASS))
+            req = requests.put(uri, {"xslt_id": xslt_id, "name": new_name}, auth=(OAI_USER, OAI_PASS))
             if req.status_code == status.HTTP_200_OK:
                 messages.add_message(request, messages.INFO, 'XSLT edited with success.')
                 return HttpResponse(json.dumps({}), content_type='application/javascript')
