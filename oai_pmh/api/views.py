@@ -54,7 +54,7 @@ from oai_pmh.api.messages import APIMessage
 from admin_mdcs.models import api_permission_required, api_staff_member_required
 import oai_pmh.rights as RIGHTS
 from django.http.request import QueryDict
-import urllib2
+
 
 ################################################################################
 #
@@ -1970,6 +1970,58 @@ def update_my_set(request):
         return e.response()
 
 
+################################################################################
+#
+# Function Name: upload_oai_pmh_xslt(request)
+# Inputs:        request -
+# Outputs:       201 XSLT created.
+# Exceptions:    400 Error connecting to database.
+#                400 [name] not found in request.
+#                400 [filename] not found in request.
+#                400 [content] not found in request.
+#                400 Unspecified.
+#                400 Serializer failed validation.
+#                401 Unauthorized.
+#                409 XSLT conf already exists
+#                500 An error occurred.
+# Description:   OAI-PMH Upload an XSLT for OAI-PMH
+#
+################################################################################
+@api_view(['POST'])
+@api_staff_member_required()
+def upload_oai_pmh_xslt(request):
+    """
+    POST http://localhost/oai_pmh/api/upload/xslt
+    POST data query='{"name": ""value, "filename": "value", "content": "value"}
+    """
+    try:
+        serializer = OaiXSLTSerializer(data=request.DATA)
+        if serializer.is_valid():
+            try:
+                name = request.DATA['name']
+                filename = request.DATA['filename']
+                xmlStr = request.DATA['content']
+                etree.XML(xmlStr.encode('utf-8'))
+                OaiXslt(name=name, filename=filename, content=xmlStr).save()
+                content = APIMessage.getMessageLabelled("XSLT added with success.")
+
+                return Response(content, status=status.HTTP_201_CREATED)
+            except etree.ParseError as e:
+                raise OAIAPILabelledException(message='An error occurred when attempting to parse the XSLT',
+                                              status=status.HTTP_400_BAD_REQUEST)
+            except NotUniqueError, e:
+                raise OAIAPILabelledException(message='This XSLT name already exists. Please enter an other name.',
+                                              status=status.HTTP_409_CONFLICT)
+            except Exception as e:
+                raise OAIAPILabelledException(message='An error occurred when attempting to save the XSLT',
+                                              status=status.HTTP_400_BAD_REQUEST)
+        else:
+            raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except OAIAPIException as e:
+        return e.response()
+    except Exception as e:
+        content = APIMessage.getMessageLabelled(e.message)
+        return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ################################################################################
 #
@@ -1996,18 +2048,19 @@ def delete_oai_pmh_xslt(request):
     try:
         serializer = DeleteXSLTSerializer(data=request.DATA)
         if serializer.is_valid():
-            #Get the ID
-            id = request.DATA['xslt_id']
             try:
-                xslt = OaiXslt.objects(pk=id)
-            except Exception as e:
+                id = request.DATA['xslt_id']
+                xslt = OaiXslt.objects.get(pk=id)
+                xslt.delete()
+                content = APIMessage.getMessageLabelled("Deleted xslt with success.")
+
+                return Response(content, status=status.HTTP_200_OK)
+            except MONGO_ERRORS.DoesNotExist as e:
                 raise OAIAPILabelledException(message='No xslt found with the given id.',
                                               status=status.HTTP_404_NOT_FOUND)
-            #We can now delete the set for my server
-            xslt.delete()
-            content = APIMessage.getMessageLabelled("Deleted xslt with success.")
-
-            return Response(content, status=status.HTTP_200_OK)
+            except Exception as e:
+                raise OAIAPILabelledException(message='An error occurred when attempting to delete the XSLT.',
+                                              status=status.HTTP_400_BAD_REQUEST)
         else:
             raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
@@ -2029,11 +2082,12 @@ def delete_oai_pmh_xslt(request):
 #                400 Serializer failed validation.
 #                401 Unauthorized.
 #                404 No record found with the given identity.
+#                409 XSLT name already exists.
 #                500 An error occurred.
 # Description:   OAI-PMH Edit OAI-PMH XSLT
 #
 ################################################################################
-@api_view(['POST'])
+@api_view(['PUT'])
 @api_staff_member_required()
 def edit_oai_pmh_xslt(request):
     """
@@ -2043,22 +2097,24 @@ def edit_oai_pmh_xslt(request):
     try:
         serializer = DeleteXSLTSerializer(data=request.DATA)
         if serializer.is_valid():
-            #Get the ID
-            id = request.DATA['xslt_id']
-            new_name = request.DATA['name']
             try:
+                #Get the ID
+                id = request.DATA['xslt_id']
+                new_name = request.DATA['name']
                 xslt = OaiXslt.objects.get(pk=id)
-            except Exception as e:
+                xslt.update(set__name=str(new_name))
+                content = APIMessage.getMessageLabelled("XSLT edited with success.")
+
+                return Response(content, status=status.HTTP_200_OK)
+            except MONGO_ERRORS.DoesNotExist as e:
                 raise OAIAPILabelledException(message='No xslt found with the given id.',
                                               status=status.HTTP_404_NOT_FOUND)
-            if xslt.name == new_name:
-                raise OAIAPILabelledException(message='Please enter a different name.',
+            except MONGO_ERRORS.OperationError, e:
+                raise OAIAPILabelledException(message='This XSLT name already exists. Please enter an other name.',
+                                              status=status.HTTP_409_CONFLICT)
+            except Exception as e:
+                raise OAIAPILabelledException(message='An error occurred when attempting to edit the configuration.',
                                               status=status.HTTP_400_BAD_REQUEST)
-            else:
-                xslt.update(set__name=str(new_name))
-            content = APIMessage.getMessageLabelled("XSLT edited with success.")
-
-            return Response(content, status=status.HTTP_200_OK)
         else:
             raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except OAIAPIException as e:
@@ -2097,7 +2153,6 @@ def oai_pmh_conf_xslt(request):
     try:
         serializer = OaiConfXSLTSerializer(data=request.DATA)
         if serializer.is_valid():
-            #Get input
             template_id = request.DATA['template_id']
             my_metadata_format_id = request.DATA['my_metadata_format_id']
             xslt_id = None
@@ -2106,71 +2161,16 @@ def oai_pmh_conf_xslt(request):
             activated = request.DATA['activated'] == "True"
             if xslt_id == None and activated == True:
                 raise OAIAPILabelledException(message='Impossible to activate the configuration. Please provide '
-                                                      'a XSLT.',
-                                              status=status.HTTP_400_BAD_REQUEST)
+                                              'a XSLT.', status=status.HTTP_400_BAD_REQUEST)
             try:
                 OaiTemplMfXslt.objects.filter(myMetadataFormat=my_metadata_format_id, template=template_id)\
                     .update(set__myMetadataFormat = my_metadata_format_id, set__template = template_id,
                             set__xslt = xslt_id, set__activated = activated, upsert=True)
+                content = APIMessage.getMessageLabelled("XSLT edited with success.")
+
+                return Response(content, status=status.HTTP_200_OK)
             except Exception as e:
                 raise OAIAPILabelledException(message='An error occurred when attempting to save the configuration',
-                                              status=status.HTTP_400_BAD_REQUEST)
-            content = APIMessage.getMessageLabelled("XSLT edited with success.")
-
-            return Response(content, status=status.HTTP_200_OK)
-        else:
-            raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    except OAIAPIException as e:
-        return e.response()
-    except Exception as e:
-        content = APIMessage.getMessageLabelled(e.message)
-        return Response(content, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-################################################################################
-#
-# Function Name: upload_oai_pmh_xslt(request)
-# Inputs:        request -
-# Outputs:       201 XSLT created.
-# Exceptions:    400 Error connecting to database.
-#                400 [name] not found in request.
-#                400 [filename] not found in request.
-#                400 [content] not found in request.
-#                400 Unspecified.
-#                400 Serializer failed validation.
-#                401 Unauthorized.
-#                500 An error occurred.
-# Description:   OAI-PMH Upload an XSLT for OAI-PMH
-#
-################################################################################
-@api_view(['POST'])
-@api_staff_member_required()
-def upload_oai_pmh_xslt(request):
-    """
-    POST http://localhost/oai_pmh/api/upload/xslt
-    POST data query='{"name": ""value, "filename": "value", "content": "value"}
-    """
-    try:
-        serializer = OaiXSLTSerializer(data=request.DATA)
-        if serializer.is_valid():
-            name = request.DATA['name']
-            filename = request.DATA['filename']
-            xmlStr = request.DATA['content']
-            try:
-                etree.XML(xmlStr.encode('utf-8'))
-            except Exception, e:
-                raise OAIAPILabelledException(message=e.message,
-                                              status=status.HTTP_400_BAD_REQUEST)
-            try:
-                OaiXslt(name=name, filename=filename, content=xmlStr).save()
-                content = APIMessage.getMessageLabelled("XSLT added with success.")
-
-                return Response(content, status=status.HTTP_201_CREATED)
-            except NotUniqueError, e:
-                raise OAIAPILabelledException(message='This XSLT name already exists. Please enter an other name.',
-                                              status=status.HTTP_400_BAD_REQUEST)
-            except Exception as e:
-                raise OAIAPILabelledException(message='An error occurred when attempting to save the XSLT',
                                               status=status.HTTP_400_BAD_REQUEST)
         else:
             raise OAIAPISerializeLabelledException(errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
