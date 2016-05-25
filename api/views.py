@@ -578,7 +578,7 @@ def curate(request):
             except Exception, e:
                 content = {'message': e.message}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
-            jsondata = XMLdata(schemaID = request.DATA['schema'], xml = xmlStr, title = request.DATA['title'])
+            jsondata = XMLdata(schemaID = request.DATA['schema'], xml = xmlStr, title = request.DATA['title'], iduser=str(request.user.id))
             docID = jsondata.save()            
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except:
