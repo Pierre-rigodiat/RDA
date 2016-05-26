@@ -36,7 +36,12 @@ from django.conf import settings
 import os
 from mongoengine import *
 from pymongo import MongoClient
-from mgi.settings import MONGODB_URI
+from mgi.settings import MONGODB_URI, MGI_DB
+from django.utils.importlib import import_module
+settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
+settings = import_module(settings_file)
+MONGODB_URI = settings.MONGODB_URI
+MGI_DB = settings.MGI_DB
 from bson.objectid import ObjectId
 import re
 import requests
@@ -115,7 +120,7 @@ def select_savedquery(request):
         # create a connection
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         savedQueries = db['saved_query']
         query = dict()
@@ -1141,7 +1146,7 @@ def select_type(request):
         # create a connection                                                                                                                                                                                                 
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         type = db['type']
         query = dict()
@@ -1490,7 +1495,7 @@ def select_repository(request):
         # create a connection                                                                                                                                                                                                 
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
-        db = client['mgi']
+        db = client[MGI_DB]
         # get the xmldata collection
         instance = db['instance']
         query = dict()

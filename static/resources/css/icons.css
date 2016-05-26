@@ -208,7 +208,7 @@
 	background-position: -180px 0px;
 }
 
-.icon.resultXslt
+.icon.resultXslt, .icon.result
 {
 	background-position: -60px -396px;
 }
@@ -223,7 +223,17 @@
 	background-position: 0px -300px;
 }
 
-.icon.resultXslt, .icon.result
+.icon.oaiPmh
 {
-	background-position: -60px -396px;
+	background-position: -180px -420px;
+}
+
+.icon.editOaiPmh
+{
+	background-position:  -60px -260px;
+}
+
+.icon.update
+{
+	background-position:  0px -20px;
 }

@@ -24,7 +24,22 @@ loadUploadManagerHandler = function()
     $('.resultXslt').on('click', manageResultXslt);
     $('.delete').on('click', deleteObject);
     $('.buckets').on('click', manageBuckets);
+    $('.oaiPmh').on('click', manageOaiPmhXslt);
     console.log('END [loadUploadManagerHandler]');
+}
+
+/**
+ * Redirects to OAI-PMH XSLT management page
+ */
+manageOaiPmhXslt = function()
+{
+    var modelName = $(this).parent().siblings(':first').text();
+    var modelFilename = $(this).parent().siblings(':nth-child(2)').text();
+    var tdElement = $(this).parent();
+    var objectID = $(this).attr("objectid");
+    var objectType = $(this).attr("objectType");
+
+    window.location = "/oai_pmh/admin/oai-pmh-conf-xslt?id=" + objectID
 }
 
 /**

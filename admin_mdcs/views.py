@@ -23,7 +23,7 @@ from requests import status_codes
 from mgi.common import LXML_SCHEMA_NAMESPACE, SCHEMA_NAMESPACE
 from mgi.models import Request, Message, PrivacyPolicy, TermsOfUse, Help, Template, TemplateVersion, Type, \
     TypeVersion, Module, Bucket, Instance, Exporter, ExporterXslt, ResultXslt, create_template, create_type, \
-    create_template_version, create_type_version
+    create_template_version, create_type_version, OaiXslt
 from forms import UploadResultXSLTForm, PrivacyPolicyForm, TermsOfUseForm, HelpForm, RepositoryForm, \
     RefreshRepositoryForm, UploadXSLTForm, UploadResultXSLTForm, UploadTemplateForm, UploadTypeForm, \
     UploadVersionForm
@@ -45,6 +45,9 @@ from mongoengine import NotUniqueError, OperationError
 from django.contrib.admin.views.decorators import staff_member_required
 from django import utils
 from utils.XMLValidation.xml_schema import validate_xml_schema
+import xmltodict
+#TODO Move to OAI-PMH
+from oai_pmh.admin.forms import UploadOaiPmhXSLTForm
 
 
 ################################################################################
@@ -1059,13 +1062,20 @@ def manage_xslt(request, id=None):
         template = loader.get_template('admin/manage_xslt.html')
         upload_xslt_Form = UploadXSLTForm()
         upload_result_xslt_Form = UploadResultXSLTForm()
+        #TODO Move to OAI-PMH
+        upload_oai_pmh_xslt_Form = UploadOaiPmhXSLTForm()
         xslt_files = ExporterXslt.objects.all()
         result_xslt_files = ResultXslt.objects.all()
+        #TODO Move to OAI-PMH
+        oai_pmh_xslt = OaiXslt.objects.all()
         context = RequestContext(request, {
             'upload_xslt_Form': upload_xslt_Form,
             'upload_result_xslt_Form': upload_result_xslt_Form,
+            'upload_oai_pmh_xslt_Form': upload_oai_pmh_xslt_Form,
             'xslt_files': xslt_files,
             'result_xslt_files': result_xslt_files,
+            #TODO Move to OAI-PMH
+            'oai_pmh_xslt': oai_pmh_xslt,
         })
 
         return HttpResponse(template.render(context))
