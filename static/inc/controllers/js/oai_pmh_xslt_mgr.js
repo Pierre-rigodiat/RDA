@@ -211,7 +211,7 @@ enterKeyPressSubscriptionOAI = function ()
 
 
 InitOai = function(){
-    $('#EditOAI').on('click', editOaiInformation);
+    $('.editOaiPmh').on('click', editOaiInformation);
     enterKeyPressSubscriptionOAI();
 }
 
