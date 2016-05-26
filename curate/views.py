@@ -474,7 +474,8 @@ def save_xml_data_to_db(request):
                 title=form.data['title'],
                 iduser=str(request.user.id)
             )
-            xml_data.save()
+            xml_data_id = xml_data.save()
+            XMLdata.update_publish(xml_data_id)
 
         form_data.delete()
 
