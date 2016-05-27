@@ -41,6 +41,8 @@ import lxml.etree as etree
 import os
 from StringIO import StringIO
 from django.core.urlresolvers import reverse
+from oai_pmh.api.messages import APIMessage
+import urllib
 
 ################################################################################
 #
@@ -155,10 +157,13 @@ def all_metadataprefix(request, registry):
 @login_required(login_url='/login')
 def getData(request):
     url = request.POST['url']
-
+    args_url = json.loads(request.POST['args_url'])
+    #Encode args for the Get request
+    encoded_args = urllib.urlencode(args_url)
+    #Build the url
+    url = url + "?" + encoded_args
     uri= OAI_HOST_URI + reverse("api_get_data")
     req = requests.post(uri, {"url":url}, auth=(OAI_USER, OAI_PASS))
-
     if req.status_code == status.HTTP_200_OK:
         data = json.load(StringIO(req.content))
 
@@ -175,7 +180,8 @@ def getData(request):
         content = {'message' : xmlTree}
         return HttpResponse(json.dumps(content), content_type="application/javascript")
     else:
-        return HttpResponseBadRequest(req.content, content_type="application/javascript")
+        data = json.load(StringIO(req.content))
+        return HttpResponseBadRequest(data[APIMessage.label], content_type="application/javascript")
 
 
 ################################################################################
