@@ -12,7 +12,7 @@
 ################################################################################
 
 from oai_pmh.tests.models import OAI_PMH_Test
-from mgi.models import OaiSettings, OaiMySet, OaiMyMetadataFormat, XMLdata
+from mgi.models import OaiSettings, OaiMySet, OaiMyMetadataFormat, Template, XMLdata
 from exceptions import BAD_VERB, NO_SET_HIERARCHY, BAD_ARGUMENT, DISSEMINATE_FORMAT, NO_RECORDS_MATCH, NO_METADATA_FORMAT, ID_DOES_NOT_EXIST
 from testing.models import OAI_SCHEME, OAI_REPO_IDENTIFIER
 
@@ -300,3 +300,18 @@ class tests_OAI_PMH_server(OAI_PMH_Test):
         r = self.doRequestServer(data=data)
         self.isStatusOK(r.status_code)
         self.checkTagErrorCode(r.text, NO_RECORDS_MATCH)
+
+    def test_get_xsd_not_found(self):
+        self.dump_oai_registry()
+        url = URL + '/XSD/AllResources.xsd'
+        r = self.doRequestGet(url=url)
+        self.isStatusNotFound(r.status_code)
+
+    def test_get_xsd(self):
+        self.dump_oai_registry()
+        self.dump_template()
+        url = URL + '/XSD/AllResources.xsd'
+        r = self.doRequestGet(url=url)
+        self.isStatusOK(r.status_code)
+        objInDatabase = Template.objects.get(filename='AllResources.xsd')
+        self.assertEquals(objInDatabase.content, r.content)
