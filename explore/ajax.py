@@ -2885,7 +2885,6 @@ def load_refinements(request):
                         element = element.getparent()
 
                 dot_query = ".".join(query)
-                dot_query = "content." + dot_query
 
                 # get the name of the enumeration
                 refinement += "<div class='refine_criteria' query='" + dot_query + "'>" + label + ": <br/>"
@@ -2917,6 +2916,7 @@ def refinements_to_mongo(refinements):
         for refinement in refinements:
             splited_refinement = refinement.split(':')
             dot_notation = splited_refinement[0]
+            dot_notation = "content." + dot_notation
             value = splited_refinement[1]
             if dot_notation in mongo_queries:
                 mongo_queries[dot_notation].append(value)
