@@ -69,6 +69,20 @@ else:
     #     }
     # }
 
+#SMTP Configuration
+USE_EMAIL = True #Send email, True or False
+EMAIL_HOST = "192.168.135.25"
+SERVER_EMAIL = 'noreply@imrr.bipm.org'
+ADMINS = [('admin', 'imrr.admin@bipm.org')]
+MANAGERS = [('manager', 'imrr.moderator@bipm.org'),]
+EMAIL_SUBJECT_PREFIX = "[IMRR-BIPM] "
+#For test purpose
+# EMAIL_HOST = "smtp.gmail.com"
+# EMAIL_HOST_USER = "curator.testing.us@gmail.com"
+# EMAIL_HOST_PASSWORD = "ilovecurator"
+# EMAIL_PORT= 587
+# EMAIL_USE_TLS = True
+
 # Replace by your own values
 MONGO_MGI_USER = "mgi_user"
 MONGO_MGI_PASSWORD = "mgi_password"
