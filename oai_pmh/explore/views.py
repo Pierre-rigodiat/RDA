@@ -119,7 +119,6 @@ def get_metadata_formats_detail(request):
 # Description:   Page that allows to see detail result from a selected result
 #
 ################################################################################
-@login_required(login_url='/login')
 def explore_detail_result_keyword(request) :
     template = loader.get_template('oai_pmh/explore/explore_detail_results_keyword.html')
     result_id = request.GET['id']
