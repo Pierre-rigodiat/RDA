@@ -37,7 +37,7 @@ def watch_harvest_task():
     for registry in registries:
         #If we need to harvest and a task doesn't already exist for this registry
         if registry.harvest and not registry.isQueued:
-            message = message + "Registry {!s} need to be updated and harvested.".format(registry.name)
+            message = message + "Registry {!s} need to be updated and harvested.".format(registry.name.encode("utf-8"))
             task = harvest_task.apply_async((str(registry.id),))
             registry.isQueued = True
             registry.save()
@@ -54,13 +54,13 @@ def harvest_task(registryId):
         registry = OaiRegistry.objects.get(pk=registryId)
         #Update registry
         if not registry.isUpdating:
-            update_message = update_registry(registryId, registry.name)
+            update_message = update_registry(registryId, registry.name.encode("utf-8"))
             message = "Date: {!s}, Registry {!s} has been updated"\
-               "Update Message: {!s}".format(datetime.datetime.now(), registry.name, update_message)
+               "Update Message: {!s}".format(datetime.datetime.now(), registry.name.encode("utf-8"), update_message)
         if registry.harvest and not registry.isHarvesting:
-            harvest_message = harvest_registry(registryId, registry.name)
+            harvest_message = harvest_registry(registryId, registry.name.encode("utf-8"))
             message = message + "Date: {!s}, Registry {!s} has been harvested. " \
-                "Harvest Message: {!s}".format(datetime.datetime.now(), registry.name, harvest_message)
+                "Harvest Message: {!s}".format(datetime.datetime.now(), registry.name.encode("utf-8"), harvest_message)
 
         #New update in harvestrate seconds
         harvest_task.apply_async((registryId,), countdown=registry.harvestrate)
