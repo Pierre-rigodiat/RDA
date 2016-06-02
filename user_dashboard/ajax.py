@@ -25,6 +25,14 @@ import lxml.etree as etree
 from io import BytesIO
 import os
 import json
+from mgi.models import XMLdata
+from django.template import RequestContext
+from mgi.common import send_mail_to_managers
+import os
+from django.utils.importlib import import_module
+settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
+settings = import_module(settings_file)
+MDCS_URI = settings.MDCS_URI
 
 
 ################################################################################
@@ -188,6 +196,17 @@ def delete_result(request):
 ################################################################################
 def update_publish(request):
     XMLdata.update_publish(request.GET['result_id'])
+    resource = XMLdata.get(request.GET['result_id'])
+
+    # Send mail to the user and the admin
+    context = {'URI': MDCS_URI,
+               'title': resource['title'],
+               'publicationdate': resource['publicationdate'],
+               'user': request.user.username}
+
+    send_mail_to_managers(subject='Resource Published',
+                                pathToTemplate='dashboard/email/resource_published.html',
+                                context=context)
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 ################################################################################
