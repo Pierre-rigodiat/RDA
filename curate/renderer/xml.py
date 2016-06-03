@@ -72,7 +72,10 @@ class XmlRenderer(AbstractXmlRenderer):
                 xmlns = ' xmlns="{}"'.format(root_elem.options['xmlns'])
                 content[0] += xmlns
 
-            return self._render_xml(root_name, content[0], content[1])
+            if content[0] == "":  # Multi-root with element (no need for an element wrapper)
+                return content[1]
+            else:  # Multi-root with complexType
+                return self._render_xml(root_name, content[0], content[1])
         else:
             message = 'render: ' + self.data.tag + ' not handled'
             self.warnings.append(message)
