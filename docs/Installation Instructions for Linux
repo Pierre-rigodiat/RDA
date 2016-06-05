@@ -70,10 +70,15 @@ Would you like to create one now? (yes/no):yes
 
 To Run the software:
 
-1)	Run mongodb (if not already running). In a command prompt :
+1)	Make sure Redis is running.
+
+2)	Run mongodb (if not already running). In a command prompt :
 mongod --config /path/to/mdcs/conf/mongodb.conf
 
-2)	Run the MDCS. In a command prompt :
+3)	Run celery. In a command prompt :
+celery -A mgi worker -l info -Ofair --purge
+
+4)	Run the MDCS. In a command prompt :
 workon mgi
 cd path/to/mdcs
 python manage.py runserver
