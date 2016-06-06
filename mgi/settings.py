@@ -70,18 +70,17 @@ else:
     # }
 
 #SMTP Configuration
-USE_EMAIL = True #Send email, True or False
-EMAIL_HOST = "192.168.135.25"
-SERVER_EMAIL = 'noreply@imrr.bipm.org'
-ADMINS = [('admin', 'imrr.admin@bipm.org')]
-MANAGERS = [('manager', 'imrr.moderator@bipm.org'),]
-EMAIL_SUBJECT_PREFIX = "[IMRR-BIPM] "
+USE_EMAIL = False #Send email, True or False
+SERVER_EMAIL = 'noreply@nmrr.org'
+ADMINS = [('admin', 'admin@nmrr.org')]
+MANAGERS = [('manager', 'moderator@nmrr.org'),]
+EMAIL_SUBJECT_PREFIX = "[NMRR] "
 #For test purpose
-# EMAIL_HOST = "smtp.gmail.com"
-# EMAIL_HOST_USER = "curator.testing.us@gmail.com"
-# EMAIL_HOST_PASSWORD = "ilovecurator"
-# EMAIL_PORT= 587
-# EMAIL_USE_TLS = True
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_HOST_USER = "curator.testing.us@gmail.com"
+EMAIL_HOST_PASSWORD = "ilovecurator"
+EMAIL_PORT= 587
+EMAIL_USE_TLS = True
 
 # Replace by your own values
 MONGO_MGI_USER = "mgi_user"
@@ -249,7 +248,7 @@ ROOT_URLCONF = 'mgi.urls'
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/New_York'
 
 USE_I18N = True
 
