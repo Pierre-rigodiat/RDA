@@ -517,6 +517,19 @@ class XMLdata(object):
         xmldata.update({'_id': ObjectId(postID)}, {'$set':{'ispublished': False}}, upsert=False)
 
     @staticmethod
+    def update_user(postID, user=None):
+        """
+            Update the object with the given id
+        """
+        # create a connection
+        client = MongoClient(MONGODB_URI)
+        # connect to the db 'mgi'
+        db = client[MGI_DB]
+        # get the xmldata collection
+        xmldata = db['xmldata']
+        xmldata.update({'_id': ObjectId(postID)}, {'$set':{'iduser': user}}, upsert=False)
+
+    @staticmethod
     def executeFullTextQuery(text, templatesID, refinements={}):
         """
         Execute a full text query with possible refinements

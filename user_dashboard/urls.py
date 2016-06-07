@@ -37,6 +37,7 @@ urlpatterns = patterns('',
     url(r'^delete_result', 'user_dashboard.ajax.delete_result'),
     url(r'^update_publish', 'user_dashboard.ajax.update_publish'),
     url(r'^update_unpublish', 'user_dashboard.ajax.update_unpublish'),
+    url(r'^change-owner-record', 'user_dashboard.views.change_owner_record'),
 )+static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 

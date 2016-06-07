@@ -44,7 +44,7 @@
                 <th>Resource name</th>
                 <th>Published</th>
                 <th width="175em">Last Publication date</th>
-                <th width="175em">Actions</th>
+                <th width="190em">Actions</th>
             </tr>
             {% for XMLdata in XMLdatas %}
                 {% cycle 'even' '' as rowcolors silent %}
@@ -84,6 +84,9 @@
                             <span class="icon legend delete" onclick="deleteResult('{{XMLdata_id}}')">
                                 Delete
                             </span>
+                            <span class="icon legend changeOwner" onclick="changeOwnerRecord('{{XMLdata_id}}')">
+                                Change Owner
+                            </span>
                             {% endwith%}
                         </td>
                 </tr>
@@ -116,9 +119,23 @@ Are you sure you want to unpublish this document?
 <div id="result_detail">
 </div>
 </div>
+
+<div id="dialog-change-owner-record" title="Change Record Owner" style="display:none;">
+    <div class="alert alert-danger" id="banner_errors" style="display: none;">
+        <a href="#" class="close" data-hide="alert" aria-label="close">&times;</a>
+        <h4><i class="fa fa-exclamation-circle fa-1x"></i> Error</h4>
+        <div id="form_start_errors">
+        </div>
+    </div>
+    Please select the new owner:
+       {{user_form}}
+</div>
 {% endblock %}
 
 {% block extrajs %}
   <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
   <script src="{% static 'inc/controllers/js/dashboard.js' %}"></script>
+  <script>
+    initBanner();
+  </script>
 {% endblock %}
