@@ -35,6 +35,7 @@ from mgi import common
 import os
 import xmltodict
 from bson.objectid import ObjectId
+import json
 
 ################################################################################
 #
@@ -388,4 +389,4 @@ def change_owner_record(request):
     else:
         return HttpResponseBadRequest({"Bad entries. Please check the parameters."})
 
-    return HttpResponse({})
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
