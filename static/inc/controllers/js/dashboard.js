@@ -189,6 +189,12 @@ showErrorEditType = function(name){
     });
 }
 
+initBanner = function()
+{
+    $("[data-hide]").on("click", function(){
+        $(this).closest("." + $(this).attr("data-hide")).hide(200);
+    });
+}
 
 /**
  * Delete a curated document
@@ -305,5 +311,75 @@ update_unpublish = function(result_id){
 		success: function(data){
             $("#" + result_id).load(document.URL +  " #" + result_id);
 	    }
+    });
+}
+
+/**
+ * Change record owner
+ * @param recordID
+ */
+changeOwnerRecord = function(recordID){
+    $("#banner_errors").hide();
+    $(function() {
+        $( "#dialog-change-owner-record" ).dialog({
+            modal: true,
+            buttons: {
+                Cancel: function() {
+                    $( this ).dialog( "close" );
+                },
+                "Change": function() {
+                    if (validateChangeOwner()){
+                        var formData = new FormData($( "#form_start" )[0]);
+                        change_owner_record(recordID);
+                    }
+                },
+            }
+        });
+    });
+}
+
+/**
+ * Validate fields of the start curate form
+ */
+validateChangeOwner = function(){
+    errors = ""
+
+    $("#banner_errors").hide()
+    // check if a user has been selected
+    if ($( "#id_users" ).val().trim() == ""){
+        errors = "Please provide a user."
+    }
+
+    if (errors != ""){
+        $("#form_start_errors").html(errors);
+        $("#banner_errors").show(500)
+        return (false);
+    }else{
+        return (true);
+    }
+}
+
+
+/**
+ * AJAX call, change record owner
+ * @param recordID
+ */
+change_owner_record = function(recordID){
+    var userId = $( "#id_users" ).val().trim();
+    $.ajax({
+        url : "/dashboard/change-owner-record",
+        type : "POST",
+        dataType: "json",
+        data : {
+            recordID: recordID,
+            userID: userId,
+        },
+		success: function(data){
+			window.location = "/dashboard/resources"
+	    },
+        error:function(data){
+            $("#form_start_errors").html(data.responseText);
+            $("#banner_errors").show(500)
+        }
     });
 }

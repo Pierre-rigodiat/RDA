@@ -172,6 +172,7 @@
                     {% if canEdit %}
                     <a href="/curate/enter-data?id={{XMLdata_id}}" class="btn clear-fields">Edit</a>
                     {% endif %}
+                    <a onclick="changeOwnerRecord('{{XMLdata_id}}')" class="btn clear-fields">Change Owner</a>
                     {% if canDelete and not XMLdata.publicationdate %}
                     <a onclick="deleteResult('{{XMLdata_id}}')" class="btn clear-fields">Delete</a>
                     {% endif %}
@@ -221,9 +222,23 @@ Are you sure you want to unpublish this document?
 <div id="result_detail">
 </div>
 </div>
+
+<div id="dialog-change-owner-record" title="Change Record Owner" style="display:none;">
+    <div class="alert alert-danger" id="banner_errors" style="display: none;">
+        <a href="#" class="close" data-hide="alert" aria-label="close">&times;</a>
+        <h4><i class="fa fa-exclamation-circle fa-1x"></i> Error</h4>
+        <div id="form_start_errors">
+        </div>
+    </div>
+    Please select the new owner:
+       {{user_form}}
+</div>
 {% endblock %}
 
 {% block extrajs %}
   <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
   <script src="{% static 'inc/controllers/js/dashboard.js' %}"></script>
+  <script>
+    initBanner();
+  </script>
 {% endblock %}

@@ -16,7 +16,7 @@
 
 
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseServerError, HttpResponseBadRequest
 from django.contrib.auth import authenticate
 from django.template import RequestContext, loader
 from django.shortcuts import redirect
@@ -33,6 +33,7 @@ import os
 import xmltodict
 from django.conf import settings
 from bson.objectid import ObjectId
+import json
 
 ################################################################################
 #
@@ -206,6 +207,11 @@ def dashboard_resources(request):
             context = RequestContext(request, {
                     'XMLdatas': sorted(XMLdata.find({'iduser' : str(request.user.id)}), key=lambda data: data['lastmodificationdate'], reverse=True),
             })
+
+    #Add user_form for change owner
+    user_form = UserForm(request.user)
+    context.update({'user_form': user_form})
+
     return HttpResponse(template.render(context))
 
 
@@ -285,3 +291,27 @@ def dashboard_my_drafts(request):
     user_form = UserForm(request.user)
 
     return render(request, 'dashboard/my_dashboard_my_forms.html', {'forms':detailed_forms, 'user_form': user_form})
+
+
+################################################################################
+#
+# Function Name: change_owner_record(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   Change the record owner
+#
+################################################################################
+def change_owner_record(request):
+    if 'recordID' in request.POST and 'userID' in request.POST:
+        xml_data_id = request.POST['recordID']
+        user_id = request.POST['userID']
+        try:
+            XMLdata.update_user(xml_data_id, user=user_id)
+            messages.add_message(request, messages.INFO, 'Record Owner changed with success.')
+        except Exception, e:
+            return HttpResponseServerError({"Something wrong occurred during the change of owner."}, status=500)
+    else:
+        return HttpResponseBadRequest({"Bad entries. Please check the parameters."})
+
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
