@@ -136,26 +136,27 @@ def my_profile_change_password(request):
 @login_required(login_url='/login')
 def dashboard_records(request):
     template = loader.get_template('dashboard/my_dashboard_my_records.html')
-    if 'ispublished' in request.GET:
-        ispublished = request.GET['ispublished']
-        if ispublished == 'true':
-            context = RequestContext(request, {
-                        'XMLdatas': sorted(XMLdata.find({'iduser': str(request.user.id), 'ispublished': True}), key=lambda data: data['lastmodificationdate'], reverse=True),
-                        'ispublished': 'true',
-                    })
-        else:
-            context = RequestContext(request, {
-                        'XMLdatas': sorted(XMLdata.find({'iduser': str(request.user.id), 'ispublished': False}), key=lambda data: data['lastmodificationdate'], reverse=True),
-                        'ispublished': 'false',
-                    })
-    else:
-        context = RequestContext(request, {
-            'XMLdatas': sorted(XMLdata.find({'iduser': str(request.user.id)}), key=lambda data: data['lastmodificationdate'], reverse=True)
-        })
-
+    query = {}
+    ispublished = request.GET.get('ispublished', None)
+    #If ispublished not None, check if we want publish or unpublish records
+    if ispublished:
+        ispublished = ispublished == 'true'
+        query['ispublished'] = ispublished
+    query['iduser'] = str(request.user.id)
+    userXmlData = sorted(XMLdata.find(query), key=lambda data: data['lastmodificationdate'], reverse=True)
     #Add user_form for change owner
     user_form = UserForm(request.user)
-    context.update({'user_form': user_form})
+    context = RequestContext(request, {'XMLdatas': userXmlData,
+                                       'ispublished': ispublished,
+                                       'user_form': user_form
+    })
+    #If the user is an admin, we get records for other users
+    if request.user.is_staff:
+        #Get user name for admin
+        usernames = dict((str(x.id), x.username) for x in User.objects.all())
+        query['iduser'] = {"$ne": str(request.user.id)}
+        otherUsersXmlData = sorted(XMLdata.find(query), key=lambda data: data['lastmodificationdate'], reverse=True)
+        context.update({'OtherUsersXMLdatas': otherUsersXmlData, 'usernames': usernames})
 
     return HttpResponse(template.render(context))
 
@@ -171,13 +172,32 @@ def dashboard_records(request):
 ################################################################################
 @login_required(login_url='/login')
 def dashboard_my_forms(request):
-    forms = FormData.objects(user=str(request.user.id), xml_data_id__exists=False, xml_data__exists=True).order_by('template') # xml_data_id False if document not curated
+    template = loader.get_template('dashboard/my_dashboard_my_forms.html')
+    # xml_data_id False if document not curated
+    forms = FormData.objects(user=str(request.user.id), xml_data_id__exists=False,
+                                 xml_data__exists=True).order_by('template')
     detailed_forms = []
     for form in forms:
-        detailed_forms.append({'form': form, 'template_name': Template.objects().get(pk=form.template).title})
+        detailed_forms.append({'form': form, 'template_name': Template.objects().get(pk=form.template).title,
+                               'user': form.user})
     user_form = UserForm(request.user)
+    context = RequestContext(request, {'forms': detailed_forms,
+                                       'user_form': user_form
+    })
+    #If the user is an admin, we get forms for other users
+    if request.user.is_staff:
+        #Get user name for admin
+        usernames = dict((str(x.id), x.username) for x in User.objects.all())
+        other_users_detailed_forms = []
+        otherUsersForms = FormData.objects(user__ne=str(request.user.id), xml_data_id__exists=False,
+                                                       xml_data__exists=True).order_by('template')
+        for form in otherUsersForms:
+            other_users_detailed_forms.append({'form': form,
+                                               'template_name': Template.objects().get(pk=form.template).title,
+                                               'user': form.user})
+        context.update({'otherUsersForms': other_users_detailed_forms, 'usernames': usernames})
 
-    return render(request, 'dashboard/my_dashboard_my_forms.html', {'forms':detailed_forms, 'user_form': user_form})
+    return HttpResponse(template.render(context))
 
 
 ################################################################################
@@ -192,10 +212,18 @@ def dashboard_my_forms(request):
 @login_required(login_url='/login')
 def dashboard_templates(request):
     template = loader.get_template('dashboard/my_dashboard_my_templates_types.html')
+    objects = Template.objects(user=str(request.user.id))
     context = RequestContext(request, {
-                'objects': Template.objects(user=str(request.user.id)),
-                'objectType': "Template",
+                'objects': objects,
+                'objectType': "Template"
             })
+    #If the user is an admin, we get templates for other users
+    if request.user.is_staff:
+        #Get user name for admin
+        usernames = dict((str(x.id), x.username) for x in User.objects.all())
+        otherUsersObjects = Template.objects(user__not__in={str(request.user.id), None})
+        context.update({'otherUsersObjects': otherUsersObjects, 'usernames': usernames})
+
     return HttpResponse(template.render(context))
 
 
@@ -211,10 +239,18 @@ def dashboard_templates(request):
 @login_required(login_url='/login')
 def dashboard_types(request):
     template = loader.get_template('dashboard/my_dashboard_my_templates_types.html')
+    objects = Type.objects(user=str(request.user.id))
     context = RequestContext(request, {
-                'objects': Type.objects(user=str(request.user.id)),
-                'objectType': "Type",
+                'objects': objects,
+                'objectType': "Type"
             })
+    #If the user is an admin, we get templates for other users
+    if request.user.is_staff:
+        #Get user name for admin
+        usernames = dict((str(x.id), x.username) for x in User.objects.all())
+        otherUsersObjects = Type.objects(user__not__in={str(request.user.id), None})
+        context.update({'otherUsersObjects': otherUsersObjects, 'usernames': usernames})
+
     return HttpResponse(template.render(context))
 
 
@@ -288,21 +324,38 @@ def dashboard_modules(request):
 @login_required(login_url='/login')
 def dashboard_files(request):
     template = loader.get_template('dashboard/my_dashboard_my_files.html')
-
     bh_factory = BLOBHosterFactory(BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI)
     blob_hoster = bh_factory.createBLOBHoster()
-
     files = []
-    for grid in blob_hoster.find("metadata.iduser", str(request.user.id)):
+    iduser = str(request.user.id)
+    for grid in blob_hoster.find("metadata.iduser", iduser):
         item={'name':grid.name,
               'id':str(grid._id),
-              'uploadDate':grid.upload_date
+              'uploadDate':grid.upload_date,
+              'user': grid.metadata['iduser']
         }
         files.append(item)
+
     context = RequestContext(request, {
                 'files': files,
-                'url': MDCS_URI,
+                'url': MDCS_URI
     })
+    #If the user is an admin, we get templates for other users
+    if request.user.is_staff:
+        #Get user name for admin
+        usernames = dict((str(x.id), x.username) for x in User.objects.all())
+        otherUsersFiles = []
+        #All users
+        iduser = { '$ne': str(request.user.id) }
+        for grid in blob_hoster.find("metadata.iduser", iduser):
+            item={'name':grid.name,
+                  'id':str(grid._id),
+                  'uploadDate':grid.upload_date,
+                  'user': grid.metadata['iduser']
+            }
+            otherUsersFiles.append(item)
+        context.update({'otherUsersFiles': otherUsersFiles, 'usernames': usernames})
+
     return HttpResponse(template.render(context))
 
 

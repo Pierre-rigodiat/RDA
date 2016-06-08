@@ -1,5 +1,6 @@
 {% extends "mdcs/extra/one_column.html" %}
 {% load staticfiles %}
+{% load dict_key_extras %}
 {% comment %}
 <!--
 ################################################################################
@@ -25,7 +26,13 @@
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}" media="screen" />
 {% endblock %}
 
-{% block title %}<h1><span>My {{ objectType }}s</span></h1>{% endblock %}
+{% block title %}
+    {% if user.is_staff %}
+        <h1><span>My {{ objectType }}s / Other users {{ objectType }}s</span></h1>
+    {% else %}
+        <h1><span>My {{ objectType }}s</span></h1>
+    {% endif %}
+{% endblock %}
 {% block menu %}{% include 'mdcs/menus/main.html' with active_tab='profile' %}{% endblock %}
 
 {% block submenu %}
@@ -37,49 +44,32 @@
 {% endblock %}
 
 {% block content%}
-
-{% if objects %}
-
-<table class="data-table">
-    <tr>
-        <th>{{ objectType }} name</th>
-        <th>Filename</th>
-        <th>Actions</th>
-    </tr>
-    {% for object in objects %}
-        {% cycle 'even' '' as rowcolors silent %}
-        <tr class="{{ rowcolors }}">
-            <td>{{ object.title }}</td>
-            <td>{{ object.filename }}</td>
-                <td>
-                    {% autoescape on %}
-                    <span class="icon legend result" objectType="{{ objectType }}" objectid="{{ object.id }}"  content="{{ object.content|escape }}" >
-                        View
-                    </span>
-                    {% endautoescape %}
-                    <span class="icon legend edit" objectfilename="{{ object.filename }}" objectname="{{ object.title }}" objecttype="{{ objectType }}" objectid="{{ object.id }}">
-                        Edit
-                    </span>
-                    <span class="icon legend modules" objectType="{{ objectType }}" objectid="{{ object.id }}">
-                        Modules
-                    </span>
-                    <span class="icon legend delete" objectfilename="{{ object.filename }}" objectname="{{ object.title }}" objecttype="{{ objectType }}" objectid="{{ object.id }}">
-                        Delete
-                    </span>
-                </td>
-        </tr>
-    {% endfor %}
-</table>
-
-{% else %}
-<div class="empty-table">
-    You don't currently own any {{ objectType }}.
-</div>
-{% endif %}
+    {% if user.is_staff %}
+        <span>
+            <div class="tpl-title">My {{ objectType }}s</div>
+        </span>
+    {%endif%}
+    {% if objects %}
+        {% include 'dashboard/my_dashboard_my_templates_types_table.html' with objects=objects %}
+    {% else %}
+    <div class="empty-table">
+        You don't currently own any {{ objectType }}.
+    </div>
+    {% endif %}
+    <div class="clear"></div>
+    {% if user.is_staff %}
+        <span>
+            <div class="tpl-title">Other users {{ objectType }}s</div>
+        </span>
+        {% if otherUsersObjects%}
+            {% include 'dashboard/my_dashboard_my_templates_types_table.html' with objects=otherUsersObjects %}
+        {%else%}
+            No other users {{ objectType }}s found
+        {%endif%}
+    {%endif%}
 {% endblock %}
 
 {% block popups %}
-
 <div id="dialog-view-info" title="View {{ objectType }}" style="display:none;">
     <div id="XMLHolder">
     </div>
@@ -91,7 +81,6 @@
     <b>Filename:</b> <input type="text" id="edit-filename"/><br/>
 </p>
 </div>
-
 
 <div id="dialog-deleteconfirm-message" title="Confirm Delete" style="display:none;">
 <p></p>
@@ -112,7 +101,6 @@
   <p>
   </p>
 </div>
-
 {% endblock %}
 
 {% block extrajs %}
@@ -120,6 +108,4 @@
 <script>
   loadUploadManagerHandler();
 </script>
-
-
 {% endblock %}
