@@ -172,48 +172,44 @@ def my_profile_favorites(request):
 @login_required(login_url='/login')
 def dashboard_resources(request):
     template = loader.get_template('dashboard/my_dashboard_my_resources.html')
-    if 'template' in request.GET:
-        template_name = request.GET['template']
-
+    query = {}
+    context = RequestContext(request, {})
+    ispublished = request.GET.get('ispublished', None)
+    template_name = request.GET.get('template', None)
+    query['iduser'] = str(request.user.id)
+    #If ispublished not None, check if we want publish or unpublish records
+    if ispublished:
+        ispublished = ispublished == 'true'
+        query['ispublished'] = ispublished
+    if template_name:
+        context.update({'template': template_name})
         if template_name == 'datacollection':
-            templateNamesQuery = list(chain(Template.objects.filter(title=template_name).values_list('id'), Template.objects.filter(title='repository').values_list('id'), Template.objects.filter(title='database').values_list('id'), Template.objects.filter(title='projectarchive').values_list('id')))
+            templateNamesQuery = list(chain(Template.objects.filter(title=template_name).values_list('id'),
+                                            Template.objects.filter(title='repository').values_list('id'),
+                                            Template.objects.filter(title='database').values_list('id'),
+                                            Template.objects.filter(title='projectarchive').values_list('id')))
         else :
             templateNamesQuery = Template.objects.filter(title=template_name).values_list('id')
         templateNames = []
         for templateQuery in templateNamesQuery:
             templateNames.append(str(templateQuery))
 
+        query['schema'] = {"$in" : templateNames}
 
-        if 'ispublished' in request.GET:
-            ispublished = request.GET['ispublished']
-            context = RequestContext(request, {
-                'XMLdatas': sorted(XMLdata.find({'iduser' : str(request.user.id), 'schema':{"$in" : templateNames}, 'ispublished': ispublished=='true'}), key=lambda data: data['lastmodificationdate'], reverse=True),
-                'template': template_name,
-                'ispublished': ispublished,
-             })
-        else:
-            context = RequestContext(request, {
-                'XMLdatas': sorted(XMLdata.find({'iduser' : str(request.user.id), 'schema':{"$in" : templateNames}}), key=lambda data: data['lastmodificationdate'], reverse=True),
-                'template': template_name,
-            })
-    else:
-        if 'ispublished' in request.GET:
-            ispublished = request.GET['ispublished']
-            context = RequestContext(request, {
-                    'XMLdatas': sorted(XMLdata.find({'iduser' : str(request.user.id), 'ispublished': ispublished=='true'}), key=lambda data: data['lastmodificationdate'], reverse=True),
-                    'ispublished': ispublished,
-            })
-        else:
-            context = RequestContext(request, {
-                    'XMLdatas': sorted(XMLdata.find({'iduser' : str(request.user.id)}), key=lambda data: data['lastmodificationdate'], reverse=True),
-            })
-
+    userXmlData = sorted(XMLdata.find(query), key=lambda data: data['lastmodificationdate'], reverse=True)
     #Add user_form for change owner
     user_form = UserForm(request.user)
-    context.update({'user_form': user_form})
+    context.update({'XMLdatas': userXmlData, 'ispublished': ispublished, 'user_form': user_form})
+
+    #If the user is an admin, we get records for other users
+    if request.user.is_staff:
+        #Get user name for admin
+        usernames = dict((str(x.id), x.username) for x in User.objects.all())
+        query['iduser'] = {"$ne": str(request.user.id)}
+        otherUsersXmlData = sorted(XMLdata.find(query), key=lambda data: data['lastmodificationdate'], reverse=True)
+        context.update({'otherUsersXMLdatas': otherUsersXmlData, 'usernames': usernames})
 
     return HttpResponse(template.render(context))
-
 
 ################################################################################
 #
@@ -284,13 +280,32 @@ def dashboard_detail_resource(request) :
 ################################################################################
 @login_required(login_url='/login')
 def dashboard_my_drafts(request):
-    forms = FormData.objects(user=str(request.user.id), xml_data_id__exists=False, xml_data__exists=True).order_by('template') # xml_data_id False if document not curated
+    template = loader.get_template('dashboard/my_dashboard_my_forms.html')
+    forms = FormData.objects(user=str(request.user.id), xml_data_id__exists=False,
+                             xml_data__exists=True).order_by('template') # xml_data_id False if document not curated
     detailed_forms = []
     for form in forms:
-        detailed_forms.append({'form': form, 'template_name': Template.objects().get(pk=form.template).title})
+        detailed_forms.append({'form': form, 'template_name': Template.objects().get(pk=form.template).title,
+                               'user': form.user})
     user_form = UserForm(request.user)
+    context = RequestContext(request, {'forms': detailed_forms,
+                                       'user_form': user_form
+    })
+    #If the user is an admin, we get forms for other users
+    if request.user.is_staff:
+        #Get user name for admin
+        usernames = dict((str(x.id), x.username) for x in User.objects.all())
+        other_users_detailed_forms = []
+        otherUsersForms = FormData.objects(user__ne=str(request.user.id), xml_data_id__exists=False,
+                                                       xml_data__exists=True).order_by('template')
+        for form in otherUsersForms:
+            other_users_detailed_forms.append({'form': form,
+                                               'template_name': Template.objects().get(pk=form.template).title,
+                                               'user': form.user})
+        context.update({'otherUsersForms': other_users_detailed_forms, 'usernames': usernames})
 
-    return render(request, 'dashboard/my_dashboard_my_forms.html', {'forms':detailed_forms, 'user_form': user_form})
+    return HttpResponse(template.render(context))
+
 
 
 ################################################################################

@@ -1,0 +1,67 @@
+{% load dict_key_extras %}
+
+{% for XMLdata in XMLdatas %}
+    {% with XMLdata|get:"_id" as XMLdata_id %}
+        <br><br>
+        <div style="background-color:#eeeeee" id="{{XMLdata_id}}">
+            <table class="data-table">
+                <tr>
+                    <td style="width:250px">
+                        <div style="margin-top:10px;">Resource Name</div>
+                    </td>
+                    <td>
+                        {% if XMLdata.content.Resource.identity.title %}
+                            {{ XMLdata.content.Resource.identity.title }}
+                        {%else%}
+                            <script>
+                                document.write('{{ XMLdata.title }}'.replace(/\.[^/.]+$/, ""));
+                            </script>
+                        {% endif %}
+                        <div style="float:right">
+                            {% autoescape on %}
+                                    <a href="/dashboard/detail?type=record&id={{XMLdata_id}}"><span class="icon legend result">
+                                        View
+                                    </span></a>
+                            {% endautoescape %}
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    {% if user.is_staff and request.user.id|stringformat:"i" != XMLdata.iduser %}
+                        <td width="100em">
+                                User
+                        </td>
+                        <td>
+                            {{usernames|get:XMLdata.iduser}}
+                        </td>
+                    {% endif %}
+                </tr>
+                <tr>
+                    <td>
+                        {% if canEdit %}
+                        <a href="/curate/enter-data?id={{XMLdata_id}}" class="btn clear-fields">Edit</a>
+                        {% endif %}
+                        <a onclick="changeOwnerRecord('{{XMLdata_id}}')" class="btn clear-fields">Change Owner</a>
+                        {% if canDelete and not XMLdata.publicationdate %}
+                        <a onclick="deleteResult('{{XMLdata_id}}')" class="btn clear-fields">Delete</a>
+                        {% endif %}
+
+                    </td>
+                    <td align="right">
+                        <div style="float:right">
+                        {% if XMLdata.publicationdate %}
+                            <font size="2">Published on: {{ XMLdata.publicationdate }} &nbsp;&nbsp;&nbsp;</font>
+                        {% endif %}
+                        {% if not XMLdata.publicationdate %}
+                            <font size="2">Published on: Never &nbsp;&nbsp;&nbsp;</font>
+                        {% endif %}
+                        {% if not XMLdata.ispublished %}
+                            <a onclick="updatePublish('{{XMLdata_id}}')" class="btn clear-fields">Publish</a>
+                        {% endif %}
+                            </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    {% endwith%}
+{% endfor %}
