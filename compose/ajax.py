@@ -20,7 +20,7 @@ import json
 from django.conf import settings
 from mongoengine import *
 
-from mgi.common import LXML_SCHEMA_NAMESPACE, SCHEMA_NAMESPACE
+from mgi.common import LXML_SCHEMA_NAMESPACE, SCHEMA_NAMESPACE, get_default_prefix, get_namespaces
 from mgi.models import Template, Type, XML2Download, Exporter, create_template, create_type
 import lxml.etree as etree
 from io import BytesIO
@@ -216,11 +216,11 @@ def insert_element_sequence(request):
     type_name = request.POST['typeName']
     xpath = request.POST['xpath']
 
-    defaultPrefix = request.session['defaultPrefixCompose']
-    namespace = LXML_SCHEMA_NAMESPACE
+    xml_tree_str = request.session['newXmlTemplateCompose']
+    namespaces = get_namespaces(BytesIO(str(xml_tree_str)))
+    default_prefix = get_default_prefix(namespaces)
 
-    xmlString = request.session['newXmlTemplateCompose']
-    dom = etree.parse(BytesIO(xmlString.encode('utf-8')))
+    dom = etree.parse(BytesIO(xml_tree_str.encode('utf-8')))
     
     # get the type to add
     includedType = Type.objects.get(pk=type_id)
@@ -231,15 +231,17 @@ def insert_element_sequence(request):
     type = elementType.attrib["name"]
     
     # set the element namespace
-    xpath = xpath.replace(defaultPrefix + ":", namespace)
+    xpath = xpath.replace(default_prefix + ":", LXML_SCHEMA_NAMESPACE)
     # add the element to the sequence
-    dom.find(xpath).append(etree.Element(namespace+"element", attrib={'type': type, 'name':type_name}))
+    dom.find(xpath).append(etree.Element("{}element".format(LXML_SCHEMA_NAMESPACE), attrib={'type': type,
+                                                                                            'name': type_name}))
     
-    includeURL = getSchemaLocation(str(type_id))
+    include_url = getSchemaLocation(str(type_id))
     # add the id of the type if not already present
-    if includeURL not in request.session['includedTypesCompose']:
-        request.session['includedTypesCompose'].append(includeURL)        
-        dom.getroot().insert(0, etree.Element(namespace+"include", attrib={'schemaLocation':includeURL}))
+    if include_url not in request.session['includedTypesCompose']:
+        request.session['includedTypesCompose'].append(include_url)
+        dom.getroot().insert(0, etree.Element("{}include".format(LXML_SCHEMA_NAMESPACE),
+                                              attrib={'schemaLocation': include_url}))
     
     # save the tree in the session
     request.session['newXmlTemplateCompose'] = etree.tostring(dom)
