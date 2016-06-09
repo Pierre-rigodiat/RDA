@@ -151,12 +151,16 @@ def get_results_by_instance_keyword(request):
                     newdom = transform(dom)
                     custom_xslt = False
 
+                registry_name = registriesName[instanceResult['registry']]
+                if len(registry_name) > 30:
+                    registry_name = "{0}...".format(registry_name[:30])
+
                 context = RequestContext(request, {'id':str(instanceResult['_id']),
                                    'xml': str(newdom),
                                    'title': instanceResult['identifier'],
                                    'custom_xslt': custom_xslt,
                                    'schema_name': metadataFormat.metadataPrefix,
-                                   'registry_name': registriesName[instanceResult['registry']],
+                                   'registry_name': registry_name,
                                    'oai_pmh': True})
 
 

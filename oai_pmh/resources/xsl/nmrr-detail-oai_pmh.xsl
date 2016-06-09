@@ -24,7 +24,10 @@
 						{% if oai_pmh %}
 						<div class="alert alert-info" style="float:right;padding:0em;padding-bottom:0em;">
 							<h4><xsl:text>OAI-PMH</xsl:text></h4>
-						</div>	
+						</div>
+						<div style="float:right;padding:0em;margin-right: 1%;margin-top: -5px;">
+							<h6>{{registry_name}}</h6>
+						</div>
 						{% endif %}							
 						<xsl:variable name="url" select="//nr:Resource/nr:content/nr:referenceURL" />
 						<xsl:choose>

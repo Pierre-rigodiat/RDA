@@ -147,12 +147,16 @@ def explore_detail_result_keyword(request) :
         #We use the default one
         newdom = transform(dom)
 
+    registry_name = OaiRegistry.objects.get(pk=record.registry).name
+    if len(registry_name) > 30:
+        registry_name = "{0}...".format(registry_name[:30])
 
     result = str(newdom)
     context = RequestContext(request, {
         'XMLHolder': result,
         'title': title,
         'oai_pmh': True,
+        'registry_name': registry_name
     })
 
     return HttpResponse(template.render(context))

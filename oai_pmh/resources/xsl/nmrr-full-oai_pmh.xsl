@@ -48,6 +48,9 @@
 						<div class="alert alert-info" style="float:right;padding:0em;margin-right: 1%;margin-top: -5px;">
 							<h4><xsl:text>OAI-PMH</xsl:text></h4>
 						</div>
+						<div style="float:right;padding:0em;margin-right: 1%;margin-top: -5px;">
+							<h6>{{registry_name}}</h6>
+						</div>
 						{% endif %}
 					</td>
 				</tr>
