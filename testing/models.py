@@ -16,7 +16,7 @@ from pymongo import MongoClient
 from pymongo.errors import OperationFailure
 import requests
 from datetime import datetime, timedelta
-from mgi.models import Instance, XMLdata, Template, TemplateVersion, ResultXslt
+from mgi.models import Instance, XMLdata, Template, TemplateVersion, ResultXslt, Type, TypeVersion
 from utils.XSDhash import XSDhash
 from django.contrib.auth.models import User
 from oauth2_provider.models import Application
@@ -141,13 +141,24 @@ class RegressionTest(LiveServerTestCase):
         re = open(file, 'rb').read()
         target_collection.insert(decode_all(re))
 
-    def createXMLData(self):
-        return XMLdata(schemaID='', xml='<test>test xmldata</test>', title='test', iduser=1).save()
+    def createXMLData(self, schemaID=''):
+        return XMLdata(schemaID=schemaID, xml='<test>test xmldata</test>', title='test', iduser=1).save()
+
+    def createType(self):
+        countType = len(Type.objects())
+        hash = XSDhash.get_hash('<test>test xmldata</test>')
+        objectVersions = self.createTypeVersion()
+        type = Type(title='test', filename='test', content='<test>test xmldata</test>', version=1, typeVersion=str(objectVersions.id), hash=hash).save()
+        self.assertEquals(len(Type.objects()), countType + 1)
+        return type
 
     def createTemplate(self):
+        countTemplate = len(Template.objects())
         hash = XSDhash.get_hash('<test>test xmldata</test>')
         objectVersions = self.createTemplateVersion()
-        return Template(title='test', filename='test', content='<test>test xmldata</test>', version=1, templateVersion=str(objectVersions.id), hash=hash).save()
+        template = Template(title='test', filename='test', content='<test>test xmldata</test>', version=1, templateVersion=str(objectVersions.id), hash=hash).save()
+        self.assertEquals(len(Template.objects()), countTemplate + 1)
+        return template
 
     def createTemplateWithTemplateVersion(self, templateVersionId):
         hash = XSDhash.get_hash('<test>test xmldata</test>')
@@ -166,7 +177,16 @@ class RegressionTest(LiveServerTestCase):
         return template
 
     def createTemplateVersion(self):
-        return TemplateVersion(nbVersions=1, isDeleted=False, current=FAKE_ID).save()
+        countTemplateVersion = len(TemplateVersion.objects())
+        templateVersion = TemplateVersion(nbVersions=1, isDeleted=False, current=FAKE_ID).save()
+        self.assertEquals(len(TemplateVersion.objects()), countTemplateVersion + 1)
+        return templateVersion
+
+    def createTypeVersion(self):
+        countTypeVersion = len(TypeVersion.objects())
+        typeVersion = TypeVersion(nbVersions=1, isDeleted=False, current=FAKE_ID).save()
+        self.assertEquals(len(TypeVersion.objects()), countTypeVersion + 1)
+        return typeVersion
 
     def createTemplateVersionDeleted(self):
         return TemplateVersion(nbVersions=1, isDeleted=True).save()

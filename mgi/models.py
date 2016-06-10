@@ -86,6 +86,27 @@ class Template(Document):
     ResultXsltList = ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY)
     ResultXsltDetailed = ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY)
 
+def delete_template(object_id):
+    from mgiutils import getListNameTemplateDependenciesRecordFormData
+    listName = getListNameTemplateDependenciesRecordFormData(object_id)
+    return listName if listName != '' else delete_template_and_version(object_id)
+
+def delete_template_and_version(object_id):
+    template = Template.objects(pk=object_id).get()
+    version = TemplateVersion.objects(pk=template.templateVersion).get()
+    version.delete()
+    template.delete()
+
+def delete_type(object_id):
+    from mgiutils import getListNameTypeDependenciesTemplateType
+    listName = getListNameTypeDependenciesTemplateType(object_id)
+    return listName if listName != '' else delete_type_and_version(object_id)
+
+def delete_type_and_version(object_id):
+    type = Type.objects(pk=object_id).get()
+    version = TypeVersion.objects(pk=type.typeVersion).get()
+    version.delete()
+    type.delete()
 
 def create_template(content, name, filename, dependencies=[], user=None):
     hash_value = XSDhash.get_hash(content)
