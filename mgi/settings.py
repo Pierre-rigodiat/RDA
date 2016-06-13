@@ -84,6 +84,12 @@ EMAIL_SUBJECT_PREFIX = "[NMRR] "
 # EMAIL_PORT= 587
 # EMAIL_USE_TLS = True
 
+#Password Policy
+USE_PASSWORD_STRENGTH = False #True or False
+PASSWORD_MIN_LENGTH = 8
+PASSWORD_MIN_DIGITS = 1
+PASSWORD_MIN_UPPERCASE = 1
+
 # Replace by your own values
 MONGO_MGI_USER = "mgi_user"
 MONGO_MGI_PASSWORD = "mgi_password"

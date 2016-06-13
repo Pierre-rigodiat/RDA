@@ -40,14 +40,15 @@ checkPasswords = function(pass1, pass2){
 		
 	if (pass1 != pass2){
 		errors += "Passwords should be identical.";
-	}else{
-		if(checkPassword(pass1) == false){
-			errors += "Password should respect the following requirements:<br/>";
-			errors += "- Minimum length: 8 characters.<br/>";
-			errors += "- At least 1 alphanumeric character.<br/>";
-			errors += "- At least 1 non alphanumeric character.<br/>";				
-		}
 	}
+//	}else{
+//		if(checkPassword(pass1) == false){
+//			errors += "Password should respect the following requirements:<br/>";
+//			errors += "- Minimum length: 8 characters.<br/>";
+//			errors += "- At least 1 alphanumeric character.<br/>";
+//			errors += "- At least 1 non alphanumeric character.<br/>";
+//		}
+//	}
 	
 	return errors;
 }
