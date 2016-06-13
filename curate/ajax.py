@@ -36,8 +36,6 @@ from mgi import common
 import lxml.etree as etree
 from django.contrib import messages
 import os
-import urllib2
-from utils.XSDflattener.XSDflattener import XSDFlattenerURL
 
 ######################################################################################################################
 # AJAX Requests
