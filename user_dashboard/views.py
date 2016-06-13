@@ -83,7 +83,7 @@ def my_profile_edit(request):
             user.email = request.POST['email']
             user.save()
             messages.add_message(request, messages.INFO, 'Profile information edited with success.')
-            return redirect('/my-profile')
+            return redirect('/dashboard/my-profile')
     else:
         user = User.objects.get(id=request.user.id)
         data = {'firstname':user.first_name,
@@ -113,12 +113,12 @@ def my_profile_change_password(request):
             auth_user = authenticate(username=user.username, password=request.POST['old'])
             if auth_user is None:
                 message = "The old password is incorrect."
-                return render(request, 'my_profile_change_password.html', {'form':form, 'action_result':message})
+                return render(request, 'dashboard/my_profile_change_password.html', {'form':form, 'action_result':message})
             else:
                 user.set_password(request.POST['new1'])
                 user.save()
                 messages.add_message(request, messages.INFO, 'Password changed with success.')
-                return redirect('/my-profile')
+                return redirect('/dashboard/my-profile')
     else:
         form = ChangePasswordForm()
 
