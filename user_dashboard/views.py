@@ -326,16 +326,7 @@ def dashboard_files(request):
     template = loader.get_template('dashboard/my_dashboard_my_files.html')
     bh_factory = BLOBHosterFactory(BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI)
     blob_hoster = bh_factory.createBLOBHoster()
-    files = []
-    iduser = str(request.user.id)
-    for grid in blob_hoster.find("metadata.iduser", iduser):
-        item={'name':grid.name,
-              'id':str(grid._id),
-              'uploadDate':grid.upload_date,
-              'user': grid.metadata['iduser']
-        }
-        files.append(item)
-
+    files = getListFiles(blob_hoster.find("metadata.iduser", str(request.user.id)))
     context = RequestContext(request, {
                 'files': files,
                 'url': MDCS_URI
@@ -344,19 +335,22 @@ def dashboard_files(request):
     if request.user.is_staff:
         #Get user name for admin
         usernames = dict((str(x.id), x.username) for x in User.objects.all())
-        otherUsersFiles = []
-        #All users
-        iduser = { '$ne': str(request.user.id) }
-        for grid in blob_hoster.find("metadata.iduser", iduser):
-            item={'name':grid.name,
-                  'id':str(grid._id),
-                  'uploadDate':grid.upload_date,
-                  'user': grid.metadata['iduser']
-            }
-            otherUsersFiles.append(item)
+        otherUsersFiles = getListFiles(blob_hoster.find("metadata.iduser", { '$ne': str(request.user.id) }))
         context.update({'otherUsersFiles': otherUsersFiles, 'usernames': usernames})
 
     return HttpResponse(template.render(context))
+
+
+def getListFiles(listBlob):
+    files = []
+    for grid in listBlob:
+        item = {'name': grid.name,
+                'id': str(grid._id),
+                'uploadDate': grid.upload_date,
+                'user': grid.metadata['iduser']
+                }
+        files.append(item)
+    return files
 
 
 ################################################################################
