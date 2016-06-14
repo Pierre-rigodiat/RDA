@@ -365,18 +365,33 @@ def get_element_type(element, xml_tree, namespaces, default_prefix, target_names
                         # get all import elements
                         imports = xml_tree.findall('//{}import'.format(LXML_SCHEMA_NAMESPACE))
                         # find the referred document using the prefix
-                        if type_ns_prefix in namespaces:
-                            for el_import in imports:
-                                import_ns = el_import.attrib['namespace']
-                                if namespaces[type_ns_prefix] == import_ns:
-                                    xml_tree, schema_location = import_xml_tree(el_import)
-                                    break
-                        else:
+                        # the namespace is declared inline
+                        if type_ns_prefix in element.nsmap:
                             for el_import in imports:
                                 import_ns = el_import.attrib['namespace']
                                 if element.nsmap[type_ns_prefix] == import_ns:
                                     xml_tree, schema_location = import_xml_tree(el_import)
                                     break
+                        else:
+                            if type_ns_prefix in namespaces:
+                                for el_import in imports:
+                                    import_ns = el_import.attrib['namespace']
+                                    if namespaces[type_ns_prefix] == import_ns:
+                                        xml_tree, schema_location = import_xml_tree(el_import)
+                                        break
+
+                        # if type_ns_prefix in namespaces:
+                        #     for el_import in imports:
+                        #         import_ns = el_import.attrib['namespace']
+                        #         if namespaces[type_ns_prefix] == import_ns:
+                        #             xml_tree, schema_location = import_xml_tree(el_import)
+                        #             break
+                        # else:
+                        #     for el_import in imports:
+                        #         import_ns = el_import.attrib['namespace']
+                        #         if element.nsmap[type_ns_prefix] == import_ns:
+                        #             xml_tree, schema_location = import_xml_tree(el_import)
+                        #             break
 
                 xpath = "./{0}complexType[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, type_name)
                 element_type = xml_tree.find(xpath)
@@ -948,9 +963,9 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
 
     # get the element type
     default_prefix = common.get_default_prefix(namespaces)
-    element_type, xml_tree, schema_location = get_element_type(element, xml_tree, namespaces,
-                                                               default_prefix, target_namespace_prefix,
-                                                               schema_location)
+    element_type, xml_tree, new_schema_location = get_element_type(element, xml_tree, namespaces,
+                                                                   default_prefix, target_namespace_prefix,
+                                                                   schema_location)
 
     db_element['options']['schema_location'] = schema_location
     db_element['options']['xmlns'] = element_ns
