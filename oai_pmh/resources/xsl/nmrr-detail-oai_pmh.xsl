@@ -22,13 +22,13 @@
 				<tr style="background-color:#f0f0f0">
 					<td style="width:180px" colspan="2">
 						{% if oai_pmh %}
-						<div class="alert alert-info" style="float:right;padding:0em;padding-bottom:0em;">
-							<h4><xsl:text>OAI-PMH</xsl:text></h4>
+						<div class="alert alert-info" style="float:right;padding:0em;margin-right: 1%;margin-top: -5px;height: 1.8em;">
+							<strong>OAI-PMH</strong>
 						</div>
 						<div style="float:right;padding:0em;margin-right: 1%;margin-top: -5px;">
 							<h6>{{registry_name}}</h6>
 						</div>
-						{% endif %}							
+						{% endif %}
 						<xsl:variable name="url" select="//nr:Resource/nr:content/nr:referenceURL" />
 						<xsl:choose>
 							<xsl:when test="//nr:Resource/nr:content/nr:referenceURL!=''">

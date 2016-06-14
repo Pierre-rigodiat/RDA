@@ -166,7 +166,7 @@ def get_results_by_instance_keyword(request):
                                    'xml': str(newdom),
                                    'title': instanceResult['identifier'],
                                    'custom_xslt': custom_xslt,
-                                   'schema_name': metadataFormat.metadataPrefix,
+                                   'template_name': metadataFormat.template.title,
                                    'registry_name': registry_name,
                                    'oai_pmh': True})
 

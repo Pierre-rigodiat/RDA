@@ -44,18 +44,25 @@
 								</xsl:choose>
 							</div>
 						</div>
-						{% if oai_pmh %}
-						<div class="alert alert-info" style="float:right;padding:0em;margin-right: 1%;margin-top: -5px;">
-							<h4><xsl:text>OAI-PMH</xsl:text></h4>
-						</div>
-						<div style="float:right;padding:0em;margin-right: 1%;margin-top: -5px;">
-							<h6>{{registry_name}}</h6>
-						</div>
-						{% endif %}
 					</td>
 				</tr>
 				<xsl:apply-templates select="/*" />
 				<xsl:apply-templates select="//*[not(*)]" />
+				<tr style="background-color:#f0f0f0">
+					<td style="width:180px" colspan="2">
+						<span class="alert alert-error" style="float: left;padding:0.3em 0.5em 0em 0.5em;margin: 0em 0.5em 0em 0em;height: 1.8em;">
+							<strong>{{template_name}}</strong>
+						</span>
+						{% if oai_pmh %}
+						<span class="alert alert-info" style="float: left;padding:0.3em 0.5em 0em 0.5em;margin: 0em 0.5em 0em 0em;height: 1.8em;">
+							<strong>OAI-PMH</strong>
+						</span>
+						<span>
+							<text>{{registry_name}}</text>
+						</span>
+						{% endif %}
+					</td>
+				</tr>
 			</table>
 		</div>
 	</xsl:template>
