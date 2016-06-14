@@ -963,13 +963,14 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
 
     # get the element type
     default_prefix = common.get_default_prefix(namespaces)
-    element_type, xml_tree, new_schema_location = get_element_type(element, xml_tree, namespaces,
-                                                                   default_prefix, target_namespace_prefix,
-                                                                   schema_location)
 
     db_element['options']['schema_location'] = schema_location
     db_element['options']['xmlns'] = element_ns
     db_element['options']['ns_prefix'] = ns_prefix
+
+    element_type, xml_tree, schema_location = get_element_type(element, xml_tree, namespaces,
+                                                               default_prefix, target_namespace_prefix,
+                                                               schema_location)
 
     # choice_id = ''
     # management of elements inside a choice (don't display if not part of the currently selected choice)
