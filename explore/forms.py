@@ -19,7 +19,7 @@
 
 from django import forms
 from mgi.models import Template, TemplateVersion
-
+from oai_pmh.explore.forms import KeywordForm as KeywordFormOAIPMH
 class ExportForm(forms.Form):
     """
     Create the form for exporting data
@@ -100,8 +100,8 @@ class KeywordForm(forms.Form):
     """
     my_schemas = forms.MultipleChoiceField(label='', choices=[], widget=forms.CheckboxSelectMultiple(attrs={"checked":""}))
     my_user_schemas = forms.MultipleChoiceField(label='', choices=[], widget=forms.CheckboxSelectMultiple(attrs={"checked":""}))
-
     search_entry = forms.CharField(widget=forms.TextInput(attrs={'class': 'research'}))
+    form_oai_pmh = KeywordFormOAIPMH()
     my_schemas_nb = 0
     my_user_schemas_nb = 0
     SCHEMAS_OPTIONS = []

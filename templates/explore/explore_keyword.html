@@ -115,6 +115,7 @@ Software
 <br/>
 <a id="config_custom" onclick="configure_custom_view();" style="display:none;cursor: pointer;">Change Custom View</a>
 <br/><br/>
+<div>
 Resource Type:
 <form id="refine_resource_type">
 <input type="radio" name="resource_type" value="all"> All Resources<br/>
@@ -129,6 +130,15 @@ Resource Type:
 <input type="radio" name="resource_type" value="software"> Software<br/>
 <br/>
 </form>
+<div id="id_my_registries">
+Data Providers:
+	<br/>
+{% for value, label in search_Form.form_oai_pmh.my_registries.field.choices %}
+	<input type='checkbox' checked_id="id_my_registries_{{ forloop.counter0 }}" name="my_registries" value='{{value}}' onchange='get_results_keyword_refined();'> {{label}} <br/>
+{% endfor %}
+</div>
+</div>
+<br/><br/>
 <div id="refine_common"></div>
 <div id="refine_resource"></div>
 </td>

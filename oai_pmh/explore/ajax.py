@@ -79,12 +79,15 @@ def get_results_by_instance_keyword(request):
             onlySuggestions = json.loads(request.GET['onlySuggestions'])
         else:
             onlySuggestions = False
+        registries = request.GET.getlist('registries[]')
     except:
         keyword = ''
         schemas = []
         userSchemas = []
         refinements = {}
         onlySuggestions = True
+        registries = []
+
     #We get all template versions for the given schemas
     #First, we take care of user defined schema
     templatesIDUser = Template.objects(title__in=userSchemas).distinct(field="id")
@@ -100,9 +103,13 @@ def get_results_by_instance_keyword(request):
     templatesIDCommon = list(set(allTemplatesIDCommon) - set(allTemplatesIDCommonRemoved))
 
     templatesID = templatesIDUser + templatesIDCommon
-    #We retrieve deactivated registries so as not to get their metadata formats
-    deactivatedRegistries = [str(x.id) for x in OaiRegistry.objects(isDeactivated=True).order_by('id')]
-    metadataFormatsID = OaiMetadataFormat.objects(template__in=templatesID, registry__not__in=deactivatedRegistries).distinct(field="id")
+    if len(registries) == 0:
+        #We retrieve deactivated registries so as not to get their metadata formats
+        deactivatedRegistries = [str(x.id) for x in OaiRegistry.objects(isDeactivated=True).order_by('id')]
+        metadataFormatsID = OaiMetadataFormat.objects(template__in=templatesID, registry__not__in=deactivatedRegistries).distinct(field="id")
+    else:
+        #We retrieve registries from the refinement
+        metadataFormatsID = OaiMetadataFormat.objects(template__in=templatesID, registry__in=registries).distinct(field="id")
 
 
     instanceResults = OaiRecord.executeFullTextQuery(keyword, metadataFormatsID, refinements)

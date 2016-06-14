@@ -241,6 +241,7 @@ get_results_keyword_refined = function(numInstance){
             	schemas: getSchemas(),
             	refinements: loadRefinementQueries(),
             	onlySuggestions: false,
+            	registries: getRegistries(),
             },
             beforeSend: function( xhr ) {
                 $("#loading").addClass("isloading");
