@@ -71,6 +71,26 @@ else:
     #     }
     # }
 
+#SMTP Configuration
+USE_EMAIL = False #Send email, True or False
+SERVER_EMAIL = 'noreply@nmrr.org'
+ADMINS = [('admin', 'admin@nmrr.org')]
+MANAGERS = [('manager', 'moderator@nmrr.org'),]
+EMAIL_SUBJECT_PREFIX = "[NMRR] "
+#For test purpose
+#EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+#EMAIL_FILE_PATH = '/tmp/emails'
+# EMAIL_HOST = "smtp.gmail.com"
+# EMAIL_HOST_USER = "curator.testing.us@gmail.com"
+# EMAIL_HOST_PASSWORD = "ilovecurator"
+# EMAIL_PORT= 587
+
+#Password Policy
+USE_PASSWORD_STRENGTH = False #True or False
+PASSWORD_MIN_LENGTH = 8
+PASSWORD_MIN_DIGITS = 1
+PASSWORD_MIN_UPPERCASE = 1
+
 # Replace by your own values
 from mongoengine import connect
 MONGO_MGI_USER = "mgi_user"
