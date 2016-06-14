@@ -251,6 +251,7 @@ def insert_element_sequence(request):
             else:
                 ns_type_name = '{}'.format(type_name)
         nsmap = {type_target_namespace_prefix: type_target_namespace}
+        update_nsmap = False
 
         # build xpath to element
         xpath = xpath.replace(default_prefix + ":", LXML_SCHEMA_NAMESPACE)
@@ -279,9 +280,11 @@ def insert_element_sequence(request):
                 element = etree.Element("{}element".format(LXML_SCHEMA_NAMESPACE),
                                         attrib={'name': client_type_name,
                                                 'type': ns_type_name},
-                                        nsmap=nsmap)
+                                        )
                 # add the element
                 xsd_tree.find(xpath).append(element)
+
+                update_nsmap = True
 
         # Schema with target namespace
         else:
@@ -315,20 +318,43 @@ def insert_element_sequence(request):
                     element = etree.Element("{}element".format(LXML_SCHEMA_NAMESPACE),
                                             attrib={'name': client_type_name,
                                                     'type': ns_type_name},
-                                            nsmap=nsmap)
+                                            )
                     # add the element
                     xsd_tree.find(xpath).append(element)
+
+                    update_nsmap = True
 
         # add the id of the type if not already present
         if include_url not in request.session['includedTypesCompose']:
             request.session['includedTypesCompose'].append(include_url)
 
-        # validate XML schema
-        error = validate_xml_schema(xsd_tree)
+        if update_nsmap:
+            root = xsd_tree.getroot()
+            root_nsmap = root.nsmap
+
+            if type_target_namespace_prefix in root_nsmap.keys() and\
+                            root_nsmap[type_target_namespace_prefix] != type_target_namespace:
+                raise MDCSError('The namespace prefix is already declared for a different namespace.')
+            else:
+                root_nsmap[type_target_namespace_prefix] = type_target_namespace
+                new_root = etree.Element(root.tag, nsmap=root_nsmap)
+                new_root[:] = root[:]
+
+                # validate XML schema
+                error = validate_xml_schema(new_root)
+
+                new_xsd_str = etree.tostring(new_root)
+
+        else:
+            # validate XML schema
+            error = validate_xml_schema(xsd_tree)
+            new_xsd_str = etree.tostring(xsd_tree)
+
         if error is not None:
             raise MDCSError(error)
+
         # save the tree in the session
-        request.session['newXmlTemplateCompose'] = etree.tostring(xsd_tree)
+        request.session['newXmlTemplateCompose'] = new_xsd_str
     except Exception, e:
         return HttpResponseBadRequest(e.message, content_type='application/javascript')
 
