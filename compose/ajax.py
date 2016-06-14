@@ -18,9 +18,11 @@ import re
 from django.http import HttpResponse
 import json
 from django.conf import settings
+from django.http.response import HttpResponseBadRequest
 from mongoengine import *
 
 from mgi.common import LXML_SCHEMA_NAMESPACE, SCHEMA_NAMESPACE, get_default_prefix, get_namespaces, get_target_namespace
+from mgi.exceptions import MDCSError
 from mgi.models import Template, Type, XML2Download, Exporter, create_template, create_type
 import lxml.etree as etree
 from io import BytesIO
@@ -212,97 +214,62 @@ def load_xml(request):
 #
 ################################################################################
 def insert_element_sequence(request):
-    type_id = request.POST['typeID']
-    client_type_name = request.POST['typeName']
-    xpath = request.POST['xpath']
+    try:
+        type_id = request.POST['typeID']
+        client_type_name = request.POST['typeName']
+        xpath = request.POST['xpath']
 
-    xml_tree_str = request.session['newXmlTemplateCompose']
+        xml_tree_str = request.session['newXmlTemplateCompose']
 
-    # build the dom tree of the schema being built
-    xsd_tree = etree.parse(BytesIO(xml_tree_str.encode('utf-8')))
-    # get namespaces information for the schema
-    namespaces = get_namespaces(BytesIO(str(xml_tree_str)))
-    default_prefix = get_default_prefix(namespaces)
-    target_namespace, target_namespace_prefix = get_target_namespace(namespaces, xsd_tree)
+        # build the dom tree of the schema being built
+        xsd_tree = etree.parse(BytesIO(xml_tree_str.encode('utf-8')))
+        # get namespaces information for the schema
+        namespaces = get_namespaces(BytesIO(str(xml_tree_str)))
+        default_prefix = get_default_prefix(namespaces)
+        target_namespace, target_namespace_prefix = get_target_namespace(namespaces, xsd_tree)
 
-    # get the type being included
-    type_object = Type.objects().get(pk=type_id)
-    type_xsd_tree = etree.parse(BytesIO(type_object.content.encode('utf-8')))
-    # get namespaces information for the type
-    type_namespaces = get_namespaces(BytesIO(str(type_object.content)))
-    type_target_namespace, type_target_namespace_prefix = get_target_namespace(type_namespaces, type_xsd_tree)
+        # get the type being included
+        type_object = Type.objects().get(pk=type_id)
+        type_xsd_tree = etree.parse(BytesIO(type_object.content.encode('utf-8')))
+        # get namespaces information for the type
+        type_namespaces = get_namespaces(BytesIO(str(type_object.content)))
+        type_target_namespace, type_target_namespace_prefix = get_target_namespace(type_namespaces, type_xsd_tree)
 
-    # get the type from the included/imported file
-    # If there is a complex type
-    element_type = type_xsd_tree.find("{}complexType".format(LXML_SCHEMA_NAMESPACE))
-    if element_type is None:
-        # If there is a simple type
-        element_type = type_xsd_tree.find("{}simpleType".format(LXML_SCHEMA_NAMESPACE))
-    type_name = element_type.attrib["name"]
+        # get the type from the included/imported file
+        # If there is a complex type
+        element_type = type_xsd_tree.find("{}complexType".format(LXML_SCHEMA_NAMESPACE))
+        if element_type is None:
+            # If there is a simple type
+            element_type = type_xsd_tree.find("{}simpleType".format(LXML_SCHEMA_NAMESPACE))
+        type_name = element_type.attrib["name"]
 
-    if type_target_namespace is not None:
-        ns_type_name = "{0}:{1}".format(type_target_namespace_prefix, type_name)
-    else:
-        if target_namespace is not None:
-            ns_type_name = "{0}:{1}".format(target_namespace_prefix, type_name)
+        if type_target_namespace is not None:
+            ns_type_name = "{0}:{1}".format(type_target_namespace_prefix, type_name)
         else:
-            ns_type_name = '{}'.format(type_name)
-    nsmap = {type_target_namespace_prefix: type_target_namespace}
+            if target_namespace is not None:
+                ns_type_name = "{0}:{1}".format(target_namespace_prefix, type_name)
+            else:
+                ns_type_name = '{}'.format(type_name)
+        nsmap = {type_target_namespace_prefix: type_target_namespace}
 
-    # build xpath to element
-    xpath = xpath.replace(default_prefix + ":", LXML_SCHEMA_NAMESPACE)
+        # build xpath to element
+        xpath = xpath.replace(default_prefix + ":", LXML_SCHEMA_NAMESPACE)
 
-    # get link to the type to include
-    include_url = getSchemaLocation(str(type_id))
+        # get link to the type to include
+        include_url = getSchemaLocation(str(type_id))
 
-    # Schema without target namespace
-    if target_namespace is None:
-        # Type without target namespace
-        if type_target_namespace is None:
-            # add include
-            xsd_tree.getroot().insert(0, etree.Element("{}include".format(LXML_SCHEMA_NAMESPACE),
-                                      attrib={'schemaLocation': include_url}))
-            # add element
-            xsd_tree.find(xpath).append(etree.Element("{}element".format(LXML_SCHEMA_NAMESPACE),
-                                        attrib={'type': type_name,
-                                                'name': client_type_name}))
-        # Type with target namespace
-        else:
-            # add import
-            xsd_tree.getroot().insert(0, etree.Element("{}import".format(LXML_SCHEMA_NAMESPACE),
-                                      attrib={'schemaLocation': include_url,
-                                              'namespace': type_target_namespace}))
-            # create the element to add
-            element = etree.Element("{}element".format(LXML_SCHEMA_NAMESPACE),
-                                    attrib={'name': client_type_name,
-                                            'type': ns_type_name},
-                                    nsmap=nsmap)
-            # add the element
-            xsd_tree.find(xpath).append(element)
-
-    # Schema with target namespace
-    else:
-        # Type without target namespace
-        if type_target_namespace is None:
-            # add include
-            xsd_tree.getroot().insert(0, etree.Element("{}include".format(LXML_SCHEMA_NAMESPACE),
-                                      attrib={'schemaLocation': include_url}))
-            # add element
-            xsd_tree.find(xpath).append(etree.Element("{}element".format(LXML_SCHEMA_NAMESPACE),
-                                        attrib={'name': client_type_name,
-                                                'type': ns_type_name}))
-        # Type with target namespace
-        else:
-            # Same target namespace as base template
-            if target_namespace == type_target_namespace:
+        # Schema without target namespace
+        if target_namespace is None:
+            # Type without target namespace
+            if type_target_namespace is None:
                 # add include
                 xsd_tree.getroot().insert(0, etree.Element("{}include".format(LXML_SCHEMA_NAMESPACE),
                                           attrib={'schemaLocation': include_url}))
                 # add element
                 xsd_tree.find(xpath).append(etree.Element("{}element".format(LXML_SCHEMA_NAMESPACE),
-                                            attrib={'name': client_type_name,
-                                                    'type': ns_type_name}))
-            # Different target namespace as base template
+                                            attrib={'type': type_name,
+                                                    'name': client_type_name}))
+            # Type with target namespace
             else:
                 # add import
                 xsd_tree.getroot().insert(0, etree.Element("{}import".format(LXML_SCHEMA_NAMESPACE),
@@ -316,46 +283,55 @@ def insert_element_sequence(request):
                 # add the element
                 xsd_tree.find(xpath).append(element)
 
-    # # add the element to the sequence
-    # if type_target_namespace is None:
-    #     xsd_tree.find(xpath).append(etree.Element("{}element".format(LXML_SCHEMA_NAMESPACE),
-    #                                               attrib={'type': type_name,
-    #                                                       'name': type_name}))
-    # else:
-    #     ns_type_name = "{0}:{1}".format(type_target_namespace_prefix, type_name) if type_target_namespace_prefix != '' \
-    #         else '{}'.format(type_name)
-    #     nsmap = {type_target_namespace_prefix: type_target_namespace}
-    #     element = etree.Element("{}element".format(LXML_SCHEMA_NAMESPACE),
-    #                             attrib={'name': type_name,
-    #                                     'type': ns_type_name},
-    #                             nsmap=nsmap)
-    #
-    #     xsd_tree.find(xpath).append(element)
+        # Schema with target namespace
+        else:
+            # Type without target namespace
+            if type_target_namespace is None:
+                # add include
+                xsd_tree.getroot().insert(0, etree.Element("{}include".format(LXML_SCHEMA_NAMESPACE),
+                                          attrib={'schemaLocation': include_url}))
+                # add element
+                xsd_tree.find(xpath).append(etree.Element("{}element".format(LXML_SCHEMA_NAMESPACE),
+                                            attrib={'name': client_type_name,
+                                                    'type': ns_type_name}))
+            # Type with target namespace
+            else:
+                # Same target namespace as base template
+                if target_namespace == type_target_namespace:
+                    # add include
+                    xsd_tree.getroot().insert(0, etree.Element("{}include".format(LXML_SCHEMA_NAMESPACE),
+                                              attrib={'schemaLocation': include_url}))
+                    # add element
+                    xsd_tree.find(xpath).append(etree.Element("{}element".format(LXML_SCHEMA_NAMESPACE),
+                                                attrib={'name': client_type_name,
+                                                        'type': ns_type_name}))
+                # Different target namespace as base template
+                else:
+                    # add import
+                    xsd_tree.getroot().insert(0, etree.Element("{}import".format(LXML_SCHEMA_NAMESPACE),
+                                              attrib={'schemaLocation': include_url,
+                                                      'namespace': type_target_namespace}))
+                    # create the element to add
+                    element = etree.Element("{}element".format(LXML_SCHEMA_NAMESPACE),
+                                            attrib={'name': client_type_name,
+                                                    'type': ns_type_name},
+                                            nsmap=nsmap)
+                    # add the element
+                    xsd_tree.find(xpath).append(element)
 
-    ############# OLD ##############
+        # add the id of the type if not already present
+        if include_url not in request.session['includedTypesCompose']:
+            request.session['includedTypesCompose'].append(include_url)
 
-    # # get the type to add
-    # includedType = Type.objects.get(pk=type_id)
-    # typeTree = etree.XML(str(includedType.content))
-    # elementType = typeTree.find("{}complexType".format(LXML_SCHEMA_NAMESPACE))
-    # if elementType is None:
-    #     elementType = typeTree.find("{}simpleType".format(LXML_SCHEMA_NAMESPACE))
-    # type = elementType.attrib["name"]
-    #
-    # # add the element to the sequence
-    # xsd_tree.find(xpath).append(etree.Element("{}element".format(LXML_SCHEMA_NAMESPACE), attrib={'type': type,
-    #                                                                                              'name': type_name}))
-    #
-    # include_url = getSchemaLocation(str(type_id))
-    # # add the id of the type if not already present
-    # if include_url not in request.session['includedTypesCompose']:
-    #     request.session['includedTypesCompose'].append(include_url)
-    #     xsd_tree.getroot().insert(0, etree.Element("{}include".format(LXML_SCHEMA_NAMESPACE),
-    #                                           attrib={'schemaLocation': include_url}))
-    
-    # save the tree in the session
-    request.session['newXmlTemplateCompose'] = etree.tostring(xsd_tree)
-    
+        # validate XML schema
+        error = validate_xml_schema(xsd_tree)
+        if error is not None:
+            raise MDCSError(error)
+        # save the tree in the session
+        request.session['newXmlTemplateCompose'] = etree.tostring(xsd_tree)
+    except Exception, e:
+        return HttpResponseBadRequest(e.message, content_type='application/javascript')
+
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
@@ -420,9 +396,14 @@ def save_template(request):
     dependencies = []
 
     for uri in request.session["includedTypesCompose"]:
-        url = urlparse(uri)
-        id = url.query.split("=")[1]
-        dependencies.append(id)
+        try:
+            url = urlparse(uri)
+            id = url.query.split("=")[1]
+            # add dependency if it matches a type id
+            Type.objects().get(pk=id)
+            dependencies.append(id)
+        except:
+            pass
 
     create_template(content, template_name, template_name, dependencies, user=str(request.user.id))
 
@@ -473,9 +454,14 @@ def save_type(request):
 
     dependencies = []
     for uri in request.session["includedTypesCompose"]:
-        url = urlparse(uri)
-        id = url.query.split("=")[1]
-        dependencies.append(id)
+        try:
+            url = urlparse(uri)
+            id = url.query.split("=")[1]
+            # add dependency if it matches a type id
+            Type.objects().get(pk=id)
+            dependencies.append(id)
+        except:
+            pass
 
     create_type(content, type_name, type_name, [], dependencies, user=str(request.user.id))
 
