@@ -156,7 +156,8 @@ def explore_detail_result_keyword(request) :
         'XMLHolder': result,
         'title': title,
         'oai_pmh': True,
-        'registry_name': registry_name
+        'registry_name': registry_name,
+        "template_name": record.metadataformat.template.title
     })
 
     return HttpResponse(template.render(context))

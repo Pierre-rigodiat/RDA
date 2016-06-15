@@ -313,10 +313,10 @@ def explore_detail_result_process(request) :
     transform = etree.XSLT(xslt)
 
     #Check if a custom detailed result XSLT has to be used
+    schema = Template.objects.get(pk=schemaId)
     try:
         if (xmlString != ""):
             dom = etree.fromstring(str(xmlString))
-            schema = Template.objects.get(pk=schemaId)
             if schema.ResultXsltDetailed:
                 shortXslt = etree.parse(BytesIO(schema.ResultXsltDetailed.content.encode('utf-8')))
                 shortTransform = etree.XSLT(shortXslt)
@@ -330,7 +330,8 @@ def explore_detail_result_process(request) :
     result = str(newdom)
     context = RequestContext(request, {
         'XMLHolder': result,
-        'title': title
+        'title': title,
+        "template_name": schema.title
     })
 
     return context

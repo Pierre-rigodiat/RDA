@@ -57,7 +57,7 @@
 						<span class="alert alert-info" style="float: left;padding:0.3em 0.5em 0em 0.5em;margin: 0em 0.5em 0em 0em;height: 1.8em;">
 							<strong>OAI-PMH</strong>
 						</span>
-						<span>
+						<span class="alert alert-success" style="float: left;padding:0.3em 0.5em 0em 0.5em;margin: 0em 0.5em 0em 0em;height: 1.8em;">
 							<text>{{registry_name}}</text>
 						</span>
 						{% endif %}

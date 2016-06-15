@@ -21,14 +21,6 @@
 			<table>
 				<tr style="background-color:#f0f0f0">
 					<td style="width:180px" colspan="2">
-						{% if oai_pmh %}
-						<div class="alert alert-info" style="float:right;padding:0em;margin-right: 1%;margin-top: -5px;height: 1.8em;">
-							<strong>OAI-PMH</strong>
-						</div>
-						<div style="float:right;padding:0em;margin-right: 1%;margin-top: -5px;">
-							<h6>{{registry_name}}</h6>
-						</div>
-						{% endif %}
 						<xsl:variable name="url" select="//nr:Resource/nr:content/nr:referenceURL" />
 						<xsl:choose>
 							<xsl:when test="//nr:Resource/nr:content/nr:referenceURL!=''">
@@ -42,6 +34,21 @@
 				</tr>
 				<xsl:apply-templates select="/*" />
 				<xsl:apply-templates select="//*[not(*)]" />
+				<tr style="background-color:#f0f0f0">
+					<td style="width:180px" colspan="2">
+						<span class="alert alert-error" style="float: left;padding:0.3em 0.5em 0em 0.5em;margin: 0em 0.5em 0em 0em;height: 1.8em;">
+							<strong>{{template_name}}</strong>
+						</span>
+						{% if oai_pmh %}
+						<span class="alert alert-info" style="float: left;padding:0.3em 0.5em 0em 0.5em;margin: 0em 0.5em 0em 0em;height: 1.8em;">
+							<strong>OAI-PMH</strong>
+						</span>
+						<span class="alert alert-success" style="float: left;padding:0.3em 0.5em 0em 0.5em;margin: 0em 0.5em 0em 0em;height: 1.8em;">
+							<text>{{registry_name}}</text>
+						</span>
+						{% endif %}
+					</td>
+				</tr>
 			</table>
 		</div>
 	</xsl:template>
