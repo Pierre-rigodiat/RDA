@@ -101,7 +101,6 @@ class KeywordForm(forms.Form):
     my_schemas = forms.MultipleChoiceField(label='', choices=[], widget=forms.CheckboxSelectMultiple(attrs={"checked":""}))
     my_user_schemas = forms.MultipleChoiceField(label='', choices=[], widget=forms.CheckboxSelectMultiple(attrs={"checked":""}))
     search_entry = forms.CharField(widget=forms.TextInput(attrs={'class': 'research'}))
-    form_oai_pmh = KeywordFormOAIPMH()
     my_schemas_nb = 0
     my_user_schemas_nb = 0
     SCHEMAS_OPTIONS = []
@@ -125,6 +124,8 @@ class KeywordForm(forms.Form):
             self.SCHEMAS_USER_OPTIONS.append((schema, schema))
 
         super(KeywordForm, self).__init__()
+        #Init KeywordFormOAIPMH
+        self.form_oai_pmh = KeywordFormOAIPMH()
         self.fields['my_schemas'].choices = []
         self.fields['my_schemas'].choices = self.SCHEMAS_OPTIONS
         self.fields['my_user_schemas'].choices = []
