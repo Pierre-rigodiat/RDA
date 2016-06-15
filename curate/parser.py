@@ -365,29 +365,20 @@ def get_element_type(element, xml_tree, namespaces, default_prefix, target_names
                         # get all import elements
                         imports = xml_tree.findall('//{}import'.format(LXML_SCHEMA_NAMESPACE))
                         # find the referred document using the prefix
-                        for el_import in imports:
-                            import_ns = el_import.attrib['namespace']
-                            if namespaces[type_ns_prefix] == import_ns:
-                                # get the location of the schema
-                                ref_xml_schema_url = el_import.attrib['schemaLocation']
-                                schema_location = ref_xml_schema_url
-                                # download the file
-                                ref_xml_schema_file = urllib2.urlopen(ref_xml_schema_url)
-                                # read the content of the file
-                                ref_xml_schema_content = ref_xml_schema_file.read()
-                                # build the tree
-                                xml_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
-                                # look for includes
-                                includes = xml_tree.findall('//{}include'.format(LXML_SCHEMA_NAMESPACE))
-                                # if includes are present
-                                if len(includes) > 0:
-                                    # create a flattener with the file content
-                                    flattener = XSDFlattenerURL(ref_xml_schema_content)
-                                    # flatten the includes
-                                    ref_xml_schema_content = flattener.get_flat()
-                                    # build the tree
-                                    xml_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
-                                break
+                        # the namespace is declared inline
+                        if type_ns_prefix in element.nsmap:
+                            for el_import in imports:
+                                import_ns = el_import.attrib['namespace']
+                                if element.nsmap[type_ns_prefix] == import_ns:
+                                    xml_tree, schema_location = import_xml_tree(el_import)
+                                    break
+                        else:
+                            if type_ns_prefix in namespaces:
+                                for el_import in imports:
+                                    import_ns = el_import.attrib['namespace']
+                                    if namespaces[type_ns_prefix] == import_ns:
+                                        xml_tree, schema_location = import_xml_tree(el_import)
+                                        break
 
                 xpath = "./{0}complexType[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, type_name)
                 element_type = xml_tree.find(xpath)
@@ -402,6 +393,29 @@ def get_element_type(element, xml_tree, namespaces, default_prefix, target_names
         element_type = None
 
     return element_type, xml_tree, schema_location
+
+
+def import_xml_tree(el_import):
+    # get the location of the schema
+    ref_xml_schema_url = el_import.attrib['schemaLocation']
+    schema_location = ref_xml_schema_url
+    # download the file
+    ref_xml_schema_file = urllib2.urlopen(ref_xml_schema_url)
+    # read the content of the file
+    ref_xml_schema_content = ref_xml_schema_file.read()
+    # build the tree
+    xml_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
+    # look for includes
+    includes = xml_tree.findall('//{}include'.format(LXML_SCHEMA_NAMESPACE))
+    # if includes are present
+    if len(includes) > 0:
+        # create a flattener with the file content
+        flattener = XSDFlattenerURL(ref_xml_schema_content)
+        # flatten the includes
+        ref_xml_schema_content = flattener.get_flat()
+        # build the tree
+        xml_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
+    return xml_tree, schema_location
 
 
 def remove_annotations(element):
@@ -452,26 +466,7 @@ def get_ref_element(xml_tree, ref, namespaces, element_tag, schema_location=None
             for el_import in imports:
                 import_ns = el_import.attrib['namespace']
                 if namespaces[ref_namespace_prefix] == import_ns:
-                    # get the location of the schema
-                    ref_xml_schema_url = el_import.attrib['schemaLocation']
-                    # set the schema location to save in database
-                    schema_location = ref_xml_schema_url
-                    # download the file
-                    ref_xml_schema_file = urllib2.urlopen(ref_xml_schema_url)
-                    # read the content of the file
-                    ref_xml_schema_content = ref_xml_schema_file.read()
-                    # build the tree
-                    xml_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
-                    # look for includes
-                    includes = xml_tree.findall('//{}include'.format(LXML_SCHEMA_NAMESPACE))
-                    # if includes are present
-                    if len(includes) > 0:
-                        # create a flattener with the file content
-                        flattener = XSDFlattenerURL(ref_xml_schema_content)
-                        # flatten the includes
-                        ref_xml_schema_content = flattener.get_flat()
-                        # build the tree
-                        xml_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
+                    xml_tree, schema_location = import_xml_tree(el_import)
 
                     ref_element = xml_tree.find("./{0}{1}[@name='{2}']".format(LXML_SCHEMA_NAMESPACE,
                                                                                element_tag, ref_name))
@@ -629,7 +624,15 @@ def get_element_namespace(element, xsd_tree):
             if 'targetNamespace' in xsd_root.attrib:
                 element_ns = ""
 
-    # print tag_ns
+    # try:
+    #     if 'type' in element.attrib:
+    #         if ':' in element.attrib['type']:
+    #             type_ns = element.attrib['type'].split(':')[0]
+    #             if type_ns in element.nsmap.keys():
+    #                 element_ns = element.nsmap[type_ns]
+    # except:
+    #     pass
+
     return element_ns
 
 
@@ -955,13 +958,14 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
 
     # get the element type
     default_prefix = common.get_default_prefix(namespaces)
-    element_type, xml_tree, schema_location = get_element_type(element, xml_tree, namespaces,
-                                                               default_prefix, target_namespace_prefix,
-                                                               schema_location)
 
     db_element['options']['schema_location'] = schema_location
     db_element['options']['xmlns'] = element_ns
     db_element['options']['ns_prefix'] = ns_prefix
+
+    element_type, xml_tree, schema_location = get_element_type(element, xml_tree, namespaces,
+                                                               default_prefix, target_namespace_prefix,
+                                                               schema_location)
 
     # choice_id = ''
     # management of elements inside a choice (don't display if not part of the currently selected choice)

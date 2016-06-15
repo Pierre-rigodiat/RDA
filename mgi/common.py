@@ -68,7 +68,7 @@ def getValidityErrorsForMDCS(xmlTree, type):
     #         errors.append("Only templates with at least one root element are supported.")
 
     # Types Tests
-    elif type == "Type":        
+    if type == "Type":
         elements = xmlTree.findall("*")
         if len(elements) > 0:
             # only simpleType, complexType or include
