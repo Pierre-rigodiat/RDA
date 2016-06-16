@@ -141,22 +141,22 @@ class RegressionTest(LiveServerTestCase):
         re = open(file, 'rb').read()
         target_collection.insert(decode_all(re))
 
-    def createXMLData(self, schemaID=''):
-        return XMLdata(schemaID=schemaID, xml='<test>test xmldata</test>', title='test', iduser=1).save()
+    def createXMLData(self, schemaID='', ispublished=False):
+        return XMLdata(schemaID=str(schemaID), xml='<test>test xmldata</test>', title='test', iduser=1, ispublished=ispublished).save()
 
-    def createType(self):
+    def createType(self, title='test', filename='test'):
         countType = len(Type.objects())
         hash = XSDhash.get_hash('<test>test xmldata</test>')
         objectVersions = self.createTypeVersion()
-        type = Type(title='test', filename='test', content='<test>test xmldata</test>', version=1, typeVersion=str(objectVersions.id), hash=hash).save()
+        type = Type(title=title, filename=filename, content='<test>test xmldata</test>', version=1, typeVersion=str(objectVersions.id), hash=hash).save()
         self.assertEquals(len(Type.objects()), countType + 1)
         return type
 
-    def createTemplate(self):
+    def createTemplate(self, title='test', filename='test'):
         countTemplate = len(Template.objects())
         hash = XSDhash.get_hash('<test>test xmldata</test>')
         objectVersions = self.createTemplateVersion()
-        template = Template(title='test', filename='test', content='<test>test xmldata</test>', version=1, templateVersion=str(objectVersions.id), hash=hash).save()
+        template = Template(title=title, filename=filename, content='<test>test xmldata</test>', version=1, templateVersion=str(objectVersions.id), hash=hash).save()
         self.assertEquals(len(Template.objects()), countTemplate + 1)
         return template
 
