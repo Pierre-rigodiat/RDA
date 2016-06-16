@@ -18,6 +18,8 @@ import re
 from django.http import HttpResponse
 from django.conf import settings
 from io import BytesIO
+
+from django.template.context import Context
 from lxml import html
 from collections import OrderedDict
 import xmltodict
@@ -26,21 +28,17 @@ import os
 import json
 import copy
 import lxml.etree as etree
-
+import re
 from curate.models import SchemaElement
 from curate.parser import generate_form
 from curate.renderer import DefaultRenderer
 from curate.renderer.checkbox import CheckboxRenderer
-from curate.renderer.list import ListRenderer
-from mgi.common import SCHEMA_NAMESPACE, LXML_SCHEMA_NAMESPACE
-from mgi.models import Template, QueryResults, SavedQuery, XMLdata, Instance, TemplateVersion
+from mgi.common import SCHEMA_NAMESPACE, LXML_SCHEMA_NAMESPACE, xpath_to_dot_notation
+from mgi.models import Template, SavedQuery, XMLdata, Instance, TemplateVersion
 from mgi import common
-from django.template import loader, Context, RequestContext
-from django.contrib.auth.models import Group
-from django.db.models import Q
-import mgi.rights as RIGHTS
-import random
+from django.template import loader,RequestContext
 from django.contrib import messages
+
 #Class definition
 
 ################################################################################
@@ -679,7 +677,6 @@ def generateForm(request):
 
     return formString
 
-
 ################################################################################
 # 
 # Function Name: generate_xsd_tree_for_querying_data(request)
@@ -714,20 +711,19 @@ def generate_xsd_tree_for_querying_data(request):
     if xmlDocTreeStr == "":
         setCurrentTemplate(request, templateID)        
 
-
     if formString == "":
         formString = "<form id=\"dataQueryForm\" name=\"xsdForm\">"
-        formString += generateForm(request)
-        # try:
-        #     root_element_id = generate_form(request, xmlDocTreeStr)
-        #     root_element = SchemaElement.objects.get(pk=root_element_id)
-        #
-        #     renderer = CheckboxRenderer(root_element, request)
-        #     html_form = renderer.render()
-        # except Exception as e:
-        #     renderer = DefaultRenderer(None, {})
-        #     html_form = renderer._render_form_error(e.message)
-        # formString += html_form
+        # formString += generateForm(request)
+        try:
+            root_element_id = generate_form(request, xmlDocTreeStr)
+            root_element = SchemaElement.objects.get(pk=root_element_id)
+
+            renderer = CheckboxRenderer(root_element, request)
+            html_form = renderer.render()
+        except Exception as e:
+            renderer = DefaultRenderer(None, {})
+            html_form = renderer._render_form_error(e.message)
+        formString += html_form
 
     formString += "</form>"
 
@@ -1454,11 +1450,11 @@ def fieldsToQuery(request, htmlTree):
             queryValue = queryInfo['query']
             criteria = queryToCriteria(queryValue, isNot)
         elif (elemType == "enum"):
-            element = "content." + elementInfo['path']
+            element = elementInfo['path']
             value = field[2][0].value            
             criteria = enumCriteria(element, value, isNot)
         else:                
-            element = "content." + elementInfo['path']
+            element = elementInfo['path']
             comparison = field[2][0].value
             value = field[2][1].value
             criteria = buildCriteria(request, element, comparison, value, elemType , isNot)
@@ -1663,12 +1659,9 @@ def remove_field(request):
 #
 ################################################################################
 def renderYESORNOT():
-    return """
-    <select>
-      <option value=""></option>
-      <option value="NOT">NOT</option>
-    </select> 
-    """
+    template = loader.get_template('explore/query_builder/yes_no.html')
+    return template.render(Context())
+
 
 ################################################################################
 # 
@@ -1680,13 +1673,9 @@ def renderYESORNOT():
 #
 ################################################################################
 def renderANDORNOT():
-    return """
-    <select>
-      <option value="AND">AND</option>
-      <option value="OR">OR</option>
-      <option value="NOT">NOT</option>
-    </select> 
-    """
+    template = loader.get_template('explore/query_builder/and_or_not.html')
+    return template.render(Context())
+
 
 ################################################################################
 # 
@@ -1698,15 +1687,9 @@ def renderANDORNOT():
 #
 ################################################################################
 def renderNumericSelect():
-    return """
-    <select style="width:70px">
-      <option value="lt">&lt;</option>
-      <option value="lte">&le;</option>
-      <option value="=">=</option>
-      <option value="gte">&ge;</option>
-      <option value="gt">&gt;</option>
-    </select> 
-    """
+    template = loader.get_template('explore/query_builder/numeric_select.html')
+    return template.render(Context())
+
 
 ################################################################################
 # 
@@ -1718,9 +1701,9 @@ def renderNumericSelect():
 #
 ################################################################################
 def renderValueInput():
-    return """
-    <input style="margin-left:4px;" type="text" class="valueInput"/>
-    """
+    template = loader.get_template('explore/query_builder/input.html')
+    return template.render(Context())
+
 
 ################################################################################
 # 
@@ -1732,12 +1715,9 @@ def renderValueInput():
 #
 ################################################################################
 def renderStringSelect():
-    return """
-    <select>
-      <option value="is">is</option>
-      <option value="like">like</option>                      
-    </select> 
-    """
+    template = loader.get_template('explore/query_builder/string_select.html')
+    return template.render(Context())
+
 
 ################################################################################
 # 
@@ -1748,13 +1728,12 @@ def renderStringSelect():
 # Description:   Returns html select from an enumeration
 #
 ################################################################################
-def renderEnum(request, fromElementID):
-    enum = "<select class='selectInput'>"
-    listOptions = request.session['mapEnumIDChoicesExplore'][str(fromElementID)]
-    for option in listOptions:
-        enum += "<option value='" + option + "'>" + option + "</option>"    
-    enum += "</select>"
-    return enum
+def renderEnum(request, enums):
+    template = loader.get_template('explore/query_builder/enum.html')
+    context = RequestContext(request, {
+        'enums': enums,
+    })
+    return template.render(context)
 
 
 ################################################################################
@@ -2038,61 +2017,90 @@ def update_user_inputs(request):
     from_element_id = request.POST['fromElementID']
     criteria_id = request.POST['criteriaID']
     
-    mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore']
+    # mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore']
     mapCriterias = request.session['mapCriteriasExplore']
     defaultPrefix = request.session['defaultPrefixExplore']
     
     toCriteriaID = "crit" + str(criteria_id)
     
-    criteriaInfo = CriteriaInfo()
-    criteriaInfo.elementInfo = ElementInfo(path=eval(mapTagIDElementInfo[str(from_element_id)])['path'], type=eval(mapTagIDElementInfo[str(from_element_id)])['type'])
-    mapCriterias[toCriteriaID] = criteriaInfo.__to_json__()
-    request.session['mapCriteriasExplore'] = mapCriterias
-    
+    criteria_info = CriteriaInfo()
+
+    # get schema element
+    schema_element = SchemaElement.objects().get(pk=from_element_id)
+
+    # get the xml type of the element
+    xml_xpath = schema_element.options['xpath']['xml']
+    # convert xml path to mongo dot notation
+    dot_notation = "content" + xpath_to_dot_notation(xml_xpath)
+
     htmlTree = html.fromstring(html_form)
-    currentCriteria = htmlTree.get_element_by_id(toCriteriaID)  
-    
+    currentCriteria = htmlTree.get_element_by_id(toCriteriaID)
+
     try:
-        currentCriteria[1].attrib['class'] = currentCriteria[1].attrib['class'].replace('queryInput','elementInput') 
+        currentCriteria[1].attrib['class'] = currentCriteria[1].attrib['class'].replace('queryInput', 'elementInput')
     except:
         pass
-    
-    # criteria id = crit%d  
+
+    # criteria id = crit%d
     criteriaIDIncr = toCriteriaID[4:]
-    userInputs = currentCriteria.find("./span/[@id='ui"+ str(criteriaIDIncr) +"']")
-    
-    for element in userInputs.findall("*"):
-        userInputs.remove(element) 
-    
-    if (criteriaInfo.elementInfo.type in ["{0}:byte".format(defaultPrefix),
-                                            "{0}:decimal".format(defaultPrefix),
-                                            "{0}:int".format(defaultPrefix),
-                                            "{0}:integer".format(defaultPrefix),
-                                            "{0}:long".format(defaultPrefix),
-                                            "{0}:negativeInteger".format(defaultPrefix),
-                                            "{0}:nonNegativeInteger".format(defaultPrefix),
-                                            "{0}:nonPositiveInteger".format(defaultPrefix),
-                                            "{0}:positiveInteger".format(defaultPrefix), 
-                                            "{0}:short".format(defaultPrefix), 
-                                            "{0}:unsignedLong".format(defaultPrefix), 
-                                            "{0}:unsignedInt".format(defaultPrefix), 
-                                            "{0}:unsignedShort".format(defaultPrefix), 
-                                            "{0}:unsignedByte".format(defaultPrefix),
-                                            "{0}:double".format(defaultPrefix),
-                                            "{0}:float".format(defaultPrefix)]):
-        form = html.fragment_fromstring(renderNumericSelect())
-        inputs = html.fragment_fromstring(renderValueInput()) 
-        userInputs.append(form)
-        userInputs.append(inputs) 
-    elif (criteriaInfo.elementInfo.type == "enum"):
-        form = html.fragment_fromstring(renderEnum(request, from_element_id))
-        userInputs.append(form)
-    else:
+    user_inputs = currentCriteria.find("./span/[@id='ui" + str(criteriaIDIncr) + "']")
+
+    for element in user_inputs.findall("*"):
+        user_inputs.remove(element)
+
+    element_type = schema_element.options['type']
+    try:
+        if element_type.startswith("{0}:".format(defaultPrefix)):
+            # numeric
+            if (element_type in ["{0}:byte".format(defaultPrefix),
+                                 "{0}:decimal".format(defaultPrefix),
+                                 "{0}:int".format(defaultPrefix),
+                                 "{0}:integer".format(defaultPrefix),
+                                 "{0}:long".format(defaultPrefix),
+                                 "{0}:negativeInteger".format(defaultPrefix),
+                                 "{0}:nonNegativeInteger".format(defaultPrefix),
+                                 "{0}:nonPositiveInteger".format(defaultPrefix),
+                                 "{0}:positiveInteger".format(defaultPrefix),
+                                 "{0}:short".format(defaultPrefix),
+                                 "{0}:unsignedLong".format(defaultPrefix),
+                                 "{0}:unsignedInt".format(defaultPrefix),
+                                 "{0}:unsignedShort".format(defaultPrefix),
+                                 "{0}:unsignedByte".format(defaultPrefix),
+                                 "{0}:double".format(defaultPrefix),
+                                 "{0}:float".format(defaultPrefix)]):
+                form = html.fragment_fromstring(renderNumericSelect())
+                inputs = html.fragment_fromstring(renderValueInput())
+                user_inputs.append(form)
+                user_inputs.append(inputs)
+            # string
+            else:
+                form = html.fragment_fromstring(renderStringSelect())
+                inputs = html.fragment_fromstring(renderValueInput())
+                user_inputs.append(form)
+                user_inputs.append(inputs)
+        else:
+            # enumeration
+            while schema_element.tag != 'simple_type':
+                schema_element = schema_element.children[0]
+            schema_element = schema_element.children[0]
+            enums = []
+            for enum_element in schema_element.children:
+                if enum_element.tag == 'enumeration':
+                    enums.append(enum_element.value)
+            element_type = 'enum'
+            form = html.fragment_fromstring(renderEnum(request, enums))
+            user_inputs.append(form)
+    except:
+        # default renders string
         form = html.fragment_fromstring(renderStringSelect())
         inputs = html.fragment_fromstring(renderValueInput())
-        userInputs.append(form)
-        userInputs.append(inputs)
-        
+        user_inputs.append(form)
+        user_inputs.append(inputs)
+
+    criteria_info.elementInfo = ElementInfo(path=dot_notation, type=element_type)
+    mapCriterias[toCriteriaID] = criteria_info.__to_json__()
+    request.session['mapCriteriasExplore'] = mapCriterias
+
     response_dict = {'queryForm': html.tostring(htmlTree)}
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
     
@@ -2109,8 +2117,7 @@ def update_user_inputs(request):
 def add_saved_query_to_form(request):
     query_form = request.POST['queryForm']
     saved_query_id = request.POST['savedQueryID']
-    
-    
+
     mapQueryInfo = request.session['mapQueryInfoExplore']
     queryTree = html.fromstring(query_form)
     
@@ -2181,18 +2188,9 @@ def add_saved_query_to_form(request):
 #
 ################################################################################ 
 def renderInitialForm():
-    return """
-    <p id="crit0">
-        <select>
-          <option value=""></option>
-          <option value="NOT">NOT</option>
-        </select> 
-        <input onclick="showCustomTree('crit0')" readonly="readonly" type="text" class="elementInput"/>
-        <span id="ui0">
-        </span>                        
-        <span class="icon add" onclick="addField()"></span>                                
-    </p>
-    """
+    template = loader.get_template('explore/query_builder/initial_form.html')
+    return template.render(Context())
+
 
 ################################################################################
 # 
@@ -2306,8 +2304,7 @@ def get_custom_form(request):
             queryInfo = QueryInfo(query, savedQuery.displayedQuery)
             mapQueryInfo[str(savedQuery.id)] = queryInfo.__to_json__()
             request.session['mapQueryInfoExplore'] = mapQueryInfo
-            
-        
+
     if (customFormString != ""):
         customForm = customFormString
     else:
@@ -2447,7 +2444,7 @@ def manageLiForQuery(request, li):
                 request.session['anyCheckedExplore'] = True
                 # remove the checkbox and make the element clickable
                 li.attrib['style'] = "color:orange;font-weight:bold;cursor:pointer;"
-                li.attrib['onclick'] = "selectElement("+ li.attrib['id'] +")"
+                li.attrib['onclick'] = "selectElement('"+ li.attrib['class'] +"')"
                 checkbox.attrib['style'] = "display:none;"   
                 # tells to keep this branch until this leave
                 branchInfo.keepTheBranch = True
@@ -2496,13 +2493,15 @@ def set_current_criteria(request):
 #                
 ################################################################################
 def select_element(request):
-    
+
     element_id = request.POST['elementID']
-    element_name = request.POST['elementName']
-    
-    criteria_id = request.session['criteriaIDExplore']  
+
+    schema_element = SchemaElement.objects().get(pk=element_id)
+
+    criteria_id = request.session['criteriaIDExplore']
     response_dict = {"criteriaTagID": criteria_id,
-                     "criteriaID": str(criteria_id[4:])}  
+                     "criteriaID": str(criteria_id[4:]),
+                     "elementName": schema_element.options['label']}
     
     request.session['criteriaIDExplore'] = ""
 
@@ -2707,7 +2706,7 @@ def subElementfieldsToQuery(request, liElements, listLeavesId):
     i = 0
     
     firstElementPath = eval(mapTagIDElementInfo[str(listLeavesId[i])])['path']
-    parentPath = "content." + ".".join(firstElementPath.split(".")[:-1])
+    parentPath = ".".join(firstElementPath.split(".")[:-1])
     
     for li in liElements:        
         if (li[0].attrib['value'] == 'true'):

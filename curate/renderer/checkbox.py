@@ -18,8 +18,22 @@ class CheckboxRenderer(ListRenderer):
         """
 
         data = {
-            'id': element.pk,
-            'value': element.value,
+            # 'id': element.pk,
+            # 'value': element.value,
+        }
+
+        return self._load_template('checkbox', data)
+
+    def render_restriction(self, element):
+        """
+
+        :param element
+        :return:
+        """
+
+        data = {
+            # 'id': element.pk,
+            # 'value': element.value,
         }
 
         return self._load_template('checkbox', data)

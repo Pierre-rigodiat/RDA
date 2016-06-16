@@ -7,6 +7,8 @@ import mgi.tasks as MgiTasks
 import os
 from django.utils.importlib import import_module
 from django.forms import ValidationError
+import re
+
 SCHEMA_NAMESPACE = "http://www.w3.org/2001/XMLSchema"
 LXML_SCHEMA_NAMESPACE = "{" + SCHEMA_NAMESPACE + "}"
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
@@ -321,3 +323,17 @@ def validate_password_strength(value):
             raise ValidationError([errors])
 
     return value
+
+
+def xpath_to_dot_notation(xpath):
+    """
+    Transorm XML xpath in dot notation
+    :param xpath:
+    :return:
+    """
+    # remove indexes from xpath
+    xpath = re.sub(r'\[[0-9]+\]', '', xpath)
+    # replace / by .
+    xpath = xpath.replace("/", ".")
+
+    return xpath

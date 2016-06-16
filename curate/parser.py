@@ -9,7 +9,8 @@ from curate.models import SchemaElement
 from curate.renderer.list import ListRenderer
 from mgi.exceptions import MDCSError
 from mgi.models import FormData, Module, Template
-from mgi.settings import CURATE_MIN_TREE, CURATE_COLLAPSE, AUTO_KEY_KEYREF, IMPLICIT_EXTENSION_BASE
+from mgi.settings import CURATE_MIN_TREE, CURATE_COLLAPSE, AUTO_KEY_KEYREF, IMPLICIT_EXTENSION_BASE, \
+    CURATE_IGNORE_MODULES
 from bson.objectid import ObjectId
 from mgi import common
 from lxml import etree
@@ -250,7 +251,9 @@ def has_module(element):
         True: the element has a module attribute
         False: the element doesn't have a module attribute
     """
-    # FIXME remove request (unused)
+    if CURATE_IGNORE_MODULES:
+        return False
+
     _has_module = False
 
     # check if a module is set for this element
@@ -624,15 +627,6 @@ def get_element_namespace(element, xsd_tree):
             if 'targetNamespace' in xsd_root.attrib:
                 element_ns = ""
 
-    # try:
-    #     if 'type' in element.attrib:
-    #         if ':' in element.attrib['type']:
-    #             type_ns = element.attrib['type'].split(':')[0]
-    #             if type_ns in element.nsmap.keys():
-    #                 element_ns = element.nsmap[type_ns]
-    # except:
-    #     pass
-
     return element_ns
 
 
@@ -823,6 +817,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
             'min': min_occurs,
             'max': max_occurs,
             'module': None if not _has_module else True,
+            'type': element.attrib['type'] if 'type' in element.attrib else None,
             'xpath': {
                 'xsd': None,
                 'xml': full_path
