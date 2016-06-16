@@ -1700,7 +1700,7 @@ def manageRegexFromDB(query):
             for subValue in value:
                 manageRegexFromDB(subValue)
         elif isinstance(value, str):
-            if (len(value) >= 2 and value[0] == "/" and value[-1] == "/"):
+            if len(value) >= 2 and value[0] == "/" and value[-1] == "/":
                 query[key] = re.compile(value[1:-1])
         elif isinstance(value, dict):
             manageRegexFromDB(value)
@@ -1746,7 +1746,7 @@ def get_custom_form(request):
             mapQueryInfo[str(savedQuery.id)] = queryInfo.__to_json__()
             request.session['mapQueryInfoExplore'] = mapQueryInfo
 
-    if (customFormString != ""):
+    if customFormString != "":
         customForm = customFormString
     else:
         customFormErrorMsg = "<p style='color:red;'>You should customize the template first. <a href='/explore/customize-template' style='color:red;font-weight:bold;'>Go back to Step 2 </a> and select the elements that you want to use in your queries.</p>"
@@ -1777,7 +1777,7 @@ def save_custom_data(request):
     htmlTree = html.fromstring(form_content)
     createCustomTreeForQuery(request, htmlTree)
     anyChecked = request.session['anyCheckedExplore']
-    if (anyChecked):
+    if anyChecked:
         request.session['customFormStringExplore'] = html.tostring(htmlTree)
     else:
         request.session['customFormStringExplore'] = ""
@@ -1786,6 +1786,7 @@ def save_custom_data(request):
 
     print '>>>> END def saveCustomData(request)'
     return HttpResponse(json.dumps({}), content_type='application/javascript')
+
 
 ################################################################################
 #
@@ -1803,6 +1804,7 @@ def createCustomTreeForQuery(request, htmlTree):
     for li in htmlTree.findall("./ul/li"):
         manageLiForQuery(request, li)
 
+
 ################################################################################
 #
 # Function Name: manageUlForQuery(request, ul)
@@ -1819,23 +1821,23 @@ def manageUlForQuery(request, ul):
     selectedLeaves = []
     for li in ul.findall("./li"):
         liBranchInfo = manageLiForQuery(request, li)
-        if(liBranchInfo.keepTheBranch == True):
+        if liBranchInfo.keepTheBranch == True:
             branchInfo.keepTheBranch = True
-        if (liBranchInfo.selectedLeave is not None):
+        if liBranchInfo.selectedLeave is not None:
             selectedLeaves.append(liBranchInfo.selectedLeave)
             branchInfo.selectedLeave = liBranchInfo.selectedLeave
     
     # ul can contain ul, because XSD allows recursive sequence or sequence with choices
     for ul in ul.findall("./ul"):
         ulBranchInfo = manageUlForQuery(request, ul)
-        if(ulBranchInfo.keepTheBranch == True):
+        if ulBranchInfo.keepTheBranch == True:
             branchInfo.keepTheBranch = True
-        if (ulBranchInfo.selectedLeave is not None):
+        if ulBranchInfo.selectedLeave is not None:
             if branchInfo.selectedLeave is None:
                 branchInfo.selectedLeave = []
             branchInfo.selectedLeave.append(ulBranchInfo.selectedLeave)
                 
-    if(not branchInfo.keepTheBranch):
+    if not branchInfo.keepTheBranch:
         ul.attrib['style'] = "display:none;"
         
     return branchInfo
@@ -1854,7 +1856,7 @@ def manageUlForQuery(request, ul):
 def manageLiForQuery(request, li):
     listUl = li.findall("./ul")
     branchInfo = BranchInfo(keepTheBranch = False, selectedLeave = None)
-    if (len(listUl) != 0):
+    if len(listUl) != 0:
         selectedLeaves = []
         for ul in listUl:
             ulBranchInfo = manageUlForQuery(request, ul)
@@ -1872,13 +1874,13 @@ def manageLiForQuery(request, li):
     #         parent.attrib['onclick'] = "selectParent('"+ leavesID +"')"
             li.insert(0, html.fragment_fromstring("""<span onclick="selectParent('"""+ leavesID +"""')">"""+ li.text +"""</span>"""))
             li.text = ""
-        if(not branchInfo.keepTheBranch):
+        if not branchInfo.keepTheBranch:
             li.attrib['style'] = "display:none;"
         return branchInfo
     else:
         try:
             checkbox = li.find("./input[@type='checkbox']")
-            if(checkbox.attrib['value'] == 'false'):
+            if checkbox.attrib['value'] == 'false':
                 li.attrib['style'] = "display:none;"
                 return branchInfo
             else:
@@ -1962,7 +1964,7 @@ def prepare_sub_element_query(request):
     print '>>>>  BEGIN def prepareSubElementQuery(request)'
 
     leaves_id = request.GET['leavesID']    
-    mapTagIDElementInfo =  request.session['mapTagIDElementInfoExplore']
+    mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore']
     
     defaultPrefix = request.session['defaultPrefixExplore']
     
@@ -1971,7 +1973,7 @@ def prepare_sub_element_query(request):
     parentPath = ".".join(firstElementPath.split(".")[:-1])
     parentName = parentPath.split(".")[-1]
     
-    subElementQueryBuilderStr = "<p><b>" +parentName+ "</b></p>"
+    subElementQueryBuilderStr = "<p><b>" + parentName + "</b></p>"
     subElementQueryBuilderStr += "<ul>"
     for leaveID in listLeavesId:
         elementInfo = ElementInfo(path=eval(mapTagIDElementInfo[str(leaveID)])['path'], type=eval(mapTagIDElementInfo[str(leaveID)])['type'])
@@ -1997,7 +1999,7 @@ def prepare_sub_element_query(request):
                                             "{0}:float".format(defaultPrefix)]):
             subElementQueryBuilderStr += renderNumericSelect()
             subElementQueryBuilderStr += renderValueInput()
-        elif (elementInfo.type == "enum"):
+        elif elementInfo.type == "enum":
             subElementQueryBuilderStr += renderEnum(request, leaveID)
         else:
             subElementQueryBuilderStr += renderStringSelect()
@@ -2038,20 +2040,20 @@ def insert_sub_element_query(request):
     nbSelected = 0
     errors = []
     for li in listLi:
-        if (li[0].attrib['value'] == 'true'):
+        if li[0].attrib['value'] == 'true':
             nbSelected += 1            
             elementInfo = ElementInfo(path=eval(mapTagIDElementInfo[str(listLeavesId[i])])['path'], type=eval(mapTagIDElementInfo[str(listLeavesId[i])])['type'])
             elementName = elementInfo.path.split(".")[-1]
             elementType = elementInfo.type
             error = checkSubElementField(request, li, elementName, elementType)
-            if (error != ""):
+            if error != "":
                 errors.append(error)
         i += 1
     
-    if (nbSelected < 2):
+    if nbSelected < 2:
         errors = ["Please select at least two elements."]
     
-    if(len(errors) == 0):
+    if len(errors) == 0:
         query = subElementfieldsToQuery(request, listLi, listLeavesId)
         prettyQuery = subElementfieldsToPrettyQuery(request, listLi, listLeavesId)
         criteriaInfo = CriteriaInfo()
@@ -2067,12 +2069,10 @@ def insert_sub_element_query(request):
         errorsString = ""
         for error in errors:
             errorsString += "<p>" + error + "</p>"
-        response_dict = {'listErrors': errorsString}            
-            
-    
-    print '>>>>  END def insertSubElementQuery(request)'
+        response_dict = {'listErrors': errorsString}
     
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
+
 
 ################################################################################
 #
@@ -2091,8 +2091,8 @@ def checkSubElementField(request, liElement, elementName, elementType):
     defaultPrefix = request.session['defaultPrefixExplore']
     
     if (elementType in ['{0}:float'.format(defaultPrefix), 
-                       '{0}:double'.format(defaultPrefix),
-                       '{0}:decimal'.format(defaultPrefix)]):
+                        '{0}:double'.format(defaultPrefix),
+                        '{0}:decimal'.format(defaultPrefix)]):
         value = liElement[3].value
         try:
             float(value)
@@ -2100,34 +2100,35 @@ def checkSubElementField(request, liElement, elementName, elementType):
             error = elementName + " must be a number !"
                 
     elif (elementType in ['{0}:byte'.format(defaultPrefix),
-                     '{0}:int'.format(defaultPrefix),
-                     '{0}:integer'.format(defaultPrefix),
-                     '{0}:long'.format(defaultPrefix),
-                     '{0}:negativeInteger'.format(defaultPrefix),
-                     '{0}:nonNegativeInteger'.format(defaultPrefix),
-                     '{0}:nonPositiveInteger'.format(defaultPrefix),
-                     '{0}:positiveInteger'.format(defaultPrefix),
-                     '{0}:short'.format(defaultPrefix),
-                     '{0}:unsignedLong'.format(defaultPrefix),
-                     '{0}:unsignedInt'.format(defaultPrefix),
-                     '{0}:unsignedShort'.format(defaultPrefix),
-                     '{0}:unsignedByte'.format(defaultPrefix)]):
+                          '{0}:int'.format(defaultPrefix),
+                          '{0}:integer'.format(defaultPrefix),
+                          '{0}:long'.format(defaultPrefix),
+                          '{0}:negativeInteger'.format(defaultPrefix),
+                          '{0}:nonNegativeInteger'.format(defaultPrefix),
+                          '{0}:nonPositiveInteger'.format(defaultPrefix),
+                          '{0}:positiveInteger'.format(defaultPrefix),
+                          '{0}:short'.format(defaultPrefix),
+                          '{0}:unsignedLong'.format(defaultPrefix),
+                          '{0}:unsignedInt'.format(defaultPrefix),
+                          '{0}:unsignedShort'.format(defaultPrefix),
+                          '{0}:unsignedByte'.format(defaultPrefix)]):
         value = liElement[3].value
         try:
             int(value)
         except ValueError:
             error = elementName + " must be an integer !"
             
-    elif (elementType == "{0}:string".format(defaultPrefix)):
+    elif elementType == "{0}:string".format(defaultPrefix):
         comparison = liElement[2].value
         value = liElement[3].value
-        if (comparison == "like"):
+        if comparison == "like":
             try:
                 re.compile(value)
             except Exception, e:
                 error = elementName + " must be a valid regular expression ! (" + str(e) + ")"    
 
     return error
+
 
 ################################################################################
 #
@@ -2150,14 +2151,15 @@ def subElementfieldsToQuery(request, liElements, listLeavesId):
     parentPath = ".".join(firstElementPath.split(".")[:-1])
     
     for li in liElements:        
-        if (li[0].attrib['value'] == 'true'):
+        if li[0].attrib['value'] == 'true':
             boolComp = li[1].value
-            if (boolComp == 'NOT'):
+            if boolComp == 'NOT':
                 isNot = True
             else:
                 isNot = False
                 
-            elementInfo = ElementInfo(path=eval(mapTagIDElementInfo[str(listLeavesId[i])])['path'], type=eval(mapTagIDElementInfo[str(listLeavesId[i])])['type'])
+            elementInfo = ElementInfo(path=eval(mapTagIDElementInfo[str(listLeavesId[i])])['path'],
+                                      type=eval(mapTagIDElementInfo[str(listLeavesId[i])])['type'])
             elementType = elementInfo.type
             elementName = elementInfo.path.split(".")[-1]
             if (elementType == "enum"):
@@ -2166,9 +2168,8 @@ def subElementfieldsToQuery(request, liElements, listLeavesId):
             else:                
                 comparison = li[2].value
                 value = li[3].value
-                criteria = buildCriteria(request, elementName, comparison, value, elementType , isNot)
-             
-        
+                criteria = buildCriteria(request, elementName, comparison, value, elementType, isNot)
+
             elemMatch.update(criteria)
                 
         i += 1
@@ -2179,6 +2180,7 @@ def subElementfieldsToQuery(request, liElements, listLeavesId):
     
     
     return query
+
 
 ################################################################################
 #
@@ -2200,17 +2202,18 @@ def subElementfieldsToPrettyQuery(request, liElements, listLeavesId):
     i = 0
     
     for li in liElements:        
-        if (li[0].attrib['value'] == 'true'):
+        if li[0].attrib['value'] == 'true':
             boolComp = li[1].value
-            if (boolComp == 'NOT'):
+            if boolComp == 'NOT':
                 isNot = True
             else:
                 isNot = False
                 
-            elementInfo = ElementInfo(path=eval(mapTagIDElementInfo[str(listLeavesId[i])])['path'], type=eval(mapTagIDElementInfo[str(listLeavesId[i])])['type'])
+            elementInfo = ElementInfo(path=eval(mapTagIDElementInfo[str(listLeavesId[i])])['path'],
+                                      type=eval(mapTagIDElementInfo[str(listLeavesId[i])])['type'])
             elementType = elementInfo.type
             elementName = elementInfo.path.split(".")[-1]
-            if (elementType == "enum"):
+            if elementType == "enum":
                 value = li[2].value
                 criteria = enumToPrettyCriteria(elementName, value, isNot)
             else:                 
@@ -2218,7 +2221,7 @@ def subElementfieldsToPrettyQuery(request, liElements, listLeavesId):
                 value = li[3].value
                 criteria = buildPrettyCriteria(elementName, comparison, value, isNot)
             
-            if (elemMatch != "("):
+            if elemMatch != "(":
                 elemMatch += ", "
             elemMatch += criteria       
         i += 1
@@ -2227,7 +2230,7 @@ def subElementfieldsToPrettyQuery(request, liElements, listLeavesId):
     firstElementPath = eval(mapTagIDElementInfo[str(listLeavesId[0])])['path']
     parentName = firstElementPath.split(".")[-2]
     
-    query =  parentName + elemMatch
+    query = parentName + elemMatch
         
     return query 
 
@@ -2254,6 +2257,7 @@ def delete_result(request):
     
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
+
 ################################################################################
 #
 # Function Name: update_publish(request)
@@ -2266,6 +2270,7 @@ def delete_result(request):
 def update_publish(request):
     XMLdata.update_publish(request.GET['result_id'])
     return HttpResponse(json.dumps({}), content_type='application/javascript')
+
 
 ################################################################################
 #
