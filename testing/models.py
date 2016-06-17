@@ -16,7 +16,7 @@ from pymongo import MongoClient
 from pymongo.errors import OperationFailure
 import requests
 from datetime import datetime, timedelta
-from mgi.models import Instance, XMLdata, Template, TemplateVersion, ResultXslt, Type, TypeVersion
+from mgi.models import Instance, XMLdata, Template, TemplateVersion, ResultXslt, Type, TypeVersion, FormData
 from utils.XSDhash import XSDhash
 from django.contrib.auth.models import User
 from oauth2_provider.models import Application
@@ -79,6 +79,12 @@ class RegressionTest(LiveServerTestCase):
             admin.set_password('admin')
             admin.save()
 
+    def getUser(self):
+        return User.objects.get_by_natural_key(username='user')
+
+    def getAdmin(self):
+        return User.objects.get_by_natural_key(username='admin')
+
     def getClient(self, auth=None):
         client = Client()
         if auth is not None:
@@ -100,6 +106,11 @@ class RegressionTest(LiveServerTestCase):
         self.client = self.getClient('user:user')
         self.client.login(username='user', password='user')
         return self.client.get(URL_TEST + url, data=data, params=params)
+
+    def doRequestPostUserClientLogged(self, url, data=None, params=None):
+        self.client = self.getClient('user:user')
+        self.client.login(username='user', password='user')
+        return self.client.post(URL_TEST + url, data=data, params=params)
 
     def doRequestGet(self, url, data=None, params=None, auth=None):
         return requests.get(URL_TEST + url, data=data, params=params, auth=auth)
@@ -141,22 +152,28 @@ class RegressionTest(LiveServerTestCase):
         re = open(file, 'rb').read()
         target_collection.insert(decode_all(re))
 
-    def createXMLData(self, schemaID='', ispublished=False):
-        return XMLdata(schemaID=str(schemaID), xml='<test>test xmldata</test>', title='test', iduser=1, ispublished=ispublished).save()
+    def createFormData(self, user='', template='', name='', xml_data=None, xml_data_id=None):
+        countFormData = len(FormData.objects())
+        formData = FormData(user=str(user), template=template, name=name, xml_data=xml_data, xml_data_id=xml_data_id).save()
+        self.assertEquals(len(FormData.objects()), countFormData + 1)
+        return formData
 
-    def createType(self, title='test', filename='test'):
+    def createXMLData(self, schemaID='', ispublished=False, iduser='1'):
+        return XMLdata(schemaID=str(schemaID), xml='<test>test xmldata</test>', title='test', iduser=str(iduser), ispublished=ispublished).save()
+
+    def createType(self, title='test', filename='test', user=None):
         countType = len(Type.objects())
         hash = XSDhash.get_hash('<test>test xmldata</test>')
         objectVersions = self.createTypeVersion()
-        type = Type(title=title, filename=filename, content='<test>test xmldata</test>', version=1, typeVersion=str(objectVersions.id), hash=hash).save()
+        type = Type(title=title, filename=filename, content='<test>test xmldata</test>', version=1, typeVersion=str(objectVersions.id), hash=hash, user=str(user)).save()
         self.assertEquals(len(Type.objects()), countType + 1)
         return type
 
-    def createTemplate(self, title='test', filename='test'):
+    def createTemplate(self, title='test', filename='test', user=None):
         countTemplate = len(Template.objects())
         hash = XSDhash.get_hash('<test>test xmldata</test>')
         objectVersions = self.createTemplateVersion()
-        template = Template(title=title, filename=filename, content='<test>test xmldata</test>', version=1, templateVersion=str(objectVersions.id), hash=hash).save()
+        template = Template(title=title, filename=filename, content='<test>test xmldata</test>', version=1, templateVersion=str(objectVersions.id), hash=hash, user=str(user)).save()
         self.assertEquals(len(Template.objects()), countTemplate + 1)
         return template
 
