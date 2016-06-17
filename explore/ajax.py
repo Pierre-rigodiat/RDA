@@ -529,7 +529,7 @@ def get_results_by_instance(request):
                 # get all versions, not deleted
                 versions = [version for version in template_version.versions if version not in template_version.deletedVersions]
                 # update the query
-                query.update({'schema' : {'$in': versions} } ) 
+                query.update({'schema': {'$in': versions}})
             
             instanceResults = XMLdata.executeQueryFullResult(query)
 
@@ -1476,8 +1476,7 @@ def update_user_inputs(request):
     html_form = request.POST['html'] 
     from_element_id = request.POST['fromElementID']
     criteria_id = request.POST['criteriaID']
-    
-    # mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore']
+
     mapCriterias = request.session['mapCriteriasExplore']
     defaultPrefix = request.session['defaultPrefixExplore']
     
@@ -1816,26 +1815,29 @@ def createCustomTreeForQuery(request, htmlTree):
 #                
 ################################################################################
 def manageUlForQuery(request, ul):
-    branchInfo = BranchInfo(keepTheBranch = False, selectedLeave = None)
+    branchInfo = BranchInfo(keepTheBranch=False, selectedLeave=None)
 
-    selectedLeaves = []
+    selectedLeaves = None
     for li in ul.findall("./li"):
         liBranchInfo = manageLiForQuery(request, li)
         if liBranchInfo.keepTheBranch == True:
             branchInfo.keepTheBranch = True
         if liBranchInfo.selectedLeave is not None:
+            if selectedLeaves is None:
+                selectedLeaves = []
             selectedLeaves.append(liBranchInfo.selectedLeave)
-            branchInfo.selectedLeave = liBranchInfo.selectedLeave
-    
+            # branchInfo.selectedLeave.append(liBranchInfo.selectedLeave)
+    branchInfo.selectedLeave = selectedLeaves
+
     # ul can contain ul, because XSD allows recursive sequence or sequence with choices
-    for ul in ul.findall("./ul"):
-        ulBranchInfo = manageUlForQuery(request, ul)
-        if ulBranchInfo.keepTheBranch == True:
-            branchInfo.keepTheBranch = True
-        if ulBranchInfo.selectedLeave is not None:
-            if branchInfo.selectedLeave is None:
-                branchInfo.selectedLeave = []
-            branchInfo.selectedLeave.append(ulBranchInfo.selectedLeave)
+    # for ul in ul.findall("./ul"):
+    #     ulBranchInfo = manageUlForQuery(request, ul)
+    #     if ulBranchInfo.keepTheBranch == True:
+    #         branchInfo.keepTheBranch = True
+    #     if ulBranchInfo.selectedLeave is not None:
+    #         if branchInfo.selectedLeave is None:
+    #             branchInfo.selectedLeave = []
+    #         branchInfo.selectedLeave.append(ulBranchInfo.selectedLeave)
                 
     if not branchInfo.keepTheBranch:
         ul.attrib['style'] = "display:none;"
@@ -1855,14 +1857,14 @@ def manageUlForQuery(request, ul):
 ################################################################################
 def manageLiForQuery(request, li):
     listUl = li.findall("./ul")
-    branchInfo = BranchInfo(keepTheBranch = False, selectedLeave = None)
+    branchInfo = BranchInfo(keepTheBranch=False, selectedLeave=None)
     if len(listUl) != 0:
         selectedLeaves = []
         for ul in listUl:
             ulBranchInfo = manageUlForQuery(request, ul)
-            if(ulBranchInfo.keepTheBranch == True):
+            if ulBranchInfo.keepTheBranch == True:
                 branchInfo.keepTheBranch = True
-            if(ulBranchInfo.selectedLeave is not None):
+            if ulBranchInfo.selectedLeave is not None:
                 selectedLeaves.extend(ulBranchInfo.selectedLeave)
         # subelement queries
         if len(selectedLeaves) > 1: # starting at 2 because 1 is the regular case
@@ -1871,8 +1873,9 @@ def manageLiForQuery(request, li):
             for leave in selectedLeaves[:-1]:
                 leavesID += leave + " "
             leavesID += selectedLeaves[-1]
-    #         parent.attrib['onclick'] = "selectParent('"+ leavesID +"')"
-            li.insert(0, html.fragment_fromstring("""<span onclick="selectParent('"""+ leavesID +"""')">"""+ li.text +"""</span>"""))
+            li.attrib['onclick'] = "selectParent('" + leavesID + "')"
+    #         li.insert(0, html.fragment_fromstring("""<span onclick="selectParent('""" + leavesID + """')">""" +
+    #                                               li.text + """</span>"""))
             li.text = ""
         if not branchInfo.keepTheBranch:
             li.attrib['style'] = "display:none;"
@@ -1887,11 +1890,11 @@ def manageLiForQuery(request, li):
                 request.session['anyCheckedExplore'] = True
                 # remove the checkbox and make the element clickable
                 li.attrib['style'] = "color:orange;font-weight:bold;cursor:pointer;"
-                li.attrib['onclick'] = "selectElement('"+ li.attrib['class'] +"')"
+                li.attrib['onclick'] = "selectElement('" + li.attrib['class'] + "')"
                 checkbox.attrib['style'] = "display:none;"   
                 # tells to keep this branch until this leave
                 branchInfo.keepTheBranch = True
-                branchInfo.selectedLeave = li.attrib['id']          
+                branchInfo.selectedLeave = li.attrib['class']
                 return branchInfo
         except:
             return branchInfo
@@ -1961,53 +1964,75 @@ def select_element(request):
 #                
 ################################################################################
 def prepare_sub_element_query(request):
-    print '>>>>  BEGIN def prepareSubElementQuery(request)'
-
-    leaves_id = request.GET['leavesID']    
-    mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore']
+    leaves_id = request.GET['leavesID']
     
     defaultPrefix = request.session['defaultPrefixExplore']
     
-    listLeavesId = leaves_id.split(" ")
-    firstElementPath = eval(mapTagIDElementInfo[str(listLeavesId[0])])['path']
-    parentPath = ".".join(firstElementPath.split(".")[:-1])
-    parentName = parentPath.split(".")[-1]
-    
-    subElementQueryBuilderStr = "<p><b>" + parentName + "</b></p>"
+    list_leaves_id = leaves_id.split(" ")
+
+    # get the parent name using the first schema element of the list
+    first_element = SchemaElement.objects().get(pk=list_leaves_id[0])
+    # get the xml type of the element
+    first_element_xml_xpath = first_element.options['xpath']['xml']
+    # convert xml path to mongo dot notation
+    first_element_dot_notation = xpath_to_dot_notation(first_element_xml_xpath)
+    parent_path = ".".join(first_element_dot_notation.split(".")[:-1])
+    parent_name = parent_path.split(".")[-1]
+
+    subElementQueryBuilderStr = "<p><b>" + parent_name + "</b></p>"
     subElementQueryBuilderStr += "<ul>"
-    for leaveID in listLeavesId:
-        elementInfo = ElementInfo(path=eval(mapTagIDElementInfo[str(leaveID)])['path'], type=eval(mapTagIDElementInfo[str(leaveID)])['type'])
-        elementName = elementInfo.path.split(".")[-1]
+    for leaveID in list_leaves_id:
+        schema_element = SchemaElement.objects().get(pk=leaveID)
+        # get the xml type of the element
+        xml_xpath = schema_element.options['xpath']['xml']
+        # convert xml path to mongo dot notation
+        dot_notation = xpath_to_dot_notation(xml_xpath)
+        element_type = schema_element.options['type']
+
+        element_name = dot_notation.split(".")[-1]
         subElementQueryBuilderStr += "<li><input type='checkbox' style='margin-right:4px;margin-left:2px;' checked/>"
         subElementQueryBuilderStr += renderYESORNOT()
-        subElementQueryBuilderStr += elementName + ": "
-        if (elementInfo.type in ["{0}:byte".format(defaultPrefix),
-                                            "{0}:decimal".format(defaultPrefix),
-                                            "{0}:int".format(defaultPrefix),
-                                            "{0}:integer".format(defaultPrefix),
-                                            "{0}:long".format(defaultPrefix),
-                                            "{0}:negativeInteger".format(defaultPrefix),
-                                            "{0}:nonNegativeInteger".format(defaultPrefix),
-                                            "{0}:nonPositiveInteger".format(defaultPrefix),
-                                            "{0}:positiveInteger".format(defaultPrefix), 
-                                            "{0}:short".format(defaultPrefix), 
-                                            "{0}:unsignedLong".format(defaultPrefix), 
-                                            "{0}:unsignedInt".format(defaultPrefix), 
-                                            "{0}:unsignedShort".format(defaultPrefix), 
-                                            "{0}:unsignedByte".format(defaultPrefix),
-                                            "{0}:double".format(defaultPrefix),
-                                            "{0}:float".format(defaultPrefix)]):
-            subElementQueryBuilderStr += renderNumericSelect()
-            subElementQueryBuilderStr += renderValueInput()
-        elif elementInfo.type == "enum":
-            subElementQueryBuilderStr += renderEnum(request, leaveID)
-        else:
+        subElementQueryBuilderStr += element_name + ": "
+        try:
+            if element_type.startswith("{0}:".format(defaultPrefix)):
+                # numeric
+                if (element_type in ["{0}:byte".format(defaultPrefix),
+                                     "{0}:decimal".format(defaultPrefix),
+                                     "{0}:int".format(defaultPrefix),
+                                     "{0}:integer".format(defaultPrefix),
+                                     "{0}:long".format(defaultPrefix),
+                                     "{0}:negativeInteger".format(defaultPrefix),
+                                     "{0}:nonNegativeInteger".format(defaultPrefix),
+                                     "{0}:nonPositiveInteger".format(defaultPrefix),
+                                     "{0}:positiveInteger".format(defaultPrefix),
+                                     "{0}:short".format(defaultPrefix),
+                                     "{0}:unsignedLong".format(defaultPrefix),
+                                     "{0}:unsignedInt".format(defaultPrefix),
+                                     "{0}:unsignedShort".format(defaultPrefix),
+                                     "{0}:unsignedByte".format(defaultPrefix),
+                                     "{0}:double".format(defaultPrefix),
+                                     "{0}:float".format(defaultPrefix)]):
+                    subElementQueryBuilderStr += renderNumericSelect()
+                    subElementQueryBuilderStr += renderValueInput()
+                else:
+                    subElementQueryBuilderStr += renderStringSelect()
+                    subElementQueryBuilderStr += renderValueInput()
+            else:
+                # enumeration
+                while schema_element.tag != 'simple_type':
+                    schema_element = schema_element.children[0]
+                schema_element = schema_element.children[0]
+                enums = []
+                for enum_element in schema_element.children:
+                    if enum_element.tag == 'enumeration':
+                        enums.append(enum_element.value)
+                subElementQueryBuilderStr += renderEnum(request, enums)
+        except:
             subElementQueryBuilderStr += renderStringSelect()
             subElementQueryBuilderStr += renderValueInput()
         subElementQueryBuilderStr += "</li><br/>"
     subElementQueryBuilderStr += "</ul>"
-    
-    print '>>>>  END def prepareSubElementQuery(request)'
+
     response_dict = {'subElementQueryBuilder': subElementQueryBuilderStr}
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
@@ -2022,30 +2047,33 @@ def prepare_sub_element_query(request):
 #                
 ################################################################################
 def insert_sub_element_query(request):
-    print '>>>>  BEGIN def insertSubElementQuery(request)'
-    
     form = request.POST['form']
     leaves_id = request.POST['leavesID']
-    
-    mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore'] 
-    
+
     mapCriterias = request.session['mapCriteriasExplore']
     criteriaID = request.session['criteriaIDExplore']
     
     htmlTree = html.fromstring(form)
     listLi = htmlTree.findall("ul/li")
-    listLeavesId = leaves_id.split(" ")
+    list_leaves_id = leaves_id.split(" ")
     
     i = 0
     nbSelected = 0
     errors = []
     for li in listLi:
         if li[0].attrib['value'] == 'true':
-            nbSelected += 1            
-            elementInfo = ElementInfo(path=eval(mapTagIDElementInfo[str(listLeavesId[i])])['path'], type=eval(mapTagIDElementInfo[str(listLeavesId[i])])['type'])
-            elementName = elementInfo.path.split(".")[-1]
-            elementType = elementInfo.type
-            error = checkSubElementField(request, li, elementName, elementType)
+            nbSelected += 1
+
+            schema_element = SchemaElement.objects().get(pk=list_leaves_id[i])
+            # get the xml type of the element
+            xml_xpath = schema_element.options['xpath']['xml']
+            # convert xml path to mongo dot notation
+            dot_notation = xpath_to_dot_notation(xml_xpath)
+            element_type = schema_element.options['type']
+
+            element_name = dot_notation.split(".")[-1]
+
+            error = checkSubElementField(request, li, element_name, element_type)
             if error != "":
                 errors.append(error)
         i += 1
@@ -2054,8 +2082,8 @@ def insert_sub_element_query(request):
         errors = ["Please select at least two elements."]
     
     if len(errors) == 0:
-        query = subElementfieldsToQuery(request, listLi, listLeavesId)
-        prettyQuery = subElementfieldsToPrettyQuery(request, listLi, listLeavesId)
+        query = subElementfieldsToQuery(request, listLi, list_leaves_id)
+        prettyQuery = subElementfieldsToPrettyQuery(request, listLi, list_leaves_id)
         criteriaInfo = CriteriaInfo()
         criteriaInfo.queryInfo = QueryInfo(query, prettyQuery)
         criteriaInfo.elementInfo = ElementInfo("query")
@@ -2141,14 +2169,18 @@ def checkSubElementField(request, liElement, elementName, elementType):
 # Description:   Tranforms HTML fields in a subelement query for mongo db
 #                
 ################################################################################
-def subElementfieldsToQuery(request, liElements, listLeavesId):
-    
-    mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore'] 
-    elemMatch = dict()
+def subElementfieldsToQuery(request, liElements, list_leaves_id):
+    defaultPrefix = request.session['defaultPrefixExplore']
+    elem_match = dict()
     i = 0
-    
-    firstElementPath = eval(mapTagIDElementInfo[str(listLeavesId[i])])['path']
-    parentPath = ".".join(firstElementPath.split(".")[:-1])
+
+    # get the parent path using the first element of the list
+    first_element = SchemaElement.objects().get(pk=list_leaves_id[0])
+    # get the xml type of the element
+    first_element_xml_xpath = first_element.options['xpath']['xml']
+    # convert xml path to mongo dot notation
+    first_element_dot_notation = xpath_to_dot_notation(first_element_xml_xpath)
+    parent_path = "content" + ".".join(first_element_dot_notation.split(".")[:-1])
     
     for li in liElements:        
         if li[0].attrib['value'] == 'true':
@@ -2157,28 +2189,29 @@ def subElementfieldsToQuery(request, liElements, listLeavesId):
                 isNot = True
             else:
                 isNot = False
-                
-            elementInfo = ElementInfo(path=eval(mapTagIDElementInfo[str(listLeavesId[i])])['path'],
-                                      type=eval(mapTagIDElementInfo[str(listLeavesId[i])])['type'])
-            elementType = elementInfo.type
-            elementName = elementInfo.path.split(".")[-1]
-            if (elementType == "enum"):
-                value = li[2].value            
-                criteria = enumCriteria(elementName, value, isNot)
-            else:                
+
+            schema_element = SchemaElement.objects().get(pk=list_leaves_id[i])
+            xml_xpath = schema_element.options['xpath']['xml']
+            dot_notation = xpath_to_dot_notation(xml_xpath)
+            element_name = dot_notation.split(".")[-1]
+            element_type = schema_element.options['type']
+
+            if element_type.startswith("{0}:".format(defaultPrefix)):
                 comparison = li[2].value
                 value = li[3].value
-                criteria = buildCriteria(request, elementName, comparison, value, elementType, isNot)
+                criteria = buildCriteria(request, element_name, comparison, value, element_type, isNot)
+            else:
+                value = li[2].value
+                criteria = enumCriteria(element_name, value, isNot)
 
-            elemMatch.update(criteria)
-                
+            elem_match.update(criteria)
+
         i += 1
          
     query = dict()
-    query[parentPath] = dict()
-    query[parentPath]["$elemMatch"] = elemMatch
-    
-    
+    query[parent_path] = dict()
+    query[parent_path]["$elemMatch"] = elem_match
+
     return query
 
 
@@ -2193,14 +2226,19 @@ def subElementfieldsToQuery(request, liElements, listLeavesId):
 # Description:   Tranforms HTML fields in a pretty subelement query
 #                
 ################################################################################
-def subElementfieldsToPrettyQuery(request, liElements, listLeavesId):
-    mapTagIDElementInfo = request.session['mapTagIDElementInfoExplore'] 
-    
-    query = ""
-    
-    elemMatch = "("
+def subElementfieldsToPrettyQuery(request, liElements, list_leaves_id):
+    defaultPrefix = request.session['defaultPrefixExplore']
+    elem_match = "("
     i = 0
-    
+
+    # get the parent path using the first element of the list
+    first_element = SchemaElement.objects().get(pk=list_leaves_id[0])
+    # get the xml type of the element
+    first_element_xml_xpath = first_element.options['xpath']['xml']
+    # convert xml path to mongo dot notation
+    first_element_dot_notation = xpath_to_dot_notation(first_element_xml_xpath)
+    parent_name = first_element_dot_notation.split(".")[-2]
+
     for li in liElements:        
         if li[0].attrib['value'] == 'true':
             boolComp = li[1].value
@@ -2209,28 +2247,28 @@ def subElementfieldsToPrettyQuery(request, liElements, listLeavesId):
             else:
                 isNot = False
                 
-            elementInfo = ElementInfo(path=eval(mapTagIDElementInfo[str(listLeavesId[i])])['path'],
-                                      type=eval(mapTagIDElementInfo[str(listLeavesId[i])])['type'])
-            elementType = elementInfo.type
-            elementName = elementInfo.path.split(".")[-1]
-            if elementType == "enum":
-                value = li[2].value
-                criteria = enumToPrettyCriteria(elementName, value, isNot)
-            else:                 
+            schema_element = SchemaElement.objects().get(pk=list_leaves_id[i])
+            xml_xpath = schema_element.options['xpath']['xml']
+            dot_notation = xpath_to_dot_notation(xml_xpath)
+            element_name = dot_notation.split(".")[-1]
+            element_type = schema_element.options['type']
+
+            if element_type.startswith("{0}:".format(defaultPrefix)):
                 comparison = li[2].value
                 value = li[3].value
-                criteria = buildPrettyCriteria(elementName, comparison, value, isNot)
-            
-            if elemMatch != "(":
-                elemMatch += ", "
-            elemMatch += criteria       
+                criteria = buildPrettyCriteria(element_name, comparison, value, isNot)
+            else:
+                value = li[2].value
+                criteria = enumToPrettyCriteria(element_name, value, isNot)
+
+            if elem_match != "(":
+                elem_match += ", "
+            elem_match += criteria
         i += 1
         
-    elemMatch += ")"
-    firstElementPath = eval(mapTagIDElementInfo[str(listLeavesId[0])])['path']
-    parentName = firstElementPath.split(".")[-2]
+    elem_match += ")"
     
-    query = parentName + elemMatch
+    query = parent_name + elem_match
         
     return query 
 
