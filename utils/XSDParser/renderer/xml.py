@@ -2,9 +2,9 @@
 """
 from django.template import loader
 from os.path import join
-from curate.renderer import DefaultRenderer
 from curate.models import SchemaElement
 from bson.objectid import ObjectId
+from utils.XSDParser.renderer import DefaultRenderer
 
 
 class AbstractXmlRenderer(DefaultRenderer):

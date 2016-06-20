@@ -1,7 +1,7 @@
 """
 """
 import logging
-from curate.renderer.list import ListRenderer
+from utils.XSDParser.renderer.list import ListRenderer
 
 logger = logging.getLogger(__name__)
 

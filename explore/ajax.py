@@ -14,11 +14,9 @@
 #
 ################################################################################
 
-import re
 from django.http import HttpResponse
 from django.conf import settings
 from io import BytesIO
-
 from django.template.context import Context
 from lxml import html
 from collections import OrderedDict
@@ -30,25 +28,21 @@ import copy
 import lxml.etree as etree
 import re
 from curate.models import SchemaElement
-from curate.parser import generate_form
-from curate.renderer import DefaultRenderer
-from curate.renderer.checkbox import CheckboxRenderer
-from mgi.common import SCHEMA_NAMESPACE, LXML_SCHEMA_NAMESPACE, xpath_to_dot_notation
+from mgi.common import SCHEMA_NAMESPACE, xpath_to_dot_notation
 from mgi.models import Template, SavedQuery, XMLdata, Instance, TemplateVersion
-from mgi import common
-from django.template import loader,RequestContext
+from django.template import loader, RequestContext
 from django.contrib import messages
+from utils.XSDParser.parser import generate_form
+from utils.XSDParser.renderer import DefaultRenderer
+from utils.XSDParser.renderer.checkbox import CheckboxRenderer
 
-#Class definition
+# Class definition
 
-################################################################################
-# 
-# Class Name: ElementInfo
-#
-# Description: Store information about element from the XML schema
-#
-################################################################################
-class ElementInfo:    
+
+class ElementInfo:
+    """
+    Store information about element from the XML schema
+    """
     def __init__(self, type="", path=""):
         self.type = type
         self.path = path
@@ -56,14 +50,11 @@ class ElementInfo:
     def __to_json__(self):
         return json.dumps(self, default=lambda o:o.__dict__)
 
-################################################################################
-# 
-# Class Name: CriteriaInfo
-#
-# Description: Store information about a criteria from the query builder
-#
-################################################################################
+
 class CriteriaInfo:
+    """
+    Store information about a criteria from the query builder
+    """
     def __init__(self, elementInfo=None, queryInfo=None):
         self.elementInfo = elementInfo
         self.queryInfo = queryInfo
@@ -80,14 +71,11 @@ class CriteriaInfo:
             jsonDict['queryInfo'] = self.queryInfo.__to_json__()
         return str(jsonDict)
 
-################################################################################
-# 
-# Class Name: QueryInfo
-#
-# Description: Store information about a query
-#
-################################################################################
+
 class QueryInfo:
+    """
+    Store information about a query
+    """
     def __init__(self, query="", displayedQuery=""):
         self.query = query
         self.displayedQuery = displayedQuery
@@ -95,15 +83,11 @@ class QueryInfo:
     def __to_json__(self):        
         return json.dumps(self, default=lambda o:o.__dict__)
  
-################################################################################
-# 
-# Class Name: BranchInfo
-#
-# Description: Store information about a branch from the xml schema while it is
-# being processed for customization
-#
-################################################################################   
+
 class BranchInfo:
+    """
+    Store information about a branch from the xml schema while it is being processed for customization
+    """
     def __init__(self, keepTheBranch, selectedLeave):
         self.keepTheBranch = keepTheBranch
         self.selectedLeave = selectedLeave
@@ -161,6 +145,7 @@ def setCurrentTemplate(request, template_id):
     print 'END def setCurrentTemplate(request)'
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
+
 ################################################################################
 # 
 # Function Name: set_current_user_template(request,):
@@ -216,6 +201,16 @@ def verify_template_is_selected(request):
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
 
+def load_config():
+    return {
+        'PARSER_MIN_TREE': False,
+        'PARSER_IGNORE_MODULES': True,
+        'PARSER_COLLAPSE': False,
+        'PARSER_AUTO_KEY_KEYREF': False,
+        'PARSER_IMPLICIT_EXTENSION_BASE': True,
+    }
+
+
 ################################################################################
 # 
 # Function Name: generate_xsd_tree_for_querying_data(request)
@@ -253,7 +248,7 @@ def generate_xsd_tree_for_querying_data(request):
     if formString == "":
         formString = "<form id=\"dataQueryForm\" name=\"xsdForm\">"
         try:
-            root_element_id = generate_form(request, xmlDocTreeStr)
+            root_element_id = generate_form(request, xmlDocTreeStr, config=load_config())
             root_element = SchemaElement.objects.get(pk=root_element_id)
 
             renderer = CheckboxRenderer(root_element, request)

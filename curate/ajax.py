@@ -16,26 +16,23 @@
 
 from bson.objectid import ObjectId
 from django.http import HttpResponse
-from django.conf import settings
 from io import BytesIO
 from django.core.servers.basehttp import FileWrapper
 from cStringIO import StringIO
 from rest_framework.status import HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST, HTTP_200_OK, HTTP_501_NOT_IMPLEMENTED
-
-from curate import parser
 from curate.models import SchemaElement
-from curate.parser import generate_form, generate_element, generate_sequence, load_schema_data_in_db, \
-    delete_branch_from_db, update_branch_xpath, generate_element_absent, generate_choice_absent
-from curate.renderer import DefaultRenderer
-from curate.renderer.xml import XmlRenderer
-from curate.renderer.list import ListRenderer
 from mgi.exceptions import MDCSError
 from mgi.models import Template, FormData
 import json
-from mgi import common
+from mgi import common, settings
 import lxml.etree as etree
 from django.contrib import messages
 import os
+from utils.XSDParser.parser import generate_form, generate_element_absent, generate_choice_absent, \
+    update_branch_xpath, delete_branch_from_db
+from utils.XSDParser.renderer import DefaultRenderer
+from utils.XSDParser.renderer.list import ListRenderer
+from utils.XSDParser.renderer.xml import XmlRenderer
 
 ######################################################################################################################
 # AJAX Requests
@@ -51,6 +48,7 @@ import os
 # Description:   Change the form owner
 #
 ################################################################################
+
 def change_owner_form(request):
     if 'formId' and 'userID' in request.POST:
         form_data_id = request.POST['formID']
@@ -262,6 +260,18 @@ def init_curate(request):
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
+def load_config():
+    return {
+        'PARSER_MIN_TREE': settings.PARSER_MIN_TREE if hasattr(settings, 'PARSER_MIN_TREE') else True,
+        'PARSER_IGNORE_MODULES': settings.PARSER_IGNORE_MODULES if hasattr(settings, 'PARSER_IGNORE_MODULES') else False,
+        'PARSER_COLLAPSE': settings.PARSER_COLLAPSE if hasattr(settings, 'PARSER_COLLAPSE') else True,
+        'PARSER_AUTO_KEY_KEYREF': settings.PARSER_AUTO_KEY_KEYREF if
+        hasattr(settings, 'PARSER_AUTO_KEY_KEYREF') else False,
+        'PARSER_IMPLICIT_EXTENSION_BASE': settings.PARSER_IMPLICIT_EXTENSION_BASE if
+        hasattr(settings, 'PARSER_IMPLICIT_EXTENSION_BASE') else False,
+    }
+
+
 def generate_xsd_form(request):
     """ Renders HTMl form for display.
 
@@ -292,7 +302,7 @@ def generate_xsd_form(request):
             else:
                 xml_doc_data = None
 
-            root_element_id = generate_form(request, xsd_doc_data, xml_doc_data)
+            root_element_id = generate_form(request, xsd_doc_data, xml_doc_data, config=load_config())
             request.session['form_id'] = str(root_element_id)
 
         root_element = SchemaElement.objects.get(pk=root_element_id)
@@ -539,7 +549,7 @@ def generate_absent(request):
     :return:
     """
     element_id = request.POST['id']
-    html_form = generate_element_absent(request, element_id)
+    html_form = generate_element_absent(request, element_id, config=load_config())
     return HttpResponse(html_form)
 
 
@@ -547,7 +557,7 @@ def generate_choice_branch(request):
     element_id = request.POST['id']
 
     try:
-        html_form = generate_choice_absent(request, element_id)
+        html_form = generate_choice_absent(request, element_id, config=load_config())
     except MDCSError:
         return HttpResponse(status=HTTP_501_NOT_IMPLEMENTED)
 
@@ -631,10 +641,10 @@ def reload_form(request):
         if xml_data is not None and xml_data != '':
             request.session['curate_edit'] = True
             request.session['xmlDocTree'] = xml_data
-            root_element_id = parser.generate_form(request, xsd_doc_data, xml_data)
+            root_element_id = generate_form(request, xsd_doc_data, xml_data, config=load_config())
         # the form has never been saved
         else:
-            root_element_id = parser.generate_form(request, xsd_doc_data)
+            root_element_id = generate_form(request, xsd_doc_data, config=load_config())
 
         root_element = SchemaElement.objects.get(pk=root_element_id)
         renderer = ListRenderer(root_element, request)

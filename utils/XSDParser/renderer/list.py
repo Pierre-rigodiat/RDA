@@ -4,8 +4,8 @@ import logging
 from types import *
 from django.template import loader
 from os.path import join
-from curate.renderer import DefaultRenderer
 from modules import get_module_view
+from utils.XSDParser.renderer import DefaultRenderer
 
 logger = logging.getLogger(__name__)
 
