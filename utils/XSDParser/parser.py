@@ -837,7 +837,6 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
             'min': min_occurs,
             'max': max_occurs,
             'module': None if not _has_module else True,
-            'type': element.attrib['type'] if 'type' in element.attrib else None,
             'xpath': {
                 'xsd': None,
                 'xml': full_path
@@ -909,6 +908,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
     db_element['options']['name'] = element.attrib.get('name')
     db_element['options']['xpath']['xsd'] = xsd_xpath
     db_element['options']['xpath']['xml'] = full_path
+    db_element['options']['type'] = element.attrib['type'] if 'type' in element.attrib else None
 
     # init variables for buttons management
     add_button = False

@@ -281,8 +281,6 @@ class FormData(Document):
 
 def postprocessor(path, key, value):
     """Called after XML to JSON transformation"""
-    if key == "#text":
-        return key, str(value)
     try:
         return key, int(value)
     except (ValueError, TypeError):
