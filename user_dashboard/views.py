@@ -143,8 +143,7 @@ def dashboard_records(request):
         ispublished = ispublished == 'true'
         query['ispublished'] = ispublished
     query['iduser'] = str(request.user.id)
-    userXmlData = sorted(XMLdata.find(query, includeDeleted=True),
-                         key=lambda data: data['lastmodificationdate'], reverse=True)
+    userXmlData = sorted(XMLdata.find(query), key=lambda data: data['lastmodificationdate'], reverse=True)
     #Add user_form for change owner
     user_form = UserForm(request.user)
     context = RequestContext(request, {'XMLdatas': userXmlData,
@@ -156,8 +155,7 @@ def dashboard_records(request):
         #Get user name for admin
         usernames = dict((str(x.id), x.username) for x in User.objects.all())
         query['iduser'] = {"$ne": str(request.user.id)}
-        otherUsersXmlData = sorted(XMLdata.find(query, includeDeleted=True),
-                                   key=lambda data: data['lastmodificationdate'], reverse=True)
+        otherUsersXmlData = sorted(XMLdata.find(query), key=lambda data: data['lastmodificationdate'], reverse=True)
         context.update({'OtherUsersXMLdatas': otherUsersXmlData, 'usernames': usernames})
 
     return HttpResponse(template.render(context))
