@@ -536,7 +536,9 @@ def get_results_by_instance(request):
                 transform = etree.XSLT(xslt)
                 for instanceResult in instanceResults:
                     custom_xslt = False
-                    results.append({'title':instanceResult['title'], 'content':xmltodict.unparse(instanceResult['content']),'id':str(instanceResult['_id'])})
+                    results.append({'title': instanceResult['title'],
+                                    'content': xmltodict.unparse(instanceResult['content']),
+                                    'id': str(instanceResult['_id'])})
                     #dom = etree.fromstring(str(xmltodict.unparse(instanceResult['content']).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
                     dom = etree.XML(str(xmltodict.unparse(instanceResult['content']).encode('utf-8')))
                     #Check if a custom list result XSLT has to be used
@@ -855,7 +857,7 @@ def ORCriteria(criteria1, criteria2):
 ################################################################################
 def buildCriteria(request, elemPath, comparison, value, elemType, isNot=False):
     defaultPrefix = request.session['defaultPrefixExplore']
-    
+
     if (elemType in ['{0}:byte'.format(defaultPrefix),
                      '{0}:int'.format(defaultPrefix),
                      '{0}:integer'.format(defaultPrefix),
@@ -868,7 +870,7 @@ def buildCriteria(request, elemPath, comparison, value, elemType, isNot=False):
                      '{0}:unsignedLong'.format(defaultPrefix),
                      '{0}:unsignedInt'.format(defaultPrefix),
                      '{0}:unsignedShort'.format(defaultPrefix),
-                     '{0}:unsignedByte'.format(defaultPrefix),]):
+                     '{0}:unsignedByte'.format(defaultPrefix)]):
         return intCriteria(elemPath, comparison, value, isNot)
     elif (elemType in ['{0}:float'.format(defaultPrefix), 
                        '{0}:double'.format(defaultPrefix),
@@ -924,7 +926,7 @@ def fieldsToQuery(request, htmlTree):
             element = elementInfo['path']
             comparison = field[2][0].value
             value = field[2][1].value
-            criteria = buildCriteria(request, element, comparison, value, elemType , isNot)
+            criteria = buildCriteria(request, element, comparison, value, elemType, isNot)
         
         if boolComp == 'OR':
             query = ORCriteria(query, criteria)
@@ -1394,7 +1396,7 @@ def save_query(request):
     if len(errors)== 0:
         # Check that the query is valid      
         errors = checkQueryForm(request, queryFormTree)
-        if len(errors)== 0:
+        if len(errors) == 0:
             query = fieldsToQuery(request, queryFormTree)    
             displayedQuery = fieldsToPrettyQuery(request, queryFormTree) 
         
