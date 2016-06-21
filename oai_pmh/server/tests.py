@@ -15,7 +15,7 @@ from oai_pmh.tests.models import OAI_PMH_Test
 from mgi.models import OaiSettings, OaiMySet, OaiMyMetadataFormat, Template, XMLdata
 from exceptions import BAD_VERB, NO_SET_HIERARCHY, BAD_ARGUMENT, DISSEMINATE_FORMAT, NO_RECORDS_MATCH, NO_METADATA_FORMAT, ID_DOES_NOT_EXIST
 from testing.models import OAI_SCHEME, OAI_REPO_IDENTIFIER
-
+import datetime
 URL = '/oai_pmh/server'
 
 class tests_OAI_PMH_server(OAI_PMH_Test):
@@ -315,3 +315,23 @@ class tests_OAI_PMH_server(OAI_PMH_Test):
         self.isStatusOK(r.status_code)
         objInDatabase = Template.objects.get(filename='AllResources.xsd')
         self.assertEquals(objInDatabase.content, r.content)
+
+    def test_list_identifiers_deleted(self):
+        self.dump_oai_templ_mf_xslt()
+        self.dump_oai_my_metadata_format()
+        self.dump_oai_my_set()
+        self.dump_xmldata()
+        data = {'verb': 'ListIdentifiers', 'metadataPrefix': 'oai_soft'}
+        r = self.doRequestServer(data=data)
+        self.isStatusOK(r.status_code)
+        #Check attribute status='deleted' of header doesn't exist
+        self.checkTagExist(r.text, 'ListIdentifiers')
+        #Delete one record
+        template = Template.objects(filename='Software.xsd').get()
+        dataSoft = XMLdata.find({'schema': str(template.id), 'deleted': False})
+        if len(dataSoft) > 0:
+            XMLdata.update(dataSoft[0]['_id'], {'deletedDate': datetime.datetime.now(), 'deleted': True})
+            r = self.doRequestServer(data=data)
+            self.isStatusOK(r.status_code)
+            #Check attribute status='deleted' of header does exist
+            self.checkTagWithParamExist(r.text, 'header', 'status="deleted"')

@@ -310,6 +310,8 @@ class XMLdata(object):
         if (publicationdate is not None):
             self.content['publicationdate'] = publicationdate
 
+        self.content['deleted'] = False
+
     @staticmethod
     def initIndexes():
         #create a connection
@@ -326,6 +328,9 @@ class XMLdata(object):
         """save into mongo db"""
         # insert the content into mongo db                                                                                                                                                                                    
         self.content['lastmodificationdate'] = datetime.datetime.now()
+        self.content['deleted'] = self.content['content']['Resource'].get('@status', None) != 'active'
+        if self.content['deleted']:
+            self.content['deletedDate'] = datetime.datetime.now()
         docID = self.xmldata.insert(self.content)
         return docID
     
@@ -478,28 +483,28 @@ class XMLdata(object):
         xmldata.remove({'_id': ObjectId(postID)})
     
     # TODO: to be tested
-#     @staticmethod
-#     def update(postID, json=None, xml=None):
-#         """
-#             Update the object with the given id
-#         """
-#         # create a connection
-#         client = MongoClient(MONGODB_URI)
-#         # connect to the db 'mgi'
-#         db = client[MGI_DB]
-#         # get the xmldata collection
-#         xmldata = db['xmldata']
-#
-#         data = None
-#         if (json is not None):
-#             data = json
-#             if '_id' in json:
-#                 del json['_id']
-#         else:
-#             data = xmltodict.parse(xml, postprocessor=postprocessor)
-#
-#         if data is not None:
-#             xmldata.update({'_id': ObjectId(postID)}, {"$set":data}, upsert=False)
+    @staticmethod
+    def update(postID, json=None, xml=None):
+        """
+            Update the object with the given id
+        """
+        # create a connection
+        client = MongoClient(MONGODB_URI)
+        # connect to the db 'mgi'
+        db = client[MGI_DB]
+        # get the xmldata collection
+        xmldata = db['xmldata']
+
+        data = None
+        if (json is not None):
+            data = json
+            if '_id' in json:
+                del json['_id']
+        else:
+            data = xmltodict.parse(xml, postprocessor=postprocessor)
+
+        if data is not None:
+            xmldata.update({'_id': ObjectId(postID)}, {"$set":data}, upsert=False)
             
     @staticmethod
     def update_content(postID, content=None, title=None):
@@ -512,11 +517,15 @@ class XMLdata(object):
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
-                
         json_content = xmltodict.parse(content, postprocessor=postprocessor)
         json = {'content': json_content, 'title': title, 'lastmodificationdate': datetime.datetime.now()}
-                    
-        xmldata.update({'_id': ObjectId(postID)}, {"$set":json}, upsert=False)
+        deleted = json_content['Resource'].get('@status', None) != 'active'
+        json.update({'deleted': deleted})
+        if deleted:
+            json.update({'deletedDate': datetime.datetime.now()})
+        xmldata.update({'_id': ObjectId(postID)}, {"$set":json})
+        if not deleted:
+            xmldata.update({'_id': ObjectId(postID)}, {'$unset': {'deletedDate':1}})
 
     @staticmethod
     def update_publish(postID):
@@ -843,6 +852,8 @@ class OaiRecord(Document):
         if len(refinements.keys()) > 0:
             full_text_query.update(refinements)
 
+        # only no deleted records
+        full_text_query.update({'deleted': False})
         cursor = xmlrecord.find(full_text_query, as_class = OrderedDict)
 
         results = []

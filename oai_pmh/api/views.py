@@ -627,7 +627,7 @@ def getRecord(request):
                       "sets": record.header.setSpecs,
                       "metadataPrefix": metadataprefix,
                       "metadata": etree.tostring(record.xml.find('.//' + '{http://www.openarchives.org/OAI/2.0/}' +
-                                                                 'metadata/')),
+                                                                 'metadata/')) if not record.deleted else None,
                       "raw": record.raw})
 
             serializer = RecordSerializer(rtn)
@@ -1203,7 +1203,7 @@ def harvestRecords(url, registry_id, metadataFormat, lastUpdate, registryAllSets
                 #Get corresponding sets
                 sets = [x for x in registryAllSets if x.setSpec in info['sets']]
                 raw = xmltodict.parse(info['raw'])
-                metadata = xmltodict.parse(info['metadata'])
+                metadata = xmltodict.parse(info['metadata']) if not info['deleted'] else None
                 try:
                     obj = OaiRecord.objects.filter(identifier=info['identifier'], metadataformat=metadataFormat).get()
                 except:
@@ -1564,7 +1564,8 @@ def getListRecords(url, metadataPrefix=None, resumptionToken=None, set_h=None, f
                           "sets": record.header.setSpecs,
                           "metadataPrefix": metadataPrefix,
                           "metadata": etree.tostring(record.xml.find('.//' +
-                                                     '{http://www.openarchives.org/OAI/2.0/}' + 'metadata/')),
+                                                     '{http://www.openarchives.org/OAI/2.0/}' + 'metadata/'))
+                          if not record.deleted else None,
                           "raw": record.raw})
             resumptionTokenElt = etree.XML(xml.encode("utf8"),
                                            parser=XMLParser).iterfind('.//' + '{http://www.openarchives.org/OAI/2.0/}' +
