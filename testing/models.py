@@ -218,6 +218,12 @@ class RegressionTest(LiveServerTestCase):
                 tagFound = True
         self.assertTrue(tagFound)
 
+    def checkTagWithParamExist(self, text, checkTag, checkParam):
+        tagFound = False
+        for tag in etree.XML(text.encode("utf8"), parser=XMLParser).iterfind('.//' + '{http://www.openarchives.org/OAI/2.0/}' + checkTag + '[@' + checkParam + ']'):
+            tagFound = True
+        self.assertTrue(tagFound)
+
     def checkTagCount(self, text, checkTag, number):
         count = 0
         for tag in etree.XML(text.encode("utf8"), parser=XMLParser).iterfind('.//' + '{http://www.openarchives.org/OAI/2.0/}' + checkTag):
