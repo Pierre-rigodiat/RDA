@@ -16,7 +16,7 @@
 
 from cStringIO import StringIO
 from django.http import HttpResponse
-from django.template import RequestContext, loader, Context
+from django.template import RequestContext, loader
 from django.shortcuts import redirect
 from django.core.servers.basehttp import FileWrapper
 from bson.objectid import ObjectId
@@ -24,10 +24,7 @@ import lxml.etree as etree
 from lxml.etree import XMLSyntaxError
 import json 
 import xmltodict
-from django.contrib import messages
-
 from curate.models import SchemaElement
-from curate.renderer.xml import XmlRenderer
 from mgi.models import Template, TemplateVersion, XML2Download, FormData, XMLdata
 from curate.forms import NewForm, OpenForm, UploadForm, SaveDataForm, CancelChangesForm
 from django.http.response import HttpResponseBadRequest
@@ -44,6 +41,9 @@ from mgi.exceptions import MDCSError
 # Description:   Page that allows to select a template to start curating         
 #
 ################################################################################
+from utils.XSDParser.renderer.xml import XmlRenderer
+
+
 @permission_required(content_type=RIGHTS.curate_content_type, permission=RIGHTS.curate_access, login_url='/login')
 def index(request):
     template = loader.get_template('curate/curate.html')

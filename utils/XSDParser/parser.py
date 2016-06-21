@@ -6,17 +6,14 @@ import sys
 import re
 from urlparse import urlparse, parse_qsl
 from curate.models import SchemaElement
-from curate.renderer.list import ListRenderer
 from mgi.exceptions import MDCSError
-from mgi.models import FormData, Module, Template
-from mgi.settings import CURATE_MIN_TREE, CURATE_COLLAPSE, AUTO_KEY_KEYREF, IMPLICIT_EXTENSION_BASE
-from bson.objectid import ObjectId
+from mgi.models import Module
 from mgi import common
 from lxml import etree
 from io import BytesIO
-from modules import get_module_view
 import urllib2
 from mgi.common import LXML_SCHEMA_NAMESPACE, getAppInfo
+from utils.XSDParser.renderer.list import ListRenderer
 from utils.XSDflattener.XSDflattener import XSDFlattenerURL
 
 logger = logging.getLogger(__name__)
@@ -240,7 +237,7 @@ def manage_attr_occurrences(element):
     return min_occurs, max_occurs
 
 
-def has_module(element):
+def has_module(request, element):
     """Look for a module in XML element's attributes
 
     Parameters:
@@ -250,7 +247,9 @@ def has_module(element):
         True: the element has a module attribute
         False: the element doesn't have a module attribute
     """
-    # FIXME remove request (unused)
+    if request.session['PARSER_IGNORE_MODULES']:
+        return False
+
     _has_module = False
 
     # check if a module is set for this element
@@ -624,15 +623,6 @@ def get_element_namespace(element, xsd_tree):
             if 'targetNamespace' in xsd_root.attrib:
                 element_ns = ""
 
-    # try:
-    #     if 'type' in element.attrib:
-    #         if ':' in element.attrib['type']:
-    #             type_ns = element.attrib['type'].split(':')[0]
-    #             if type_ns in element.nsmap.keys():
-    #                 element_ns = element.nsmap[type_ns]
-    # except:
-    #     pass
-
     return element_ns
 
 
@@ -673,7 +663,29 @@ def get_extensions(xml_doc_tree, base_type_name):
 # Part II: Schema parsing
 ##################################################
 
-def generate_form(request, xsd_doc_data, xml_doc_data=None):
+def load_config(request, config):
+    if 'config' in request.session:
+        del request.session['config']
+
+    properties = ['PARSER_APPLICATION',
+                  'PARSER_MIN_TREE',
+                  'PARSER_IGNORE_MODULES',
+                  'PARSER_COLLAPSE',
+                  'PARSER_AUTO_KEY_KEYREF',
+                  'PARSER_IMPLICIT_EXTENSION_BASE']
+
+    if config is not None:
+        for property, value in config.iteritems():
+            if property not in properties:
+                raise MDCSError('Bad configuration parameter.')
+            if not isinstance(value, bool):
+                raise MDCSError('Bad type for configuration parameter.')
+        request.session.update(config)
+    else:
+        raise MDCSError('Parser is expecting configuration parameters.')
+
+
+def generate_form(request, xsd_doc_data, xml_doc_data=None, config=None):
     """Renders HTMl form for display.
 
     Parameters:
@@ -699,9 +711,11 @@ def generate_form(request, xsd_doc_data, xml_doc_data=None):
         del request.session['keyrefs']
     request.session['keyrefs'] = {}
 
+    load_config(request, config)
+
     # if editing, get the XML data to fill the form
     edit_data_tree = None
-    if request.session['curate_edit']:
+    if 'curate_edit' in request.session and request.session['curate_edit']:
         # build the tree from data
         # transform unicode to str to support XML declaration
         if xml_doc_data is not None:
@@ -792,7 +806,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
     app_info = common.getAppInfo(element)
 
     # check if the element has a module
-    _has_module = has_module(element)
+    _has_module = has_module(request, element)
 
     # FIXME see if we can avoid these basic initialization
     # FIXME this is not necessarily true (see attributes)
@@ -842,7 +856,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
             text_capitalized = ref_element.attrib.get('name')
             element = ref_element
             # check if the element has a module
-            _has_module = has_module(element)
+            _has_module = has_module(request, element)
         else:
             # the element was not found where it was supposed to be
             # could be a use case too complex for the current parser
@@ -894,6 +908,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
     db_element['options']['name'] = element.attrib.get('name')
     db_element['options']['xpath']['xsd'] = xsd_xpath
     db_element['options']['xpath']['xml'] = full_path
+    db_element['options']['type'] = element.attrib['type'] if 'type' in element.attrib else None
 
     # init variables for buttons management
     add_button = False
@@ -904,7 +919,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
     removed = False
 
     # loading data in the form
-    if request.session['curate_edit']:
+    if 'curate_edit' in request.session and request.session['curate_edit']:
         if xml_element is None:
             # get the number of occurrences in the data
             edit_elements = edit_data_tree.xpath(full_path, namespaces=namespaces)
@@ -929,7 +944,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
 
     else:  # starting an empty form
         # Don't generate the element if not necessary
-        if CURATE_MIN_TREE and min_occurs == 0:
+        if request.session['PARSER_MIN_TREE'] and min_occurs == 0:
             use = "removed"
             removed = True
 
@@ -972,17 +987,17 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
     if choice_info:
         # chosen = True
 
-        if request.session['curate_edit']:
+        if 'curate_edit' in request.session and request.session['curate_edit']:
             if len(edit_elements) == 0:
                 # chosen = False
 
-                if CURATE_MIN_TREE:
+                if request.session['PARSER_MIN_TREE']:
                     return form_string, db_element
         else:
             if choice_info.counter > 0:
                 # chosen = False
 
-                if CURATE_MIN_TREE:
+                if request.session['PARSER_MIN_TREE']:
                     return form_string, db_element
     else:
         # chosen = True
@@ -995,7 +1010,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
         removed = False
 
     # if auto key/keyref is True, go find keys/keyrefs in element scope
-    if AUTO_KEY_KEYREF:
+    if request.session['PARSER_AUTO_KEY_KEYREF']:
         # TODO: for now, support key/keyref for attributes only
         if element_tag == 'attribute':
             if is_key(request, element, full_path):
@@ -1022,7 +1037,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
 
         li_content = ''
 
-        if CURATE_COLLAPSE:
+        if request.session['PARSER_COLLAPSE']:
             # the type is complex, can be collapsed
             if element_type is not None and element_type.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
                 # li_content += render_collapse_button()
@@ -1043,7 +1058,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
 
         # get the default value (from xsd or from loaded xml)
         default_value = ""
-        if request.session['curate_edit']:
+        if 'curate_edit' in request.session and request.session['curate_edit']:
             # if elements are found at this xpath
             if len(edit_elements) > 0:
                 # it is an XML element
@@ -1125,7 +1140,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
     return form_string, db_element
 
 
-def generate_element_absent(request, element_id):
+def generate_element_absent(request, element_id, config=None):
     """
 
     Parameters:
@@ -1133,6 +1148,8 @@ def generate_element_absent(request, element_id):
         element_id:
     :return:
     """
+    load_config(request, config)
+
     sub_element = SchemaElement.objects.get(pk=element_id)
     element_list = SchemaElement.objects(children=element_id)
 
@@ -1286,7 +1303,7 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
         nb_occurrences_data = min_occurs  # nb of occurrences in loaded data or in form being rendered (can be 0)
 
         # loading data in the form
-        if request.session['curate_edit']:
+        if 'curate_edit' in request.session and request.session['curate_edit']:
             # get the number of occurrences in the data
             elements_found = lookup_occurs(element, xml_tree, full_path, edit_data_tree)
             if max_occurs != 1:
@@ -1317,17 +1334,17 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
         # keeps track of elements to display depending on the selected choice
         if choice_info:
             # chosen = True
-            if request.session['curate_edit']:
+            if 'curate_edit' in request.session and request.session['curate_edit']:
                 if nb_occurrences == 0:
                     # chosen = False
 
-                    if CURATE_MIN_TREE:
+                    if request.session['PARSER_MIN_TREE']:
                         return form_string, db_element
             else:
                 if choice_info.counter > 0:
                     # chosen = False
 
-                    if CURATE_MIN_TREE:
+                    if request.session['PARSER_MIN_TREE']:
                         return form_string, db_element
         # else:
         #     chosen = True
@@ -1347,7 +1364,7 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
 
             li_content = ''
 
-            if len(list(element)) > 0 and CURATE_COLLAPSE:
+            if len(list(element)) > 0 and request.session['PARSER_COLLAPSE']:
                 # li_content += render_collapse_button()
                 li_content += ''
 
@@ -1400,16 +1417,16 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
         # nb_occurrences_data = min_occurs  # nb of occurrences in loaded data or in form being rendered (can be 0)
 
         if choice_info:
-            if request.session['curate_edit']:
+            if 'curate_edit' in request.session and request.session['curate_edit']:
                 if nb_occurrences == 0:
-                    if CURATE_MIN_TREE:
+                    if request.session['PARSER_MIN_TREE']:
                         # db_element['children'].append(db_elem_iter)
                         return form_string, db_element
                 else:
                     pass
             else:
                 if choice_info.counter > 0:
-                    if CURATE_MIN_TREE:
+                    if request.session['PARSER_MIN_TREE']:
                         # db_element['children'].append(db_elem_iter)
                         return form_string, db_element
                 else:
@@ -1558,7 +1575,7 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
         nb_occurrences_data = min_occurs  # nb of occurrences in loaded data or in form being rendered (can be 0)
 
         # loading data in the form
-        if request.session['curate_edit']:
+        if 'curate_edit' in request.session and request.session['curate_edit']:
             # get the number of occurrences in the data
             elements_found = lookup_occurs(element, xml_tree, full_path, edit_data_tree)
             nb_occurrences_data = len(elements_found)
@@ -1595,17 +1612,17 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
     if choice_info:
         # chosen = True
 
-        if request.session['curate_edit']:
+        if 'curate_edit' in request.session and request.session['curate_edit']:
             if nb_occurrences == 0:
                 # chosen = False
 
-                if CURATE_MIN_TREE:
+                if request.session['PARSER_MIN_TREE']:
                     return form_string, db_element
         else:
             if choice_info.counter > 0:
                 # chosen = False
 
-                if CURATE_MIN_TREE:
+                if request.session['PARSER_MIN_TREE']:
                     return form_string, db_element
     # else:
     #     choice_id = ''
@@ -1652,7 +1669,7 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
                 namespaces['xsi'] = "http://www.w3.org/2001/XMLSchema-instance"
                 target_namespace, target_namespace_prefix = common.get_target_namespace(namespaces, xml_tree)
 
-                if request.session['curate_edit']:
+                if 'curate_edit' in request.session and request.session['curate_edit']:
                     # TODO: manage unbounded choices for sequences/choices as well
                     if max_occurs != 1:
                         xml_element = False # explicitly don't generate the element
@@ -1716,7 +1733,9 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
     return form_string, db_element
 
 
-def generate_choice_absent(request, element_id):
+def generate_choice_absent(request, element_id, config=None):
+    load_config(request, config)
+
     element = SchemaElement.objects.get(pk=element_id)
     parents = SchemaElement.objects(children=element_id)
 
@@ -1837,7 +1856,7 @@ def generate_simple_type(request, element, xml_tree, full_path, edit_data_tree=N
                 break
     db_element['options']['ns_prefix'] = ns_prefix
 
-    if has_module(element):
+    if has_module(request, element):
         # XSD xpath: /element/complexType/sequence
         xsd_xpath = xml_tree.getpath(element)
         module = generate_module(request, element, xsd_xpath, full_path, xml_tree=xml_tree,
@@ -1964,7 +1983,7 @@ def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=
 
     db_element['options']['ns_prefix'] = ns_prefix
 
-    if has_module(element):
+    if has_module(request, element):
         # XSD xpath: /element/complexType/sequence
         xsd_xpath = xml_tree.getpath(element)
         module = generate_module(request, element, xsd_xpath, full_path, xml_tree=xml_tree,
@@ -1987,7 +2006,7 @@ def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=
         # the type has some possible extensions
         if len(extensions) > 0:
             # add the base type that can be rendered alone without extensions
-            if IMPLICIT_EXTENSION_BASE:
+            if request.session['PARSER_IMPLICIT_EXTENSION_BASE']:
                 extensions.insert(0, element)
 
             choice_content = generate_choice_extensions(request, extensions, xml_tree, None, full_path,
@@ -2107,25 +2126,20 @@ def generate_choice_extensions(request, element, xml_tree, choice_info=None, ful
         # choice_id = choice_info.chooseIDStr + "-" + str(choice_info.counter)
         # chosen = True
 
-        if request.session['curate_edit']:
+        if 'curate_edit' in request.session and request.session['curate_edit']:
             if nb_occurrences == 0:
                 # chosen = False
 
-                if CURATE_MIN_TREE:
+                if request.session['PARSER_MIN_TREE']:
                     # form_string += render_ul('', choice_id, chosen)
                     return form_string, db_element
         else:
             if choice_info.counter > 0:
                 # chosen = False
 
-                if CURATE_MIN_TREE:
+                if request.session['PARSER_MIN_TREE']:
                     # form_string += render_ul('', choice_id, chosen)
                     return form_string, db_element
-    # else:
-    #     choice_id = ''
-    #     chosen = True
-    #
-    # ul_content = ''
 
     for x in range(0, int(nb_occurrences)):
         db_child = {
@@ -2164,7 +2178,7 @@ def generate_choice_extensions(request, element, xml_tree, choice_info=None, ful
                         opt_label = opt_label.split(':')[1]
 
                 # look for active choice when editing
-                if request.session['curate_edit']:
+                if 'curate_edit' in request.session and request.session['curate_edit']:
                     # get the schema namespaces
                     xml_tree_str = etree.tostring(xml_tree)
                     namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
@@ -2303,7 +2317,7 @@ def generate_module(request, element, xsd_xpath=None, xml_xpath=None, xml_tree=N
             reload_data = None
             reload_attrib = None
 
-            if request.session['curate_edit']:
+            if 'curate_edit' in request.session and request.session['curate_edit']:
                 # get the schema namespaces
                 xml_tree_str = etree.tostring(xml_tree)
                 namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
@@ -2424,7 +2438,7 @@ def generate_restriction(request, element, xml_tree, full_path="", edit_data_tre
     if len(enumeration) > 0:
         option_list = []
 
-        if request.session['curate_edit']:
+        if 'curate_edit' in request.session and request.session['curate_edit']:
             default_value = default_value if default_value is not None else ''
 
             for enum in enumeration:
