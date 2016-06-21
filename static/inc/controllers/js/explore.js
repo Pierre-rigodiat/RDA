@@ -734,6 +734,8 @@ generate_xsd_tree_for_querying_data = function(){
         dataType: "json",
         success: function(data){
             $("#xsdForm").html(data.xsdForm);
+            $(".icon.add").hide();
+            $(".icon.remove").hide();
         }
     });
 }
