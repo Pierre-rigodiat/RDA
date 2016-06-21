@@ -465,7 +465,7 @@ class XMLdata(object):
         return xmldata.find({'_id': { '$in': listIDs }}, as_class = OrderedDict).distinct(distinctBy)
 
     @staticmethod
-    def getMinValue(attr, includeDeleted=False):
+    def getMinValue(attr):
         """
             Returns the object with the given id
         """
@@ -475,9 +475,6 @@ class XMLdata(object):
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
-        # Check the deleted records
-        # if not includeDeleted:
-        #     query["deleted"] = False
         cursor  = xmldata.aggregate(
            [
              {
