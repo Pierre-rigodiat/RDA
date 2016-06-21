@@ -325,14 +325,18 @@ def validate_password_strength(value):
     return value
 
 
-def xpath_to_dot_notation(xpath):
+def xpath_to_dot_notation(xpath, namespaces):
     """
     Transorm XML xpath in dot notation
     :param xpath:
+    :param namespaces:
     :return:
     """
     # remove indexes from xpath
     xpath = re.sub(r'\[[0-9]+\]', '', xpath)
+    # remove namespaces
+    for prefix in namespaces.keys():
+        xpath = re.sub(r'{}:'.format(prefix), '', xpath)
     # replace / by .
     xpath = xpath.replace("/", ".")
 

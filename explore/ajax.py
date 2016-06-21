@@ -28,6 +28,7 @@ import copy
 import lxml.etree as etree
 import re
 from curate.models import SchemaElement
+from mgi import common
 from mgi.common import SCHEMA_NAMESPACE, xpath_to_dot_notation
 from mgi.models import Template, SavedQuery, XMLdata, Instance, TemplateVersion
 from django.template import loader, RequestContext
@@ -1485,7 +1486,8 @@ def update_user_inputs(request):
     # get the xml type of the element
     xml_xpath = schema_element.options['xpath']['xml']
     # convert xml path to mongo dot notation
-    dot_notation = "content" + xpath_to_dot_notation(xml_xpath)
+    namespaces = common.get_namespaces(BytesIO(str(request.session['xmlDocTreeExplore'])))
+    dot_notation = "content" + xpath_to_dot_notation(xml_xpath, namespaces)
 
     htmlTree = html.fromstring(html_form)
     currentCriteria = htmlTree.get_element_by_id(toCriteriaID)
@@ -1970,7 +1972,8 @@ def prepare_sub_element_query(request):
     # get the xml type of the element
     first_element_xml_xpath = first_element.options['xpath']['xml']
     # convert xml path to mongo dot notation
-    first_element_dot_notation = xpath_to_dot_notation(first_element_xml_xpath)
+    namespaces = common.get_namespaces(BytesIO(str(request.session['xmlDocTreeExplore'])))
+    first_element_dot_notation = xpath_to_dot_notation(first_element_xml_xpath, namespaces)
     parent_path = ".".join(first_element_dot_notation.split(".")[:-1])
     parent_name = parent_path.split(".")[-1]
 
@@ -1981,7 +1984,8 @@ def prepare_sub_element_query(request):
         # get the xml type of the element
         xml_xpath = schema_element.options['xpath']['xml']
         # convert xml path to mongo dot notation
-        dot_notation = xpath_to_dot_notation(xml_xpath)
+        namespaces = common.get_namespaces(BytesIO(str(request.session['xmlDocTreeExplore'])))
+        dot_notation = xpath_to_dot_notation(xml_xpath, namespaces)
         element_type = schema_element.options['type']
 
         element_name = dot_notation.split(".")[-1]
@@ -2063,7 +2067,8 @@ def insert_sub_element_query(request):
             # get the xml type of the element
             xml_xpath = schema_element.options['xpath']['xml']
             # convert xml path to mongo dot notation
-            dot_notation = xpath_to_dot_notation(xml_xpath)
+            namespaces = common.get_namespaces(BytesIO(str(request.session['xmlDocTreeExplore'])))
+            dot_notation = xpath_to_dot_notation(xml_xpath, namespaces)
             element_type = schema_element.options['type']
 
             element_name = dot_notation.split(".")[-1]
@@ -2174,7 +2179,8 @@ def subElementfieldsToQuery(request, liElements, list_leaves_id):
     # get the xml type of the element
     first_element_xml_xpath = first_element.options['xpath']['xml']
     # convert xml path to mongo dot notation
-    first_element_dot_notation = xpath_to_dot_notation(first_element_xml_xpath)
+    namespaces = common.get_namespaces(BytesIO(str(request.session['xmlDocTreeExplore'])))
+    first_element_dot_notation = xpath_to_dot_notation(first_element_xml_xpath, namespaces)
     parent_path = "content" + ".".join(first_element_dot_notation.split(".")[:-1])
     
     for li in liElements:        
@@ -2187,7 +2193,8 @@ def subElementfieldsToQuery(request, liElements, list_leaves_id):
 
             schema_element = SchemaElement.objects().get(pk=list_leaves_id[i])
             xml_xpath = schema_element.options['xpath']['xml']
-            dot_notation = xpath_to_dot_notation(xml_xpath)
+            namespaces = common.get_namespaces(BytesIO(str(request.session['xmlDocTreeExplore'])))
+            dot_notation = xpath_to_dot_notation(xml_xpath, namespaces)
             element_name = dot_notation.split(".")[-1]
             element_type = schema_element.options['type']
 
@@ -2231,7 +2238,8 @@ def subElementfieldsToPrettyQuery(request, liElements, list_leaves_id):
     # get the xml type of the element
     first_element_xml_xpath = first_element.options['xpath']['xml']
     # convert xml path to mongo dot notation
-    first_element_dot_notation = xpath_to_dot_notation(first_element_xml_xpath)
+    namespaces = common.get_namespaces(BytesIO(str(request.session['xmlDocTreeExplore'])))
+    first_element_dot_notation = xpath_to_dot_notation(first_element_xml_xpath, namespaces)
     parent_name = first_element_dot_notation.split(".")[-2]
 
     for li in liElements:        
@@ -2244,7 +2252,8 @@ def subElementfieldsToPrettyQuery(request, liElements, list_leaves_id):
                 
             schema_element = SchemaElement.objects().get(pk=list_leaves_id[i])
             xml_xpath = schema_element.options['xpath']['xml']
-            dot_notation = xpath_to_dot_notation(xml_xpath)
+            namespaces = common.get_namespaces(BytesIO(str(request.session['xmlDocTreeExplore'])))
+            dot_notation = xpath_to_dot_notation(xml_xpath, namespaces)
             element_name = dot_notation.split(".")[-1]
             element_type = schema_element.options['type']
 
