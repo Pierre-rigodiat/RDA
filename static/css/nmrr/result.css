@@ -1,0 +1,25 @@
+/*! Light */
+#light div {
+    float: right;
+}
+
+#light span {
+    border-radius: 50px;
+    height: 15px;
+    margin: 0px 0.5em 2em;
+    opacity: .5;
+    width: 15px;
+    display:none;
+    float: left;
+}
+
+/*! Light colors */
+#red    { background-color: red; }
+#orange { background-color: orange; }
+#green  { background-color: green; }
+
+/*! Active states */
+#light span.active    { opacity: 1; }
+#light #red.active    { box-shadow: 0 0 10px red; display:block; }
+#light #orange.active { box-shadow: 0 0 10px orange; display:block; }
+#light #green.active  { box-shadow: 0 0 10px green; display:block; }

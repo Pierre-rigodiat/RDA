@@ -1,7 +1,7 @@
 {% load dict_key_extras %}
 
 {% for XMLdata in XMLdatas %}
-    {% with XMLdata|get:"_id" as XMLdata_id %}
+    {% with XMLdata_id=XMLdata|get:"_id" status=XMLdata.content.Resource|get:"@status" %}
         <br><br>
         <div style="background-color:#eeeeee" id="{{XMLdata_id}}">
             <table class="data-table">
@@ -9,7 +9,7 @@
                     <td style="width:250px">
                         <div style="margin-top:10px;">Resource Name</div>
                     </td>
-                    <td>
+                    <td width="500em">
                         {% if XMLdata.content.Resource.identity.title %}
                             {{ XMLdata.content.Resource.identity.title }}
                         {%else%}
@@ -17,12 +17,20 @@
                                 document.write('{{ XMLdata.title }}'.replace(/\.[^/.]+$/, ""));
                             </script>
                         {% endif %}
-                        <div style="float:right">
+                    </td>
+                    <td>
+                        <div style="float: right">
                             {% autoescape on %}
                                     <a href="/dashboard/detail?type=record&id={{XMLdata_id}}"><span class="icon legend result">
                                         View
                                     </span></a>
                             {% endautoescape %}
+                        </div>
+                        <div id="light">
+                            <span {% if status == "active" %}class="active"{%endif%} id="green"></span>
+                            <span {% if status == "inactive" %}class="active"{%endif%} id="orange"></span>
+                            <span {% if status == "deleted" %}class="active"{%endif%} id="red"></span>
+                            Status: {{status}}
                         </div>
                     </td>
                 </tr>
@@ -31,7 +39,7 @@
                         <td width="100em">
                                 User
                         </td>
-                        <td>
+                        <td colspan="2">
                             {{usernames|get:XMLdata.iduser}}
                         </td>
                     {% endif %}
@@ -47,7 +55,7 @@
                         {% endif %}
 
                     </td>
-                    <td align="right">
+                    <td align="right" colspan="2">
                         <div style="float:right">
                         {% if XMLdata.publicationdate %}
                             <font size="2">Published on: {{ XMLdata.publicationdate }} &nbsp;&nbsp;&nbsp;</font>

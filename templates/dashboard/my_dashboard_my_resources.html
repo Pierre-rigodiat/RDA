@@ -22,6 +22,10 @@
 {% endcomment %}
 {% block menu %}{% include 'nmrr/menus/main.html' with active_tab='profile' %}{% endblock %}
 
+{% block extrastyle %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/nmrr/result.css' %}" media="screen" />
+{% endblock %}
+
 {% block content %}
     <div id="body">
         <div class="width">
