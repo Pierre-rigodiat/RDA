@@ -25,7 +25,7 @@ from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseServer
 from django.template import RequestContext, loader
 from django.shortcuts import redirect
 from mgi.models import Template, FormData, XMLdata, Type, Module
-from admin_mdcs.forms import EditProfileForm, ChangePasswordForm, UserForm
+from admin_mdcs.forms import EditProfileForm, UserForm
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import authenticate
@@ -36,6 +36,7 @@ import os
 import xmltodict
 from bson.objectid import ObjectId
 import json
+from password_policies.views import PasswordChangeFormView
 
 ################################################################################
 #
@@ -93,36 +94,6 @@ def my_profile_edit(request):
         form = EditProfileForm(data)
 
     return render(request, 'dashboard/my_profile_edit.html', {'form':form})
-
-
-################################################################################
-#
-# Function Name: my_profile_change_password(request)
-# Inputs:        request -
-# Outputs:       Change Password Page
-# Exceptions:    None
-# Description:   Page that allows to change a password
-#
-################################################################################
-@login_required(login_url='/login')
-def my_profile_change_password(request):
-    if request.method == 'POST':
-        form = ChangePasswordForm(request.POST)
-        if form.is_valid():
-            user = User.objects.get(id=request.user.id)
-            auth_user = authenticate(username=user.username, password=request.POST['old'])
-            if auth_user is None:
-                message = "The old password is incorrect."
-                return render(request, 'dashboard/my_profile_change_password.html', {'form':form, 'action_result':message})
-            else:
-                user.set_password(request.POST['new1'])
-                user.save()
-                messages.add_message(request, messages.INFO, 'Password changed with success.')
-                return redirect('/dashboard/my-profile')
-    else:
-        form = ChangePasswordForm()
-
-    return render(request, 'dashboard/my_profile_change_password.html', {'form':form})
 
 ################################################################################
 #
@@ -437,3 +408,9 @@ def change_owner_record(request):
         return HttpResponseBadRequest({"Bad entries. Please check the parameters."})
 
     return HttpResponse(json.dumps({}), content_type='application/javascript')
+
+
+class UserDashboardPasswordChangeFormView(PasswordChangeFormView):
+    def form_valid(self, form):
+        messages.success(self.request, "Password changed with success.")
+        return super(UserDashboardPasswordChangeFormView, self).form_valid(form)

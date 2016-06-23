@@ -16,16 +16,7 @@
 
 from django import forms
 from django.contrib.auth.models import User
-from mgi.common import validate_password_strength
-import os
-from django.utils.importlib import import_module
-settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
-settings = import_module(settings_file)
-USE_PASSWORD_STRENGTH = settings.USE_PASSWORD_STRENGTH
-PASSWORD_MIN_LENGTH = settings.PASSWORD_MIN_LENGTH
-PASSWORD_MIN_DIGITS = settings.PASSWORD_MIN_DIGITS
-PASSWORD_MIN_UPPERCASE = settings.PASSWORD_MIN_UPPERCASE
-
+from password_policies.forms.fields import PasswordPoliciesField
 # list of possible protocols available in the form
 from mgi.models import Bucket
 
@@ -58,30 +49,12 @@ class RequestAccountForm(forms.Form):
     """
     Form to request an account
     """
-    def clean(self):
-        cleaned_data = super(RequestAccountForm, self).clean()
-        password1 = cleaned_data.get("password1")
-        password2 = cleaned_data.get("password2")
-        data = self.cleaned_data
-        if password1 and password2:
-            if password1 != password2:
-                raise forms.ValidationError("Passwords must be same")
-            validate_password_strength(data["password1"])
-
     username = forms.CharField(label='Username', max_length=100, required=True)
-    password1 = forms.CharField(label='Password',widget=forms.PasswordInput, required=True)
-    password2 = forms.CharField(label='Confirm Password',widget=forms.PasswordInput, required=True)
+    password1 = PasswordPoliciesField(label='Password', required=True)
+    password2 = PasswordPoliciesField(label='Confirm Password', required=True)
     firstname = forms.CharField(label='First Name', max_length=100, required=True)
     lastname = forms.CharField(label='Last Name', max_length=100, required=True)
     email = forms.EmailField(label='Email Address', max_length=100, required=True)
-
-    def __init__ (self, *args, **kwargs):
-        super(RequestAccountForm, self).__init__(*args, **kwargs)
-        if USE_PASSWORD_STRENGTH:
-            password_policy = '{0} character(s) minimum, {1} digit(s) minimum ' \
-                          'and {2} uppercase minimum'.format(PASSWORD_MIN_LENGTH, PASSWORD_MIN_DIGITS,
-                                                                PASSWORD_MIN_UPPERCASE)
-            self.fields['password1'].help_text = password_policy
 
 class EditProfileForm(forms.Form):
     """
@@ -91,33 +64,7 @@ class EditProfileForm(forms.Form):
     lastname = forms.CharField(label='Last Name', max_length=100, required=True)
     username = forms.CharField(label='Username', max_length=100, required=True, widget=forms.HiddenInput())
     email = forms.EmailField(label='Email Address', max_length=100, required=True)
-    
-class ChangePasswordForm(forms.Form):
-    """
-    Form to change the password
-    """
-    def clean(self):
-        cleaned_data = super(ChangePasswordForm, self).clean()
-        new1 = cleaned_data.get("new1")
-        new2 = cleaned_data.get("new2")
-        data = self.cleaned_data
-        if new1 and new2:
-            if new1 != new2:
-                raise forms.ValidationError("Passwords must be same")
-            validate_password_strength(data["new1"])
 
-    old = forms.CharField(label='Old Password',widget=forms.PasswordInput, required=True)
-    new1 = forms.CharField(label='New Password',widget=forms.PasswordInput, required=True)
-    new2 = forms.CharField(label='Confirm New Password',widget=forms.PasswordInput, required=True)
-
-    def __init__ (self, *args, **kwargs):
-        super(ChangePasswordForm, self).__init__(*args, **kwargs)
-        if USE_PASSWORD_STRENGTH:
-            password_policy = '{0} character(s) minimum, {1} digit(s) minimum ' \
-                          'and {2} uppercase minimum'.format(PASSWORD_MIN_LENGTH, PASSWORD_MIN_DIGITS,
-                                                                PASSWORD_MIN_UPPERCASE)
-            self.fields['new1'].help_text = password_policy
-    
 class ContactForm(forms.Form):
     """
     Form to contact the administrator

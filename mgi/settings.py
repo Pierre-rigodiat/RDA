@@ -86,10 +86,16 @@ EMAIL_SUBJECT_PREFIX = "[CURATOR] "
 # EMAIL_USE_TLS = True
 
 #Password Policy
-USE_PASSWORD_STRENGTH = False #True or False
-PASSWORD_MIN_LENGTH = 8
-PASSWORD_MIN_DIGITS = 1
-PASSWORD_MIN_UPPERCASE = 1
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
+# Defaults to 60 days.
+PASSWORD_USE_HISTORY = True
+PASSWORD_HISTORY_COUNT = 10
+PASSWORD_DURATION_SECONDS = 24 * 90**3
+PASSWORD_CHECK_ONLY_AT_LOGIN = True
+PASSWORD_MIN_LENGTH = 12
+PASSWORD_MIN_LETTERS = 3
+PASSWORD_MIN_NUMBERS = 1
+PASSWORD_MIN_SYMBOLS = 1
 
 # Replace by your own values
 MONGO_MGI_USER = "mgi_user"
@@ -173,7 +179,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.static",
     "django.core.context_processors.tz",
     "django.contrib.messages.context_processors.messages",
-    "utils.custom_context_processors.domain_context_processor"
+    "utils.custom_context_processors.domain_context_processor",
+    "password_policies.context_processors.password_status",
 )
 
 # Application definition
@@ -199,7 +206,8 @@ INSTALLED_APPS = (
     'user_dashboard',
     'oai_pmh',
     'testing',
-    'utils.XSDParser'
+    'utils.XSDParser',
+    'password_policies'
 )
 
 OAUTH2_PROVIDER = {
@@ -253,6 +261,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.RemoteUserMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'password_policies.middleware.PasswordChangeMiddleware',
 )
 
 ROOT_URLCONF = 'mgi.urls'

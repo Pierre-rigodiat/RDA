@@ -85,10 +85,9 @@ EMAIL_PORT= 587
 EMAIL_USE_TLS = True
 
 #Password Policy
-USE_PASSWORD_STRENGTH = False #True or False
-PASSWORD_MIN_LENGTH = 8
-PASSWORD_MIN_DIGITS = 1
-PASSWORD_MIN_UPPERCASE = 1
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
+# Defaults to 60 days.
+PASSWORD_DURATION_SECONDS = 10#24 * 60**3
 
 # Replace by your own values
 from mongoengine import connect
@@ -156,14 +155,16 @@ TEMPLATE_LOADERS = (
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
-"django.core.context_processors.debug",
-"django.core.context_processors.request",
-"django.core.context_processors.i18n",
-"django.core.context_processors.media",
-"django.core.context_processors.static",
-"django.core.context_processors.tz",
-"django.contrib.messages.context_processors.messages",
-"utils.custom_context_processors.domain_context_processor")
+    "django.core.context_processors.debug",
+    "django.core.context_processors.request",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.media",
+    "django.core.context_processors.static",
+    "django.core.context_processors.tz",
+    "django.contrib.messages.context_processors.messages",
+    "utils.custom_context_processors.domain_context_processor",
+    "password_policies.context_processors.password_status",
+)
 
 # Application definition
 
@@ -187,6 +188,7 @@ INSTALLED_APPS = (
     'modules',
     'oai_pmh',
     'testing',
+    'password_policies'
 
 )
 
@@ -240,6 +242,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.RemoteUserMiddleware',  # https://docs.djangoproject.com/en/dev/howto/auth-remote-user/
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'password_policies.middleware.PasswordChangeMiddleware',
 )
 
 ROOT_URLCONF = 'mgi.urls'
