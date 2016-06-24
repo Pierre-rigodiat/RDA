@@ -17,6 +17,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from password_policies.forms.fields import PasswordPoliciesField
+from user_dashboard.forms import PasswordPoliciesLowerUpperField
 # list of possible protocols available in the form
 from mgi.models import Bucket
 
@@ -50,7 +51,7 @@ class RequestAccountForm(forms.Form):
     Form to request an account
     """
     username = forms.CharField(label='Username', max_length=100, required=True)
-    password1 = PasswordPoliciesField(label='Password', required=True)
+    password1 = PasswordPoliciesLowerUpperField(label='Password', required=True)
     password2 = PasswordPoliciesField(label='Confirm Password', required=True)
     firstname = forms.CharField(label='First Name', max_length=100, required=True)
     lastname = forms.CharField(label='Last Name', max_length=100, required=True)
