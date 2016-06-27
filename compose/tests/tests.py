@@ -70,12 +70,12 @@ class ComposerTestSuite(TestCase):
             self.request.POST['typeID'] = type_object.id
             self.request.POST['typeName'] = 'type_name'
 
-    def check_result(self):
+    def check_result(self, expected_code=200):
         """
         Check that the result template is valid
         :return:
         """
-        self.assertEqual(self.response.status_code, 200)
+        self.assertEqual(self.response.status_code, expected_code)
 
         composed_template = self.request.session['newXmlTemplateCompose']
         self.assertEquals(validate_xml_schema(etree.fromstring(composed_template)), None)
@@ -156,7 +156,8 @@ class ComposerTestSuite(TestCase):
 
         self.response = insert_element_sequence(self.request)
 
-        self.check_result()
+        # base and type use the same prefix for different namespaces
+        self.check_result(expected_code=400)
 
     def test_base_type_ns_type_ns2(self):
         template_path = join(RESOURCES_PATH, 'base.xsd')
@@ -173,7 +174,8 @@ class ComposerTestSuite(TestCase):
         self.request.POST['xpath'] = 'xs:element/xs:complexType/xs:sequence'
         self.response = insert_element_sequence(self.request)
 
-        self.check_result()
+        # type ns and type ns2 use the same prefix for different namespaces
+        self.check_result(expected_code=400)
 
     def test_base_ns_type_ns_type_ns2(self):
         template_path = join(RESOURCES_PATH, 'base-ns.xsd')
@@ -190,7 +192,8 @@ class ComposerTestSuite(TestCase):
         self.request.POST['xpath'] = 'xs:element/xs:complexType/xs:sequence'
         self.response = insert_element_sequence(self.request)
 
-        self.check_result()
+        # base and type use the same prefix for different namespaces
+        self.check_result(expected_code=400)
 
 
 
