@@ -64,6 +64,10 @@ def validate_xml_data(xsd_tree, xml_tree):
 
 
 def xerces_exists():
+    """
+    Check if xerces wrapper is installed
+    :return:
+    """
     try:
         __import__('xerces_wrapper')
     except ImportError:
