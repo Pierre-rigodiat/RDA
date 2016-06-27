@@ -93,6 +93,105 @@ class ComposerTestSuite(TestCase):
 
         self.check_result()
 
+    def test_base_type_ns(self):
+        template_path = join(RESOURCES_PATH, 'base.xsd')
+        type_path = join(RESOURCES_PATH, 'type-ns.xsd')
+
+        self.load_template(template_path)
+        self.load_type(type_path)
+
+        self.request.POST['xpath'] = 'xs:element/xs:complexType/xs:sequence'
+
+        self.response = insert_element_sequence(self.request)
+
+        self.check_result()
+
+    def test_base_type_ns2(self):
+        template_path = join(RESOURCES_PATH, 'base.xsd')
+        type_path = join(RESOURCES_PATH, 'type-ns2.xsd')
+
+        self.load_template(template_path)
+        self.load_type(type_path)
+
+        self.request.POST['xpath'] = 'xs:element/xs:complexType/xs:sequence'
+
+        self.response = insert_element_sequence(self.request)
+
+        self.check_result()
+
+    def test_base_ns_type(self):
+        template_path = join(RESOURCES_PATH, 'base-ns.xsd')
+        type_path = join(RESOURCES_PATH, 'type.xsd')
+
+        self.load_template(template_path)
+        self.load_type(type_path)
+
+        self.request.POST['xpath'] = 'xs:element/xs:complexType/xs:sequence'
+
+        self.response = insert_element_sequence(self.request)
+
+        self.check_result()
+
+    def test_base_ns_type_ns(self):
+        template_path = join(RESOURCES_PATH, 'base-ns.xsd')
+        type_path = join(RESOURCES_PATH, 'type-ns.xsd')
+
+        self.load_template(template_path)
+        self.load_type(type_path)
+
+        self.request.POST['xpath'] = 'xs:element/xs:complexType/xs:sequence'
+
+        self.response = insert_element_sequence(self.request)
+
+        self.check_result()
+
+    def test_base_ns_type_ns2(self):
+        template_path = join(RESOURCES_PATH, 'base-ns.xsd')
+        type_path = join(RESOURCES_PATH, 'type-ns2.xsd')
+
+        self.load_template(template_path)
+        self.load_type(type_path)
+
+        self.request.POST['xpath'] = 'xs:element/xs:complexType/xs:sequence'
+
+        self.response = insert_element_sequence(self.request)
+
+        self.check_result()
+
+    def test_base_type_ns_type_ns2(self):
+        template_path = join(RESOURCES_PATH, 'base.xsd')
+        type_path = join(RESOURCES_PATH, 'type-ns.xsd')
+        type_path2 = join(RESOURCES_PATH, 'type-ns2.xsd')
+
+        self.load_template(template_path)
+
+        self.load_type(type_path)
+        self.request.POST['xpath'] = 'xs:element/xs:complexType/xs:sequence'
+        self.response = insert_element_sequence(self.request)
+
+        self.load_type(type_path2)
+        self.request.POST['xpath'] = 'xs:element/xs:complexType/xs:sequence'
+        self.response = insert_element_sequence(self.request)
+
+        self.check_result()
+
+    def test_base_ns_type_ns_type_ns2(self):
+        template_path = join(RESOURCES_PATH, 'base-ns.xsd')
+        type_path = join(RESOURCES_PATH, 'type-ns.xsd')
+        type_path2 = join(RESOURCES_PATH, 'type-ns2.xsd')
+
+        self.load_template(template_path)
+
+        self.load_type(type_path)
+        self.request.POST['xpath'] = 'xs:element/xs:complexType/xs:sequence'
+        self.response = insert_element_sequence(self.request)
+
+        self.load_type(type_path2)
+        self.request.POST['xpath'] = 'xs:element/xs:complexType/xs:sequence'
+        self.response = insert_element_sequence(self.request)
+
+        self.check_result()
+
 
 
 
