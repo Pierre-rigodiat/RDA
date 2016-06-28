@@ -86,7 +86,6 @@ EMAIL_SUBJECT_PREFIX = "[CURATOR] "
 # EMAIL_USE_TLS = True
 
 #Password Policy
-SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 # Defaults to 60 days.
 PASSWORD_USE_HISTORY = True
 PASSWORD_HISTORY_COUNT = 10
@@ -263,7 +262,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.RemoteUserMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'password_policies.middleware.PasswordChangeMiddleware',
+    #'password_policies.middleware.PasswordChangeMiddleware',
+    'mgi.middleware.PasswordChangeMiddleware',
 )
 
 ROOT_URLCONF = 'mgi.urls'

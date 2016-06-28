@@ -37,6 +37,9 @@ import xmltodict
 from bson.objectid import ObjectId
 import json
 from password_policies.views import PasswordChangeFormView
+from django.utils import timezone
+from django.core.urlresolvers import reverse
+from utils.DateTimeDecoder import DateTimeEncoder
 
 ################################################################################
 #
@@ -409,8 +412,31 @@ def change_owner_record(request):
 
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
-
 class UserDashboardPasswordChangeFormView(PasswordChangeFormView):
     def form_valid(self, form):
         messages.success(self.request, "Password changed with success.")
         return super(UserDashboardPasswordChangeFormView, self).form_valid(form)
+
+    def get_success_url(self):
+        """
+Returns a query string field with a previous URL if available (Mimicing
+the login view. Used on forced password changes, to know which URL the
+user was requesting before the password change.)
+If not returns the :attr:`~PasswordChangeFormView.success_url` attribute
+if set, otherwise the URL to the :class:`PasswordChangeDoneView`.
+"""
+        checked = '_password_policies_last_checked'
+        last = '_password_policies_last_changed'
+        required = '_password_policies_change_required'
+        now = json.dumps(timezone.now(), cls=DateTimeEncoder)
+        self.request.session[checked] = now
+        self.request.session[last] = now
+        self.request.session[required] = False
+        redirect_to = self.request.POST.get(self.redirect_field_name, '')
+        if redirect_to:
+            url = redirect_to
+        elif self.success_url:
+            url = self.success_url
+        else:
+            url = reverse('password_change_done')
+        return url
