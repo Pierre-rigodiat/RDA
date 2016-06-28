@@ -2224,13 +2224,18 @@ def subElementfieldsToQuery(request, liElements, list_leaves_id):
             element_name = dot_notation.split(".")[-1]
             element_type = schema_element.options['type']
 
-            if element_type.startswith("{0}:".format(defaultPrefix)):
+            try:
+                if element_type.startswith("{0}:".format(defaultPrefix)):
+                    comparison = li[2].value
+                    value = li[3].value
+                    criteria = buildCriteria(request, element_name, comparison, value, element_type, isNot)
+                else:
+                    value = li[2].value
+                    criteria = enumCriteria(element_name, value, isNot)
+            except:
                 comparison = li[2].value
                 value = li[3].value
                 criteria = buildCriteria(request, element_name, comparison, value, element_type, isNot)
-            else:
-                value = li[2].value
-                criteria = enumCriteria(element_name, value, isNot)
 
             elem_match.update(criteria)
 
@@ -2283,13 +2288,18 @@ def subElementfieldsToPrettyQuery(request, liElements, list_leaves_id):
             element_name = dot_notation.split(".")[-1]
             element_type = schema_element.options['type']
 
-            if element_type.startswith("{0}:".format(defaultPrefix)):
+            try:
+                if element_type.startswith("{0}:".format(defaultPrefix)):
+                    comparison = li[2].value
+                    value = li[3].value
+                    criteria = buildPrettyCriteria(element_name, comparison, value, isNot)
+                else:
+                    value = li[2].value
+                    criteria = enumToPrettyCriteria(element_name, value, isNot)
+            except:
                 comparison = li[2].value
                 value = li[3].value
                 criteria = buildPrettyCriteria(element_name, comparison, value, isNot)
-            else:
-                value = li[2].value
-                criteria = enumToPrettyCriteria(element_name, value, isNot)
 
             if elem_match != "(":
                 elem_match += ", "
