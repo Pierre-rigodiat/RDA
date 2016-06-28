@@ -38,7 +38,7 @@ A form field that validates a password using :ref:`api-validators`.
     def __init__(self, *args, **kwargs):
         if "widget" not in kwargs:
             kwargs["widget"] = forms.PasswordInput(render_value=False)
-        self.min_length = settings.PASSWORD_MIN_LENGTH
+        kwargs["min_length"] = settings.PASSWORD_MIN_LENGTH
         self.default_validators.append(UpperCaseLetterCountValidator())
         self.default_validators.append(LowerCaseLetterCountValidator())
         super(PasswordPoliciesLowerUpperField, self).__init__(*args, **kwargs)
