@@ -764,6 +764,16 @@ def queryToCriteria(query, isNot=False):
 def invertQuery(query):
     for key, value in query.iteritems():
         if key == "$and" or key == "$or":
+            # invert the query for the case value can be found at element:value or at element.#text:value
+            # second case appends when the element has attributes or namespace information
+            if len(value) == 2:
+                if len(value[0].keys()) == 1 and len(value[1].keys()) == 1:
+                    # second query is the same as the firt
+                    if value[1].keys()[0] == "{}.#text".format(value[0].keys()[0]):
+                        if key == "$and":
+                            return {"$or": [invertQuery(value[0]), invertQuery(value[1])]}
+                        elif key == "$or":
+                            return {"$and": [invertQuery(value[0]), invertQuery(value[1])]}
             for subValue in value:
                 invertQuery(subValue)
         else:            
@@ -860,6 +870,8 @@ def ORCriteria(criteria1, criteria2):
 def buildCriteria(request, elemPath, comparison, value, elemType, isNot=False):
     defaultPrefix = request.session['defaultPrefixExplore']
 
+    # build the query: value can be found at element:value or at element.#text:value
+    # second case appends when the element has attributes or namespace information
     if (elemType in ['{0}:byte'.format(defaultPrefix),
                      '{0}:int'.format(defaultPrefix),
                      '{0}:integer'.format(defaultPrefix),
@@ -873,21 +885,26 @@ def buildCriteria(request, elemPath, comparison, value, elemType, isNot=False):
                      '{0}:unsignedInt'.format(defaultPrefix),
                      '{0}:unsignedShort'.format(defaultPrefix),
                      '{0}:unsignedByte'.format(defaultPrefix)]):
-        element_query = intCriteria(elemPath, comparison, value, isNot)
-        attribute_query = intCriteria("{}.#text".format(elemPath), comparison, value, isNot)
+        element_query = intCriteria(elemPath, comparison, value)
+        attribute_query = intCriteria("{}.#text".format(elemPath), comparison, value)
     elif (elemType in ['{0}:float'.format(defaultPrefix), 
                        '{0}:double'.format(defaultPrefix),
                        '{0}:decimal'.format(defaultPrefix)]):
         element_query = floatCriteria(elemPath, comparison, value, isNot)
-        attribute_query = floatCriteria("{}.#text".format(elemPath), comparison, value, isNot)
+        attribute_query = floatCriteria("{}.#text".format(elemPath), comparison, value)
     elif elemType == '{0}:string'.format(defaultPrefix):
         element_query = stringCriteria(elemPath, comparison, value, isNot)
-        attribute_query = stringCriteria("{}.#text".format(elemPath), comparison, value, isNot)
+        attribute_query = stringCriteria("{}.#text".format(elemPath), comparison, value)
     else:
         element_query = stringCriteria(elemPath, comparison, value, isNot)
-        attribute_query = stringCriteria("{}.#text".format(elemPath), comparison, value, isNot)
+        attribute_query = stringCriteria("{}.#text".format(elemPath), comparison, value)
 
-    return ORCriteria(element_query, attribute_query)
+    criteria = ORCriteria(element_query, attribute_query)
+
+    if isNot:
+        return invertQuery(criteria)
+    else:
+        return criteria
 
 
 ################################################################################
