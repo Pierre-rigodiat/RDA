@@ -85,9 +85,40 @@ EMAIL_PORT= 587
 EMAIL_USE_TLS = True
 
 #Password Policy
-SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
-# Defaults to 60 days.
-PASSWORD_DURATION_SECONDS = 10#24 * 60**3
+# Determines wether to use the password history.
+PASSWORD_USE_HISTORY = True
+# A list of raw strings representing paths to ignore while checking if a user has to change his/her password.
+PASSWORD_CHANGE_MIDDLEWARE_EXCLUDED_PATHS = []
+# Specifies the number of user's previous passwords to remember when the password history is being used.
+PASSWORD_HISTORY_COUNT = 1
+# Determines after how many seconds a user is forced to change his/her password.
+PASSWORD_DURATION_SECONDS = 24 * 90 * 3600
+# Don't log the person out in the middle of a session. Only do the checks at login time.
+PASSWORD_CHECK_ONLY_AT_LOGIN = True
+# Specifies the minimum length for passwords.
+PASSWORD_MIN_LENGTH = 12
+# Specifies the minimum amount of required letters in a password.
+PASSWORD_MIN_LETTERS = 3
+# Specifies the minimum amount of required uppercase letters in a password.
+PASSWORD_MIN_UPPERCASE_LETTERS = 1
+# Specifies the minimum amount of required lowercase letters in a password.
+PASSWORD_MIN_LOWERCASE_LETTERS = 1
+# Specifies the minimum amount of required numbers in a password.
+PASSWORD_MIN_NUMBERS = 1
+# Specifies the minimum amount of required symbols in a password.
+PASSWORD_MIN_SYMBOLS = 1
+# Specifies a list of common sequences to attempt to match a password against.
+PASSWORD_COMMON_SEQUENCES = [u'0123456789', u'`1234567890-=', u'~!@#$%^&*()_+', u'abcdefghijklmnopqrstuvwxyz',
+                             u"quertyuiop[]\\asdfghjkl;'zxcvbnm,./", u'quertyuiop{}|asdfghjkl;"zxcvbnm<>?',
+                             u'quertyuiopasdfghjklzxcvbnm', u"1qaz2wsx3edc4rfv5tgb6yhn7ujm8ik,9ol.0p;/-['=]\\",
+                             u'qazwsxedcrfvtgbyhnujmikolp']
+# A minimum distance of the difference between old and new password. A positive integer.
+# Values greater than 1 are recommended.
+PASSWORD_DIFFERENCE_DISTANCE = 3
+# Specifies the maximum amount of consecutive characters allowed in passwords.
+PASSWORD_MAX_CONSECUTIVE = 3
+# A list of project specific words to check a password against.
+PASSWORD_WORDS = []
 
 # Replace by your own values
 from mongoengine import connect
