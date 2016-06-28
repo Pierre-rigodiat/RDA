@@ -766,33 +766,32 @@ def invertQuery(query):
         if key == "$and" or key == "$or":
             # invert the query for the case value can be found at element:value or at element.#text:value
             # second case appends when the element has attributes or namespace information
-            if len(value) == 2:
-                if len(value[0].keys()) == 1 and len(value[1].keys()) == 1:
-                    # second query is the same as the firt
-                    if value[1].keys()[0] == "{}.#text".format(value[0].keys()[0]):
-                        if key == "$and":
-                            return {"$or": [invertQuery(value[0]), invertQuery(value[1])]}
-                        elif key == "$or":
-                            return {"$and": [invertQuery(value[0]), invertQuery(value[1])]}
-            for subValue in value:
-                invertQuery(subValue)
+            if len(value) == 2 and len(value[0].keys()) == 1 and len(value[1].keys()) == 1 and \
+                            value[1].keys()[0] == "{}.#text".format(value[0].keys()[0]):
+                # second query is the same as the first
+                if key == "$and":
+                    return {"$or": [invertQuery(value[0]), invertQuery(value[1])]}
+                elif key == "$or":
+                    return {"$and": [invertQuery(value[0]), invertQuery(value[1])]}
+            for sub_value in value:
+                invertQuery(sub_value)
         else:            
-            #lt, lte, =, gte, gt, not, ne
-            if isinstance(value,dict):                
+            # lt, lte, =, gte, gt, not, ne
+            if isinstance(value, dict):
                 if value.keys()[0] == "$not" or value.keys()[0] == "$ne":
                     query[key] = (value[value.keys()[0]])                    
                 else:
-                    savedValue = value
+                    saved_value = value
                     query[key] = dict()
-                    query[key]["$not"] = savedValue
+                    query[key]["$not"] = saved_value
             else:
-                savedValue = value
+                saved_value = value
                 if isinstance(value, re._pattern_type):
                     query[key] = dict()
-                    query[key]["$not"] = savedValue
+                    query[key]["$not"] = saved_value
                 else:
                     query[key] = dict()
-                    query[key]["$ne"] = savedValue
+                    query[key]["$ne"] = saved_value
     return query
 
 
