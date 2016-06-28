@@ -873,15 +873,21 @@ def buildCriteria(request, elemPath, comparison, value, elemType, isNot=False):
                      '{0}:unsignedInt'.format(defaultPrefix),
                      '{0}:unsignedShort'.format(defaultPrefix),
                      '{0}:unsignedByte'.format(defaultPrefix)]):
-        return intCriteria(elemPath, comparison, value, isNot)
+        element_query = intCriteria(elemPath, comparison, value, isNot)
+        attribute_query = intCriteria("{}.#text".format(elemPath), comparison, value, isNot)
     elif (elemType in ['{0}:float'.format(defaultPrefix), 
                        '{0}:double'.format(defaultPrefix),
                        '{0}:decimal'.format(defaultPrefix)]):
-        return floatCriteria(elemPath, comparison, value, isNot)
+        element_query = floatCriteria(elemPath, comparison, value, isNot)
+        attribute_query = floatCriteria("{}.#text".format(elemPath), comparison, value, isNot)
     elif elemType == '{0}:string'.format(defaultPrefix):
-        return stringCriteria(elemPath, comparison, value, isNot)
+        element_query = stringCriteria(elemPath, comparison, value, isNot)
+        attribute_query = stringCriteria("{}.#text".format(elemPath), comparison, value, isNot)
     else:
-        return stringCriteria(elemPath, comparison, value, isNot)
+        element_query = stringCriteria(elemPath, comparison, value, isNot)
+        attribute_query = stringCriteria("{}.#text".format(elemPath), comparison, value, isNot)
+
+    return ORCriteria(element_query, attribute_query)
 
 
 ################################################################################
