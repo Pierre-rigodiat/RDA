@@ -335,7 +335,7 @@ class OAIProvider(TemplateView):
                 raise cannotDisseminateFormat(self.metadataPrefix)
 
             #Transform XML data
-            dataToTransform = [{'title': data['_id'], 'content': self.cleanXML(xmltodict.unparse(data['content']))}]
+            dataToTransform = [{'title': data['_id'], 'content': self.cleanXML(XMLdata.unparse(data['content']))}]
             if hasToBeTransformed:
                 dataXML = self.getXMLTranformXSLT(dataToTransform, xslt)
             else:
@@ -404,7 +404,7 @@ class OAIProvider(TemplateView):
                 #IF no records, go to the next template
                 if len(data) == 0:
                     continue
-                dataToTransform = [{'title': x['_id'], 'content': self.cleanXML(xmltodict.unparse(x['content']))} for x in data]
+                dataToTransform = [{'title': x['_id'], 'content': self.cleanXML(XMLdata.unparse(x['content']))} for x in data]
                 if myMetadataFormat.isTemplate:
                     #No transformation needed
                     dataXML = dataToTransform

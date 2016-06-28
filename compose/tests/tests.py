@@ -194,13 +194,3 @@ class ComposerTestSuite(TestCase):
 
         # base and type use the same prefix for different namespaces
         self.check_result(expected_code=400)
-
-
-
-
-
-
-
-
-
-

@@ -100,7 +100,7 @@ def curate_edit_data(request):
         xml_data_id = request.GET['id']
         xml_data = XMLdata.get(xml_data_id)
         json_content = xml_data['content']
-        xml_content = xmltodict.unparse(json_content)
+        xml_content = XMLdata.unparse(json_content)
         request.session['curate_edit_data'] = xml_content
         request.session['curate_edit'] = True
         request.session['currentTemplateID'] = xml_data['schema']

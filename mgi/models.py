@@ -280,10 +280,13 @@ class FormData(Document):
 
 
 def postprocessor(path, key, value):
-    """Called after XML to JSON transformation"""
-    if key == "#text":
-        # can't unparse if numeric value in #text
-        return key, str(value)
+    """
+    Called after XML to JSON transformation
+    :param path:
+    :param key:
+    :param value:
+    :return:
+    """
     try:
         return key, int(value)
     except (ValueError, TypeError):
@@ -291,6 +294,21 @@ def postprocessor(path, key, value):
             return key, float(value)
         except (ValueError, TypeError):
             return key, value
+
+def preprocessor(key, value):
+    """
+    Called before JSON to XML transformation
+    :param key:
+    :param value:
+    :return:
+    """
+    if isinstance(value, OrderedDict):
+        for ik, iv in value.items():
+            if ik == "#text":
+                value[ik] = str(iv)
+        return key, value
+    else:
+        return key, str(value)
 
 
 class XMLdata(object):
@@ -330,6 +348,11 @@ class XMLdata(object):
         if (publicationdate is not None):
             self.content['publicationdate'] = publicationdate
 
+
+    @staticmethod
+    def unparse(json):
+        return xmltodict.unparse(json, preprocessor=preprocessor)
+
     @staticmethod
     def initIndexes():
         #create a connection
@@ -347,7 +370,7 @@ class XMLdata(object):
         self.content['lastmodificationdate'] = datetime.datetime.now()
         docID = self.xmldata.insert(self.content)
         return docID
-    
+
     @staticmethod
     def objects():        
         """
@@ -421,7 +444,6 @@ class XMLdata(object):
         for result in cursor:
             results.append(result)
         return results
-
 
     @staticmethod
     def get(postID):

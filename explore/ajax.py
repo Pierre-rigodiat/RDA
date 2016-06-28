@@ -438,8 +438,10 @@ def get_results_by_instance_keyword(request):
         for instanceResult in instanceResults:
             if not onlySuggestions:
                 custom_xslt = False
-                results.append({'title':instanceResult['title'], 'content':xmltodict.unparse(instanceResult['content']),'id':str(instanceResult['_id'])})
-                dom = etree.XML(str(xmltodict.unparse(instanceResult['content']).encode('utf-8')))
+                results.append({'title': instanceResult['title'],
+                                'content': XMLdata.unparse(instanceResult['content']),
+                                'id': str(instanceResult['_id'])})
+                dom = etree.XML(str(XMLdata.unparse(instanceResult['content']).encode('utf-8')))
                 #Check if a custom list result XSLT has to be used
                 try:
                     schema = Template.objects.get(pk=instanceResult['schema'])
@@ -466,7 +468,7 @@ def get_results_by_instance_keyword(request):
                 wordList = re.sub("[^\w]", " ",  keyword).split()
                 wordList = [x + "|" + x +"\w+" for x in wordList]
                 wordList = '|'.join(wordList)
-                listWholeKeywords = re.findall("\\b("+ wordList +")\\b", xmltodict.unparse(instanceResult['content']).encode('utf-8'), flags=re.IGNORECASE)
+                listWholeKeywords = re.findall("\\b("+ wordList +")\\b", XMLdata.unparse(instanceResult['content']).encode('utf-8'), flags=re.IGNORECASE)
                 labels = list(set(listWholeKeywords))
 
                 for label in labels:
@@ -537,10 +539,10 @@ def get_results_by_instance(request):
                 for instanceResult in instanceResults:
                     custom_xslt = False
                     results.append({'title': instanceResult['title'],
-                                    'content': xmltodict.unparse(instanceResult['content']),
+                                    'content': XMLdata.unparse(instanceResult['content']),
                                     'id': str(instanceResult['_id'])})
                     #dom = etree.fromstring(str(xmltodict.unparse(instanceResult['content']).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
-                    dom = etree.XML(str(xmltodict.unparse(instanceResult['content']).encode('utf-8')))
+                    dom = etree.XML(str(XMLdata.unparse(instanceResult['content']).encode('utf-8')))
                     #Check if a custom list result XSLT has to be used
                     try:
                         schema = Template.objects.get(pk=instanceResult['schema'])
