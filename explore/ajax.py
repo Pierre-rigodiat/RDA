@@ -1896,10 +1896,12 @@ def manageLiForQuery(request, li):
             for leave in selectedLeaves[:-1]:
                 leavesID += leave + " "
             leavesID += selectedLeaves[-1]
-            li.attrib['onclick'] = "selectParent('" + leavesID + "')"
-    #         li.insert(0, html.fragment_fromstring("""<span onclick="selectParent('""" + leavesID + """')">""" +
-    #                                               li.text + """</span>"""))
-            li.text = ""
+            # get the node text
+            li_text = li[0].tail
+            li[0].tail = ""
+            # insert span with selectParent (cannot put it on li node directly or all children will call the JS)
+            li.insert(0, html.fragment_fromstring("""<span onclick="selectParent('""" + leavesID + """')">""" +
+                                                  li_text + """</span>"""))
         if not branchInfo.keepTheBranch:
             li.attrib['style'] = "display:none;"
         return branchInfo
