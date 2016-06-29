@@ -252,7 +252,7 @@ def generate_xsd_tree_for_querying_data(request):
         try:
             try: # custom template already exists
                 custom_template = CustomTemplate.objects.get(user=str(request.user.id), template=templateID)
-                root_element_id = custom_template.root
+                root_element_id = custom_template.root.id
             except: # custom template doesn't exist
                 root_element_id = generate_form(request, xmlDocTreeStr, config=load_config())
                 custom_template = CustomTemplate(user=str(request.user.id), template=templateID, root=root_element_id).save()
