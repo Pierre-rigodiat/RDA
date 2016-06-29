@@ -28,6 +28,7 @@ import copy
 import lxml.etree as etree
 import re
 from curate.models import SchemaElement
+from explore.models import CustomTemplate
 from mgi import common
 from mgi.common import SCHEMA_NAMESPACE, xpath_to_dot_notation
 from mgi.models import Template, SavedQuery, XMLdata, Instance, TemplateVersion
@@ -247,19 +248,25 @@ def generate_xsd_tree_for_querying_data(request):
         setCurrentTemplate(request, templateID)        
 
     if formString == "":
-        formString = "<form id=\"dataQueryForm\" name=\"xsdForm\">"
-        try:
-            root_element_id = generate_form(request, xmlDocTreeStr, config=load_config())
-            root_element = SchemaElement.objects.get(pk=root_element_id)
 
+        try:
+            try: # custom template already exists
+                custom_template = CustomTemplate.objects.get(user=str(request.user.id), template=templateID)
+                root_element_id = custom_template.root
+            except: # custom template doesn't exist
+                root_element_id = generate_form(request, xmlDocTreeStr, config=load_config())
+                custom_template = CustomTemplate(user=str(request.user.id), template=templateID, root=root_element_id).save()
+
+            root_element = SchemaElement.objects.get(pk=root_element_id)
             renderer = CheckboxRenderer(root_element, request)
             html_form = renderer.render()
+
+            formString = "<form id=\"dataQueryForm\" name=\"xsdForm\">"
+            formString += html_form
+            formString += "</form>"
         except Exception as e:
             renderer = DefaultRenderer(None, {})
-            html_form = renderer._render_form_error(e.message)
-        formString += html_form
-
-    formString += "</form>"
+            formString = renderer._render_form_error(e.message)
 
     print 'END def generateXSDTreeForQueryingData(request)'
     response_dict = {'xsdForm': formString}
