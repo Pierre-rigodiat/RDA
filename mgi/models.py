@@ -328,7 +328,7 @@ class XMLdata(object):
         """save into mongo db"""
         # insert the content into mongo db                                                                                                                                                                                    
         self.content['lastmodificationdate'] = datetime.datetime.now()
-        self.content['deleted'] = self.content['content']['Resource'].get('@status', None) != 'active'
+        self.content['deleted'] = self.content['content']['Resource'].get('@status', None) == 'deleted'
         if self.content['deleted']:
             self.content['deletedDate'] = datetime.datetime.now()
         docID = self.xmldata.insert(self.content)
@@ -519,7 +519,7 @@ class XMLdata(object):
         xmldata = db['xmldata']
         json_content = xmltodict.parse(content, postprocessor=postprocessor)
         json = {'content': json_content, 'title': title, 'lastmodificationdate': datetime.datetime.now()}
-        deleted = json_content['Resource'].get('@status', None) != 'active'
+        deleted = json_content['Resource'].get('@status', None) == 'deleted'
         json.update({'deleted': deleted})
         if deleted:
             json.update({'deletedDate': datetime.datetime.now()})
