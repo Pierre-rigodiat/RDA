@@ -456,7 +456,7 @@ class OAIProvider(TemplateView):
 ################################################################################
     def get_last_modified_date(self, element):
         try:
-            if element['deleted']:
+            if element.get('deleted', False):
                 date = datestamp.datetime_to_datestamp(element['deletedDate'])
             else:
                 date = datestamp.datetime_to_datestamp(element['publicationdate'])
