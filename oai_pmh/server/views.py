@@ -266,7 +266,7 @@ class OAIProvider(TemplateView):
                         'identifier': identifier,
                         'last_modified': self.get_last_modified_date(i),
                         'sets': sets,
-                        'deleted': i['deleted']
+                        'deleted': i.get('deleted', False)
                     }
                     items.append(item_info)
             #If there is no records
@@ -348,7 +348,7 @@ class OAIProvider(TemplateView):
                 'last_modified': self.get_last_modified_date(data),
                 'sets': sets,
                 'XML': dataXML[0]['content'],
-                'deleted': data['deleted']
+                'deleted': data.get('deleted', False)
             }
             return self.render_to_response(record_info)
         except OAIExceptions, e:
@@ -426,7 +426,7 @@ class OAIProvider(TemplateView):
                         'last_modified': self.get_last_modified_date(elt),
                         'sets': sets,
                         'XML': xmlStr['content'],
-                        'deleted': elt['deleted']
+                        'deleted': elt.get('deleted', False)
                     }
                     items.append(record_info)
 
