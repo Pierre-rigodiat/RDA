@@ -145,7 +145,7 @@ OAI_PROTOCOLE_VERSION = '2.0' #the version of the OAI-PMH supported by the repos
 OAI_SCHEME = 'oai'
 OAI_REPO_IDENTIFIER = 'server-' + HOST
 OAI_SAMPLE_IDENTIFIER = OAI_SCHEME+OAI_DELIMITER+OAI_REPO_IDENTIFIER+OAI_DELIMITER+'id/12345678a123aff6ff5f2d9e'
-OAI_DELETED_RECORD = 'no' #no ; transient ; persistent
+OAI_DELETED_RECORD = 'persistent' #no ; transient ; persistent
 
 # PARSER
 PARSER_MIN_TREE = True

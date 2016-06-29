@@ -255,7 +255,7 @@ class OAIProvider(TemplateView):
                 #The record has to be published
                 query['ispublished'] = True
                 #Get all records for this template
-                data = XMLdata.executeQueryFullResult(query)
+                data = XMLdata.executeQueryFullResult(query, includeDeleted=True)
                 #IF no records, go to the next template
                 if len(data) == 0:
                     continue
@@ -264,8 +264,9 @@ class OAIProvider(TemplateView):
                     identifier = '%s:%s:id/%s' % (settings.OAI_SCHEME, settings.OAI_REPO_IDENTIFIER, str(i['_id']))
                     item_info = {
                         'identifier': identifier,
-                        'last_modified': datestamp.datetime_to_datestamp(i['publicationdate']) if 'publicationdate' in i else datestamp.datetime_to_datestamp(datetime.datetime.min),
-                        'sets': sets
+                        'last_modified': self.get_last_modified_date(i),
+                        'sets': sets,
+                        'deleted': i.get('deleted', False)
                     }
                     items.append(item_info)
             #If there is no records
@@ -307,7 +308,7 @@ class OAIProvider(TemplateView):
                 query['ispublished'] = True
             except Exception:
                 raise idDoesNotExist(self.identifier)
-            data = XMLdata.executeQueryFullResult(query)
+            data = XMLdata.executeQueryFullResult(query, includeDeleted=True)
             #This id doesn't exist
             if len(data) == 0:
                 raise idDoesNotExist(self.identifier)
@@ -340,12 +341,14 @@ class OAIProvider(TemplateView):
                 dataXML = self.getXMLTranformXSLT(dataToTransform, xslt)
             else:
                 dataXML = dataToTransform
+
             #Fill the response
             record_info = {
                 'identifier': self.identifier,
-                'last_modified': datestamp.datetime_to_datestamp(data['publicationdate']) if 'publicationdate' in data else datestamp.datetime_to_datestamp(datetime.datetime.min),
+                'last_modified': self.get_last_modified_date(data),
                 'sets': sets,
-                'XML': dataXML[0]['content']
+                'XML': dataXML[0]['content'],
+                'deleted': data.get('deleted', False)
             }
             return self.render_to_response(record_info)
         except OAIExceptions, e:
@@ -400,7 +403,7 @@ class OAIProvider(TemplateView):
                 #The record has to be published
                 query['ispublished'] = True
                 #Get all records for this template
-                data = XMLdata.executeQueryFullResult(query)
+                data = XMLdata.executeQueryFullResult(query, includeDeleted=True)
                 #IF no records, go to the next template
                 if len(data) == 0:
                     continue
@@ -420,9 +423,10 @@ class OAIProvider(TemplateView):
                     xmlStr = filter(lambda xml: xml['title'] == elt['_id'], dataXML)[0]
                     record_info = {
                         'identifier': identifier,
-                        'last_modified': datestamp.datetime_to_datestamp(elt['publicationdate']) if 'publicationdate' in elt else datestamp.datetime_to_datestamp(datetime.datetime.min),
+                        'last_modified': self.get_last_modified_date(elt),
                         'sets': sets,
-                        'XML': xmlStr['content']
+                        'XML': xmlStr['content'],
+                        'deleted': elt.get('deleted', False)
                     }
                     items.append(record_info)
 
@@ -439,6 +443,27 @@ class OAIProvider(TemplateView):
             return HttpResponse({'content':e.message}, status=HTTP_500_INTERNAL_SERVER_ERROR)
         except badResumptionToken, e:
             return self.error(badResumptionToken.code, badResumptionToken.message)
+
+
+################################################################################
+#
+# Function Name: get_last_modified_date(request)
+# Inputs:        element -
+# Outputs:       Date
+# Exceptions:    None
+# Description:  Get last modified date
+#
+################################################################################
+    def get_last_modified_date(self, element):
+        try:
+            if element.get('deleted', False):
+                date = datestamp.datetime_to_datestamp(element['deletedDate'])
+            else:
+                date = datestamp.datetime_to_datestamp(element['publicationdate'])
+        except:
+            date = datestamp.datetime_to_datestamp(datetime.datetime.min)
+
+        return date
 
 ################################################################################
 #
@@ -535,14 +560,26 @@ class OAIProvider(TemplateView):
         if self.until:
             try:
                 endDate = datestamp.datestamp_to_datetime(self.until)
-                query['publicationdate'] = { "$lte" : endDate}
+                query['$or'] = [{'$and': [{'deleted': True},
+                                          {'deletedDate': {'$exists': True}},
+                                          {'deletedDate': {"$lte" : endDate}}]},
+                                {'$and': [{'deleted': False},
+                                          {'publicationdate': {"$lte" : endDate}}]},
+                                {'$and': [{'deleted': {'$exists': False}},
+                                          {'publicationdate': {"$lte" : endDate}}]}]
             except:
                 error = 'Illegal date/time for "until" (%s)' % self.until
                 date_errors.append(badArgument(error))
         if self.From:
             try:
                 startDate = datestamp.datestamp_to_datetime(self.From)
-                query['publicationdate'] = { "$gte" : startDate}
+                query['$or'] = [{'$and': [{'deleted': True},
+                                          {'deletedDate': {'$exists': True}},
+                                          {'deletedDate': {"$gte" : startDate}}]},
+                                {'$and': [{'deleted': False},
+                                          {'publicationdate': {"$gte" : startDate}}]},
+                                {'$and': [{'deleted': {'$exists': False}},
+                                          {'publicationdate': {"$gte" : startDate}}]}]
             except:
                 error = 'Illegal date/time for "from" (%s)' % self.From
                 date_errors.append(badArgument(error))

@@ -330,6 +330,8 @@ class XMLdata(object):
         if (publicationdate is not None):
             self.content['publicationdate'] = publicationdate
 
+        self.content['deleted'] = False
+
     @staticmethod
     def initIndexes():
         #create a connection
@@ -349,7 +351,7 @@ class XMLdata(object):
         return docID
     
     @staticmethod
-    def objects():        
+    def objects(includeDeleted=False):
         """
             returns all objects as a list of dicts
              /!\ Doesn't return the same kind of objects as mongoengine.Document.objects()
@@ -360,8 +362,12 @@ class XMLdata(object):
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
+        # Check the deleted records
+        query = dict()
+        if not includeDeleted:
+            query["$or"] = [{'deleted': False}, {'deleted': {'$exists': False}}]
         # find all objects of the collection
-        cursor = xmldata.find(as_class = OrderedDict)
+        cursor = xmldata.find(query, as_class = OrderedDict)
         # build a list with the objects        
         results = []
         for result in cursor:
@@ -369,7 +375,7 @@ class XMLdata(object):
         return results
     
     @staticmethod
-    def find(params):        
+    def find(params, includeDeleted=False):
         """
             returns all objects that match params as a list of dicts 
              /!\ Doesn't return the same kind of objects as mongoengine.Document.objects()
@@ -380,6 +386,9 @@ class XMLdata(object):
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
+        # Check the deleted records
+        if not includeDeleted:
+            params["$or"] = [{'deleted': False}, {'deleted': {'$exists': False}}]
         # find all objects of the collection
         cursor = xmldata.find(params, as_class = OrderedDict)
         # build a list with the objects        
@@ -389,7 +398,7 @@ class XMLdata(object):
         return results
     
     @staticmethod
-    def executeQuery(query):
+    def executeQuery(query, includeDeleted=False):
         """queries mongo db and returns results data"""
         # create a connection
         client = MongoClient(MONGODB_URI)
@@ -397,6 +406,9 @@ class XMLdata(object):
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
+        # Check the deleted records
+        if not includeDeleted:
+            query["$or"] = [{'deleted': False}, {'deleted': {'$exists': False}}]
         # query mongo db
         cursor = xmldata.find(query,as_class = OrderedDict)  
         # build a list with the xml representation of objects that match the query      
@@ -406,7 +418,7 @@ class XMLdata(object):
         return queryResults
     
     @staticmethod
-    def executeQueryFullResult(query):
+    def executeQueryFullResult(query, includeDeleted=False):
         """queries mongo db and returns results data"""
         # create a connection
         client = MongoClient(MONGODB_URI)
@@ -414,6 +426,9 @@ class XMLdata(object):
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
+        # Check the deleted records
+        if not includeDeleted:
+            query["$or"] = [{'deleted': False}, {'deleted': {'$exists': False}}]
         # query mongo db
         cursor = xmldata.find(query,as_class = OrderedDict)
         # build a list with the xml representation of objects that match the query
@@ -491,9 +506,33 @@ class XMLdata(object):
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
-        xmldata.remove({'_id': ObjectId(postID)})
-    
+        #xmldata.remove({'_id': ObjectId(postID)})
+        xmldata.update({'_id': ObjectId(postID)}, {"$set": {'deleted': True, 'deletedDate': datetime.datetime.now()}},
+                       upsert=False)
+
     # TODO: to be tested
+    @staticmethod
+    def update(postID, json=None, xml=None):
+        """
+            Update the object with the given id
+        """
+        # create a connection
+        client = MongoClient(MONGODB_URI)
+        # connect to the db 'mgi'
+        db = client[MGI_DB]
+        # get the xmldata collection
+        xmldata = db['xmldata']
+
+        data = None
+        if (json is not None):
+            data = json
+            if '_id' in json:
+                del json['_id']
+        else:
+            data = xmltodict.parse(xml, postprocessor=postprocessor)
+
+        if data is not None:
+            xmldata.update({'_id': ObjectId(postID)}, {"$set":data}, upsert=False)
             
     @staticmethod
     def update_content(postID, content=None, title=None):
@@ -552,7 +591,7 @@ class XMLdata(object):
         xmldata.update({'_id': ObjectId(postID)}, {'$set':{'iduser': user}}, upsert=False)
 
     @staticmethod
-    def executeFullTextQuery(text, templatesID, refinements={}):
+    def executeFullTextQuery(text, templatesID, refinements={}, includeDeleted=False):
         """
         Execute a full text query with possible refinements
         """
@@ -574,6 +613,9 @@ class XMLdata(object):
         if len(refinements.keys()) > 0:
             full_text_query.update(refinements)
         full_text_query.update({'ispublished': True})
+        # Check the deleted records
+        if not includeDeleted:
+            full_text_query.update({"$or":[{'deleted': False}, {'deleted': {'$exists': False}}]})
             
         cursor = xmldata.find(full_text_query, as_class = OrderedDict).sort('publicationdate', DESCENDING)
         
@@ -819,6 +861,9 @@ class OaiRecord(Document):
             full_text_query = {'$text': {'$search': wordList}, 'metadataformat' : {'$in': listMetadataFormatObjectId}, }
         else:
             full_text_query = {'metadataformat' : {'$in': listMetadataFormatObjectId} }
+
+        # only no deleted records
+        full_text_query.update({'deleted': False})
 
         cursor = xmlrecord.find(full_text_query, as_class = OrderedDict)
 
