@@ -564,6 +564,8 @@ class OAIProvider(TemplateView):
                                           {'deletedDate': {'$exists': True}},
                                           {'deletedDate': {"$lte" : endDate}}]},
                                 {'$and': [{'deleted': False},
+                                          {'publicationdate': {"$lte" : endDate}}]},
+                                {'$and': [{'deleted': {'$exists': False}},
                                           {'publicationdate': {"$lte" : endDate}}]}]
             except:
                 error = 'Illegal date/time for "until" (%s)' % self.until
@@ -575,6 +577,8 @@ class OAIProvider(TemplateView):
                                           {'deletedDate': {'$exists': True}},
                                           {'deletedDate': {"$gte" : startDate}}]},
                                 {'$and': [{'deleted': False},
+                                          {'publicationdate': {"$gte" : startDate}}]},
+                                {'$and': [{'deleted': {'$exists': False}},
                                           {'publicationdate': {"$gte" : startDate}}]}]
             except:
                 error = 'Illegal date/time for "from" (%s)' % self.From

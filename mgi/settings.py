@@ -145,13 +145,16 @@ OAI_REPO_IDENTIFIER = 'server-' + HOST
 OAI_SAMPLE_IDENTIFIER = OAI_SCHEME+OAI_DELIMITER+OAI_REPO_IDENTIFIER+OAI_DELIMITER+'id/12345678a123aff6ff5f2d9e'
 OAI_DELETED_RECORD = 'persistent' #no ; transient ; persistent
 
-#CURATE
-CURATE_MIN_TREE = True
-CURATE_COLLAPSE = False
-AUTO_KEY_KEYREF = True
-IMPLICIT_EXTENSION_BASE = False
+# PARSER
+PARSER_MIN_TREE = True
+PARSER_IGNORE_MODULES = False
+PARSER_COLLAPSE = True
+PARSER_AUTO_KEY_KEYREF = False
+PARSER_IMPLICIT_EXTENSION_BASE = False
 
-TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
+TEMPLATE_DIRS = [
+    os.path.join(BASE_DIR, 'templates')
+]
 
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
@@ -193,7 +196,8 @@ INSTALLED_APPS = (
     'modules',
     'user_dashboard',
     'oai_pmh',
-    'testing'
+    'testing',
+    'utils.XSDParser'
 )
 
 OAUTH2_PROVIDER = {

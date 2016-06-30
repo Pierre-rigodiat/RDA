@@ -7,6 +7,8 @@ import mgi.tasks as MgiTasks
 import os
 from django.utils.importlib import import_module
 from django.forms import ValidationError
+import re
+
 SCHEMA_NAMESPACE = "http://www.w3.org/2001/XMLSchema"
 LXML_SCHEMA_NAMESPACE = "{" + SCHEMA_NAMESPACE + "}"
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
@@ -41,7 +43,7 @@ def getValidityErrorsForMDCS(xmlTree, type):
     includes = xmlTree.findall("{}include".format(LXML_SCHEMA_NAMESPACE))
     # get the elements
     elements = xmlTree.findall("{}element".format(LXML_SCHEMA_NAMESPACE))
-
+    
     if len(imports) != 0 or len(includes) != 0:
         for el_import in imports:
             if 'schemaLocation' not in el_import.attrib:
@@ -68,7 +70,7 @@ def getValidityErrorsForMDCS(xmlTree, type):
     #         errors.append("Only templates with at least one root element are supported.")
 
     # Types Tests
-    elif type == "Type":
+    if type == "Type":
         elements = xmlTree.findall("*")
         if len(elements) > 0:
             # only simpleType, complexType or include
@@ -321,3 +323,21 @@ def validate_password_strength(value):
             raise ValidationError([errors])
 
     return value
+
+
+def xpath_to_dot_notation(xpath, namespaces):
+    """
+    Transorm XML xpath in dot notation
+    :param xpath:
+    :param namespaces:
+    :return:
+    """
+    # remove indexes from xpath
+    xpath = re.sub(r'\[[0-9]+\]', '', xpath)
+    # remove namespaces
+    for prefix in namespaces.keys():
+        xpath = re.sub(r'{}:'.format(prefix), '', xpath)
+    # replace / by .
+    xpath = xpath.replace("/", ".")
+
+    return xpath

@@ -28,7 +28,6 @@ import xmltodict
 from django.contrib import messages
 
 from curate.models import SchemaElement
-from curate.renderer.xml import XmlRenderer
 from mgi.models import Template, TemplateVersion, XML2Download, FormData, XMLdata
 from curate.forms import NewForm, OpenForm, UploadForm, SaveDataForm, CancelChangesForm
 from django.http.response import HttpResponseBadRequest
@@ -46,6 +45,9 @@ from mgi.exceptions import MDCSError
 # Description:   Page that allows to select a template to start curating         
 #
 ################################################################################
+from utils.XSDParser.renderer.xml import XmlRenderer
+
+
 @permission_required(content_type=RIGHTS.curate_content_type, permission=RIGHTS.curate_access, login_url='/login')
 def index(request):
     template = loader.get_template('curate/curate.html')
@@ -503,17 +505,6 @@ def save_xml_data_to_db(request):
         return HttpResponseBadRequest(message)
 
 
-def cancel_changes(request):
-    if request.method == 'POST':
-        form = CancelChangesForm(request.POST)
-        if form.is_valid():
-            return HttpResponse(request.POST['cancel'])
-    else:
-        form = CancelChangesForm({'cancel': 'revert'})
-
-    return HttpResponse(json.dumps({'form': str(form)}), content_type='application/javascript')
-
-
 ################################################################################
 #
 # Function Name: curate_edit_form(request)
@@ -558,3 +549,14 @@ def curate_edit_form(request):
             'errors': e.message,
         })
         return HttpResponse(template.render(context))
+
+
+def cancel_changes(request):
+    if request.method == 'POST':
+        form = CancelChangesForm(request.POST)
+        if form.is_valid():
+            return HttpResponse(request.POST['cancel'])
+    else:
+        form = CancelChangesForm({'cancel': 'revert'})
+
+    return HttpResponse(json.dumps({'form': str(form)}), content_type='application/javascript')

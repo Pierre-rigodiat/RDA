@@ -48,6 +48,9 @@ import xmltodict
 from oai_pmh.admin.forms import UploadOaiPmhXSLTForm
 from django import utils
 from utils.XMLValidation.xml_schema import validate_xml_schema
+import xmltodict
+#TODO Move to OAI-PMH
+from oai_pmh.admin.forms import UploadOaiPmhXSLTForm
 
 
 ################################################################################

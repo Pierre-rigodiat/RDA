@@ -126,9 +126,9 @@ class NamePIDModule(Module):
         return ''
 
     def _get_result(self, request):
-        pid = ' pid="' + self.params['pid'] + '"' if 'pid' in self.params else ''
+        pid = ' pid="'+ self.params['pid'] +'"' if 'pid' in self.params else ''
         name = self.params['name'] if 'name' in self.params else ''
-        return '<' + self.params['tag'] + pid + '>' + name + '</' + self.params['tag'] + '>'
+        return '<' + self.params['tag'] + pid + '>' +  name + '</' + self.params['tag'] + '>'
 
     def _post_display(self, request):
         form = NamePIDForm(request.POST)
@@ -142,9 +142,8 @@ class NamePIDModule(Module):
         form = NamePIDForm(request.POST)
         if form.is_valid():
             if 'name' in request.POST and request.POST['name'] != '':
-                pid = ' pid="' + request.POST['pid'] + '"' if 'pid' in request.POST and len(
-                    request.POST['pid']) > 0 else ''
-                return '<' + request.POST['tag'] + pid + '>' + request.POST['name'] + '</' + request.POST['tag'] + '>'
+                pid = ' pid="'+ request.POST['pid'] +'"' if 'pid' in request.POST and len(request.POST['pid']) > 0 else ''
+                return '<' + request.POST['tag'] + pid + '>' +  request.POST['name'] + '</' + request.POST['tag'] + '>'
 
         return '<' + request.POST['tag'] + '></' + request.POST['tag'] + '>'
 
@@ -182,9 +181,9 @@ class RelevantDateModule(Module):
         return ''
 
     def _get_result(self, request):
-        role = ' role="' + self.params['role'] + '"' if 'role' in self.params else ''
+        role = ' role="'+ self.params['role'] +'"' if 'role' in self.params else ''
         date = self.params['date'] if 'date' in self.params else ''
-        return '<' + self.params['tag'] + role + '>' + date + '</' + self.params['tag'] + '>'
+        return '<' + self.params['tag'] + role + '>' +  date + '</' + self.params['tag'] + '>'
 
     def _post_display(self, request):
         return ''
@@ -195,9 +194,8 @@ class RelevantDateModule(Module):
         form = DateForm(request.POST)
         if form.is_valid():
             if 'date' in request.POST and request.POST['date'] != '':
-                role = ' role="' + request.POST['role'] + '"' if 'role' in request.POST and len(
-                    request.POST['role']) > 0 else ''
-                return '<' + request.POST['tag'] + role + '>' + request.POST['date'] + '</' + request.POST['tag'] + '>'
+                role = ' role="'+ request.POST['role'] +'"' if 'role' in request.POST and len(request.POST['role']) > 0 else ''
+                return '<' + request.POST['tag'] + role + '>' +  request.POST['date'] + '</' + request.POST['tag'] + '>'
 
         return '<' + request.POST['tag'] + '></' + request.POST['tag'] + '>'
 
@@ -288,7 +286,6 @@ class DescriptionModule(TextAreaModule):
     """
     Module to replace description fields by textareas
     """
-
     def __init__(self):
         self.data = ''
         TextAreaModule.__init__(self)

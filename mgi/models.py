@@ -24,15 +24,13 @@ from pymongo import MongoClient, TEXT, ASCENDING, DESCENDING, errors
 
 import os
 from django.utils.importlib import import_module
-
-from utils.XSDhash import XSDhash
-
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
 MONGODB_URI = settings.MONGODB_URI
 MGI_DB = settings.MGI_DB
 import re
 import datetime
+from utils.XSDhash import XSDhash
 
 
 class Request(Document):
@@ -88,6 +86,27 @@ class Template(Document):
     ResultXsltList = ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY)
     ResultXsltDetailed = ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY)
 
+def delete_template(object_id):
+    from mgiutils import getListNameTemplateDependenciesRecordFormData
+    listName = getListNameTemplateDependenciesRecordFormData(object_id)
+    return listName if listName != '' else delete_template_and_version(object_id)
+
+def delete_template_and_version(object_id):
+    template = Template.objects(pk=object_id).get()
+    version = TemplateVersion.objects(pk=template.templateVersion).get()
+    version.delete()
+    template.delete()
+
+def delete_type(object_id):
+    from mgiutils import getListNameTypeDependenciesTemplateType
+    listName = getListNameTypeDependenciesTemplateType(object_id)
+    return listName if listName != '' else delete_type_and_version(object_id)
+
+def delete_type_and_version(object_id):
+    type = Type.objects(pk=object_id).get()
+    version = TypeVersion.objects(pk=type.typeVersion).get()
+    version.delete()
+    type.delete()
 
 def create_template(content, name, filename, dependencies=[], user=None):
     hash_value = XSDhash.get_hash(content)
@@ -254,7 +273,7 @@ class FormData(Document):
     """Stores data being entered and not yet curated"""
     user = StringField(required=True)
     template = StringField(required=True)
-    name = name = StringField(required=True, unique_with=['user', 'template'])
+    name = StringField(required=True, unique_with=['user', 'template'])
     elements = DictField()
     xml_data = StringField(default='')
     xml_data_id = StringField()
@@ -263,6 +282,7 @@ class FormData(Document):
 def postprocessor(path, key, value):
     """Called after XML to JSON transformation"""
     if key == "#text":
+        # can't unparse if numeric value in #text
         return key, str(value)
     try:
         return key, int(value)

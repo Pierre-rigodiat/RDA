@@ -36,6 +36,7 @@ from django.conf import settings
 import os
 from mongoengine import *
 from pymongo import MongoClient
+from mgi.settings import MONGODB_URI, MGI_DB
 from django.utils.importlib import import_module
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
@@ -717,12 +718,6 @@ def select_schema(request):
     hash = request.QUERY_PARAMS.get('hash', None)
     
     try:        
-        # create a connection
-        client = MongoClient(MONGODB_URI)
-        # connect to the db 'mgi'
-        db = client[MGI_DB]
-        # get the xmldata collection
-        template = db['template']
         query = dict()
         if id is not None:
             query['id'] = ObjectId(id)
