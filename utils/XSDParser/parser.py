@@ -4,6 +4,7 @@ import logging
 import traceback
 import sys
 import re
+import textwrap
 from urlparse import urlparse, parse_qsl
 from curate.models import SchemaElement
 from mgi.exceptions import MDCSError
@@ -22,6 +23,9 @@ logger = logging.getLogger(__name__)
 ##################################################
 # Part I: Utilities
 ##################################################
+
+def _fmt_tooltip(text, width=80):
+    return textwrap.fill(re.sub(r'\s+', ' ', text.strip()), width)
 
 def load_schema_data_in_db(xsd_data):
     """
@@ -1091,7 +1095,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
             else:  # generate the type
                 if element_type is None:  # no complex/simple type
                     placeholder = app_info['placeholder'] if 'placeholder' in app_info else ''
-                    tooltip = app_info['tooltip'] if 'tooltip' in app_info else ''
+                    tooltip = _fmt_tooltip(app_info['tooltip']) if 'tooltip' in app_info else ''
                     use = app_info['use'] if 'use' in app_info else ''
 
                     li_content += ' '
