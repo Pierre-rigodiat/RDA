@@ -47,7 +47,7 @@ def load_schema_data_in_db(xsd_data):
 
     if 'options' in xsd_data:
         if xsd_element.tag == 'module' and xsd_data['options']['data'] is not None:
-            module_data = str(xsd_data['options']['data'])
+            module_data = str(xsd_data['options']['data']).encode('utf-8')
             module_data = module_data.lstrip()
             xsd_data['options']['data'] = module_data.rstrip()
 
