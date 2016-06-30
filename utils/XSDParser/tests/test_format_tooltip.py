@@ -1,6 +1,5 @@
 from django.test import TestCase
-
-from curate.parser import _fmt_tooltip
+from utils.XSDParser.parser import _fmt_tooltip
 
 
 class TestFormatTooltip(TestCase):
@@ -19,6 +18,14 @@ class TestFormatTooltip(TestCase):
         width = 10
         result = _fmt_tooltip(tooltip, width)
         self.assertEquals(tooltip, result)
+
+    def test_inferior_length(self):
+        tooltip = "aaaaaa"
+        width = 10
+        result = _fmt_tooltip(tooltip, width)
+        lines = result.split('\n')
+        for line in lines:
+            self.assertTrue(len(line) <= width)
 
     def test_wrap_half(self):
         tooltip = "aaaaaaaaaa"
