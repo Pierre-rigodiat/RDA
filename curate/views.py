@@ -120,8 +120,6 @@ def curate_edit_data(request):
         request.session['curateFormData'] = str(form_data.id)
         if 'form_id' in request.session:
             del request.session['form_id']
-        if 'formString' in request.session:
-            del request.session['formString']
         if 'xmlDocTree' in request.session:
             del request.session['xmlDocTree']
     except:
@@ -157,9 +155,7 @@ def curate_from_schema(request):
 
             request.session['curateFormData'] = str(form_data.pk)
             request.session['curate_edit'] = False            
-            
-            if 'formString' in request.session:
-                del request.session['formString']
+
             if 'xmlDocTree' in request.session:
                 del request.session['xmlDocTree']
         else:
@@ -388,9 +384,6 @@ def start_curate(request):
 
                     template = loader.get_template('curate/curate_full_start.html')
 
-                    if 'formString' in request.session:
-                        del request.session['formString']
-
                     if 'xmlDocTree' in request.session:
                         del request.session['xmlDocTree']
 
@@ -443,8 +436,6 @@ def save_xml_data_to_db(request):
     xml_renderer = XmlRenderer(root_element)
     xml_string = xml_renderer.render()
 
-    # xmlString = request.session['xmlString']
-    # template_id = request.session['currentTemplateID']
     template_id = form_data.template
 
     # Parse data from form
@@ -510,8 +501,6 @@ def curate_edit_form(request):
                 # parameters that will be used during curation
                 request.session['curateFormData'] = str(form_data.id)
 
-                if 'formString' in request.session:
-                    del request.session['formString']
                 if 'xmlDocTree' in request.session:
                     del request.session['xmlDocTree']
 

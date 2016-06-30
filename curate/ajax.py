@@ -167,20 +167,6 @@ def clear_fields(request):
 #
 ################################################################################
 def download_xml(request):
-    # xmlString = request.session['xmlString']
-    #
-    # form_data_id = request.session['curateFormData']
-    # form_data = FormData.objects().get(pk=form_data_id)
-    #
-    # xml2download = XML2Download(title=form_data.name, xml=xmlString).save()
-    # xml2downloadID = str(xml2download.id)
-
-    # xml_renderer = XmlRenderer(request.session['form_id'])
-    # response_dict = {
-    #     'xml2downloadID': xml_renderer.render()
-    # }
-    # return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-
     form_data_id = request.session['curateFormData']
     form_data = FormData.objects.get(pk=ObjectId(form_data_id))
 
@@ -204,24 +190,6 @@ def download_xml(request):
 #
 ################################################################################
 def download_current_xml(request):
-    # get the XML String built from form
-    # xml_string = request.POST['xmlString']
-    #
-    # xml_tree_str = str(request.session['xmlDocTree'])
-    #
-    # # set namespaces information in the XML document
-    # xml_string = common.manage_namespaces(xml_string, xml_tree_str)
-    #
-    # # get form data information
-    # form_data_id = request.session['curateFormData']
-    # form_data = FormData.objects().get(pk=form_data_id)
-    #
-    # xml2download = XML2Download(title=form_data.name, xml=xml_string).save()
-    # xml2downloadID = str(xml2download.id)
-    #
-    # response_dict = {"xml2downloadID": xml2downloadID}
-    # return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-
     form_data_id = request.session['curateFormData']
     form_data = FormData.objects.get(pk=ObjectId(form_data_id))
 
@@ -245,9 +213,6 @@ def download_current_xml(request):
 #
 ################################################################################
 def init_curate(request):
-    if 'formString' in request.session:
-        del request.session['formString']
-
     if 'form_id' in request.session:
         del request.session['form_id']
 
@@ -409,19 +374,15 @@ def save_form(request):
 ################################################################################
 def validate_xml_data(request):
     # template_id = request.session['currentTemplateID']
-    request.session['xmlString'] = ""
     try:
         xsd_tree_str = str(request.session['xmlDocTree'])
 
-        # set namespaces information in the XML document
-        # xmlString = request.POST['xmlString']
         form_id = request.session['form_id']
         root_element = SchemaElement.objects.get(pk=form_id)
 
         xml_renderer = XmlRenderer(root_element)
         xml_data = xml_renderer.render()
 
-        # xmlString = request.POST['xmlString']
         # validate XML document
         common.validateXMLDocument(xml_data, xsd_tree_str)
     except etree.XMLSyntaxError as xse:
@@ -433,9 +394,6 @@ def validate_xml_data(request):
         message = e.message.replace('"', '\'')
         response_dict = {'errors': message}
         return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
-
-    # request.session['xmlString'] = xmlString
-    # request.session['formString'] = request.POST['xsdForm']
 
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
@@ -450,7 +408,6 @@ def validate_xml_data(request):
 #
 ################################################################################
 def view_data(request):
-    request.session['formString'] = request.POST['form_content']
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 
@@ -470,8 +427,6 @@ def set_current_template(request):
     template_id = request.POST['templateID']
 
     # reset global variables
-    request.session['xmlString'] = ""
-    request.session['formString'] = ""
 
     request.session['currentTemplateID'] = template_id
     request.session.modified = True
@@ -503,9 +458,6 @@ def set_current_user_template(request):
     template_id = request.POST['templateID']
 
     # reset global variables
-    request.session['xmlString'] = ""
-    request.session['formString'] = ""
-
     request.session['currentTemplateID'] = template_id
     request.session.modified = True
 
