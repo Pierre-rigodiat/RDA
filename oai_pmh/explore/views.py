@@ -157,7 +157,7 @@ def explore_detail_result_keyword(request) :
         'title': title,
         'oai_pmh': True,
         'registry_name': registry_name,
-        "template_name": record.metadataformat.template.title
+        "template_name": record.metadataformat.template.title if record.metadataformat.template else '',
     })
 
     return HttpResponse(template.render(context))
