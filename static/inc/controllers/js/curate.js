@@ -409,8 +409,6 @@ generate_xsd_form = function(){
         dataType: "json",
         success : function(data) {
             $('#modules').html(data.modules);
-            $('#periodicTable').html(data.periodicTable);
-            $('#periodicTableMultiple').html(data.periodicTableMultiple);
             $('#xsdForm').html(data.xsdForm);
             setTimeout(disable_elements ,0);
 
