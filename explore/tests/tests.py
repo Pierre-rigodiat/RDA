@@ -41,45 +41,46 @@ def clean_db():
             pass
 
 
-class ExploreTestSuite(TestCase):
-    @classmethod
-    def load_template(cls, template_path):
-        """
-        Load the template to search on
-        :param template_path:
-        :return:
-        """
-        # Open the the file
-        with open(template_path, 'r') as template_file:
-            # read the file content
-            template_content = template_file.read()
-            return create_template(template_content, template_path, template_path)
+def load_template(template_path):
+    """
+    Load the template to search on
+    :param template_path:
+    :return:
+    """
+    # Open the the file
+    with open(template_path, 'r') as template_file:
+        # read the file content
+        template_content = template_file.read()
+        return create_template(template_content, template_path, template_path)
 
-    @classmethod
-    def load_data(cls, data_path, template_id):
-        """
-        Load the data to search
-        :param data_path:
-        :return:
-        """
-        # Open the the file
-        with open(data_path, 'r') as data_file:
-            # read the file content
-            data_content = data_file.read()
-            # add the type in database
-            XMLdata(template_id, xml=data_content).save()
+
+def load_data(data_path, template_id):
+    """
+    Load the data to search
+    :param data_path:
+    :param template_id
+    :return:
+    """
+    # Open the the file
+    with open(data_path, 'r') as data_file:
+        # read the file content
+        data_content = data_file.read()
+        # add the type in database
+        XMLdata(template_id, xml=data_content).save()
+
+
+class ExploreTestSuite(TestCase):
 
     @classmethod
     def setUpClass(cls):
         # clean the database
         clean_db()
         # add a template
-        template = cls.load_template(join(RESOURCES_PATH, 'schema.xsd'))
+        template = load_template(join(RESOURCES_PATH, 'schema.xsd'))
         # load data
-        cls.load_data(join(RESOURCES_PATH, '1.xml'), str(template.id))
-        cls.load_data(join(RESOURCES_PATH, '2.xml'), str(template.id))
-        cls.load_data(join(RESOURCES_PATH, '3.xml'), str(template.id))
-        pass
+        load_data(join(RESOURCES_PATH, '1.xml'), str(template.id))
+        load_data(join(RESOURCES_PATH, '2.xml'), str(template.id))
+        load_data(join(RESOURCES_PATH, '3.xml'), str(template.id))
 
     def test_numeric_true(self):
         criteria = build_criteria("content.root.integer", "=", 1, "xs:int", "xs")
@@ -136,6 +137,69 @@ class ExploreTestSuite(TestCase):
         pass
 
 
-    def test_ns(self):
+class ExploreNSTestSuite(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        # clean the database
+        clean_db()
+        # add a template
+        template = load_template(join(RESOURCES_PATH, 'schema-attr.xsd'))
+        # load data
+        load_data(join(RESOURCES_PATH, '1-attr.xml'), str(template.id))
+        load_data(join(RESOURCES_PATH, '2-attr.xml'), str(template.id))
+        load_data(join(RESOURCES_PATH, '3-attr.xml'), str(template.id))
+
+    def test_numeric_true(self):
+        criteria = build_criteria("content.root.integer", "=", 1, "xs:int", "xs")
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 1)
+
+    def test_numeric_false(self):
+        criteria = build_criteria("content.root.integer", "=", 4, "xs:int", "xs")
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 0)
+
+    def test_numeric_not(self):
+        criteria = build_criteria("content.root.integer", "=", 1, "xs:int", "xs", isNot=True)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 2)
+
+    def test_str_true(self):
+        criteria = build_criteria("content.root.str", "is", "test1", "xs:string", "xs")
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 1)
+
+    def test_str_false(self):
+        criteria = build_criteria("content.root.str", "is", "test4", "xs:string", "xs")
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 0)
+
+    def test_str_not(self):
+        criteria = build_criteria("content.root.str", "is", "test1", "xs:string", "xs", isNot=True)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 2)
+
+    def test_regex_true(self):
+        criteria = build_criteria("content.root.str", "like", "test", "xs:string", "xs")
+        manageRegexBeforeExe(criteria)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 3)
+
+    def test_regex_false(self):
+        criteria = build_criteria("content.root.str", "like", "set", "xs:string", "xs")
+        manageRegexBeforeExe(criteria)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 0)
+
+    def test_regex_not(self):
+        criteria = build_criteria("content.root.str", "like", "test", "xs:string", "xs", isNot=True)
+        manageRegexBeforeExe(criteria)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 0)
+
+    def test_or(self):
         pass
-        # buildCriteria(request, elemPath, comparison, value, elemType, isNot=False)
+
+    def test_and(self):
+        pass
