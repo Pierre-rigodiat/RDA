@@ -20,7 +20,6 @@ from io import BytesIO
 from django.template.context import Context
 from lxml import html
 from collections import OrderedDict
-import xmltodict
 import requests
 import os
 import json
@@ -375,8 +374,8 @@ def manageRegexBeforeExe(query):
         if key == "$and" or key == "$or":
             for subValue in value:
                 manageRegexBeforeExe(subValue)
-        elif isinstance(value, unicode):
-            if (len(value) >= 2 and value[0] == "/" and value[-1] == "/"):
+        elif isinstance(value, unicode) or isinstance(value, str):
+            if len(value) >= 2 and value[0] == "/" and value[-1] == "/":
                 query[key] = re.compile(value[1:-1])
         elif isinstance(value, dict):
             manageRegexBeforeExe(value)
@@ -794,13 +793,28 @@ def invertQuery(query):
                     query[key]["$not"] = saved_value
             else:
                 saved_value = value
-                if isinstance(value, re._pattern_type):
+                if is_regex_expression(value):
                     query[key] = dict()
                     query[key]["$not"] = saved_value
                 else:
                     query[key] = dict()
                     query[key]["$ne"] = saved_value
     return query
+
+
+def is_regex_expression(expr):
+    """
+    Looks if the expression is a regular expression
+    """
+    if isinstance(expr, re._pattern_type):
+        return True
+    try:
+        if expr.startswith('/') and expr.endswith('/'):
+            return True
+        else:
+            return False
+    except:
+        return False
 
 
 ################################################################################
@@ -863,7 +877,7 @@ def ORCriteria(criteria1, criteria2):
 
 ################################################################################
 # 
-# Function Name: buildCriteria(elemPath, comparison, value, elemType, isNot=False)
+# Function Name: build_criteria(elemPath, comparison, value, elemType, isNot=False)
 # Inputs:        elemPath -
 #                comparison -
 #                value -
@@ -874,37 +888,35 @@ def ORCriteria(criteria1, criteria2):
 # Description:   Look at element type and route to the right function to build the criteria
 #
 ################################################################################
-def buildCriteria(request, elemPath, comparison, value, elemType, isNot=False):
-    defaultPrefix = request.session['defaultPrefixExplore']
-
+def build_criteria(element_path, comparison, value, element_type, default_prefix, isNot=False):
     # build the query: value can be found at element:value or at element.#text:value
     # second case appends when the element has attributes or namespace information
-    if (elemType in ['{0}:byte'.format(defaultPrefix),
-                     '{0}:int'.format(defaultPrefix),
-                     '{0}:integer'.format(defaultPrefix),
-                     '{0}:long'.format(defaultPrefix),
-                     '{0}:negativeInteger'.format(defaultPrefix),
-                     '{0}:nonNegativeInteger'.format(defaultPrefix),
-                     '{0}:nonPositiveInteger'.format(defaultPrefix),
-                     '{0}:positiveInteger'.format(defaultPrefix),
-                     '{0}:short'.format(defaultPrefix),
-                     '{0}:unsignedLong'.format(defaultPrefix),
-                     '{0}:unsignedInt'.format(defaultPrefix),
-                     '{0}:unsignedShort'.format(defaultPrefix),
-                     '{0}:unsignedByte'.format(defaultPrefix)]):
-        element_query = intCriteria(elemPath, comparison, value)
-        attribute_query = intCriteria("{}.#text".format(elemPath), comparison, value)
-    elif (elemType in ['{0}:float'.format(defaultPrefix), 
-                       '{0}:double'.format(defaultPrefix),
-                       '{0}:decimal'.format(defaultPrefix)]):
-        element_query = floatCriteria(elemPath, comparison, value, isNot)
-        attribute_query = floatCriteria("{}.#text".format(elemPath), comparison, value)
-    elif elemType == '{0}:string'.format(defaultPrefix):
-        element_query = stringCriteria(elemPath, comparison, value, isNot)
-        attribute_query = stringCriteria("{}.#text".format(elemPath), comparison, value)
+    if (element_type in ['{0}:byte'.format(default_prefix),
+                     '{0}:int'.format(default_prefix),
+                     '{0}:integer'.format(default_prefix),
+                     '{0}:long'.format(default_prefix),
+                     '{0}:negativeInteger'.format(default_prefix),
+                     '{0}:nonNegativeInteger'.format(default_prefix),
+                     '{0}:nonPositiveInteger'.format(default_prefix),
+                     '{0}:positiveInteger'.format(default_prefix),
+                     '{0}:short'.format(default_prefix),
+                     '{0}:unsignedLong'.format(default_prefix),
+                     '{0}:unsignedInt'.format(default_prefix),
+                     '{0}:unsignedShort'.format(default_prefix),
+                     '{0}:unsignedByte'.format(default_prefix)]):
+        element_query = intCriteria(element_path, comparison, value)
+        attribute_query = intCriteria("{}.#text".format(element_path), comparison, value)
+    elif (element_type in ['{0}:float'.format(default_prefix),
+                       '{0}:double'.format(default_prefix),
+                       '{0}:decimal'.format(default_prefix)]):
+        element_query = floatCriteria(element_path, comparison, value)
+        attribute_query = floatCriteria("{}.#text".format(element_path), comparison, value)
+    elif element_type == '{0}:string'.format(default_prefix):
+        element_query = stringCriteria(element_path, comparison, value)
+        attribute_query = stringCriteria("{}.#text".format(element_path), comparison, value)
     else:
-        element_query = stringCriteria(elemPath, comparison, value, isNot)
-        attribute_query = stringCriteria("{}.#text".format(elemPath), comparison, value)
+        element_query = stringCriteria(element_path, comparison, value)
+        attribute_query = stringCriteria("{}.#text".format(element_path), comparison, value)
 
     criteria = ORCriteria(element_query, attribute_query)
 
@@ -958,8 +970,9 @@ def fieldsToQuery(request, htmlTree):
             element = elementInfo['path']
             comparison = field[2][0].value
             value = field[2][1].value
-            criteria = buildCriteria(request, element, comparison, value, elemType, isNot)
-        
+            default_prefix = request.session['defaultPrefixExplore']
+            criteria = build_criteria(element, comparison, value, elemType, default_prefix, isNot)
+
         if boolComp == 'OR':
             query = ORCriteria(query, criteria)
         elif boolComp == 'AND':
@@ -2238,14 +2251,16 @@ def subElementfieldsToQuery(request, liElements, list_leaves_id):
                 if element_type.startswith("{0}:".format(defaultPrefix)):
                     comparison = li[2].value
                     value = li[3].value
-                    criteria = buildCriteria(request, element_name, comparison, value, element_type, isNot)
+                    default_prefix = request.session['defaultPrefixExplore']
+                    criteria = build_criteria(element_name, comparison, value, element_type, default_prefix, isNot)
                 else:
                     value = li[2].value
                     criteria = enumCriteria(element_name, value, isNot)
             except:
                 comparison = li[2].value
                 value = li[3].value
-                criteria = buildCriteria(request, element_name, comparison, value, element_type, isNot)
+                default_prefix = request.session['defaultPrefixExplore']
+                criteria = build_criteria(element_name, comparison, value, element_type, default_prefix, isNot)
 
             elem_match.update(criteria)
 
