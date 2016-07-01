@@ -6,7 +6,7 @@ from django.utils.importlib import import_module
 from lxml import etree
 from mgi.common import SCHEMA_NAMESPACE
 from mgi.tests import DataHandler
-from curate.parser import generate_extension
+from utils.XSDParser.parser import generate_extension
 
 
 class ParserCreateExtensionTestSuite(TestCase):

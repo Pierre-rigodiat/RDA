@@ -1,8 +1,7 @@
 from django.template.base import Template
 from django.test.testcases import TestCase
-from curate.models import SchemaElement
-from curate.renderer import HtmlRenderer
 from mgi.tests import VariableTypesGenerator
+from utils.XSDParser.renderer import HtmlRenderer
 
 
 class InitTestSuite(TestCase):

@@ -4,7 +4,7 @@ from os.path import join
 from django.utils.importlib import import_module
 from lxml import etree
 from mgi.tests import DataHandler
-from curate.parser import generate_choice
+from utils.XSDParser.parser import generate_choice
 
 
 class ParserCreateChoiceTestSuite(TestCase):

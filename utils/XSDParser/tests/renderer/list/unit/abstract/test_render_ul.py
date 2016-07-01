@@ -1,4 +1,7 @@
+from lxml import etree
 from django.test.testcases import TestCase
+from os.path import join
+from mgi.tests import DataHandler, VariableTypesGenerator, are_equals
 
 
 class AbstractRenderUlTestSuite(TestCase):

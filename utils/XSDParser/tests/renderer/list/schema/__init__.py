@@ -2,8 +2,8 @@
 """
 from os.path import join
 from curate.models import SchemaElement
-from curate.parser import generate_form
-from curate.renderer.list import ListRenderer
+from utils.XSDParser.parser import generate_form
+from utils.XSDParser.renderer.list import ListRenderer
 
 XSD_FILES_PATH = join('curate', 'tests', 'data', 'parser')
 HTML_FILES_PATH = join('curate', 'tests', 'data', 'renderer', 'list')

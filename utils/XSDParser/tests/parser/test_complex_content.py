@@ -3,8 +3,8 @@ from django.test.testcases import TestCase
 from os.path import join
 from django.utils.importlib import import_module
 from lxml import etree
-from mgi.tests import DataHandler, are_equals
-from curate.parser import generate_complex_content
+from mgi.tests import DataHandler
+from utils.XSDParser.parser import generate_complex_content
 
 
 class ParserCreateComplexContentTestSuite(TestCase):

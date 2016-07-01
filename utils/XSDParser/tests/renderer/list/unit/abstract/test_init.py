@@ -1,8 +1,8 @@
 from django.template.base import Template
 from django.test.testcases import TestCase
 from curate.models import SchemaElement
-from curate.renderer.list import AbstractListRenderer
 from mgi.tests import VariableTypesGenerator
+from utils.XSDParser.renderer.list import AbstractListRenderer
 
 
 class AbstractInitTestSuite(TestCase):

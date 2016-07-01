@@ -7,12 +7,12 @@ from django.test.testcases import TestCase
 from os.path import join, splitext
 from lxml import etree
 from curate.models import SchemaElement
-from curate.parser import generate_form
-from curate.renderer.list import ListRenderer
-from curate.renderer.xml import XmlRenderer
 from mgi.models import FormData
 from mgi.settings import SITE_ROOT
 from mgi.tests import DataHandler
+from utils.XSDParser.parser import generate_form
+from utils.XSDParser.renderer.list import ListRenderer
+from utils.XSDParser.renderer.xml import XmlRenderer
 
 
 class RendererMainTestSuite(TestCase):

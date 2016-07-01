@@ -8,8 +8,8 @@ from lxml import etree
 from mgi.common import SCHEMA_NAMESPACE
 from mgi.models import Module
 from mgi.tests import DataHandler, are_equals
-from curate.parser import get_nodes_xpath, lookup_occurs, manage_occurences, remove_annotations, \
-    manage_attr_occurrences, has_module, get_xml_element_data, get_element_type
+from utils.XSDParser.parser import get_nodes_xpath, lookup_occurs, manage_occurences, manage_attr_occurrences, \
+    has_module, get_xml_element_data, get_element_type, remove_annotations
 
 
 class ParserGetNodesXPathTestSuite(TestCase):

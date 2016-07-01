@@ -3,7 +3,6 @@ from django.test.testcases import TestCase
 from os.path import join
 from lxml import etree
 from curate.models import SchemaElement
-from curate.renderer import DefaultRenderer
 from mgi.tests import VariableTypesGenerator, DataHandler, are_equals
 
 

@@ -2,13 +2,12 @@ from selenium import webdriver
 import time
 from django.test import TestCase
 
-from mgi.common import update_dependencies
 from mgi.settings import BASE_DIR
 from os.path import join
 from os import listdir, remove
 import os
 
-from mgi.models import create_template, TemplateVersion
+from mgi.models import create_template
 from lxml import etree
 from mgi.tests import are_equals
 from pymongo import MongoClient

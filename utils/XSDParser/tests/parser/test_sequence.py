@@ -3,9 +3,8 @@ from django.test.testcases import TestCase
 from os.path import join
 from django.utils.importlib import import_module
 from lxml import etree
-# from curate.tests.parser import ParserDefaultTestCase
-from mgi.tests import DataHandler, are_equals
-from curate.parser import generate_sequence
+from mgi.tests import DataHandler
+from utils.XSDParser.parser import generate_sequence
 
 
 class ParserCreateSequenceTestSuite(TestCase):

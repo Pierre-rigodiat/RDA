@@ -1,14 +1,11 @@
 from importlib import import_module
-from mgi import settings
-from django.test.client import Client
 from django.test.testcases import TestCase, SimpleTestCase
 from os.path import join
-
-from curate.parser import generate_form
-from curate.tests.renderer.list.schema import XSD_FILES_PATH, HTML_FILES_PATH, retrieve_rendered_form
 from mgi.models import FormData
 from mgi.tests import DataHandler, are_equals
 from lxml import etree
+
+from utils.XSDParser.tests.renderer.list.schema import XSD_FILES_PATH, HTML_FILES_PATH, retrieve_rendered_form
 
 
 class ChoiceCreateSchemaTestSuite(SimpleTestCase):

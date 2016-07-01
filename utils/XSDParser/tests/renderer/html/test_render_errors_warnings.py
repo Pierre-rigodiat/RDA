@@ -1,9 +1,8 @@
 from django.test.testcases import TestCase
 from os.path import join
 from lxml import etree
-from curate.models import SchemaElement
-from curate.renderer import HtmlRenderer
 from mgi.tests import DataHandler, VariableTypesGenerator, are_equals
+from utils.XSDParser.renderer import HtmlRenderer
 
 
 class RenderFormErrorTestSuite(TestCase):

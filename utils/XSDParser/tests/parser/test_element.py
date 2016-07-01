@@ -3,8 +3,7 @@ from django.test.testcases import TestCase
 from os.path import join
 from django.utils.importlib import import_module
 from lxml import etree
-from mgi.tests import DataHandler, are_equals
-from curate.parser import generate_element
+from mgi.tests import DataHandler
 
 
 class ParserGenerateElementTestSuite(TestCase):

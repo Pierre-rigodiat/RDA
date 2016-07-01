@@ -3,8 +3,8 @@
 from django.test.testcases import TestCase
 from lxml import etree
 from os.path import join
-from curate.renderer import HtmlRenderer
 from mgi.tests import DataHandler, VariableTypesGenerator, are_equals
+from utils.XSDParser.renderer import HtmlRenderer
 
 
 class RendererRenderButtonsTestSuite(TestCase):

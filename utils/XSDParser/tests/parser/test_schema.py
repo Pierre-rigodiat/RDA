@@ -3,7 +3,6 @@ from django.test import TestCase
 from django.utils.importlib import import_module
 from os import walk
 from os.path import splitext, join
-from curate.parser import *
 from mgi.models import FormData
 from mgi.settings import SITE_ROOT
 from mgi.tests import DataHandler
