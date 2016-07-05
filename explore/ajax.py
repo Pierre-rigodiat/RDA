@@ -38,8 +38,6 @@ from utils.XSDParser.renderer import DefaultRenderer
 from utils.XSDParser.renderer.checkbox import CheckboxRenderer
 
 # Class definition
-
-
 class ElementInfo:
     """
     Store information about element from the XML schema
@@ -1595,6 +1593,7 @@ def update_user_inputs(request):
             user_inputs.append(form)
     except:
         # default renders string
+        element_type = "{}:string".format(defaultPrefix)
         form = html.fragment_fromstring(renderStringSelect())
         inputs = html.fragment_fromstring(renderValueInput())
         user_inputs.append(form)
@@ -1814,11 +1813,12 @@ def save_custom_data(request):
     print '>>>>  BEGIN def saveCustomData(request)'
     
     form_content = request.POST['formContent']
-    request.session['formStringExplore']  = form_content
+    request.session['formStringExplore'] = form_content
 
     # modify the form string to only keep the selected elements
     htmlTree = html.fromstring(form_content)
     createCustomTreeForQuery(request, htmlTree)
+
     anyChecked = request.session['anyCheckedExplore']
     if anyChecked:
         request.session['customFormStringExplore'] = html.tostring(htmlTree)
@@ -1844,6 +1844,7 @@ def save_custom_data(request):
 ################################################################################
 def createCustomTreeForQuery(request, htmlTree):
     request.session['anyCheckedExplore'] = False
+
     for li in htmlTree.findall("./ul/li"):
         manageLiForQuery(request, li)
 
@@ -1859,30 +1860,28 @@ def createCustomTreeForQuery(request, htmlTree):
 #                
 ################################################################################
 def manageUlForQuery(request, ul):
-    branchInfo = BranchInfo(keepTheBranch=False, selectedLeave=None)
+    branchInfo = BranchInfo(keepTheBranch=False, selectedLeave=[])
 
-    selectedLeaves = None
     for li in ul.findall("./li"):
         liBranchInfo = manageLiForQuery(request, li)
         if liBranchInfo.keepTheBranch == True:
             branchInfo.keepTheBranch = True
-        if liBranchInfo.selectedLeave is not None:
-            if selectedLeaves is None:
-                selectedLeaves = []
-            selectedLeaves.append(liBranchInfo.selectedLeave)
-            # branchInfo.selectedLeave.append(liBranchInfo.selectedLeave)
-    branchInfo.selectedLeave = selectedLeaves
+        if len(liBranchInfo.selectedLeave) > 0:
+            branchInfo.selectedLeave.extend(liBranchInfo.selectedLeave)
 
-    # ul can contain ul, because XSD allows recursive sequence or sequence with choices
-    # for ul in ul.findall("./ul"):
-    #     ulBranchInfo = manageUlForQuery(request, ul)
-    #     if ulBranchInfo.keepTheBranch == True:
-    #         branchInfo.keepTheBranch = True
-    #     if ulBranchInfo.selectedLeave is not None:
-    #         if branchInfo.selectedLeave is None:
-    #             branchInfo.selectedLeave = []
-    #         branchInfo.selectedLeave.append(ulBranchInfo.selectedLeave)
-                
+    checkbox = ul.find("./input[@type='checkbox']")
+    if checkbox is not None:
+        checkbox.attrib['style'] = "display:none;"
+        if 'value' in checkbox.attrib and checkbox.attrib['value'] == 'true':
+            request.session['anyCheckedExplore'] = True
+            # remove the checkbox and make the element clickable
+            ul.getparent().attrib['style'] = "color:orange;font-weight:bold;cursor:pointer;"
+            ul.getparent().attrib['onclick'] = "selectElement('" + ul.getparent().attrib['class'] + "')"
+            # tells to keep this branch until this leave
+            branchInfo.keepTheBranch = True
+            branchInfo.selectedLeave.append(ul.getparent().attrib['class'])
+            # return branchInfo
+
     if not branchInfo.keepTheBranch:
         ul.attrib['style'] = "display:none;"
         
@@ -1901,14 +1900,14 @@ def manageUlForQuery(request, ul):
 ################################################################################
 def manageLiForQuery(request, li):
     listUl = li.findall("./ul")
-    branchInfo = BranchInfo(keepTheBranch=False, selectedLeave=None)
+    branchInfo = BranchInfo(keepTheBranch=False, selectedLeave=[])
     if len(listUl) != 0:
         selectedLeaves = []
         for ul in listUl:
             ulBranchInfo = manageUlForQuery(request, ul)
             if ulBranchInfo.keepTheBranch == True:
                 branchInfo.keepTheBranch = True
-            if ulBranchInfo.selectedLeave is not None:
+            if len(ulBranchInfo.selectedLeave) > 0:
                 selectedLeaves.extend(ulBranchInfo.selectedLeave)
         # subelement queries
         if len(selectedLeaves) > 1: # starting at 2 because 1 is the regular case
@@ -1920,7 +1919,7 @@ def manageLiForQuery(request, li):
             # get the node text
             li_text = li[0].tail
             li[0].tail = ""
-            # insert span with selectParent (cannot put it on li node directly or all children will call the JS)
+            # insert span with selectParent (cannot put it on li node directly or all children will call the JS onclick)
             li.insert(0, html.fragment_fromstring("""<span onclick="selectParent('""" + leavesID + """')">""" +
                                                   li_text + """</span>"""))
         if not branchInfo.keepTheBranch:
@@ -1937,10 +1936,10 @@ def manageLiForQuery(request, li):
                 # remove the checkbox and make the element clickable
                 li.attrib['style'] = "color:orange;font-weight:bold;cursor:pointer;"
                 li.attrib['onclick'] = "selectElement('" + li.attrib['class'] + "')"
-                checkbox.attrib['style'] = "display:none;"   
+                checkbox.attrib['style'] = "display:none;"
                 # tells to keep this branch until this leave
                 branchInfo.keepTheBranch = True
-                branchInfo.selectedLeave = li.attrib['class']
+                branchInfo.selectedLeave.append(li.attrib['class'])
                 return branchInfo
         except:
             return branchInfo
