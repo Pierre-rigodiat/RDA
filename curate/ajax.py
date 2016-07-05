@@ -77,6 +77,10 @@ def cancel_form(request):
         form_data_id = request.session['curateFormData']
         form_data = FormData.objects().get(pk=form_data_id)
         # TODO: check if need to delete all schema elements
+
+        if form_data.schema_element_root is not None:
+            delete_branch_from_db(form_data.schema_element_root.pk)
+
         form_data.delete()
         messages.add_message(request, messages.INFO, 'Form deleted with success.')
         return HttpResponse({},status=204)
@@ -99,10 +103,14 @@ def delete_form(request):
         try:
             form_data = FormData.objects().get(pk=form_data_id)
             # TODO: check if need to delete all SchemaElements
+            if form_data.schema_element_root is not None:
+                delete_branch_from_db(form_data.schema_element_root.pk)
+
             form_data.delete()
+
             messages.add_message(request, messages.INFO, 'Form deleted with success.')
         except Exception, e:
-            return HttpResponse({},status=400)
+            return HttpResponse({}, status=400)
     return HttpResponse({})
 
 
@@ -249,6 +257,7 @@ def generate_xsd_form(request):
     try:
         if 'form_id' in request.session:
             root_element_id = request.session['form_id']
+            form_data = None
         else:  # If this is a new form, generate it and store the root ID
             # get the xsd tree when going back and forth with review step
             if 'xmlDocTree' in request.session:
@@ -272,11 +281,24 @@ def generate_xsd_form(request):
 
         root_element = SchemaElement.objects.get(pk=root_element_id)
 
+        if form_data is not None:
+            if form_data.schema_element_root is not None:
+                delete_branch_from_db(form_data.schema_element_root.pk)
+
+            form_data.update(set__schema_element_root=root_element)
+            form_data.reload()
+
         renderer = ListRenderer(root_element, request)
         html_form = renderer.render()
     except Exception as e:
         renderer = DefaultRenderer(SchemaElement(), {})
-        html_form = renderer._render_form_error(e.message)
+
+        if e.message is not None:
+            err_message = e.message
+        else:
+            err_message = "An unknown error raised " + e.__class__.__name__
+
+        html_form = renderer._render_form_error(err_message)
 
     return HttpResponse(json.dumps({'xsdForm': html_form}), content_type='application/javascript')
 

@@ -41,6 +41,7 @@ from mgi.exceptions import MDCSError
 # Description:   Page that allows to select a template to start curating         
 #
 ################################################################################
+from utils.XSDParser.parser import delete_branch_from_db
 from utils.XSDParser.renderer.xml import XmlRenderer
 
 
@@ -106,9 +107,11 @@ def curate_edit_data(request):
         request.session['currentTemplateID'] = xml_data['schema']
         # remove previously created forms when editing a new one
         previous_forms = FormData.objects(user=str(request.user.id), xml_data_id__exists=True)
+
         for previous_form in previous_forms:
             # TODO: check if need to delete all SchemaElements
             previous_form.delete()
+
         form_data = FormData(
             user=str(request.user.id),
             template=xml_data['schema'],
@@ -117,7 +120,9 @@ def curate_edit_data(request):
             xml_data_id=xml_data_id
         )
         form_data.save()
-        request.session['curateFormData'] = str(form_data.id)
+
+        request.session['curateFormData'] = str(form_data.pk)
+
         if 'form_id' in request.session:
             del request.session['form_id']
         if 'xmlDocTree' in request.session:
@@ -467,6 +472,9 @@ def save_xml_data_to_db(request):
             )
             xml_data_id = xml_data.save()
             XMLdata.update_publish(xml_data_id)
+
+        if form_data.schema_element_root is not None:
+            delete_branch_from_db(form_data.schema_element_root.pk)
 
         form_data.delete()
 
