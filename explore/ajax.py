@@ -670,14 +670,14 @@ def intCriteria(path, comparison, value, isNot=False):
 
     if comparison == "=":
         if isNot:
-            criteria[path] = eval('{"$ne":' + value + '}')
+            criteria[path] = eval('{"$ne":' + str(value) + '}')
         else:
             criteria[path] = int(value)
     else:
         if isNot:
-            criteria[path] = eval('{"$not":{"$' + comparison + '":' + value + '}}')
+            criteria[path] = eval('{"$not":{"$' + comparison + '":' + str(value) + '}}')
         else:
-            criteria[path] = eval('{"$' + comparison+'":' + value + '}')
+            criteria[path] = eval('{"$' + comparison+'":' + str(value) + '}')
 
     print 'END def intCriteria(path, comparison, value, isNot=False)'
     return criteria

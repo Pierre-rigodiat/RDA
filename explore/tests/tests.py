@@ -97,6 +97,26 @@ class ExploreTestSuite(TestCase):
         results = XMLdata.executeQueryFullResult(criteria)
         self.assertTrue(len(results) == 2)
 
+    def test_numeric_inferior(self):
+        criteria = build_criteria("content.root.integer", "lt", 3, "xs:int", "xs")
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 2)
+
+    def test_numeric_inferior_equals(self):
+        criteria = build_criteria("content.root.integer", "lte", 3, "xs:int", "xs")
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 3)
+
+    def test_numeric_superior(self):
+        criteria = build_criteria("content.root.integer", "gt", 1, "xs:int", "xs")
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 2)
+
+    def test_numeric_superior_equals(self):
+        criteria = build_criteria("content.root.integer", "gte", 1, "xs:int", "xs")
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 3)
+
     def test_str_true(self):
         criteria = build_criteria("content.root.str", "is", "test1", "xs:string", "xs")
         results = XMLdata.executeQueryFullResult(criteria)
