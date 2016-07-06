@@ -6,6 +6,15 @@
             <xs:sequence>
                 <xs:element name="integer" type="xs:int"/>
                 <xs:element name="string" type="xs:string"/>
+                <xs:element name="enum">
+                    <xs:simpleType>
+                       <xs:restriction base="xs:string">
+                           <xs:enumeration value="a"/>
+                           <xs:enumeration value="b"/>
+                           <xs:enumeration value="c"/>
+                       </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

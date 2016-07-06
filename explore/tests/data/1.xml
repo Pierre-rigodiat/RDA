@@ -2,4 +2,5 @@
 <root>
     <integer>1</integer>
     <str>test1</str>
+    <enum>a</enum>
 </root>

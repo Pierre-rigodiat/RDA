@@ -3,14 +3,14 @@
     <xs:element name="root">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="integer"> 
-                   <xs:complexType>
-                       <xs:simpleContent>
-                           <xs:extension base="xs:int">
-                               <xs:attribute name="attrib"/>
-                           </xs:extension>
-                       </xs:simpleContent>
-                   </xs:complexType>
+                <xs:element name="integer">
+                    <xs:complexType>
+                        <xs:simpleContent>
+                            <xs:extension base="xs:int">
+                                <xs:attribute name="attrib"/>
+                            </xs:extension>
+                        </xs:simpleContent>
+                    </xs:complexType>
                 </xs:element>
                 <xs:element name="str">
                     <xs:complexType>
@@ -21,7 +21,23 @@
                         </xs:simpleContent>
                     </xs:complexType>
                 </xs:element>
+                <xs:element name="enum">
+                    <xs:complexType>
+                        <xs:simpleContent>
+                            <xs:extension base="enumType">
+                                <xs:attribute name="attrib"/>
+                            </xs:extension>
+                        </xs:simpleContent>
+                    </xs:complexType>
+                </xs:element>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
+    <xs:simpleType name="enumType">  
+        <xs:restriction base="xs:string">  
+            <xs:enumeration value="a"/>
+            <xs:enumeration value="b"/>
+            <xs:enumeration value="c"/>
+        </xs:restriction>  
+    </xs:simpleType>
 </xs:schema>

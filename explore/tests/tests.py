@@ -220,6 +220,21 @@ class ExploreTestSuite(TestCase):
         results = XMLdata.executeQueryFullResult(criteria)
         self.assertTrue(len(results) == 2)
 
+    def test_enum_true(self):
+        criteria = build_criteria("content.root.enum", "is", "a", "enum", "xs")
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 1)
+
+    def test_enum_false(self):
+        criteria = build_criteria("content.root.enum", "is", "d", "enum", "xs")
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 0)
+
+    def test_enum_not(self):
+        criteria = build_criteria("content.root.enum", "is", "a", "enum", "xs", isNot=True)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 2)
+
 
 class ExploreNSTestSuite(TestCase):
 
@@ -349,5 +364,20 @@ class ExploreNSTestSuite(TestCase):
         criteria1 = build_criteria("content.root.integer", "=", 1, "xs:int", "xs", isNot=True)
         criteria2 = build_criteria("content.root.integer", "lte", 3, "xs:int", "xs")
         criteria = ANDCriteria(criteria1, criteria2)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 2)
+
+    def test_enum_true(self):
+        criteria = build_criteria("content.root.enum", "is", "a", "enum", "xs")
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 1)
+
+    def test_enum_false(self):
+        criteria = build_criteria("content.root.enum", "is", "d", "enum", "xs")
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 0)
+
+    def test_enum_not(self):
+        criteria = build_criteria("content.root.enum", "is", "a", "enum", "xs", isNot=True)
         results = XMLdata.executeQueryFullResult(criteria)
         self.assertTrue(len(results) == 2)

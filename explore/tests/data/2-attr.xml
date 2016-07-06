@@ -2,4 +2,5 @@
 <root>
     <integer attrib="value">2</integer>
     <str attrib="value">test2</str>
+    <enum attib="value">b</enum>
 </root>
