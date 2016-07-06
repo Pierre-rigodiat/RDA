@@ -16,7 +16,7 @@
 
 from django.test import TestCase
 
-from explore.ajax import build_criteria, manageRegexBeforeExe, ORCriteria, ANDCriteria
+from explore.ajax import build_criteria, manageRegexBeforeExe, ORCriteria, ANDCriteria, invertQuery
 from mgi.models import create_template, XMLdata
 from mgi.settings import BASE_DIR
 from os.path import join
@@ -235,6 +235,41 @@ class ExploreTestSuite(TestCase):
         results = XMLdata.executeQueryFullResult(criteria)
         self.assertTrue(len(results) == 2)
 
+    def test_invert_numeric(self):
+        criteria = build_criteria("content.root.integer", "=", 1, "xs:int", "xs")
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 1)
+        inverted = invertQuery(criteria)
+        inverted_results = XMLdata.executeQueryFullResult(inverted)
+        self.assertTrue(len(inverted_results) == 2)
+
+    def test_invert_str(self):
+        criteria = build_criteria("content.root.str", "is", "test1", "xs:string", "xs")
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 1)
+        inverted = invertQuery(criteria)
+        inverted_results = XMLdata.executeQueryFullResult(inverted)
+        self.assertTrue(len(inverted_results) == 2)
+
+    def test_invert_or_numeric(self):
+        criteria1 = build_criteria("content.root.integer", "gt", 1, "xs:int", "xs")
+        criteria2 = build_criteria("content.root.integer", "lte", 3, "xs:int", "xs")
+        criteria = ORCriteria(criteria1, criteria2)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 3)
+        inverted = invertQuery(criteria)
+        inverted_results = XMLdata.executeQueryFullResult(inverted)
+        self.assertTrue(len(inverted_results) == 3)
+
+    def test_invert_and_numeric(self):
+        criteria1 = build_criteria("content.root.integer", "gt", 1, "xs:int", "xs")
+        criteria2 = build_criteria("content.root.integer", "lte", 3, "xs:int", "xs")
+        criteria = ANDCriteria(criteria1, criteria2)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 2)
+        inverted = invertQuery(criteria)
+        inverted_results = XMLdata.executeQueryFullResult(inverted)
+        self.assertTrue(len(inverted_results) == 3)
 
 class ExploreNSTestSuite(TestCase):
 
@@ -381,3 +416,39 @@ class ExploreNSTestSuite(TestCase):
         criteria = build_criteria("content.root.enum", "is", "a", "enum", "xs", isNot=True)
         results = XMLdata.executeQueryFullResult(criteria)
         self.assertTrue(len(results) == 2)
+
+    def test_invert_numeric(self):
+        criteria = build_criteria("content.root.integer", "=", 1, "xs:int", "xs")
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 1)
+        inverted = invertQuery(criteria)
+        inverted_results = XMLdata.executeQueryFullResult(inverted)
+        self.assertTrue(len(inverted_results) == 2)
+
+    def test_invert_str(self):
+        criteria = build_criteria("content.root.str", "is", "test1", "xs:string", "xs")
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 1)
+        inverted = invertQuery(criteria)
+        inverted_results = XMLdata.executeQueryFullResult(inverted)
+        self.assertTrue(len(inverted_results) == 2)
+
+    def test_invert_or_numeric(self):
+        criteria1 = build_criteria("content.root.integer", "gt", 1, "xs:int", "xs")
+        criteria2 = build_criteria("content.root.integer", "lte", 3, "xs:int", "xs")
+        criteria = ORCriteria(criteria1, criteria2)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 3)
+        inverted = invertQuery(criteria)
+        inverted_results = XMLdata.executeQueryFullResult(inverted)
+        self.assertTrue(len(inverted_results) == 3)
+
+    def test_invert_and_numeric(self):
+        criteria1 = build_criteria("content.root.integer", "gt", 1, "xs:int", "xs")
+        criteria2 = build_criteria("content.root.integer", "lte", 3, "xs:int", "xs")
+        criteria = ANDCriteria(criteria1, criteria2)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 2)
+        inverted = invertQuery(criteria)
+        inverted_results = XMLdata.executeQueryFullResult(inverted)
+        self.assertTrue(len(inverted_results) == 3)
