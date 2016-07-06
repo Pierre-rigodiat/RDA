@@ -171,7 +171,7 @@ def my_profile_favorites(request):
 ################################################################################
 @login_required(login_url='/login')
 def dashboard_resources(request):
-    template = loader.get_template('dashboard/my_dashboard_my_resources.html')
+    template = loader.get_template('dashboard/my_dashboard_my_records.html')
     query = {}
     context = RequestContext(request, {})
     ispublished = request.GET.get('ispublished', None)

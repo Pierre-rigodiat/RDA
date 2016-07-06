@@ -1,66 +1,75 @@
 {% load dict_key_extras %}
 
-<table class="data-table">
-    <tr>
-        <th width="75em">Resource name</th>
-        <th width="30em">Published</th>
-        <th width="100em">Last Publication date</th>
-        {% if user.is_staff %}
-            <th width="50em">User</th>
-        {% endif %}
-        <th width="200em">Actions</th>
-    </tr>
-    {% for XMLdata in XMLdatas %}
-    {% with key=XMLdata.iduser %}
-        {% cycle 'even' '' as rowcolors silent %}
-        <tr class="{{ rowcolors }}">
-            <td>
-                {% if XMLdata.content.Resource.identity.title %}
-                    {{ XMLdata.content.Resource.identity.title }}
-                {%else%}
-                    <script>
-                        document.write('{{ XMLdata.title }}'.replace(/\.[^/.]+$/, ""));
-                    </script>
-                {% endif %}
-            </td>
-            <td>{% if XMLdata.ispublished %}Yes {%else%} No {% endif %}
-            </td>
-            <td>
-                {% if XMLdata.publicationdate %}
-                    {{XMLdata.publicationdate}}
-                {%else%}
-                    Never published before
-                {% endif %}
-            </td>
-            {% if user.is_staff %}
-                <td>
-                    {{usernames|get:key}}
-                </td>
-            {% endif %}
-            <td>
-                {% with XMLdata|get:"_id" as XMLdata_id %}
-                {% autoescape on %}
-                <a href="/dashboard/detail?type=record&id={{XMLdata_id}}"><span class="icon legend result">
-                    View
-                </span></a>
-                {% endautoescape %}
-                <a href="/curate/enter-data?id={{XMLdata_id}}"><span class="icon legend edit">
-                    Edit
-                </span></a>
-                {% if not XMLdata.ispublished %}
-                <span class="icon legend publish" onclick="updatePublish('{{XMLdata_id}}')">
-                    Publish
-                </span>
-                {% endif %}
-                <span class="icon legend delete" onclick="deleteResult('{{XMLdata_id}}')">
-                    Delete
-                </span>
-                <span class="icon legend changeOwner" onclick="changeOwnerRecord('{{XMLdata_id}}')">
-                    Change Owner
-                </span>
-                {% endwith%}
-            </td>
-        </tr>
-    {% endwith %}
-    {% endfor %}
-</table>
+{% for XMLdata in XMLdatas %}
+    {% with XMLdata_id=XMLdata|get:"_id" status=XMLdata.content.Resource|get:"@status" %}
+        <br><br>
+        <div style="background-color:#eeeeee" id="{{XMLdata_id}}">
+            <table class="data-table">
+                <tr>
+                    <td style="width:250px">
+                        <div style="margin-top:10px;">Resource Name</div>
+                    </td>
+                    <td width="500em">
+                        {% if XMLdata.content.Resource.identity.title %}
+                            {{ XMLdata.content.Resource.identity.title }}
+                        {%else%}
+                            <script>
+                                document.write('{{ XMLdata.title }}'.replace(/\.[^/.]+$/, ""));
+                            </script>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="float: right">
+                            {% autoescape on %}
+                                    <a href="/dashboard/detail?type=record&id={{XMLdata_id}}"><span class="icon legend result">
+                                        View
+                                    </span></a>
+                            {% endautoescape %}
+                        </div>
+                        <div id="light">
+                            <span {% if status == "active" %}class="active"{%endif%} id="green"></span>
+                            <span {% if status == "inactive" %}class="active"{%endif%} id="orange"></span>
+                            <span {% if status == "deleted" %}class="active"{%endif%} id="red"></span>
+                            Status: {{status}}
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    {% if user.is_staff and request.user.id|stringformat:"i" != XMLdata.iduser %}
+                        <td width="100em">
+                                User
+                        </td>
+                        <td colspan="2">
+                            {{usernames|get:XMLdata.iduser}}
+                        </td>
+                    {% endif %}
+                </tr>
+                <tr>
+                    <td>
+                        {% if canEdit %}
+                        <a href="/curate/enter-data?id={{XMLdata_id}}" class="btn clear-fields">Edit</a>
+                        {% endif %}
+                        <a onclick="changeOwnerRecord('{{XMLdata_id}}')" class="btn clear-fields">Change Owner</a>
+                        {% if canDelete and not XMLdata.publicationdate %}
+                        <a onclick="deleteResult('{{XMLdata_id}}')" class="btn clear-fields">Delete</a>
+                        {% endif %}
+
+                    </td>
+                    <td align="right" colspan="2">
+                        <div style="float:right">
+                        {% if XMLdata.publicationdate %}
+                            <font size="2">Published on: {{ XMLdata.publicationdate }} &nbsp;&nbsp;&nbsp;</font>
+                        {% endif %}
+                        {% if not XMLdata.publicationdate %}
+                            <font size="2">Published on: Never &nbsp;&nbsp;&nbsp;</font>
+                        {% endif %}
+                        {% if not XMLdata.ispublished %}
+                            <a onclick="updatePublish('{{XMLdata_id}}')" class="btn clear-fields">Publish</a>
+                        {% endif %}
+                            </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    {% endwith%}
+{% endfor %}

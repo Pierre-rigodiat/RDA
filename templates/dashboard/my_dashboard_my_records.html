@@ -5,7 +5,7 @@
 <!--
 ################################################################################
 #
-# File Name: my_dashboard_my_resources.html
+# File Name: my_dashboard_my_records.html
 # Application: profile/dashboard
 # Description:
 #
@@ -145,7 +145,7 @@
 
             {% if XMLdatas%}
                 {% with canEdit=request.user|has_perm:'curate.curate_edit_document' canDelete=request.user|has_perm:'curate.curate_delete_document' %}
-                    {% include 'dashboard/my_dashboard_my_resources_table.html' with XMLdatas=XMLdatas %}
+                    {% include 'dashboard/my_dashboard_my_records_table.html' with XMLdatas=XMLdatas %}
                 {% endwith%}
             {%else%}
                 <br><br>
@@ -158,7 +158,7 @@
                 </span>
                 {% if otherUsersXMLdatas%}
                     {% with canEdit=request.user|has_perm:'curate.curate_edit_document' canDelete=request.user|has_perm:'curate.curate_delete_document' %}
-                        {% include 'dashboard/my_dashboard_my_resources_table.html' with XMLdatas=otherUsersXMLdatas %}
+                        {% include 'dashboard/my_dashboard_my_records_table.html' with XMLdatas=otherUsersXMLdatas %}
                     {% endwith%}
                 {%else%}
                     No other users Resources found
