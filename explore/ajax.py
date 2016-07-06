@@ -336,7 +336,11 @@ def getInstances(request, fedOfQueries):
                     protocol = "https"
                 else:
                     protocol = "http"
-                instances.append(Instance(name="Local", protocol=protocol, address=request.META['REMOTE_ADDR'], port=request.META['SERVER_PORT'], access_token="token", refresh_token="token"))
+                instances.append(Instance(name="Local", protocol=protocol,
+                                          address=request.META['REMOTE_ADDR'],
+                                          port=request.META['SERVER_PORT'],
+                                          access_token="token",
+                                          refresh_token="token"))
             else:
                 instances.append(Instance.objects.get(name=checkbox.attrib['value']))
     
@@ -400,7 +404,12 @@ def get_results_by_instance_keyword(request):
         protocol = "https"
     else:
         protocol = "http"
-    instance = Instance(name="Local", protocol=protocol, address=request.META['REMOTE_ADDR'], port=request.META['SERVER_PORT'], access_token="token", refresh_token="token")
+    instance = Instance(name="Local",
+                        protocol=protocol,
+                        address=request.META['REMOTE_ADDR'],
+                        port=request.META['SERVER_PORT'],
+                        access_token="token",
+                        refresh_token="token")
     json_instances.append(instance.to_json())
     request.session['instancesExplore'] = json_instances
     sessionName = "resultsExplore" + instance['name']
