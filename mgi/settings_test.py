@@ -111,8 +111,6 @@ OAI_ADMINS = (
     ('Administrator', 'admin@curator.com'),
 )
 OAI_HOST_URI = 'http://127.0.0.1:8082'
-OAI_USER = 'admin'
-OAI_PASS = 'admin'
 OAI_NAME = 'MDCS Admin 127.0.0.1 '
 OAI_DELIMITER = ':'
 OAI_DESCRIPTION = 'OAI-PMH CURATOR'

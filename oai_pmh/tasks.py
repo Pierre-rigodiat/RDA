@@ -5,17 +5,12 @@ import os
 from django.utils.importlib import import_module
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
-OAI_HOST_URI = settings.OAI_HOST_URI
-OAI_USER = settings.OAI_USER
-OAI_PASS = settings.OAI_PASS
-import requests
 from mgi.celery import app
-from django.core.urlresolvers import reverse
 import datetime
 logger = getLogger(__name__)
 import json
 from oai_pmh.api.messages import APIMessage
-
+from oai_pmh.api.models import update_registry_info as update_registry_info_model, harvest as harvest_model
 
 def init_harvest():
     #Kill all tasks
@@ -96,9 +91,7 @@ def purge_all_tasks():
 def update_registry(registryId, registryName):
      try:
         #Update the registry information
-        uri= OAI_HOST_URI + reverse("api_update_registry_info")
-        # Call the API to update registry information
-        req = requests.put(uri, {"registry_id": registryId}, auth=(OAI_USER, OAI_PASS))
+        req = update_registry_info_model(registryId)
         data = json.loads(req.text)
         return "Date: {!s}, Registry: {!s}, Message: {!s}, Status code: {!s}".format(datetime.datetime.now(),registryName,
                                                                             data[APIMessage.label], str(req.status_code))
@@ -116,12 +109,8 @@ def update_registry(registryId, registryName):
 ################################################################################
 def harvest_registry(registryId, registryName):
     try:
-        #Get the uri
-        uri= OAI_HOST_URI + reverse("api_harvest")
-        # Call the API to harvest records
-        req = requests.post(uri,
-                           {"registry_id": registryId},
-                           auth=(OAI_USER, OAI_PASS))
+        #Harvest
+        req = harvest_model(registryId)
         data = json.loads(req.text)
         return "Date: {!s}, Registry: {!s}, Message: {!s}, Status code: {!s}".format(datetime.datetime.now(),registryName,
                                                                             data[APIMessage.label], str(req.status_code))

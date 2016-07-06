@@ -575,7 +575,7 @@ checkSubmit = function() {
             } else if ($("#id_identifiers").val().trim() == '') {
                 label = 'Please provide an identifier.';
             }
-        } else if ($("select#id_verb").val() == '3' || $("select#id_verb").val() == '5' || $("select#id_verb").val() == '6') {
+        } else if ($("select#id_verb").val() == '3' || $("select#id_verb").val() == '5') {
             if ($("select#id_metadataprefix").val() == '0' && $("#id_resumptionToken").val() == '') {
                 label = 'Please pick a metadata prefix.';
             }
