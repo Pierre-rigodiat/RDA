@@ -23,8 +23,12 @@
                 </td>
             {% endif %}
             <td>
-                <div class="icon legend result" onclick="location.href='/dashboard/detail?type=form&id={{form.form.id}}'">View</div>
-                <div class="icon legend edit" onclick="location.href='/curate/edit-form?id={{form.form.id}}'"> Edit</div>
+                <a href="/dashboard/detail?type=form&id={{form.form.id}}"><span class="icon legend result">
+                            View
+                </span></a>
+                <a href="/dashboard/edit_curate_form?id={{form.form.id}}"><span class="icon legend edit">
+                            Edit
+                </span></a>
                 <div class="icon legend delete" onclick='deleteForm("{{form.form.id}}")'>Delete</div>
                 <div class="icon legend changeOwner" onclick='changeOwnerForm("{{form.form.id}}")'>Change Owner</div>
             </td>
