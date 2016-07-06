@@ -12,10 +12,10 @@
 ################################################################################
 
 from oai_pmh.tests.models import OAI_PMH_Test
-from oai_pmh.api.views import createRegistry, createOaiIdentify, setDataToRegistry, createMetadataformatsForRegistry,\
-    sickleListObjectMetadataFormats, sickleListObjectSets, setMetadataFormatXMLSchema, createSetsForRegistry, \
-    sickleObjectIdentify, getListRecords, harvestRecords, harvestByMF, harvestBySetsAndMF, modifyRegistry, \
-    modifyOaiIdentify, modifyMetadataformatsForRegistry, modifySetsForRegistry
+from oai_pmh.api.models import createOaiIdentify, setDataToRegistry, createMetadataformatsForRegistry,\
+    sickleListObjectMetadataFormats, sickleListObjectSets, sickleObjectIdentify, createSetsForRegistry,\
+    getListRecords, harvestRecords, harvestByMF, harvestBySetsAndMF, modifyRegistry, modifyOaiIdentify, \
+    modifyMetadataformatsForRegistry, modifySetsForRegistry, createRegistry, setMetadataFormatXMLSchema
 from mgi.models import OaiRegistry, OaiIdentify, OaiMetadataFormat, OaiMyMetadataFormat, OaiSettings, Template, OaiSet,\
     OaiMySet, OaiRecord, XMLdata, OaiTemplMfXslt, OaiMetadataformatSet, OaiXslt
 import xmltodict
@@ -2099,7 +2099,7 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         self.assertEquals(objInDatabase.setName, setName)
         self.assertEquals([str(x.id) for x in objInDatabase.templates], templates)
         self.assertEquals(objInDatabase.description, description)
-
+#
     def test_update_my_set_not_found(self):
         self.dump_oai_settings()
         self.dump_oai_my_set()
