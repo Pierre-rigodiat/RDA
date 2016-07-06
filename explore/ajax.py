@@ -812,6 +812,7 @@ def invertQuery(query):
 def is_regex_expression(expr):
     """
     Looks if the expression is a regular expression
+    :param expr
     """
     if isinstance(expr, re._pattern_type):
         return True
