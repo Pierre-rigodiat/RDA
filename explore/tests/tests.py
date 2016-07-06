@@ -70,7 +70,6 @@ def load_data(data_path, template_id):
 
 
 class ExploreTestSuite(TestCase):
-
     @classmethod
     def setUpClass(cls):
         # clean the database
@@ -116,6 +115,21 @@ class ExploreTestSuite(TestCase):
         criteria = build_criteria("content.root.integer", "gte", 1, "xs:int", "xs")
         results = XMLdata.executeQueryFullResult(criteria)
         self.assertTrue(len(results) == 3)
+
+    def test_decimal_true(self):
+        criteria = build_criteria("content.root.float", "=", 1, "xs:float", "xs")
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 1)
+
+    def test_decimal_false(self):
+        criteria = build_criteria("content.root.float", "=", 4, "xs:float", "xs")
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 0)
+
+    def test_decimal_not(self):
+        criteria = build_criteria("content.root.float", "=", 1, "xs:float", "xs", isNot=True)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 2)
 
     def test_str_true(self):
         criteria = build_criteria("content.root.str", "is", "test1", "xs:string", "xs")
@@ -271,8 +285,8 @@ class ExploreTestSuite(TestCase):
         inverted_results = XMLdata.executeQueryFullResult(inverted)
         self.assertTrue(len(inverted_results) == 3)
 
-class ExploreNSTestSuite(TestCase):
 
+class ExploreNSTestSuite(TestCase):
     @classmethod
     def setUpClass(cls):
         # clean the database
@@ -296,6 +310,41 @@ class ExploreNSTestSuite(TestCase):
 
     def test_numeric_not(self):
         criteria = build_criteria("content.root.integer", "=", 1, "xs:int", "xs", isNot=True)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 2)
+
+    def test_numeric_inferior(self):
+        criteria = build_criteria("content.root.integer", "lt", 3, "xs:int", "xs")
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 2)
+
+    def test_numeric_inferior_equals(self):
+        criteria = build_criteria("content.root.integer", "lte", 3, "xs:int", "xs")
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 3)
+
+    def test_numeric_superior(self):
+        criteria = build_criteria("content.root.integer", "gt", 1, "xs:int", "xs")
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 2)
+
+    def test_numeric_superior_equals(self):
+        criteria = build_criteria("content.root.integer", "gte", 1, "xs:int", "xs")
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 3)
+
+    def test_decimal_true(self):
+        criteria = build_criteria("content.root.float", "=", 1, "xs:float", "xs")
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 1)
+
+    def test_decimal_false(self):
+        criteria = build_criteria("content.root.float", "=", 4, "xs:float", "xs")
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 0)
+
+    def test_decimal_not(self):
+        criteria = build_criteria("content.root.float", "=", 1, "xs:float", "xs", isNot=True)
         results = XMLdata.executeQueryFullResult(criteria)
         self.assertTrue(len(results) == 2)
 

@@ -12,6 +12,15 @@
                         </xs:simpleContent>
                     </xs:complexType>
                 </xs:element>
+                <xs:element name="float">
+                    <xs:complexType>
+                        <xs:simpleContent>
+                            <xs:extension base="xs:float">
+                                <xs:attribute name="attrib"/>
+                            </xs:extension>
+                        </xs:simpleContent>
+                    </xs:complexType>
+                </xs:element>
                 <xs:element name="str">
                     <xs:complexType>
                         <xs:simpleContent>
