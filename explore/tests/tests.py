@@ -16,7 +16,7 @@
 
 from django.test import TestCase
 
-from explore.ajax import build_criteria, manageRegexBeforeExe
+from explore.ajax import build_criteria, manageRegexBeforeExe, ORCriteria, ANDCriteria
 from mgi.models import create_template, XMLdata
 from mgi.settings import BASE_DIR
 from os.path import join
@@ -150,11 +150,75 @@ class ExploreTestSuite(TestCase):
         results = XMLdata.executeQueryFullResult(criteria)
         self.assertTrue(len(results) == 0)
 
-    def test_or(self):
-        pass
+    def test_or_numeric_0(self):
+        criteria1 = build_criteria("content.root.integer", "=", 0, "xs:int", "xs")
+        criteria2 = build_criteria("content.root.integer", "gte", 4, "xs:int", "xs")
+        criteria = ORCriteria(criteria1, criteria2)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 0)
 
-    def test_and(self):
-        pass
+    def test_or_numeric_1(self):
+        criteria1 = build_criteria("content.root.integer", "=", 0, "xs:int", "xs")
+        criteria2 = build_criteria("content.root.integer", "gte", 3, "xs:int", "xs")
+        criteria = ORCriteria(criteria1, criteria2)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 1)
+
+    def test_or_numeric_2(self):
+        criteria1 = build_criteria("content.root.integer", "=", 1, "xs:int", "xs")
+        criteria2 = build_criteria("content.root.integer", "gte", 3, "xs:int", "xs")
+        criteria = ORCriteria(criteria1, criteria2)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 2)
+
+    def test_or_numeric_3(self):
+        criteria1 = build_criteria("content.root.integer", "=", 1, "xs:int", "xs")
+        criteria2 = build_criteria("content.root.integer", "gte", 2, "xs:int", "xs")
+        criteria = ORCriteria(criteria1, criteria2)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 3)
+
+    def test_or_numeric_not(self):
+        criteria1 = build_criteria("content.root.integer", "=", 1, "xs:int", "xs", isNot=True)
+        criteria2 = build_criteria("content.root.integer", "gte", 1, "xs:int", "xs")
+        criteria = ORCriteria(criteria1, criteria2)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 3)
+
+    def test_and_numeric_0(self):
+        criteria1 = build_criteria("content.root.integer", "=", 0, "xs:int", "xs")
+        criteria2 = build_criteria("content.root.integer", "gte", 4, "xs:int", "xs")
+        criteria = ANDCriteria(criteria1, criteria2)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 0)
+
+    def test_and_numeric_1(self):
+        criteria1 = build_criteria("content.root.integer", "=", 1, "xs:int", "xs")
+        criteria2 = build_criteria("content.root.integer", "lte", 3, "xs:int", "xs")
+        criteria = ANDCriteria(criteria1, criteria2)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 1)
+
+    def test_and_numeric_2(self):
+        criteria1 = build_criteria("content.root.integer", "gt", 1, "xs:int", "xs")
+        criteria2 = build_criteria("content.root.integer", "lte", 3, "xs:int", "xs")
+        criteria = ANDCriteria(criteria1, criteria2)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 2)
+
+    def test_and_numeric_3(self):
+        criteria1 = build_criteria("content.root.integer", "gte", 1, "xs:int", "xs")
+        criteria2 = build_criteria("content.root.integer", "lte", 3, "xs:int", "xs")
+        criteria = ANDCriteria(criteria1, criteria2)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 3)
+
+    def test_and_numeric_not(self):
+        criteria1 = build_criteria("content.root.integer", "=", 1, "xs:int", "xs", isNot=True)
+        criteria2 = build_criteria("content.root.integer", "lte", 3, "xs:int", "xs")
+        criteria = ANDCriteria(criteria1, criteria2)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 2)
 
 
 class ExploreNSTestSuite(TestCase):
@@ -218,8 +282,72 @@ class ExploreNSTestSuite(TestCase):
         results = XMLdata.executeQueryFullResult(criteria)
         self.assertTrue(len(results) == 0)
 
-    def test_or(self):
-        pass
+    def test_or_numeric_0(self):
+        criteria1 = build_criteria("content.root.integer", "=", 0, "xs:int", "xs")
+        criteria2 = build_criteria("content.root.integer", "gte", 4, "xs:int", "xs")
+        criteria = ORCriteria(criteria1, criteria2)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 0)
 
-    def test_and(self):
-        pass
+    def test_or_numeric_1(self):
+        criteria1 = build_criteria("content.root.integer", "=", 0, "xs:int", "xs")
+        criteria2 = build_criteria("content.root.integer", "gte", 3, "xs:int", "xs")
+        criteria = ORCriteria(criteria1, criteria2)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 1)
+
+    def test_or_numeric_2(self):
+        criteria1 = build_criteria("content.root.integer", "=", 1, "xs:int", "xs")
+        criteria2 = build_criteria("content.root.integer", "gte", 3, "xs:int", "xs")
+        criteria = ORCriteria(criteria1, criteria2)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 2)
+
+    def test_or_numeric_3(self):
+        criteria1 = build_criteria("content.root.integer", "=", 1, "xs:int", "xs")
+        criteria2 = build_criteria("content.root.integer", "gte", 2, "xs:int", "xs")
+        criteria = ORCriteria(criteria1, criteria2)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 3)
+
+    def test_or_numeric_not(self):
+        criteria1 = build_criteria("content.root.integer", "=", 1, "xs:int", "xs", isNot=True)
+        criteria2 = build_criteria("content.root.integer", "gte", 1, "xs:int", "xs")
+        criteria = ORCriteria(criteria1, criteria2)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 3)
+
+    def test_and_numeric_0(self):
+        criteria1 = build_criteria("content.root.integer", "=", 0, "xs:int", "xs")
+        criteria2 = build_criteria("content.root.integer", "gte", 4, "xs:int", "xs")
+        criteria = ANDCriteria(criteria1, criteria2)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 0)
+
+    def test_and_numeric_1(self):
+        criteria1 = build_criteria("content.root.integer", "=", 1, "xs:int", "xs")
+        criteria2 = build_criteria("content.root.integer", "lte", 3, "xs:int", "xs")
+        criteria = ANDCriteria(criteria1, criteria2)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 1)
+
+    def test_and_numeric_2(self):
+        criteria1 = build_criteria("content.root.integer", "gt", 1, "xs:int", "xs")
+        criteria2 = build_criteria("content.root.integer", "lte", 3, "xs:int", "xs")
+        criteria = ANDCriteria(criteria1, criteria2)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 2)
+
+    def test_and_numeric_3(self):
+        criteria1 = build_criteria("content.root.integer", "gte", 1, "xs:int", "xs")
+        criteria2 = build_criteria("content.root.integer", "lte", 3, "xs:int", "xs")
+        criteria = ANDCriteria(criteria1, criteria2)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 3)
+
+    def test_and_numeric_not(self):
+        criteria1 = build_criteria("content.root.integer", "=", 1, "xs:int", "xs", isNot=True)
+        criteria2 = build_criteria("content.root.integer", "lte", 3, "xs:int", "xs")
+        criteria = ANDCriteria(criteria1, criteria2)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 2)
