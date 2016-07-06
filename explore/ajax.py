@@ -206,7 +206,7 @@ def load_config():
         'PARSER_IGNORE_MODULES': True,
         'PARSER_COLLAPSE': False,
         'PARSER_AUTO_KEY_KEYREF': False,
-        'PARSER_IMPLICIT_EXTENSION_BASE': True,
+        'PARSER_IMPLICIT_EXTENSION_BASE': False,
     }
 
 
