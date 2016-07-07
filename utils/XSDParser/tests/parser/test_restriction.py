@@ -14,7 +14,7 @@ class ParserCreateRestrictionTestSuite(TestCase):
     """
 
     def setUp(self):
-        restriction_data = join('curate', 'tests', 'data', 'parser', 'restriction')
+        restriction_data = join('utils', 'XSDParser', 'tests', 'data', 'parser', 'restriction')
         self.restriction_data_handler = DataHandler(restriction_data)
 
         self.request = HttpRequest()
@@ -35,6 +35,10 @@ class ParserCreateRestrictionTestSuite(TestCase):
         }
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = self.namespace
+
+        from utils.XSDParser import parser
+        from curate.ajax import load_config
+        parser.load_config(self.request, load_config())
 
     def test_enumeration(self):
         xsd_files = join('enumeration', 'basic')
@@ -79,7 +83,7 @@ class ParserReloadRestrictionTestSuite(TestCase):
     """
 
     def setUp(self):
-        restriction_data = join('curate', 'tests', 'data', 'parser', 'restriction')
+        restriction_data = join('utils', 'XSDParser', 'tests', 'data', 'parser', 'restriction')
         self.restriction_data_handler = DataHandler(restriction_data)
 
         self.request = HttpRequest()
@@ -102,6 +106,10 @@ class ParserReloadRestrictionTestSuite(TestCase):
         self.request.session['namespaces'] = self.namespace
 
         self.xml_xpath = '/root'
+
+        from utils.XSDParser import parser
+        from curate.ajax import load_config
+        parser.load_config(self.request, load_config())
 
     def test_enumeration(self):
         xsd_files = join('enumeration', 'basic')

@@ -34,7 +34,7 @@ class ParserGenerateFormTestSuite(TestCase):
         super(ParserGenerateFormTestSuite, cls).tearDownClass()
 
     def setUp(self):
-        schema_data = join('curate', 'tests', 'data', 'parser')
+        schema_data = join('utils', 'XSDParser', 'tests', 'data', 'parser')
         self.schema_data_handler = DataHandler(schema_data)
 
         self.request = HttpRequest()

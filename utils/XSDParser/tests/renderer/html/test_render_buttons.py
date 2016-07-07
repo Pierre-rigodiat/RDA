@@ -12,7 +12,7 @@ class RendererRenderButtonsTestSuite(TestCase):
     """
 
     def setUp(self):
-        buttons_data = join('curate', 'tests', 'data', 'parser', 'utils', 'buttons')
+        buttons_data = join('utils', 'XSDParser', 'tests', 'data', 'parser', 'utils', 'buttons')
         self.buttons_data_handler = DataHandler(buttons_data)
 
         self.types_generator = VariableTypesGenerator()
@@ -130,7 +130,7 @@ class RendererRenderCollapseButtonTestSuite(TestCase):
     """
 
     def setUp(self):
-        collapse_data = join('curate', 'tests', 'data', 'renderer', 'default')
+        collapse_data = join('utils', 'XSDParser', 'tests', 'data', 'renderer', 'default')
         self.collapse_data_handler = DataHandler(collapse_data)
 
         self.renderer = HtmlRenderer()

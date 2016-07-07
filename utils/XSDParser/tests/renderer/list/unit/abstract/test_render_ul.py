@@ -7,7 +7,7 @@ from mgi.tests import DataHandler, VariableTypesGenerator, are_equals
 class AbstractRenderUlTestSuite(TestCase):
 
     def setUp(self):
-        ul_data = join('curate', 'tests', 'data', 'renderer', 'default', 'ul')
+        ul_data = join('utils', 'XSDParser', 'tests', 'data', 'renderer', 'default', 'ul')
         self.ul_data_handler = DataHandler(ul_data)
 
         self.types_generator = VariableTypesGenerator()

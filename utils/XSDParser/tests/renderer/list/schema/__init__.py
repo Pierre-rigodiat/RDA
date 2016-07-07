@@ -5,8 +5,8 @@ from curate.models import SchemaElement
 from utils.XSDParser.parser import generate_form
 from utils.XSDParser.renderer.list import ListRenderer
 
-XSD_FILES_PATH = join('curate', 'tests', 'data', 'parser')
-HTML_FILES_PATH = join('curate', 'tests', 'data', 'renderer', 'list')
+XSD_FILES_PATH = join('utils', 'XSDParser', 'tests', 'data', 'parser')
+HTML_FILES_PATH = join('utils', 'XSDParser', 'tests', 'data', 'renderer', 'list')
 
 
 def retrieve_rendered_form(request):

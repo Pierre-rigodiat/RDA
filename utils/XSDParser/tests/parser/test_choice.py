@@ -12,7 +12,7 @@ class ParserCreateChoiceTestSuite(TestCase):
     """
 
     def setUp(self):
-        choice_data = join('curate', 'tests', 'data', 'parser', 'choice')
+        choice_data = join('utils', 'XSDParser', 'tests', 'data', 'parser', 'choice')
         self.choice_data_handler = DataHandler(choice_data)
 
         self.maxDiff = None
@@ -32,6 +32,10 @@ class ParserCreateChoiceTestSuite(TestCase):
         self.namespace = "{" + namespace + "}"
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = {'xs': namespace}
+
+        from utils.XSDParser import parser
+        from curate.ajax import load_config
+        parser.load_config(self.request, load_config())
 
     def test_create_element_basic(self):
         xsd_files = join('element', 'basic')
@@ -173,7 +177,7 @@ class ParserReloadChoiceTestSuite(TestCase):
     """
 
     def setUp(self):
-        choice_data = join('curate', 'tests', 'data', 'parser', 'choice')
+        choice_data = join('utils', 'XSDParser', 'tests', 'data', 'parser', 'choice')
         self.choice_data_handler = DataHandler(choice_data)
 
         self.maxDiff = None
@@ -193,6 +197,10 @@ class ParserReloadChoiceTestSuite(TestCase):
         self.namespace = "{" + namespace + "}"
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = {'xs': namespace}
+
+        from utils.XSDParser import parser
+        from curate.ajax import load_config
+        parser.load_config(self.request, load_config())
 
     def test_reload_element_basic(self):
         xsd_files = join('element', 'basic')

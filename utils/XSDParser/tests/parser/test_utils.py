@@ -19,7 +19,7 @@ class ParserGetNodesXPathTestSuite(TestCase):
     # FIXME 1 test not implemented
 
     def setUp(self):
-        subnodes_data = join('curate', 'tests', 'data', 'parser', 'utils', 'xpath')
+        subnodes_data = join('utils', 'XSDParser', 'tests', 'data', 'parser', 'utils', 'xpath')
         self.subnodes_data_handler = DataHandler(subnodes_data)
 
         self.namespace = {
@@ -203,7 +203,7 @@ class ParserLookupOccursTestSuite(TestCase):
     """
 
     def setUp(self):
-        occurs_data = join('curate', 'tests', 'data', 'parser', 'utils', 'occurs')
+        occurs_data = join('utils', 'XSDParser', 'tests', 'data', 'parser', 'utils', 'occurs')
         self.occurs_data_handler = DataHandler(occurs_data)
 
         self.request = HttpRequest()
@@ -272,7 +272,7 @@ class ParserManageOccurencesTestSuite(TestCase):
     """
 
     def setUp(self):
-        occurs_data = join('curate', 'tests', 'data', 'parser', 'utils', 'manage_occurs')
+        occurs_data = join('utils', 'XSDParser', 'tests', 'data', 'parser', 'utils', 'manage_occurs')
         self.occurs_data_handler = DataHandler(occurs_data)
 
     def test_element_with_min_occurs_parsable(self):
@@ -305,7 +305,7 @@ class ParserManageAttrOccurencesTestSuite(TestCase):
     """
 
     def setUp(self):
-        occurs_data = join('curate', 'tests', 'data', 'parser', 'utils', 'manage_occurs')
+        occurs_data = join('utils', 'XSDParser', 'tests', 'data', 'parser', 'utils', 'manage_occurs')
         self.occurs_data_handler = DataHandler(occurs_data)
 
     def test_use_optional(self):
@@ -365,7 +365,7 @@ class ParserHasModuleTestSuite(TestCase):
         # disconnect()
         # connect(self.db_name, port=27018)
 
-        module_data = join('curate', 'tests', 'data', 'parser', 'utils', 'modules')
+        module_data = join('utils', 'XSDParser', 'tests', 'data', 'parser', 'utils', 'modules')
         self.module_data_handler = DataHandler(module_data)
 
     def test_element_is_module_registered(self):
@@ -403,7 +403,7 @@ class ParserGetXmlElementDataTestSuite(TestCase):
     """
 
     def setUp(self):
-        xml_element_data = join('curate', 'tests', 'data', 'parser', 'utils', 'xml_data')
+        xml_element_data = join('utils', 'XSDParser', 'tests', 'data', 'parser', 'utils', 'xml_data')
         self.xml_element_data_handler = DataHandler(xml_element_data)
 
         self.namespace = {
@@ -496,7 +496,7 @@ class ParserGetElementTypeTestSuite(TestCase):
     def setUp(self):
         self.defaultPrefix = 'xsd'
 
-        xml_element_data = join('curate', 'tests', 'data', 'parser', 'utils', 'element_type')
+        xml_element_data = join('utils', 'XSDParser', 'tests', 'data', 'parser', 'utils', 'element_type')
         self.xml_element_data_handler = DataHandler(xml_element_data)
 
         self.namespace = {
@@ -578,7 +578,7 @@ class ParserRemoveAnnotationTestSuite(TestCase):
     """
 
     def setUp(self):
-        annotation_data = join('curate', 'tests', 'data', 'parser', 'utils', 'annotation')
+        annotation_data = join('utils', 'XSDParser', 'tests', 'data', 'parser', 'utils', 'annotation')
         self.annotation_data_handler = DataHandler(annotation_data)
 
         self.namespaces = {

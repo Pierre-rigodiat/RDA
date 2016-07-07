@@ -13,7 +13,7 @@ class ParserCreateComplexContentTestSuite(TestCase):
     # FIXME restriction for complexContent are not working
 
     def setUp(self):
-        extension_data = join('curate', 'tests', 'data', 'parser', 'complex_content')
+        extension_data = join('utils', 'XSDParser', 'tests', 'data', 'parser', 'complex_content')
         self.extension_data_handler = DataHandler(extension_data)
 
         self.maxDiff = None
@@ -33,6 +33,10 @@ class ParserCreateComplexContentTestSuite(TestCase):
         self.namespace = "{" + namespace + "}"
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = {'xs': namespace}
+
+        from utils.XSDParser import parser
+        from curate.ajax import load_config
+        parser.load_config(self.request, load_config())
 
     def test_create_restriction(self):
         xsd_files = join('restriction', 'basic')
@@ -79,7 +83,7 @@ class ParserReloadComplexContentTestSuite(TestCase):
     # FIXME restriction for complexContent are not working
 
     def setUp(self):
-        extension_data = join('curate', 'tests', 'data', 'parser', 'complex_content')
+        extension_data = join('utils', 'XSDParser', 'tests', 'data', 'parser', 'complex_content')
         self.extension_data_handler = DataHandler(extension_data)
 
         self.maxDiff = None
@@ -99,6 +103,10 @@ class ParserReloadComplexContentTestSuite(TestCase):
         self.namespace = "{" + namespace + "}"
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = {'xs': namespace}
+
+        from utils.XSDParser import parser
+        from curate.ajax import load_config
+        parser.load_config(self.request, load_config())
 
     def test_reload_restriction(self):
         xsd_files = join('restriction', 'basic')
