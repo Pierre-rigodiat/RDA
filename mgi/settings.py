@@ -73,16 +73,16 @@ else:
 #SMTP Configuration
 USE_EMAIL = False #Send email, True or False
 SERVER_EMAIL = 'noreply@curator.org'
-ADMINS = [('admin', 'admin@curator.org')]
+ADMINS = [('admin', 'admin@curator.org'),]
 MANAGERS = [('manager', 'moderator@curator.org'),]
 EMAIL_SUBJECT_PREFIX = "[CURATOR] "
 #For test purpose
 # EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 # EMAIL_FILE_PATH = '/tmp/emails'
-# EMAIL_HOST = "smtp.gmail.com"
+#EMAIL_HOST = "mail.nist.gov"
 # EMAIL_HOST_USER = "curator.testing.us@gmail.com"
 # EMAIL_HOST_PASSWORD = "ilovecurator"
-# EMAIL_PORT= 587
+#EMAIL_PORT= 25
 # EMAIL_USE_TLS = True
 
 #Password Policy
