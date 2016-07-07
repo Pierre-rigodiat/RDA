@@ -15,10 +15,6 @@ settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
 SERVER_EMAIL = settings.SERVER_EMAIL
 USE_EMAIL = settings.USE_EMAIL
-USE_PASSWORD_STRENGTH = settings.USE_PASSWORD_STRENGTH
-PASSWORD_MIN_LENGTH = settings.PASSWORD_MIN_LENGTH
-PASSWORD_MIN_DIGITS = settings.PASSWORD_MIN_DIGITS
-PASSWORD_MIN_UPPERCASE = settings.PASSWORD_MIN_UPPERCASE
 
 
 ################################################################################
@@ -292,38 +288,6 @@ def send_mail_to_administrators(subject, pathToTemplate, context={}, fail_silent
 def send_mail_to_managers(subject, pathToTemplate, context={}, fail_silently=True):
     if USE_EMAIL:
         MgiTasks.send_mail_to_managers.apply_async((subject, pathToTemplate, context, fail_silently), countdown=1)
-
-
-################################################################################
-#
-# Function Name: validate_password_strength(element, namespace)
-# Inputs:        Password -
-#                namespace -
-# Outputs:       Password
-# Exceptions:    ValidationError
-# Description:   Validate password policy
-#
-################################################################################
-def validate_password_strength(value):
-    """Validates that a password is as least X characters long and has at least
-    PASSWORD_MIN_DIGITS digits and Z Upper case letter.
-    """
-    if USE_PASSWORD_STRENGTH:
-        errors = []
-        if len(value) < PASSWORD_MIN_LENGTH:
-            errors.append(ValidationError(('Error: Minimum length: {0} character(s).').format(PASSWORD_MIN_LENGTH)))
-        # check for PASSWORD_MIN_DIGITS digits
-        if sum(c.isdigit() for c in value) < PASSWORD_MIN_DIGITS:
-            errors.append(ValidationError('Error: At least {0} alphanumeric character(s).'.format(PASSWORD_MIN_DIGITS)))
-        # check for uppercase letter
-        if sum(1 for c in value if c.isupper()) < PASSWORD_MIN_UPPERCASE:
-            errors.append(ValidationError('Error: At least {0} uppercase letter(s).'.format(PASSWORD_MIN_UPPERCASE)))
-
-        if len(errors) > 0:
-            raise ValidationError([errors])
-
-    return value
-
 
 def xpath_to_dot_notation(xpath, namespaces):
     """
