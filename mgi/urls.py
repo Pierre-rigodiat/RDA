@@ -18,6 +18,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.conf.urls import patterns, include, url
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from user_dashboard.views import UserDashboardPasswordChangeFormView
 
 urlpatterns = patterns(
     '',
@@ -41,11 +42,10 @@ urlpatterns = patterns(
     url(r'^terms-of-use', 'mgi.views.terms_of_use', name='terms-of-use'),
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     url(r'^oai_pmh/', include('oai_pmh.urls')),
-    url(r'^reset/done/$', 'django.contrib.auth.views.password_reset_complete', name='password_reset_complete'),
-    url(r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$', 'django.contrib.auth.views.password_reset_confirm', name='password_reset_confirm'),
-    url(r'^password_reset/done', 'django.contrib.auth.views.password_reset_done', name='password_reset_done'),
-    url(r'^password_reset/', 'django.contrib.auth.views.password_reset', name='password_reset'),
-) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    url(r'^password/change/$', UserDashboardPasswordChangeFormView.as_view(success_url='/'),
+        name="password_change"),
+    url(r'^password/', include('password_policies.urls')),
+)+static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 
 urlpatterns += staticfiles_urlpatterns()

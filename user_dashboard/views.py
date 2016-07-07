@@ -21,7 +21,7 @@ from django.contrib.auth import authenticate
 from django.template import RequestContext, loader
 from django.shortcuts import redirect
 from mgi.models import FormData, XMLdata
-from admin_mdcs.forms import EditProfileForm, ChangePasswordForm, UserForm
+from admin_mdcs.forms import EditProfileForm, UserForm
 from django.contrib.auth.decorators import login_required
 from itertools import chain
 from mgi.models import Template
@@ -34,6 +34,10 @@ import xmltodict
 from django.conf import settings
 from bson.objectid import ObjectId
 import json
+from password_policies.views import PasswordChangeFormView
+from django.utils import timezone
+from django.core.urlresolvers import reverse
+from utils.DateTimeDecoder import DateTimeEncoder
 
 ################################################################################
 #
@@ -91,39 +95,6 @@ def my_profile_edit(request):
         form = EditProfileForm(data)
 
     return render(request, 'dashboard/my_profile_edit.html', {'form':form})
-
-
-
-
-################################################################################
-#
-# Function Name: my_profile_change_password(request)
-# Inputs:        request -
-# Outputs:       Change Password Page
-# Exceptions:    None
-# Description:   Page that allows to change a password
-#
-################################################################################
-@login_required(login_url='/login')
-def my_profile_change_password(request):
-    if request.method == 'POST':
-        form = ChangePasswordForm(request.POST)
-        if form.is_valid():
-            user = User.objects.get(id=request.user.id)
-            auth_user = authenticate(username=user.username, password=request.POST['old'])
-            if auth_user is None:
-                message = "The old password is incorrect."
-                return render(request, 'dashboard/my_profile_change_password.html', {'form':form, 'action_result':message})
-            else:
-                user.set_password(request.POST['new1'])
-                user.save()
-                messages.add_message(request, messages.INFO, 'Password changed with success.')
-                return redirect('/dashboard/my-profile')
-    else:
-        form = ChangePasswordForm()
-
-    return render(request, 'dashboard/my_profile_change_password.html', {'form':form})
-
 
 ################################################################################
 # Function Name: dashboard(request)
@@ -330,3 +301,32 @@ def change_owner_record(request):
         return HttpResponseBadRequest({"Bad entries. Please check the parameters."})
 
     return HttpResponse(json.dumps({}), content_type='application/javascript')
+
+class UserDashboardPasswordChangeFormView(PasswordChangeFormView):
+    def form_valid(self, form):
+        messages.success(self.request, "Password changed with success.")
+        return super(UserDashboardPasswordChangeFormView, self).form_valid(form)
+
+    def get_success_url(self):
+        """
+Returns a query string field with a previous URL if available (Mimicing
+the login view. Used on forced password changes, to know which URL the
+user was requesting before the password change.)
+If not returns the :attr:`~PasswordChangeFormView.success_url` attribute
+if set, otherwise the URL to the :class:`PasswordChangeDoneView`.
+"""
+        checked = '_password_policies_last_checked'
+        last = '_password_policies_last_changed'
+        required = '_password_policies_change_required'
+        now = json.dumps(timezone.now(), cls=DateTimeEncoder)
+        self.request.session[checked] = now
+        self.request.session[last] = now
+        self.request.session[required] = False
+        redirect_to = self.request.POST.get(self.redirect_field_name, '')
+        if redirect_to:
+            url = redirect_to
+        elif self.success_url:
+            url = self.success_url
+        else:
+            url = reverse('password_change_done')
+        return url
