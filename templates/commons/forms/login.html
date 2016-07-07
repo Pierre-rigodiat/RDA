@@ -36,10 +36,11 @@
 <tr>
 <td>{{ form.password.label_tag }}</td>
 <td>
-    <div>{{ form.password }}</div>
+    <div>{{ form.password }}
     {% if USE_EMAIL %}
-        <div><a href="{% url 'password_reset' %}">Lost password?</a></div>
+        <a href="{% url 'password_reset' %}">Forgot password?</a>
     {% endif %}
+    </div>
 </td>
 </tr>
 <tr>
