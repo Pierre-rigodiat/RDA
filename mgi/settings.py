@@ -202,7 +202,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.tz",
     "django.contrib.messages.context_processors.messages",
     "utils.custom_context_processors.domain_context_processor",
-    "password_policies.context_processors.password_status",
+    #"password_policies.context_processors.password_status",
+    'mgi.context_processors.password_status',
 )
 
 # Application definition
