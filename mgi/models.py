@@ -13,8 +13,8 @@
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
+import numbers
 from mongoengine import *
-import json
 
 # Specific to MongoDB ordered inserts
 from collections import OrderedDict
@@ -299,6 +299,7 @@ def postprocessor(path, key, value):
         except (ValueError, TypeError):
             return key, value
 
+
 def preprocessor(key, value):
     """
     Called before JSON to XML transformation
@@ -309,10 +310,13 @@ def preprocessor(key, value):
     if isinstance(value, OrderedDict):
         for ik, iv in value.items():
             if ik == "#text":
-                value[ik] = str(iv)
+                if isinstance(iv, numbers.Number):
+                    value[ik] = str(iv)
+                else:
+                    value[ik] = iv
         return key, value
     else:
-        return key, str(value)
+        return key, value
 
 
 class XMLdata(object):
@@ -353,7 +357,6 @@ class XMLdata(object):
             self.content['publicationdate'] = publicationdate
 
         self.content['deleted'] = False
-
 
     @staticmethod
     def unparse(json):
@@ -514,8 +517,6 @@ class XMLdata(object):
 
         return results[0] if results[0] else None
 
-
-    
     @staticmethod
     def delete(postID):
         """

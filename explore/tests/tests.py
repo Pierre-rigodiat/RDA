@@ -501,3 +501,35 @@ class ExploreNSTestSuite(TestCase):
         inverted = invertQuery(criteria)
         inverted_results = XMLdata.executeQueryFullResult(inverted)
         self.assertTrue(len(inverted_results) == 3)
+
+
+class ExploreEncodingTestSuite(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # clean the database
+        clean_db()
+        # add a template
+        template = load_template(join(RESOURCES_PATH, 'schema.xsd'))
+        # load data
+        load_data(join(RESOURCES_PATH, 'encoding.xml'), str(template.id))
+
+    def test_str_encoding(self):
+        criteria = build_criteria("content.root.str", "is", "test", "xs:string", "xs", isNot=True)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 1)
+
+
+class ExploreNSEncodingTestSuite(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # clean the database
+        clean_db()
+        # add a template
+        template = load_template(join(RESOURCES_PATH, 'schema-attr.xsd'))
+        # load data
+        load_data(join(RESOURCES_PATH, 'encoding-attr.xml'), str(template.id))
+
+    def test_str_encoding(self):
+        criteria = build_criteria("content.root.str", "is", "test", "xs:string", "xs", isNot=True)
+        results = XMLdata.executeQueryFullResult(criteria)
+        self.assertTrue(len(results) == 1)

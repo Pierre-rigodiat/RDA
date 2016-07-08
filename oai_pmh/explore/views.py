@@ -16,8 +16,7 @@ from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.contrib.auth.decorators import login_required
 from oai_pmh.explore.forms import KeywordForm, MetadataFormatsForm
-from mgi.models import OaiMetadataFormat, OaiRegistry, OaiRecord
-import xmltodict
+from mgi.models import OaiMetadataFormat, OaiRegistry, OaiRecord, XMLdata
 import json
 import os
 from mgi import settings
