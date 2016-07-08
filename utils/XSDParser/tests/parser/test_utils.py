@@ -368,6 +368,15 @@ class ParserHasModuleTestSuite(TestCase):
         module_data = join('utils', 'XSDParser', 'tests', 'data', 'parser', 'utils', 'modules')
         self.module_data_handler = DataHandler(module_data)
 
+        self.request = HttpRequest()
+        engine = import_module('django.contrib.sessions.backends.db')
+        session_key = None
+        self.request.session = engine.SessionStore(session_key)
+
+        from utils.XSDParser import parser
+        from curate.ajax import load_config
+        parser.load_config(self.request, load_config())
+
     def test_element_is_module_registered(self):
         # expect true
         self._save_module_to_db()
@@ -375,7 +384,7 @@ class ParserHasModuleTestSuite(TestCase):
         xsd_tree = self.module_data_handler.get_xsd('registered_module')
         xsd_element = xsd_tree.getroot()
 
-        has_module_result = has_module(xsd_element)
+        has_module_result = has_module(self.request, xsd_element)
 
         self.assertTrue(has_module_result)
 
@@ -384,7 +393,7 @@ class ParserHasModuleTestSuite(TestCase):
         xsd_tree = self.module_data_handler.get_xsd('unregistered_module')
         xsd_element = xsd_tree.getroot()
 
-        has_module_result = has_module(xsd_element)
+        has_module_result = has_module(self.request, xsd_element)
 
         self.assertFalse(has_module_result)
 
@@ -393,7 +402,7 @@ class ParserHasModuleTestSuite(TestCase):
         xsd_tree = self.module_data_handler.get_xsd('no_module')
         xsd_element = xsd_tree.getroot()
 
-        has_module_result = has_module(xsd_element)
+        has_module_result = has_module(self.request, xsd_element)
 
         self.assertFalse(has_module_result)
 

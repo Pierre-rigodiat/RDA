@@ -7,6 +7,7 @@ from mgi.models import FormData
 from mgi.settings import SITE_ROOT
 from mgi.tests import DataHandler
 from lxml import etree
+from utils.XSDParser.parser import generate_form
 
 
 class ParserGenerateFormTestSuite(TestCase):

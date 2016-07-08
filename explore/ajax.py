@@ -202,6 +202,7 @@ def verify_template_is_selected(request):
 
 def load_config():
     return {
+        'PARSER_APPLICATION': 'EXPLORE',
         'PARSER_MIN_TREE': False,
         'PARSER_IGNORE_MODULES': True,
         'PARSER_COLLAPSE': False,
