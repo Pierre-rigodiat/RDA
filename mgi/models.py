@@ -389,16 +389,14 @@ class XMLdata(object):
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
-        # Check the deleted records
-        query = dict()
-        if not includeDeleted:
-            query["$or"] = [{'deleted': False}, {'deleted': {'$exists': False}}]
         # find all objects of the collection
         cursor = xmldata.find(query, as_class = OrderedDict)
         # build a list with the objects        
         results = []
         for result in cursor:
-            results.append(result)
+            # Check the deleted records
+            if not includeDeleted and not result.get('deleted', False):
+                results.append(result)
         return results
     
     @staticmethod
@@ -413,15 +411,14 @@ class XMLdata(object):
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
-        # Check the deleted records
-        if not includeDeleted:
-            params["$or"] = [{'deleted': False}, {'deleted': {'$exists': False}}]
         # find all objects of the collection
         cursor = xmldata.find(params, as_class = OrderedDict)
         # build a list with the objects        
         results = []
         for result in cursor:
-            results.append(result)
+            # Check the deleted records
+            if not includeDeleted and not result.get('deleted', False):
+                results.append(result)
         return results
     
     @staticmethod
@@ -433,15 +430,14 @@ class XMLdata(object):
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
-        # Check the deleted records
-        if not includeDeleted:
-            query["$or"] = [{'deleted': False}, {'deleted': {'$exists': False}}]
         # query mongo db
         cursor = xmldata.find(query,as_class = OrderedDict)  
         # build a list with the xml representation of objects that match the query      
         queryResults = []
         for result in cursor:
-            queryResults.append(result['content'])
+            # Check the deleted records
+            if not includeDeleted and not result.get('deleted', False):
+                queryResults.append(result['content'])
         return queryResults
     
     @staticmethod
@@ -453,15 +449,14 @@ class XMLdata(object):
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
-        # Check the deleted records
-        if not includeDeleted:
-            query["$or"] = [{'deleted': False}, {'deleted': {'$exists': False}}]
         # query mongo db
         cursor = xmldata.find(query,as_class = OrderedDict)
         # build a list with the xml representation of objects that match the query
         results = []
         for result in cursor:
-            results.append(result)
+            # Check the deleted records
+            if not includeDeleted and not result.get('deleted', False):
+                results.append(result)
         return results
 
     @staticmethod
@@ -639,15 +634,14 @@ class XMLdata(object):
         if len(refinements.keys()) > 0:
             full_text_query.update(refinements)
         full_text_query.update({'ispublished': True})
-        # Check the deleted records
-        if not includeDeleted:
-            full_text_query.update({"$or":[{'deleted': False}, {'deleted': {'$exists': False}}]})
 
         cursor = xmldata.find(full_text_query, as_class = OrderedDict).sort('publicationdate', DESCENDING)
         
         results = []
         for result in cursor:
-            results.append(result)
+            # Check the deleted records
+            if not includeDeleted and not result.get('deleted', False):
+                results.append(result)
         return results
 
 
