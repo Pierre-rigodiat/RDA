@@ -2,12 +2,9 @@ from django.http.request import HttpRequest
 from django.test.testcases import TestCase
 from os.path import join
 from django.utils.importlib import import_module
-from lxml import etree
-
 from mgi.common import SCHEMA_NAMESPACE
-from mgi.tests import DataHandler, are_equals
-
-from curate.parser import generate_simple_content
+from mgi.tests import DataHandler
+from utils.XSDParser.parser import generate_simple_content
 
 
 class ParserCreateSimpleContentTestSuite(TestCase):
@@ -15,7 +12,7 @@ class ParserCreateSimpleContentTestSuite(TestCase):
     """
 
     def setUp(self):
-        simple_content_data = join('curate', 'tests', 'data', 'parser', 'simple_content')
+        simple_content_data = join('utils', 'XSDParser', 'tests', 'data', 'parser', 'simple_content')
         self.simple_content_data_handler = DataHandler(simple_content_data)
 
         self.maxDiff = None
@@ -38,6 +35,10 @@ class ParserCreateSimpleContentTestSuite(TestCase):
         }
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = self.namespace
+
+        from utils.XSDParser import parser
+        from curate.ajax import load_config
+        parser.load_config(self.request, load_config())
 
     def test_restriction(self):
         xsd_files = join('restriction', 'basic')
@@ -65,7 +66,7 @@ class ParserReloadSimpleContentTestSuite(TestCase):
     """
 
     def setUp(self):
-        simple_content_data = join('curate', 'tests', 'data', 'parser', 'simple_content')
+        simple_content_data = join('utils', 'XSDParser', 'tests', 'data', 'parser', 'simple_content')
         self.simple_content_data_handler = DataHandler(simple_content_data)
 
         self.maxDiff = None
@@ -88,6 +89,10 @@ class ParserReloadSimpleContentTestSuite(TestCase):
         }
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = self.namespace
+
+        from utils.XSDParser import parser
+        from curate.ajax import load_config
+        parser.load_config(self.request, load_config())
 
     def test_restriction(self):
         xsd_files = join('restriction', 'basic')

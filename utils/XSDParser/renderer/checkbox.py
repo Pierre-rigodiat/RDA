@@ -1,6 +1,7 @@
 """
 """
 import logging
+
 from utils.XSDParser.renderer.list import ListRenderer
 
 logger = logging.getLogger(__name__)
@@ -16,27 +17,12 @@ class CheckboxRenderer(ListRenderer):
         :param element
         :return:
         """
-
-        data = {
-            # 'id': element.pk,
-            # 'value': element.value,
-        }
-
-        return self._load_template('checkbox', data)
+        return self._load_template('checkbox')
 
     def render_restriction(self, element):
         """
 
-        :param element
+        :param element:
         :return:
         """
-
-        data = {
-            # 'id': element.pk,
-            # 'value': element.value,
-        }
-
-        return self._load_template('checkbox', data)
-
-    def render_module(self, element):
-        return ''
+        return self._load_template('checkbox')

@@ -14,7 +14,7 @@ from pymongo import MongoClient
 from mgi.settings import MONGODB_URI
 from pymongo.errors import OperationFailure
 
-RESOURCES_PATH = join(BASE_DIR, 'curate', 'tests', 'data', 'parser', 'schema', 'namespace')
+RESOURCES_PATH = join(BASE_DIR, 'utils', 'XSDParser', 'tests', 'data', 'parser', 'schema', 'namespace')
 USER = "admin"
 PASSWORD = "admin"
 BASE_URL = "http://127.0.0.1:8000"

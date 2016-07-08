@@ -1,7 +1,7 @@
 """ Test suites for the HTML parser
 """
 from curate.models import SchemaElement
-from curate.renderer import HtmlRenderer
+from utils.XSDParser.renderer import HtmlRenderer
 
 
 def create_mock_html_renderer():

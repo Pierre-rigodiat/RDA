@@ -3,8 +3,8 @@ from django.test.testcases import TestCase
 from os.path import join
 from django.utils.importlib import import_module
 from lxml import etree
-from mgi.tests import DataHandler, are_equals
-from curate.parser import generate_element
+from mgi.tests import DataHandler
+from utils.XSDParser.parser import generate_element
 
 
 class ParserGenerateElementTestSuite(TestCase):
@@ -12,7 +12,7 @@ class ParserGenerateElementTestSuite(TestCase):
     """
 
     def setUp(self):
-        element_data = join('curate', 'tests', 'data', 'parser', 'element')
+        element_data = join('utils', 'XSDParser', 'tests', 'data', 'parser', 'element')
         self.element_data_handler = DataHandler(element_data)
 
         self.request = HttpRequest()
@@ -32,6 +32,10 @@ class ParserGenerateElementTestSuite(TestCase):
         self.namespace = "{" + namespace + "}"
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = {'xs': namespace}
+
+        from utils.XSDParser import parser
+        from curate.ajax import load_config
+        parser.load_config(self.request, load_config())
 
     def test_create_simple_type_basic(self):
         xsd_files = join('simple_type', 'basic')
@@ -357,7 +361,7 @@ class ParserReloadElementTestSuite(TestCase):
     """
 
     def setUp(self):
-        element_data = join('curate', 'tests', 'data', 'parser', 'element')
+        element_data = join('utils', 'XSDParser', 'tests', 'data', 'parser', 'element')
         self.element_data_handler = DataHandler(element_data)
 
         self.request = HttpRequest()
@@ -377,6 +381,10 @@ class ParserReloadElementTestSuite(TestCase):
         self.namespace = "{" + namespace + "}"
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = {'xs': namespace}
+
+        from utils.XSDParser import parser
+        from curate.ajax import load_config
+        parser.load_config(self.request, load_config())
 
     def test_reload_simple_type_basic(self):
         xsd_files = join('simple_type', 'basic')

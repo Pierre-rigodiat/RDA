@@ -2,9 +2,8 @@ from django.template.base import Template
 from django.test.testcases import TestCase
 from os.path import join
 from django.template import loader
-from curate.models import SchemaElement
-from curate.renderer import BaseRenderer
 from mgi.tests import VariableTypesGenerator
+from utils.XSDParser.renderer import BaseRenderer
 
 
 class InitTestSuite(TestCase):

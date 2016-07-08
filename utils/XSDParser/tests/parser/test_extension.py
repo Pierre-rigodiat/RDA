@@ -6,7 +6,7 @@ from django.utils.importlib import import_module
 from lxml import etree
 from mgi.common import SCHEMA_NAMESPACE
 from mgi.tests import DataHandler
-from curate.parser import generate_extension
+from utils.XSDParser.parser import generate_extension
 
 
 class ParserCreateExtensionTestSuite(TestCase):
@@ -14,7 +14,7 @@ class ParserCreateExtensionTestSuite(TestCase):
     """
 
     def setUp(self):
-        extension_data = join('curate', 'tests', 'data', 'parser', 'extension')
+        extension_data = join('utils', 'XSDParser', 'tests', 'data', 'parser', 'extension')
         self.extension_data_handler = DataHandler(extension_data)
 
         self.maxDiff = None
@@ -41,6 +41,11 @@ class ParserCreateExtensionTestSuite(TestCase):
 
         self.request = HttpRequest()
         self.request.session = self.session
+
+        from utils.XSDParser import parser
+        from curate.ajax import load_config
+        parser.load_config(self.request, load_config())
+
 
     # def test_create_group(self):
     #     xsd_files = join('group', 'basic')
@@ -188,7 +193,7 @@ class ParserReloadExtensionTestSuite(TestCase):
     """
 
     def setUp(self):
-        extension_data = join('curate', 'tests', 'data', 'parser', 'extension')
+        extension_data = join('utils', 'XSDParser', 'tests', 'data', 'parser', 'extension')
         self.extension_data_handler = DataHandler(extension_data)
 
         self.maxDiff = None
@@ -214,6 +219,10 @@ class ParserReloadExtensionTestSuite(TestCase):
 
         self.request = HttpRequest()
         self.request.session = self.session
+
+        from utils.XSDParser import parser
+        from curate.ajax import load_config
+        parser.load_config(self.request, load_config())
 
     # def test_reload_group(self):
     #     xsd_files = join('group', 'basic')

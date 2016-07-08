@@ -3,9 +3,8 @@ from django.test.testcases import TestCase
 from os.path import join
 from django.utils.importlib import import_module
 from lxml import etree
-# from curate.tests.parser import ParserDefaultTestCase
-from mgi.tests import DataHandler, are_equals
-from curate.parser import generate_sequence
+from mgi.tests import DataHandler
+from utils.XSDParser.parser import generate_sequence
 
 
 class ParserCreateSequenceTestSuite(TestCase):
@@ -13,7 +12,7 @@ class ParserCreateSequenceTestSuite(TestCase):
     """
 
     def setUp(self):
-        sequence_data = join('curate', 'tests', 'data', 'parser', 'sequence')
+        sequence_data = join('utils', 'XSDParser', 'tests', 'data', 'parser', 'sequence')
         self.sequence_data_handler = DataHandler(sequence_data)
 
         self.maxDiff = None
@@ -33,6 +32,10 @@ class ParserCreateSequenceTestSuite(TestCase):
         self.namespace = "{" + namespace + "}"
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = {'xs': namespace}
+
+        from utils.XSDParser import parser
+        from curate.ajax import load_config
+        parser.load_config(self.request, load_config())
 
     def test_create_element_basic(self):
         xsd_files = join('element', 'basic')
@@ -233,7 +236,7 @@ class ParserReloadSequenceTestSuite(TestCase):
     """
 
     def setUp(self):
-        sequence_data = join('curate', 'tests', 'data', 'parser', 'sequence')
+        sequence_data = join('utils', 'XSDParser', 'tests', 'data', 'parser', 'sequence')
         self.sequence_data_handler = DataHandler(sequence_data)
 
         self.maxDiff = None
@@ -253,6 +256,10 @@ class ParserReloadSequenceTestSuite(TestCase):
         self.namespace = "{" + namespace + "}"
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = {'xs': namespace}
+
+        from utils.XSDParser import parser
+        from curate.ajax import load_config
+        parser.load_config(self.request, load_config())
 
     def test_reload_element_basic(self):
         xsd_files = join('element', 'basic')

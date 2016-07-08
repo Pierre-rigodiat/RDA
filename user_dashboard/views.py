@@ -351,7 +351,7 @@ def dashboard_detail_record(request):
         xml_string = XMLdata.get(record_id)
         title = xml_string['title']
         schema_id = xml_string['schema']
-        xml_string = xmltodict.unparse(xml_string['content']).encode('utf-8')
+        xml_string = XMLdata.unparse(xml_string['content']).encode('utf-8')
     else:
         raise Exception("Unknow record type: " + str(record_type))
 

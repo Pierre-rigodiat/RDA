@@ -2,20 +2,19 @@ from selenium import webdriver
 import time
 from django.test import TestCase
 
-from mgi.common import update_dependencies
 from mgi.settings import BASE_DIR
 from os.path import join
 from os import listdir, remove
 import os
 
-from mgi.models import create_template, TemplateVersion
+from mgi.models import create_template
 from lxml import etree
 from mgi.tests import are_equals
 from pymongo import MongoClient
 from mgi.settings import MONGODB_URI
 from pymongo.errors import OperationFailure
 
-RESOURCES_PATH = join(BASE_DIR, 'curate', 'tests', 'data', 'parser', 'extension', 'explicit-implicit')
+RESOURCES_PATH = join(BASE_DIR, 'utils', 'XSDParser', 'tests', 'data', 'parser', 'extension', 'explicit-implicit')
 USER = "admin"
 PASSWORD = "admin"
 BASE_URL = "http://127.0.0.1:8000"

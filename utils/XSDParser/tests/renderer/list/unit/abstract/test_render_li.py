@@ -6,7 +6,7 @@ from mgi.tests import VariableTypesGenerator, DataHandler
 
 class AbstractRenderLiTestSuite(TestCase):
     def setUp(self):
-        li_data = join('curate', 'tests', 'data', 'renderer', 'default', 'li')
+        li_data = join('utils', 'XSDParser', 'tests', 'data', 'renderer', 'default', 'li')
         self.li_data_handler = DataHandler(li_data)
 
         self.types_generator = VariableTypesGenerator()

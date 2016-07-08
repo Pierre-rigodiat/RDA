@@ -3,11 +3,11 @@ from django.test import TestCase
 from django.utils.importlib import import_module
 from os import walk
 from os.path import splitext, join
-from curate.parser import *
 from mgi.models import FormData
 from mgi.settings import SITE_ROOT
 from mgi.tests import DataHandler
 from lxml import etree
+from utils.XSDParser.parser import generate_form
 
 
 class ParserGenerateFormTestSuite(TestCase):
@@ -35,7 +35,7 @@ class ParserGenerateFormTestSuite(TestCase):
         super(ParserGenerateFormTestSuite, cls).tearDownClass()
 
     def setUp(self):
-        schema_data = join('curate', 'tests', 'data', 'parser')
+        schema_data = join('utils', 'XSDParser', 'tests', 'data', 'parser')
         self.schema_data_handler = DataHandler(schema_data)
 
         self.request = HttpRequest()

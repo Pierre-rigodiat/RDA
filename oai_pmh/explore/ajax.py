@@ -19,7 +19,7 @@ import xmltodict
 import os
 import json
 import lxml.etree as etree
-from mgi.models import Template, Instance, TemplateVersion, OaiRecord, OaiMetadataFormat, OaiRegistry
+from mgi.models import Template, Instance, TemplateVersion, OaiRecord, OaiMetadataFormat, OaiRegistry, XMLdata
 from django.template import loader, Context, RequestContext
 
 
@@ -107,7 +107,7 @@ def get_results_by_instance_keyword(request):
             schemasName[str(schemaId)] = obj
 
         listItems = []
-        xmltodictunparse = xmltodict.unparse
+        xmltodictunparse = XMLdata.unparse
         appendResult = results.append
         toXML = etree.XML
         parse = etree.parse
@@ -147,7 +147,7 @@ def get_results_by_instance_keyword(request):
                 wordList = re.sub("[^\w]", " ",  keyword).split()
                 wordList = [x + "|" + x +"\w+" for x in wordList]
                 wordList = '|'.join(wordList)
-                listWholeKeywords = re.findall("\\b("+ wordList +")\\b", xmltodict.unparse(instanceResult['metadata']).encode('utf-8'), flags=re.IGNORECASE)
+                listWholeKeywords = re.findall("\\b("+ wordList +")\\b", XMLdata.unparse(instanceResult['metadata']).encode('utf-8'), flags=re.IGNORECASE)
                 labels = list(set(listWholeKeywords))
 
                 for label in labels:
