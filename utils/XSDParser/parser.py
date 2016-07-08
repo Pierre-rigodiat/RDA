@@ -724,8 +724,12 @@ def generate_form(request, xsd_doc_data, xml_doc_data=None, config=None):
             clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
             # set the parser
             etree.set_default_parser(parser=clean_parser)
-            # load the XML tree from the text
-            edit_data_tree = etree.XML(str(xml_doc_data.encode('utf-8')))
+            # xml data not empty
+            if xml_doc_data != "":
+                # load the XML tree from the text
+                edit_data_tree = etree.XML(str(xml_doc_data.encode('utf-8')))
+            else:
+                request.session['curate_edit'] = False
         else:  # no data found, not editing
             request.session['curate_edit'] = False
 
