@@ -31,6 +31,7 @@ from django.http.response import HttpResponseBadRequest
 from admin_mdcs.models import permission_required
 import mgi.rights as RIGHTS
 from mgi.exceptions import MDCSError
+from io import BytesIO
 
 ################################################################################
 #
@@ -509,8 +510,12 @@ def curate_edit_form(request):
                 # parameters that will be used during curation
                 request.session['curateFormData'] = str(form_data.id)
 
-                if 'xmlDocTree' in request.session:
-                    del request.session['xmlDocTree']
+                request.session['currentTemplateID'] = form_data.template
+                templateObject = Template.objects.get(pk=form_data.template)
+                xmlDocData = templateObject.content
+                XMLtree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
+                request.session['xmlDocTree'] = etree.tostring(XMLtree)
+                request.session['form_id'] = str(form_data.schema_element_root.id)
 
                 context = RequestContext(request, {
                 })
