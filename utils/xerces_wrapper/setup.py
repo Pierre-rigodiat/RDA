@@ -12,8 +12,8 @@ setup(
             sources = ["xerces_wrapper.i", "xerces_wrapper.cxx"],
             swig_opts = ["-c++"],
 			libraries = ["xerces-c"],
-			library_dirs=["path\to\xerces\src"], #Win: C://path//to//xerces//src
-			include_dirs =["path\to\xerces\src"]
+			library_dirs=["path/to/xerces/src"], #Win: C://path//to//xerces//src
+			include_dirs =["path/to/xerces/src"]
             )
         ]
     )

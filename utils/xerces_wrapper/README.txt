@@ -63,34 +63,34 @@ Installation:
 Please follow these instructions to install the Xerces Wrapper for validation.
 If the installation succeeds, you will have fully compliant validation, otherwise, the Curator will continue using the LXML library.
 
+Linux:
+
 Prerequisites:
 
 - Install GNU GCC Compiler: 
 	apt-get install build-essential
 - Install SWIG: 
 	apt-get install swig
-- Download Xerces-C (tested with 3.1.3):
-	http://xerces.apache.org/xerces-c/download.cgi
-
-Linux:
+- Download Xerces-C (http://xerces.apache.org/xerces-c/download.cgi):
+	wget <mirror_address> (e.g. wget http://apache.mesi.com.ar//xerces/c/3/sources/xerces-c-3.1.3.tar.gz)
+	tar -zxvf xerces-c-<version>.tar.gz (e.g. tar -zxvf xerces-c-3.1.3.tar.gz)
+	cd xerces-c-<version>
+	./configure
+	make install
+	ldconfig
 
 - Open setup.py:
 	- In library_dirs and include_dirs, write the path to xerces-c/src (e.g. /home/user/xerces-c/src)
 - Install the Xerces Wrapper:
 	- python setup.py install 
 - Test if the package is successfully installed:
-	- Open a new terminal
-	- python
-	- import xerces_wrapper
-	=> No error message should appear
-	- exit()
+	- python -c "import xerces_wrapper"
 	
 If the import is returning errors, it may mean that the package has not been installed at the correct location. 
-For more information about the installation location, please read: https://docs.python.org/2/install/#how-installation-works.
+For more information about the installation location, please read: https://docs.python.org/2/install#how-installation-works
 Tip: The following command will tell you where your current python is looking for packages:
-	- python
-	- import site; site.getsitepackages()
-	- exit()
+	- python -c "import site; print site.getsitepackages()"
+Tip: If no succes with auto install, you can directly copy and paste the file xerces_wrapper.pyc into the site-packages folder of your python.
 
 
 
