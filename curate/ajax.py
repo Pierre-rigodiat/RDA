@@ -615,7 +615,6 @@ def reload_form(request):
         # the form has been saved already
         if xml_data is not None and xml_data != '':
             request.session['curate_edit'] = True
-            request.session['xmlDocTree'] = xml_data
             root_element_id = generate_form(request, xsd_doc_data, xml_data, config=load_config())
         # the form has never been saved
         else:
