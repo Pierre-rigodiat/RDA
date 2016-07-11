@@ -1857,12 +1857,12 @@ def createCustomTreeForQuery(request, htmlTree):
     request.session['anyCheckedExplore'] = False
 
     for li in htmlTree.findall("./ul/li"):
-        manageLiForQuery(request, li)
+        manage_li_for_query(request, li)
 
 
 ################################################################################
 #
-# Function Name: manageUlForQuery(request, ul)
+# Function Name: manage_ul_for_query(request, ul)
 # Inputs:        request - 
 #                ul - 
 # Outputs:       
@@ -1870,15 +1870,15 @@ def createCustomTreeForQuery(request, htmlTree):
 # Description:   Process the ul element of an HTML list
 #                
 ################################################################################
-def manageUlForQuery(request, ul):
-    branchInfo = BranchInfo(keepTheBranch=False, selectedLeave=[])
+def manage_ul_for_query(request, ul):
+    branch_info = BranchInfo(keepTheBranch=False, selectedLeave=[])
 
     for li in ul.findall("./li"):
-        liBranchInfo = manageLiForQuery(request, li)
-        if liBranchInfo.keepTheBranch == True:
-            branchInfo.keepTheBranch = True
-        if len(liBranchInfo.selectedLeave) > 0:
-            branchInfo.selectedLeave.extend(liBranchInfo.selectedLeave)
+        li_branch_info = manage_li_for_query(request, li)
+        if li_branch_info.keepTheBranch:
+            branch_info.keepTheBranch = True
+        if len(li_branch_info.selectedLeave) > 0:
+            branch_info.selectedLeave.extend(li_branch_info.selectedLeave)
 
     checkbox = ul.find("./input[@type='checkbox']")
     if checkbox is not None:
@@ -1889,19 +1889,18 @@ def manageUlForQuery(request, ul):
             ul.getparent().attrib['style'] = "color:orange;font-weight:bold;cursor:pointer;"
             ul.getparent().attrib['onclick'] = "selectElement('" + ul.getparent().attrib['class'] + "')"
             # tells to keep this branch until this leave
-            branchInfo.keepTheBranch = True
-            branchInfo.selectedLeave.append(ul.getparent().attrib['class'])
-            # return branchInfo
+            branch_info.keepTheBranch = True
+            branch_info.selectedLeave.append(ul.getparent().attrib['class'])
 
-    if not branchInfo.keepTheBranch:
+    if not branch_info.keepTheBranch:
         ul.attrib['style'] = "display:none;"
         
-    return branchInfo
+    return branch_info
 
 
 ################################################################################
 #
-# Function Name: manageLiForQuery(request, li)
+# Function Name: manage_li_for_query(request, li)
 # Inputs:        request - 
 #                li - 
 # Outputs:       
@@ -1909,40 +1908,43 @@ def manageUlForQuery(request, ul):
 # Description:   Process the li element of an HTML list
 #                
 ################################################################################
-def manageLiForQuery(request, li):
-    listUl = li.findall("./ul")
-    branchInfo = BranchInfo(keepTheBranch=False, selectedLeave=[])
-    if len(listUl) != 0:
-        selectedLeaves = []
-        for ul in listUl:
-            ulBranchInfo = manageUlForQuery(request, ul)
-            if ulBranchInfo.keepTheBranch == True:
-                branchInfo.keepTheBranch = True
-            if len(ulBranchInfo.selectedLeave) > 0:
-                selectedLeaves.extend(ulBranchInfo.selectedLeave)
-        # subelement queries
-        if len(selectedLeaves) > 1: # starting at 2 because 1 is the regular case
+def manage_li_for_query(request, li):
+    list_ul = li.findall("./ul")
+    branch_info = BranchInfo(keepTheBranch=False, selectedLeave=[])
+    if len(list_ul) != 0:
+        selected_leaves = []
+        for ul in list_ul:
+            ul_branch_info = manage_ul_for_query(request, ul)
+            if ul_branch_info.keepTheBranch:
+                branch_info.keepTheBranch = True
+            if len(ul_branch_info.selectedLeave) > 0:
+                selected_leaves.extend(ul_branch_info.selectedLeave)
+        # sub element queries, starting at 2 because 1 is the regular case
+        if len(selected_leaves) > 1:
+            # not for the choices
             if li[0].tag != 'select':
-                li.attrib['style'] = "color:purple;font-weight:bold;cursor:pointer;"
-                leavesID = ""
-                for leave in selectedLeaves[:-1]:
-                    leavesID += leave + " "
-                leavesID += selectedLeaves[-1]
-                # get the node text
-                li_text = li[0].tail if li[0].tail is not None else ''
-                li[0].tail = ""
-                # insert span with selectParent (cannot put it on li node directly or all children will call the JS onclick)
-                li.insert(0, html.fragment_fromstring("""<span onclick="selectParent('""" + leavesID + """')">""" +
-                                                      li_text + """</span>"""))
-        if not branchInfo.keepTheBranch:
+                if 'style' not in li.attrib:
+                    leaves_id = ""
+                    for leave in selected_leaves[:-1]:
+                        leaves_id += leave + " "
+                    leaves_id += selected_leaves[-1]
+                    # get the node text
+                    li_text = li[0].tail if li[0].tail is not None else ''
+                    li[0].tail = ""
+                    # insert span with selectParent
+                    # (cannot put it on li node directly or all children will call the JS onclick)
+                    li.insert(0, html.fragment_fromstring("""<span style="color:purple;font-weight:bold;cursor:pointer;"
+                                                                onclick="selectParent('""" + leaves_id + """')">""" +
+                                                          li_text + """</span>"""))
+        if not branch_info.keepTheBranch:
             li.attrib['style'] = "display:none;"
-        return branchInfo
+        return branch_info
     else:
         try:
             checkbox = li.find("./input[@type='checkbox']")
             if checkbox.attrib['value'] == 'false':
                 li.attrib['style'] = "display:none;"
-                return branchInfo
+                return branch_info
             else:
                 request.session['anyCheckedExplore'] = True
                 # remove the checkbox and make the element clickable
@@ -1950,11 +1952,11 @@ def manageLiForQuery(request, li):
                 li.attrib['onclick'] = "selectElement('" + li.attrib['class'] + "')"
                 checkbox.attrib['style'] = "display:none;"
                 # tells to keep this branch until this leave
-                branchInfo.keepTheBranch = True
-                branchInfo.selectedLeave.append(li.attrib['class'])
-                return branchInfo
+                branch_info.keepTheBranch = True
+                branch_info.selectedLeave.append(li.attrib['class'])
+                return branch_info
         except:
-            return branchInfo
+            return branch_info
   
 
 ################################################################################
