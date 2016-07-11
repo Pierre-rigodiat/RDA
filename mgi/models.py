@@ -281,6 +281,7 @@ class FormData(Document):
     schema_element_root = ReferenceField(SchemaElement, required=False)
     xml_data = StringField(default='')
     xml_data_id = StringField()
+    isNewVersionOfRecord = BooleanField(required=True, default=False)
 
 
 def postprocessor(path, key, value):
@@ -587,6 +588,26 @@ class XMLdata(object):
         # get the xmldata collection
         xmldata = db['xmldata']
         xmldata.update({'_id': ObjectId(postID)}, {'$set':{'publicationdate': datetime.datetime.now(), 'ispublished': True}}, upsert=False)
+
+    @staticmethod
+    def update_publish_draft(postID, content=None, user=None):
+        """
+            Update the object with the given id
+        """
+        # create a connection
+        client = MongoClient(MONGODB_URI)
+        # connect to the db 'mgi'
+        db = client[MGI_DB]
+        # get the xmldata collection
+        xmldata = db['xmldata']
+        json_content = xmltodict.parse(content, postprocessor=postprocessor)
+        publicationdate = datetime.datetime.now()
+        xmldata.update({'_id': ObjectId(postID)}, {'$set':{'lastmodificationdate': publicationdate,
+                                                           'publicationdate': publicationdate,
+                                                           'ispublished': True,
+                                                           'content': json_content,
+                                                           'iduser': user}}, upsert=False)
+        return publicationdate
 
     @staticmethod
     def update_unpublish(postID):

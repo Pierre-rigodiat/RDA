@@ -31,9 +31,11 @@ urlpatterns = patterns('',
         template_name='dashboard/my_profile_change_password.html', success_url='/dashboard/my-profile')),
     url(r'^drafts', 'user_dashboard.views.dashboard_my_drafts', name='dashboard-my-drafts'),
     url(r'^delete_result', 'user_dashboard.ajax.delete_result'),
+    url(r'^update_publish_draft', 'user_dashboard.ajax.update_publish_draft'),
     url(r'^update_publish', 'user_dashboard.ajax.update_publish'),
     url(r'^update_unpublish', 'user_dashboard.ajax.update_unpublish'),
     url(r'^change-owner-record', 'user_dashboard.views.change_owner_record'),
+    url(r'^edit_curate_form', 'user_dashboard.ajax.edit_curate_form')
 )+static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 

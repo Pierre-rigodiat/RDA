@@ -108,28 +108,31 @@ def curate_edit_data(request):
             pass
         else:
             xml_data_id = request.GET['id']
-            xml_data = XMLdata.get(xml_data_id)
-            json_content = xml_data['content']
-            xml_content = xmltodict.unparse(json_content)
-            request.session['curate_edit_data'] = xml_content
             request.session['curate_edit'] = True
-            request.session['currentTemplateID'] = xml_data['schema']
             # remove previously created forms when editing a new one
-            previous_forms = FormData.objects(user=str(request.user.id), xml_data_id__exists=True)
-
+            previous_forms = FormData.objects(user=str(request.user.id), xml_data_id__exists=True,
+                                              isNewVersionOfRecord=False)
             for previous_form in previous_forms:
-                # TODO: check if need to delete all SchemaElements
                 previous_form.delete()
 
-            form_data = FormData(
-                user=str(request.user.id),
-                template=xml_data['schema'],
-                name=xml_data['title'],
-                xml_data=xml_content,
-                xml_data_id=xml_data_id
-            )
-            form_data.save()
+            #Check if a form_data already exists for this record
+            form_data = FormData.objects(xml_data_id=xml_data_id).all().first()
+            if not form_data:
+                xml_data = XMLdata.get(xml_data_id)
+                json_content = xml_data['content']
+                xml_content = xmltodict.unparse(json_content)
+                form_data = FormData(
+                    user=str(request.user.id),
+                    template=xml_data['schema'],
+                    name=xml_data['title'],
+                    xml_data=xml_content,
+                    xml_data_id=xml_data_id,
+                    isNewVersionOfRecord=xml_data.get('ispublished', False)
+                )
+                form_data.save()
 
+            request.session['currentTemplateID'] = form_data.template
+            request.session['curate_edit_data'] = form_data.xml_data
             request.session['curateFormData'] = str(form_data.pk)
 
             if 'form_id' in request.session:
@@ -482,13 +485,22 @@ def save_xml_data_to_db(request):
         return HttpResponseBadRequest('No XML data found')
 
     try:
-        # update data if id is present
+        # update form data if id is present
         if form_data.xml_data_id is not None:
-            XMLdata.update_content(
-                form_data.xml_data_id,
-                xml_string,
-                title=form.data['title']
-            )
+            if not form_data.isNewVersionOfRecord:
+                #Update the record
+                XMLdata.update_content(
+                    form_data.xml_data_id,
+                    xml_string,
+                    title=form.data['title']
+                )
+                #Delete form_data
+                if form_data.schema_element_root is not None:
+                    delete_branch_from_db(form_data.schema_element_root.pk)
+                form_data.delete()
+            else:
+                form_data.xml_data = xml_string
+                form_data.save()
         else:
             # create new data otherwise
             xml_data = XMLdata(
@@ -498,11 +510,10 @@ def save_xml_data_to_db(request):
                 iduser=str(request.user.id)
             )
             xml_data.save()
-
-        if form_data.schema_element_root is not None:
-            delete_branch_from_db(form_data.schema_element_root.pk)
-
-        form_data.delete()
+            #Delete form_data because we just create an XmlData and we don't need anymore the formdata
+            if form_data.schema_element_root is not None:
+                delete_branch_from_db(form_data.schema_element_root.pk)
+            form_data.delete()
 
         return HttpResponse('ok')
     except Exception, e:

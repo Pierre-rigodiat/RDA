@@ -383,3 +383,85 @@ change_owner_record = function(recordID){
         }
     });
 }
+
+/**
+ * Delete a form
+ * @param formID
+ */
+deleteDraft = function(formID){
+	$(function() {
+        $( "#dialog-delete-draft" ).dialog({
+            modal: true,
+            buttons: {
+                Cancel: function() {
+                    $( this ).dialog( "close" );
+                },
+            	Delete: function() {
+                    delete_draft(formID);
+                    $( this ).dialog( "close" );
+                },
+            }
+        });
+    });
+}
+
+
+/**
+ * AJAX call, delete a form
+ * @param formID
+ */
+delete_draft = function(formID){
+	$.ajax({
+        url : "/curate/delete-form?id=" + formID,
+        type : "GET",
+        dataType: "json",
+        data : {
+        	formID: formID,
+        },
+		success: function(data){
+			window.location = "/dashboard/resources"
+	    },
+        error:function(data){
+        	window.location = "/dashboard/resources"
+        }
+    });
+}
+
+/**
+ * Publish a draft
+ * @param draft_id
+ */
+updatePublishDraft = function(draft_id){
+	$(function() {
+        $( "#dialog-publish-draft" ).dialog({
+            modal: true,
+            buttons: {
+            	Cancel: function() {
+                    $( this ).dialog( "close" );
+                },
+            	Publish: function() {
+                    $( this ).dialog( "close" );
+                    update_publish_draft(draft_id);
+                },
+            }
+        });
+    });
+}
+
+/**
+ * AJAX call, update the publish document and date of a XMLdata
+ * @param draft_id
+ */
+update_publish_draft = function(draft_id){
+	$.ajax({
+        url : "/dashboard/update_publish_draft",
+        type : "GET",
+        dataType: "json",
+        data : {
+        	draft_id: draft_id,
+        },
+		success: function(data){
+		    location.reload();
+	    }
+    });
+}

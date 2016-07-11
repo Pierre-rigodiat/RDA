@@ -1,12 +1,13 @@
 {% load dict_key_extras %}
 
 {% for XMLdata in XMLdatas %}
-    {% with XMLdata_id=XMLdata|get:"_id" status=XMLdata.content.Resource|get:"@status" %}
+    {% with XMLdata_id=XMLdata|get:"_id" status=XMLdata.content.Resource|get:"@status" XMLdata_id_str=XMLdata|get:"_id"|stringformat:"s" %}
+      {% with draft=XMLdatasDrafts|get:XMLdata_id_str %}
         <br><br>
-        <div style="background-color:#eeeeee" id="{{XMLdata_id}}">
-            <table class="data-table">
+        <div id="{{XMLdata_id}}">
+            <table class="data-table" style="background-color:#eeeeee;margin-bottom: 0.2em;">
                 <tr>
-                    <td style="width:250px">
+                    <td style="width:310px">
                         <div style="margin-top:10px;">Resource Name</div>
                     </td>
                     <td width="500em">
@@ -47,13 +48,16 @@
                 <tr>
                     <td>
                         {% if canEdit %}
-                        <a href="/curate/enter-data?id={{XMLdata_id}}" class="btn clear-fields">Edit</a>
+                            {% if not XMLdata.ispublished %}
+                                <a href="/curate/enter-data?id={{XMLdata_id}}" class="btn clear-fields">Edit record</a>
+                            {% elif not draft %}
+                                <a href="/curate/enter-data?id={{XMLdata_id}}" class="btn clear-fields">Create new version</a>
+                            {% endif %}
                         {% endif %}
                         <a onclick="changeOwnerRecord('{{XMLdata_id}}')" class="btn clear-fields">Change Owner</a>
                         {% if canDelete and not XMLdata.publicationdate %}
-                        <a onclick="deleteResult('{{XMLdata_id}}')" class="btn clear-fields">Delete</a>
+                        <a onclick="deleteResult('{{XMLdata_id}}')" class="btn clear-fields">Delete record</a>
                         {% endif %}
-
                     </td>
                     <td align="right" colspan="2">
                         <div style="float:right">
@@ -64,12 +68,49 @@
                             <font size="2">Published on: Never &nbsp;&nbsp;&nbsp;</font>
                         {% endif %}
                         {% if not XMLdata.ispublished %}
-                            <a onclick="updatePublish('{{XMLdata_id}}')" class="btn clear-fields">Publish</a>
+                            <a onclick="updatePublish('{{XMLdata_id}}')" class="btn clear-fields">Publish record</a>
                         {% endif %}
                             </div>
                     </td>
                 </tr>
             </table>
+            <table class="draft" style="background-color:#eeeeee;">
+                {% if draft %}
+                 <tr>
+                     <td style="width:310px"></td>
+                     <td style="width:500px">
+
+                             {% if XMLdata.content.Resource.identity.title %}
+                                {{ XMLdata.content.Resource.identity.title }}
+                            {%else%}
+                                <script>
+                                    document.write('{{ XMLdata.title }}'.replace(/\.[^/.]+$/, ""));
+                                </script>
+                            {% endif %}
+                         ,&nbsp;<font color="red" size="3"><strong>new version</strong></font>
+                     </td>
+                    <td>
+                        <div style="float: right">
+                            {% autoescape on %}
+                                    <a href="/dashboard/detail?type=form&id={{draft}}"><span class="icon legend result">
+                                        View
+                                    </span></a>
+                            {% endautoescape %}
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a href="/curate/enter-data?id={{XMLdata_id}}" class="btn clear-fields">Edit version</a>
+                        <div class="btn clear-fields" onclick='deleteDraft("{{draft}}")'>Delete version</div>
+                    </td>
+                    <td align="right" colspan="3">
+                        <a onclick="updatePublishDraft('{{draft}}')" class="btn clear-fields">Publish version</a>
+                    </td>
+                </tr>
+                {% endif %}
+            </table>
         </div>
+        {% endwith%}
     {% endwith%}
 {% endfor %}
