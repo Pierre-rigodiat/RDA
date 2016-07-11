@@ -19,16 +19,14 @@ from django.conf import settings
 from mgi.settings import BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI
 from utils.BLOBHoster.BLOBHosterFactory import BLOBHosterFactory
 from django.http import HttpResponse
-from mgi.models import Template, XMLdata, Type, delete_template, delete_type, FormData
+from mgi.models import Template, XMLdata, Type, delete_template, delete_type
 from django.contrib import messages
 import lxml.etree as etree
 from io import BytesIO
 import json
-from bson.objectid import ObjectId
 from mgi.common import send_mail_to_managers
 import os
 from django.utils.importlib import import_module
-from django.shortcuts import redirect
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
 MDCS_URI = settings.MDCS_URI
@@ -203,21 +201,3 @@ def update_publish(request):
 def update_unpublish(request):
     XMLdata.update_unpublish(request.GET['result_id'])
     return HttpResponse(json.dumps({}), content_type='application/javascript')
-
-
-################################################################################
-#
-# Function Name: edit_curate_form(request)
-# Inputs:        request -
-# Outputs:
-# Exceptions:    None
-# Description:   Set data in session before editing form
-#
-################################################################################
-def edit_curate_form(request):
-    form_data_id = request.GET['id']
-    form_data = FormData.objects.get(pk=ObjectId(form_data_id))
-    request.session['currentTemplateID'] = form_data.template
-    request.session['form_id'] = str(form_data.schema_element_root.id)
-    url='/curate/edit-form?id='+form_data_id
-    return redirect(url)
