@@ -3,7 +3,6 @@ from django.test.testcases import TestCase
 from os.path import join
 from lxml import etree
 from curate.models import SchemaElement
-from curate.renderer import DefaultRenderer
 from mgi.tests import VariableTypesGenerator, DataHandler, are_equals
 
 
@@ -141,7 +140,7 @@ from mgi.tests import VariableTypesGenerator, DataHandler, are_equals
 # class RenderFormErrorTestSuite(TestCase):
 #
 #     def setUp(self):
-#         form_error_data = join('curate', 'tests', 'data', 'renderer', 'default')
+#         form_error_data = join('utils', 'XSDParser', 'tests', 'data', 'renderer', 'default')
 #         self.form_error_data_handler = DataHandler(form_error_data)
 #
 #         self.types_generator = VariableTypesGenerator()

@@ -1,17 +1,96 @@
-Installation Instructions:
+The Xerces Wrapper:
+
+In the context of the Curator, XML files are handled using the LXML library. When it comes to XML validation, LXML is able to support most of the XML specification, but not all of it.
+We encountered some limitations using the LXML library. Here are some examples that will be incorrectly declared invalid by LXML:
+- Instantiate an XML document having the root using xsi:type,
+	- Problem: LXML only supports XML documents with a root element,
+- Make use of the XML standard 1.1
+	- Problem: LXML only supports XML standard 1.0
+
+We looked at other solutions and decided to integrate the Xerces library to the Curator for the validation of XML Schemas and XML documents.
+Here are some reasons why we chose to use the Xerces library:
+- It is listed in w3 tools (https://www.w3.org/XML/Schema.html#Tools)
+- It is part of the Apache Software Foundation
+- It is used by the popular Oxygen XML editor.
+
+From the LXML documentation:
+-	Supported XML standards: XML 1.0, XML Schema 1.0.
+-	Support for XML Schema is currently not 100% complete in libxml2, but is definitely very close to compliance.
+source: http://lxml.de/FAQ.html#what-standards-does-lxml-implement
+
+From the Xerces-C documentation:
+-	Supported XML standards: XML 1.0, XML 1.1, XML Schema 1.0, XML Schema 1.1 (Working Drafts, December 2009)
+-	Xerces2 is a fully conforming XML Schema 1.0 processor. A partial experimental implementation of the XML Schema 1.1...
+sources: http://xerces.apache.org/ http://xerces.apache.org/xerces2-j/
+
+
+There are several implementations of Xerces in different languages (Java, C++, Perl), but there is currently no python implementation.
+In most cases, it won't be necessary to use Xerces, but to allow users to validate any kind of XML schemas and XML documents we have implemented a python wrapper to the Xerces-C library.
+To do so, we developed our own C++ API using the Xerces-C library and built.
+To avoid building a wrapper for the entire Xerces-C library, the C++ API has been built using only a subset of the library.
+The C++ API is defining two main methods to validate an XML schema and an XML document. 
+To make this API available to the Curator, a python wrapper has been generated on top of the API. The python wrapper is generated using SWIG. 
+
+The two methods that can be used via the Xerces Wrapper are:
+- validate_xsd(xsd_string)
+	Checks if the XML Schema is well formed
+	params:	
+		xsd_string: String containing the XML Schema (XSD file)
+	return: 
+		errors: String containing a list of errors encountered during the validation of the XML Schema
+
+- validate_xml(xsd_string, xml_string)
+	Checks if the XML document is well formed and valid for the XML Schema
+	params:	
+		xsd_string: String containing the XML Schema (XSD file)
+		xml_string: String containing the XML Document (XML file)
+	return: 
+		errors: String containing a list of errors encountered during the validation of the XML Document		
+		
+		
+The methods can be called from a python program using:
+- import xerces_wrapper
+- errors = xerces_wrapper.validate_xsd(xsd_string)
+- errors = xerces_wrapper.validate_xml(xsd_string, xml_string)
+
+sources: 
+Xerces-C: https://xerces.apache.org/xerces-c/
+SWIG: http://www.swig.org/
+
+
+Installation:
+
+Please follow these instructions to install the Xerces Wrapper for validation.
+If the installation succeeds, you will have fully compliant validation, otherwise, the Curator will continue using the LXML library.
+
+Prerequisites:
+
+- Install GNU GCC Compiler: 
+	apt-get install build-essential
+- Install SWIG: 
+	apt-get install swig
+- Download Xerces-C (tested with 3.1.3):
+	http://xerces.apache.org/xerces-c/download.cgi
 
 Linux:
-- Download Xerces-c 3.1.13
-- In setup.py, update the value of library_dirs and include_dirs to the xerces folder
-- Run python setup.py install
+
+- Open setup.py:
+	- In library_dirs and include_dirs, write the path to xerces-c/src (e.g. /home/user/xerces-c/src)
+- Install the Xerces Wrapper:
+	- python setup.py install 
+- Test if the package is successfully installed:
+	- Open a new terminal
+	- python
+	- import xerces_wrapper
+	=> No error message should appear
+	- exit()
+	
+If the import is returning errors, it may mean that the package has not been installed at the correct location. 
+For more information about the installation location, please read: https://docs.python.org/2/install/#how-installation-works.
+Tip: The following command will tell you where your current python is looking for packages:
+	- python
+	- import site; site.getsitepackages()
+	- exit()
 
 
-Cygwin:
-- Download Xerces-c 3.1.13
-- In setup.py, update the value of library_dirs and include_dirs to the xerces folder
-- Run python setup.py install
-- Copy _xerces_warpper.dll into the site-packages of python
 
-
-Tips:
-- to know the location of the site-packages folder: import site; site.getsitepackages()

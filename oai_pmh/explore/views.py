@@ -16,8 +16,7 @@ from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.contrib.auth.decorators import login_required
 from oai_pmh.explore.forms import KeywordForm, MetadataFormatsForm
-from mgi.models import OaiMetadataFormat, OaiRegistry, OaiRecord
-import xmltodict
+from mgi.models import OaiMetadataFormat, OaiRegistry, OaiRecord, XMLdata
 import json
 import os
 from mgi import settings
@@ -128,7 +127,7 @@ def explore_detail_result_keyword(request) :
         title = request.GET['title']
     else:
         title = record.identifier
-    xmlString = xmltodict.unparse(record.getMetadataOrdered()).encode('utf-8')
+    xmlString = XMLdata.unparse(record.metadata).encode('utf-8')
     xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
     xslt = etree.parse(xsltPath)
     transform = etree.XSLT(xslt)

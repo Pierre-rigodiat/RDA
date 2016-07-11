@@ -235,6 +235,7 @@ def init_curate(request):
 
 def load_config():
     return {
+        'PARSER_APPLICATION': 'CURATE',
         'PARSER_MIN_TREE': settings.PARSER_MIN_TREE if hasattr(settings, 'PARSER_MIN_TREE') else True,
         'PARSER_IGNORE_MODULES': settings.PARSER_IGNORE_MODULES if hasattr(settings, 'PARSER_IGNORE_MODULES') else False,
         'PARSER_COLLAPSE': settings.PARSER_COLLAPSE if hasattr(settings, 'PARSER_COLLAPSE') else True,

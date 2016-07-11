@@ -13,8 +13,8 @@
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
+import numbers
 from mongoengine import *
-import json
 
 # Specific to MongoDB ordered inserts
 from collections import OrderedDict
@@ -284,10 +284,13 @@ class FormData(Document):
 
 
 def postprocessor(path, key, value):
-    """Called after XML to JSON transformation"""
-    if key == "#text":
-        # can't unparse if numeric value in #text
-        return key, str(value)
+    """
+    Called after XML to JSON transformation
+    :param path:
+    :param key:
+    :param value:
+    :return:
+    """
     try:
         return key, int(value)
     except (ValueError, TypeError):
@@ -295,6 +298,25 @@ def postprocessor(path, key, value):
             return key, float(value)
         except (ValueError, TypeError):
             return key, value
+
+
+def preprocessor(key, value):
+    """
+    Called before JSON to XML transformation
+    :param key:
+    :param value:
+    :return:
+    """
+    if isinstance(value, OrderedDict):
+        for ik, iv in value.items():
+            if ik == "#text":
+                if isinstance(iv, numbers.Number):
+                    value[ik] = str(iv)
+                else:
+                    value[ik] = iv
+        return key, value
+    else:
+        return key, value
 
 
 class XMLdata(object):
@@ -337,6 +359,10 @@ class XMLdata(object):
         self.content['deleted'] = False
 
     @staticmethod
+    def unparse(json):
+        return xmltodict.unparse(json, preprocessor=preprocessor)
+
+    @staticmethod
     def initIndexes():
         #create a connection
         client = MongoClient(MONGODB_URI)
@@ -357,7 +383,6 @@ class XMLdata(object):
             self.content['deletedDate'] = datetime.datetime.now()
         docID = self.xmldata.insert(self.content)
         return docID
-    
 
     @staticmethod
     def objects():        
@@ -436,7 +461,6 @@ class XMLdata(object):
             results.append(result)
         return results
 
-
     @staticmethod
     def get(postID):
         """
@@ -492,7 +516,7 @@ class XMLdata(object):
             results.append(result['minAttr'])
 
         return results[0] if results[0] else None
-    
+
     @staticmethod
     def delete(postID):
         """
@@ -529,7 +553,7 @@ class XMLdata(object):
 
         if data is not None:
             xmldata.update({'_id': ObjectId(postID)}, {"$set":data}, upsert=False)
-            
+
     @staticmethod
     def update_content(postID, content=None, title=None):
         """

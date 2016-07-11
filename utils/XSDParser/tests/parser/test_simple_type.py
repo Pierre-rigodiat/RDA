@@ -5,9 +5,8 @@ from django.test.testcases import TestCase
 from os.path import join
 from django.utils.importlib import import_module
 from lxml import etree
-from mgi.tests import DataHandler, are_equals
-
-from curate.parser import generate_simple_type
+from mgi.tests import DataHandler
+from utils.XSDParser.parser import generate_simple_type
 
 
 class ParserCreateSimpleTypeTestSuite(TestCase):
@@ -15,7 +14,7 @@ class ParserCreateSimpleTypeTestSuite(TestCase):
     """
 
     def setUp(self):
-        simple_type_data = join('curate', 'tests', 'data', 'parser', 'simple_type')
+        simple_type_data = join('utils', 'XSDParser', 'tests', 'data', 'parser', 'simple_type')
         self.simple_type_data_handler = DataHandler(simple_type_data)
 
         self.maxDiff = None
@@ -36,6 +35,10 @@ class ParserCreateSimpleTypeTestSuite(TestCase):
         self.namespace = "{" + namespace + "}"
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = {'xs': namespace}
+
+        from utils.XSDParser import parser
+        from curate.ajax import load_config
+        parser.load_config(self.request, load_config())
 
     def test_create_restriction(self):
         xsd_files = join('restriction', 'basic')
@@ -90,7 +93,7 @@ class ParserReloadSimpleTypeTestSuite(TestCase):
     """
 
     def setUp(self):
-        simple_type_data = join('curate', 'tests', 'data', 'parser', 'simple_type')
+        simple_type_data = join('utils', 'XSDParser', 'tests', 'data', 'parser', 'simple_type')
         self.simple_type_data_handler = DataHandler(simple_type_data)
 
         self.maxDiff = None
@@ -111,6 +114,10 @@ class ParserReloadSimpleTypeTestSuite(TestCase):
         self.namespace = "{" + namespace + "}"
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = {'xs': namespace}
+
+        from utils.XSDParser import parser
+        from curate.ajax import load_config
+        parser.load_config(self.request, load_config())
 
     def test_reload_restriction(self):
         # FIXME relaod restriction doesn't work

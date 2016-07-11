@@ -683,7 +683,8 @@ def load_config(request, config):
             if property not in properties:
                 raise MDCSError('Bad configuration parameter.')
             if not isinstance(value, bool):
-                raise MDCSError('Bad type for configuration parameter.')
+                if property != 'PARSER_APPLICATION':
+                    raise MDCSError('Bad type for configuration parameter.')
         request.session.update(config)
     else:
         raise MDCSError('Parser is expecting configuration parameters.')
@@ -726,8 +727,12 @@ def generate_form(request, xsd_doc_data, xml_doc_data=None, config=None):
             clean_parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
             # set the parser
             etree.set_default_parser(parser=clean_parser)
-            # load the XML tree from the text
-            edit_data_tree = etree.XML(str(xml_doc_data.encode('utf-8')))
+            # xml data not empty
+            if xml_doc_data != "":
+                # load the XML tree from the text
+                edit_data_tree = etree.XML(str(xml_doc_data.encode('utf-8')))
+            else:
+                request.session['curate_edit'] = False
         else:  # no data found, not editing
             request.session['curate_edit'] = False
 
@@ -911,7 +916,8 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
     db_element['options']['name'] = element.attrib.get('name')
     db_element['options']['xpath']['xsd'] = xsd_xpath
     db_element['options']['xpath']['xml'] = full_path
-    db_element['options']['type'] = element.attrib['type'] if 'type' in element.attrib else None
+    if 'PARSER_APPLICATION' in request.session and request.session['PARSER_APPLICATION'] == 'EXPLORE':
+        db_element['options']['type'] = element.attrib['type'] if 'type' in element.attrib else None
 
     # init variables for buttons management
     add_button = False

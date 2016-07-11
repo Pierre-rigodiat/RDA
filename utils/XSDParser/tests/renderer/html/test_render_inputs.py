@@ -2,15 +2,15 @@ from django.test.testcases import TestCase
 from os.path import join
 from lxml import etree
 from curate.models import SchemaElement
-from curate.renderer import HtmlRenderer
-from curate.tests.renderer.html import create_mock_html_renderer, create_mock_db_input
 from mgi.tests import DataHandler, VariableTypesGenerator, are_equals
+from utils.XSDParser.renderer import HtmlRenderer
+from utils.XSDParser.tests.renderer.html import create_mock_db_input
 
 
 class RendererRenderSelectTestSuite(TestCase):
 
     def setUp(self):
-        select_data = join('curate', 'tests', 'data', 'renderer', 'default', 'select')
+        select_data = join('utils', 'XSDParser', 'tests', 'data', 'renderer', 'default', 'select')
         self.select_data_handler = DataHandler(select_data)
 
         self.types_generator = VariableTypesGenerator()
@@ -172,7 +172,7 @@ class RendererRenderSelectTestSuite(TestCase):
 
 class RenderInputTestSuite(TestCase):
     def setUp(self):
-        input_data = join('curate', 'tests', 'data', 'renderer', 'html', 'input')
+        input_data = join('utils', 'XSDParser', 'tests', 'data', 'renderer', 'html', 'input')
         self.input_data_handler = DataHandler(input_data)
 
         self.types_generator = VariableTypesGenerator()

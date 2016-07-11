@@ -266,7 +266,7 @@ def explore(request):
     
     if dataformat== None or dataformat=="xml":
         for jsonDoc in jsonData:
-            jsonDoc['content'] = xmltodict.unparse(jsonDoc['content'])  
+            jsonDoc['content'] = XMLdata.unparse(jsonDoc['content'])
         serializer = jsonDataSerializer(jsonData)
         return Response(serializer.data, status=status.HTTP_200_OK)
     elif dataformat == "json":
@@ -322,7 +322,7 @@ def explore_detail(request):
         
             if dataformat== None or dataformat=="xml":
                 for jsonDoc in jsonData:
-                    jsonDoc['content'] = xmltodict.unparse(jsonDoc['content'])
+                    jsonDoc['content'] = XMLdata.unparse(jsonDoc['content'])
                 serializer = jsonDataSerializer(jsonData)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             elif dataformat == "json":
@@ -370,7 +370,7 @@ def explore_detail_data_download(request):
             filename = os.path.splitext(jsonData['title'])[0]
 
             if dataformat== None or dataformat=="xml":
-                jsonData['content'] = xmltodict.unparse(jsonData['content'])
+                jsonData['content'] = XMLdata.unparse(jsonData['content'])
                 contentEncoded = jsonData['content'].encode('utf-8')
                 fileObj = StringIO(contentEncoded)
                 response = HttpResponse(fileObj, content_type='application/xml')
@@ -504,7 +504,7 @@ def query_by_example(request):
             
                 if dataformat== None or dataformat=="xml":
                     for jsonDoc in instanceResults:
-                        jsonDoc['content'] = xmltodict.unparse(jsonDoc['content'])  
+                        jsonDoc['content'] = XMLdata.unparse(jsonDoc['content'])
                     serializer = jsonDataSerializer(instanceResults)
                     return Response(serializer.data, status=status.HTTP_200_OK)
                 elif dataformat == "json":
@@ -521,7 +521,7 @@ def query_by_example(request):
             
                 if dataformat== None or dataformat=="xml":
                     for jsonDoc in results:
-                        jsonDoc['content'] = xmltodict.unparse(jsonDoc['content'])  
+                        jsonDoc['content'] = XMLdata.unparse(jsonDoc['content'])
                     serializer = jsonDataSerializer(results)
                     return Response(serializer.data, status=status.HTTP_200_OK)
                 elif dataformat == "json":
@@ -2198,7 +2198,7 @@ def export(request):
 
             #Retrieve the XML content
             for file in files:
-                xmlStr = xmltodict.unparse(file['content'])
+                xmlStr = XMLdata.unparse(file['content'])
                 dataXML.append({'title':file['title'], 'content': str(xmlStr)})
 
             #Transformation

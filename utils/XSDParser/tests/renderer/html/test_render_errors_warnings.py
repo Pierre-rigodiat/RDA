@@ -1,15 +1,14 @@
 from django.test.testcases import TestCase
 from os.path import join
 from lxml import etree
-from curate.models import SchemaElement
-from curate.renderer import HtmlRenderer
 from mgi.tests import DataHandler, VariableTypesGenerator, are_equals
+from utils.XSDParser.renderer import HtmlRenderer
 
 
 class RenderFormErrorTestSuite(TestCase):
 
     def setUp(self):
-        form_error_data = join('curate', 'tests', 'data', 'renderer', 'default')
+        form_error_data = join('utils', 'XSDParser', 'tests', 'data', 'renderer', 'default')
         self.form_error_data_handler = DataHandler(form_error_data)
         self.types_generator = VariableTypesGenerator()
         self.renderer = HtmlRenderer()

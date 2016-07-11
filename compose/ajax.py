@@ -195,11 +195,15 @@ def load_xml(request):
         newdom = transform(dom)
         xmlTree = str(newdom)
 
-    # store the current includes
+    # store the current includes/imports
     includes = dom.findall("{}include".format(LXML_SCHEMA_NAMESPACE))
     for el_include in includes:
         if 'schemaLocation' in el_include.attrib:
             request.session['includedTypesCompose'].append(el_include.attrib['schemaLocation'])
+    imports = dom.findall("{}import".format(LXML_SCHEMA_NAMESPACE))
+    for el_import in imports:
+        if 'schemaLocation' in el_import.attrib:
+            request.session['includedTypesCompose'].append(el_import.attrib['schemaLocation'])
 
     response_dict = {'XMLHolder': xmlTree}
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')

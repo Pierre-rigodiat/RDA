@@ -539,8 +539,12 @@ def curate_edit_form(request):
 
                 if 'formString' in request.session:
                     del request.session['formString']
-                if 'xmlDocTree' in request.session:
-                    del request.session['xmlDocTree']
+                request.session['currentTemplateID'] = form_data.template
+                templateObject = Template.objects.get(pk=form_data.template)
+                xmlDocData = templateObject.content
+                XMLtree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
+                request.session['xmlDocTree'] = etree.tostring(XMLtree)
+                request.session['form_id'] = str(form_data.schema_element_root.id)
 
                 context = RequestContext(request, {})
                 template = loader.get_template('curate/curate_enter_data.html')

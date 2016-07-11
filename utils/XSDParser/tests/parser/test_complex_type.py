@@ -5,9 +5,8 @@ from django.test.testcases import TestCase
 from os.path import join
 from django.utils.importlib import import_module
 from lxml import etree
-from mgi.tests import DataHandler, are_equals
-
-from curate.parser import generate_complex_type
+from mgi.tests import DataHandler
+from utils.XSDParser.parser import generate_complex_type
 
 
 class ParserCreateComplexTypeTestSuite(TestCase):
@@ -15,7 +14,7 @@ class ParserCreateComplexTypeTestSuite(TestCase):
     """
 
     def setUp(self):
-        complex_type_data = join('curate', 'tests', 'data', 'parser', 'complex_type')
+        complex_type_data = join('utils', 'XSDParser', 'tests', 'data', 'parser', 'complex_type')
         self.complex_type_data_handler = DataHandler(complex_type_data)
 
         self.maxDiff = None
@@ -38,6 +37,10 @@ class ParserCreateComplexTypeTestSuite(TestCase):
         self.namespace = "{" + namespace + "}"
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = {'xs': namespace}
+
+        from utils.XSDParser import parser
+        from curate.ajax import load_config
+        parser.load_config(self.request, load_config())
 
     def test_create_simple_content(self):
         xsd_files = join('simple_content', 'basic')
@@ -229,7 +232,7 @@ class ParserReloadComplexTypeTestSuite(TestCase):
     """
 
     def setUp(self):
-        complex_type_data = join('curate', 'tests', 'data', 'parser', 'complex_type')
+        complex_type_data = join('utils', 'XSDParser', 'tests', 'data', 'parser', 'complex_type')
         self.complex_type_data_handler = DataHandler(complex_type_data)
 
         self.maxDiff = None
@@ -252,6 +255,10 @@ class ParserReloadComplexTypeTestSuite(TestCase):
         self.namespace = "{" + namespace + "}"
         self.request.session['defaultPrefix'] = 'xs'
         self.request.session['namespaces'] = {'xs': namespace}
+
+        from utils.XSDParser import parser
+        from curate.ajax import load_config
+        parser.load_config(self.request, load_config())
 
     def test_reload_simple_content(self):
         xsd_files = join('simple_content', 'basic')

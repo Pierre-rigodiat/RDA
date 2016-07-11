@@ -3,11 +3,8 @@ from io import BytesIO
 from mgi.common import LXML_SCHEMA_NAMESPACE
 from modules.builtin.models import CheckboxesModule, OptionsModule, InputModule, \
     TextAreaModule
-from modules.models import Module
 import os
-from forms import NamePIDForm, DateForm
 import lxml.etree as etree
-from django.template import Context, Template
 from pymongo import MongoClient
 from django.utils.importlib import import_module
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
@@ -91,113 +88,6 @@ class RegistryCheckboxesModule(CheckboxesModule):
             for value in dict(request.POST)['data[]']:
                 xml_result += '<' + self.xml_tag + '>' + value + '</' + self.xml_tag + '>'
         return xml_result
-
-
-class NamePIDModule(Module):
-    """
-    Name PID Module
-    """
-    def __init__(self):        
-        Module.__init__(self, scripts=[os.path.join(SCRIPTS_PATH, 'namepid.js')])
-
-    def _get_module(self, request):
-        with open(os.path.join(TEMPLATES_PATH, 'name_pid.html'), 'r') as template_file:
-            template_content = template_file.read()
-            template = Template(template_content)
-
-            self.params = {}
-            if 'data' in request.GET:
-                self.params['name'] = request.GET['data']
-            if 'attributes' in request.GET:
-                if 'pid' in request.GET['attributes']:
-                    self.params['pid'] = request.GET['attributes']['pid']
-
-            xml_xpath = request.GET['xml_xpath']
-            xml_xpath = xml_xpath.split('/')[-1]
-            idx = xml_xpath.rfind("[")
-            xml_xpath = xml_xpath[0:idx]
-
-            self.params['tag'] = xml_xpath
-
-            context = Context({'form': NamePIDForm(self.params)})
-            return template.render(context)
-
-    def _get_display(self, request):
-        return ''
-
-    def _get_result(self, request):
-        pid = ' pid="'+ self.params['pid'] +'"' if 'pid' in self.params else ''
-        name = self.params['name'] if 'name' in self.params else ''
-        return '<' + self.params['tag'] + pid + '>' +  name + '</' + self.params['tag'] + '>'
-
-    def _post_display(self, request):
-        form = NamePIDForm(request.POST)
-        if not form.is_valid():
-            return '<p style="color:red;">Entered values are not correct.</p>'
-        return ''
-
-    def _post_result(self, request):
-        result_xml = ''
-
-        form = NamePIDForm(request.POST)
-        if form.is_valid():
-            if 'name' in request.POST and request.POST['name'] != '':
-                pid = ' pid="'+ request.POST['pid'] +'"' if 'pid' in request.POST and len(request.POST['pid']) > 0 else ''
-                return '<' + request.POST['tag'] + pid + '>' +  request.POST['name'] + '</' + request.POST['tag'] + '>'
-
-        return '<' + request.POST['tag'] + '></' + request.POST['tag'] + '>'
-
-
-class RelevantDateModule(Module):
-    """
-    Relevant Date Module
-    """
-    def __init__(self):
-        Module.__init__(self, scripts=[os.path.join(SCRIPTS_PATH, 'relevantdate.js')])
-
-    def _get_module(self, request):
-        with open(os.path.join(TEMPLATES_PATH, 'relevant_date.html'), 'r') as template_file:
-            template_content = template_file.read()
-            template = Template(template_content)
-
-            self.params = {}
-            if 'data' in request.GET:
-                self.params['date'] = request.GET['data']
-            if 'attributes' in request.GET:
-                if 'role' in request.GET['attributes']:
-                    self.params['role'] = request.GET['attributes']['role']
-
-            xml_xpath = request.GET['xml_xpath']
-            xml_xpath = xml_xpath.split('/')[-1]
-            idx = xml_xpath.rfind("[")
-            xml_xpath = xml_xpath[0:idx]
-
-            self.params['tag'] = xml_xpath
-
-            context = Context({'form': DateForm(self.params)})
-            return template.render(context)
-
-    def _get_display(self, request):
-        return ''
-
-    def _get_result(self, request):
-        role = ' role="'+ self.params['role'] +'"' if 'role' in self.params else ''
-        date = self.params['date'] if 'date' in self.params else ''
-        return '<' + self.params['tag'] + role + '>' +  date + '</' + self.params['tag'] + '>'
-
-    def _post_display(self, request):
-        return ''
-
-    def _post_result(self, request):
-        result_xml = ''
-
-        form = DateForm(request.POST)
-        if form.is_valid():
-            if 'date' in request.POST and request.POST['date'] != '':
-                role = ' role="'+ request.POST['role'] +'"' if 'role' in request.POST and len(request.POST['role']) > 0 else ''
-                return '<' + request.POST['tag'] + role + '>' +  request.POST['date'] + '</' + request.POST['tag'] + '>'
-
-        return '<' + request.POST['tag'] + '></' + request.POST['tag'] + '>'
 
 
 class StatusModule(OptionsModule):

@@ -20,7 +20,6 @@ from io import BytesIO
 from django.template.context import Context
 from lxml import html
 from collections import OrderedDict
-import xmltodict
 import requests
 import os
 import json
@@ -30,6 +29,7 @@ import re
 from oai_pmh.explore import ajax as OAIExplore
 from mgi.common import LXML_SCHEMA_NAMESPACE
 from curate.models import SchemaElement
+from explore.models import CustomTemplate
 from mgi import common
 from mgi.common import SCHEMA_NAMESPACE, xpath_to_dot_notation
 from mgi.models import Template, SavedQuery, XMLdata, Instance, TemplateVersion
@@ -40,8 +40,6 @@ from utils.XSDParser.renderer import DefaultRenderer
 from utils.XSDParser.renderer.checkbox import CheckboxRenderer
 
 # Class definition
-
-
 class ElementInfo:
     """
     Store information about element from the XML schema
@@ -206,11 +204,12 @@ def verify_template_is_selected(request):
 
 def load_config():
     return {
+        'PARSER_APPLICATION': 'EXPLORE',
         'PARSER_MIN_TREE': False,
         'PARSER_IGNORE_MODULES': True,
         'PARSER_COLLAPSE': False,
         'PARSER_AUTO_KEY_KEYREF': False,
-        'PARSER_IMPLICIT_EXTENSION_BASE': True,
+        'PARSER_IMPLICIT_EXTENSION_BASE': False,
     }
 
 
@@ -249,19 +248,26 @@ def generate_xsd_tree_for_querying_data(request):
         setCurrentTemplate(request, templateID)
 
     if formString == "":
-        formString = "<form id=\"dataQueryForm\" name=\"xsdForm\">"
         try:
-            root_element_id = generate_form(request, xmlDocTreeStr, config=load_config())
-            root_element = SchemaElement.objects.get(pk=root_element_id)
+            # custom template already exists
+            try:
+                custom_template = CustomTemplate.objects.get(user=str(request.user.id), template=templateID)
+                root_element_id = custom_template.root.id
+            # custom template doesn't exist
+            except:
+                root_element_id = generate_form(request, xmlDocTreeStr, config=load_config())
+                custom_template = CustomTemplate(user=str(request.user.id), template=templateID, root=root_element_id).save()
 
+            root_element = SchemaElement.objects.get(pk=root_element_id)
             renderer = CheckboxRenderer(root_element, request)
             html_form = renderer.render()
+
+            formString = "<form id=\"dataQueryForm\" name=\"xsdForm\">"
+            formString += html_form
+            formString += "</form>"
         except Exception as e:
             renderer = DefaultRenderer(None, {})
-            html_form = renderer._render_form_error(e.message)
-        formString += html_form
-
-    formString += "</form>"
+            formString = renderer._render_form_error(e.message)
 
     print 'END def generateXSDTreeForQueryingData(request)'
     response_dict = {'xsdForm': formString}
@@ -333,7 +339,11 @@ def getInstances(request, fedOfQueries):
                     protocol = "https"
                 else:
                     protocol = "http"
-                instances.append(Instance(name="Local", protocol=protocol, address=request.META['REMOTE_ADDR'], port=request.META['SERVER_PORT'], access_token="token", refresh_token="token"))
+                instances.append(Instance(name="Local", protocol=protocol,
+                                          address=request.META['REMOTE_ADDR'],
+                                          port=request.META['SERVER_PORT'],
+                                          access_token="token",
+                                          refresh_token="token"))
             else:
                 instances.append(Instance.objects.get(name=checkbox.attrib['value']))
     
@@ -369,8 +379,8 @@ def manageRegexBeforeExe(query):
         if key == "$and" or key == "$or":
             for subValue in value:
                 manageRegexBeforeExe(subValue)
-        elif isinstance(value, unicode):
-            if (len(value) >= 2 and value[0] == "/" and value[-1] == "/"):
+        elif isinstance(value, unicode) or isinstance(value, str):
+            if len(value) >= 2 and value[0] == "/" and value[-1] == "/":
                 query[key] = re.compile(value[1:-1])
         elif isinstance(value, dict):
             manageRegexBeforeExe(value)
@@ -397,7 +407,12 @@ def get_results_by_instance_keyword(request):
         protocol = "https"
     else:
         protocol = "http"
-    instance = Instance(name="Local", protocol=protocol, address=request.META['REMOTE_ADDR'], port=request.META['SERVER_PORT'], access_token="token", refresh_token="token")
+    instance = Instance(name="Local",
+                        protocol=protocol,
+                        address=request.META['REMOTE_ADDR'],
+                        port=request.META['SERVER_PORT'],
+                        access_token="token",
+                        refresh_token="token")
     json_instances.append(instance.to_json())
     request.session['instancesExplore'] = json_instances
     sessionName = "resultsExplore" + instance['name']
@@ -442,8 +457,10 @@ def get_results_by_instance_keyword(request):
         for instanceResult in instanceResults:
             if not onlySuggestions:
                 custom_xslt = False
-                results.append({'title':instanceResult['title'], 'content':xmltodict.unparse(instanceResult['content']),'id':str(instanceResult['_id'])})
-                dom = etree.XML(str(xmltodict.unparse(instanceResult['content']).encode('utf-8')))
+                results.append({'title': instanceResult['title'],
+                                'content': XMLdata.unparse(instanceResult['content']),
+                                'id': str(instanceResult['_id'])})
+                dom = etree.XML(str(XMLdata.unparse(instanceResult['content']).encode('utf-8')))
                 #Check if a custom list result XSLT has to be used
                 try:
                     schema = Template.objects.get(pk=instanceResult['schema'])
@@ -470,7 +487,7 @@ def get_results_by_instance_keyword(request):
                 wordList = re.sub("[^\w]", " ",  keyword).split()
                 wordList = [x + "|" + x +"\w+" for x in wordList]
                 wordList = '|'.join(wordList)
-                listWholeKeywords = re.findall("\\b("+ wordList +")\\b", xmltodict.unparse(instanceResult['content']).encode('utf-8'), flags=re.IGNORECASE)
+                listWholeKeywords = re.findall("\\b("+ wordList +")\\b", XMLdata.unparse(instanceResult['content']).encode('utf-8'), flags=re.IGNORECASE)
                 labels = list(set(listWholeKeywords))
 
                 for label in labels:
@@ -553,10 +570,10 @@ def get_results_by_instance(request):
                 for instanceResult in instanceResults:
                     custom_xslt = False
                     results.append({'title': instanceResult['title'],
-                                    'content': xmltodict.unparse(instanceResult['content']),
+                                    'content': XMLdata.unparse(instanceResult['content']),
                                     'id': str(instanceResult['_id'])})
                     #dom = etree.fromstring(str(xmltodict.unparse(instanceResult['content']).replace('<?xml version="1.0" encoding="utf-8"?>\n',"")))
-                    dom = etree.XML(str(xmltodict.unparse(instanceResult['content']).encode('utf-8')))
+                    dom = etree.XML(str(XMLdata.unparse(instanceResult['content']).encode('utf-8')))
                     #Check if a custom list result XSLT has to be used
                     try:
                         schema = Template.objects.get(pk=instanceResult['schema'])
@@ -674,14 +691,14 @@ def intCriteria(path, comparison, value, isNot=False):
 
     if comparison == "=":
         if isNot:
-            criteria[path] = eval('{"$ne":' + value + '}')
+            criteria[path] = eval('{"$ne":' + str(value) + '}')
         else:
             criteria[path] = int(value)
     else:
         if isNot:
-            criteria[path] = eval('{"$not":{"$' + comparison + '":' + value + '}}')
+            criteria[path] = eval('{"$not":{"$' + comparison + '":' + str(value) + '}}')
         else:
-            criteria[path] = eval('{"$' + comparison+'":' + value + '}')
+            criteria[path] = eval('{"$' + comparison+'":' + str(value) + '}')
 
     print 'END def intCriteria(path, comparison, value, isNot=False)'
     return criteria
@@ -775,26 +792,51 @@ def queryToCriteria(query, isNot=False):
 def invertQuery(query):
     for key, value in query.iteritems():
         if key == "$and" or key == "$or":
-            for subValue in value:
-                invertQuery(subValue)
+            # invert the query for the case value can be found at element:value or at element.#text:value
+            # second case appends when the element has attributes or namespace information
+            if len(value) == 2 and len(value[0].keys()) == 1 and len(value[1].keys()) == 1 and \
+                            value[1].keys()[0] == "{}.#text".format(value[0].keys()[0]):
+                # second query is the same as the first
+                if key == "$and":
+                    return {"$or": [invertQuery(value[0]), invertQuery(value[1])]}
+                elif key == "$or":
+                    return {"$and": [invertQuery(value[0]), invertQuery(value[1])]}
+            for sub_value in value:
+                invertQuery(sub_value)
         else:            
-            #lt, lte, =, gte, gt, not, ne
-            if isinstance(value,dict):                
+            # lt, lte, =, gte, gt, not, ne
+            if isinstance(value, dict):
                 if value.keys()[0] == "$not" or value.keys()[0] == "$ne":
                     query[key] = (value[value.keys()[0]])                    
                 else:
-                    savedValue = value
+                    saved_value = value
                     query[key] = dict()
-                    query[key]["$not"] = savedValue
+                    query[key]["$not"] = saved_value
             else:
-                savedValue = value
-                if isinstance(value, re._pattern_type):
+                saved_value = value
+                if is_regex_expression(value):
                     query[key] = dict()
-                    query[key]["$not"] = savedValue
+                    query[key]["$not"] = saved_value
                 else:
                     query[key] = dict()
-                    query[key]["$ne"] = savedValue
+                    query[key]["$ne"] = saved_value
     return query
+
+
+def is_regex_expression(expr):
+    """
+    Looks if the expression is a regular expression
+    :param expr
+    """
+    if isinstance(expr, re._pattern_type):
+        return True
+    try:
+        if expr.startswith('/') and expr.endswith('/'):
+            return True
+        else:
+            return False
+    except:
+        return False
 
 
 ################################################################################
@@ -857,7 +899,7 @@ def ORCriteria(criteria1, criteria2):
 
 ################################################################################
 # 
-# Function Name: buildCriteria(elemPath, comparison, value, elemType, isNot=False)
+# Function Name: build_criteria(elemPath, comparison, value, elemType, isNot=False)
 # Inputs:        elemPath -
 #                comparison -
 #                value -
@@ -868,31 +910,42 @@ def ORCriteria(criteria1, criteria2):
 # Description:   Look at element type and route to the right function to build the criteria
 #
 ################################################################################
-def buildCriteria(request, elemPath, comparison, value, elemType, isNot=False):
-    defaultPrefix = request.session['defaultPrefixExplore']
-
-    if (elemType in ['{0}:byte'.format(defaultPrefix),
-                     '{0}:int'.format(defaultPrefix),
-                     '{0}:integer'.format(defaultPrefix),
-                     '{0}:long'.format(defaultPrefix),
-                     '{0}:negativeInteger'.format(defaultPrefix),
-                     '{0}:nonNegativeInteger'.format(defaultPrefix),
-                     '{0}:nonPositiveInteger'.format(defaultPrefix),
-                     '{0}:positiveInteger'.format(defaultPrefix),
-                     '{0}:short'.format(defaultPrefix),
-                     '{0}:unsignedLong'.format(defaultPrefix),
-                     '{0}:unsignedInt'.format(defaultPrefix),
-                     '{0}:unsignedShort'.format(defaultPrefix),
-                     '{0}:unsignedByte'.format(defaultPrefix)]):
-        return intCriteria(elemPath, comparison, value, isNot)
-    elif (elemType in ['{0}:float'.format(defaultPrefix), 
-                       '{0}:double'.format(defaultPrefix),
-                       '{0}:decimal'.format(defaultPrefix)]):
-        return floatCriteria(elemPath, comparison, value, isNot)
-    elif elemType == '{0}:string'.format(defaultPrefix):
-        return stringCriteria(elemPath, comparison, value, isNot)
+def build_criteria(element_path, comparison, value, element_type, default_prefix, isNot=False):
+    # build the query: value can be found at element:value or at element.#text:value
+    # second case appends when the element has attributes or namespace information
+    if (element_type in ['{0}:byte'.format(default_prefix),
+                     '{0}:int'.format(default_prefix),
+                     '{0}:integer'.format(default_prefix),
+                     '{0}:long'.format(default_prefix),
+                     '{0}:negativeInteger'.format(default_prefix),
+                     '{0}:nonNegativeInteger'.format(default_prefix),
+                     '{0}:nonPositiveInteger'.format(default_prefix),
+                     '{0}:positiveInteger'.format(default_prefix),
+                     '{0}:short'.format(default_prefix),
+                     '{0}:unsignedLong'.format(default_prefix),
+                     '{0}:unsignedInt'.format(default_prefix),
+                     '{0}:unsignedShort'.format(default_prefix),
+                     '{0}:unsignedByte'.format(default_prefix)]):
+        element_query = intCriteria(element_path, comparison, value)
+        attribute_query = intCriteria("{}.#text".format(element_path), comparison, value)
+    elif (element_type in ['{0}:float'.format(default_prefix),
+                       '{0}:double'.format(default_prefix),
+                       '{0}:decimal'.format(default_prefix)]):
+        element_query = floatCriteria(element_path, comparison, value)
+        attribute_query = floatCriteria("{}.#text".format(element_path), comparison, value)
+    elif element_type == '{0}:string'.format(default_prefix):
+        element_query = stringCriteria(element_path, comparison, value)
+        attribute_query = stringCriteria("{}.#text".format(element_path), comparison, value)
     else:
-        return stringCriteria(elemPath, comparison, value, isNot)
+        element_query = stringCriteria(element_path, comparison, value)
+        attribute_query = stringCriteria("{}.#text".format(element_path), comparison, value)
+
+    criteria = ORCriteria(element_query, attribute_query)
+
+    if isNot:
+        return invertQuery(criteria)
+    else:
+        return criteria
 
 
 ################################################################################
@@ -939,8 +992,9 @@ def fieldsToQuery(request, htmlTree):
             element = elementInfo['path']
             comparison = field[2][0].value
             value = field[2][1].value
-            criteria = buildCriteria(request, element, comparison, value, elemType, isNot)
-        
+            default_prefix = request.session['defaultPrefixExplore']
+            criteria = build_criteria(element, comparison, value, elemType, default_prefix, isNot)
+
         if boolComp == 'OR':
             query = ORCriteria(query, criteria)
         elif boolComp == 'AND':
@@ -1563,6 +1617,7 @@ def update_user_inputs(request):
             user_inputs.append(form)
     except:
         # default renders string
+        element_type = "{}:string".format(defaultPrefix)
         form = html.fragment_fromstring(renderStringSelect())
         inputs = html.fragment_fromstring(renderValueInput())
         user_inputs.append(form)
@@ -1782,11 +1837,12 @@ def save_custom_data(request):
     print '>>>>  BEGIN def saveCustomData(request)'
     
     form_content = request.POST['formContent']
-    request.session['formStringExplore']  = form_content
+    request.session['formStringExplore'] = form_content
 
     # modify the form string to only keep the selected elements
     htmlTree = html.fromstring(form_content)
     createCustomTreeForQuery(request, htmlTree)
+
     anyChecked = request.session['anyCheckedExplore']
     if anyChecked:
         request.session['customFormStringExplore'] = html.tostring(htmlTree)
@@ -1812,6 +1868,7 @@ def save_custom_data(request):
 ################################################################################
 def createCustomTreeForQuery(request, htmlTree):
     request.session['anyCheckedExplore'] = False
+
     for li in htmlTree.findall("./ul/li"):
         manageLiForQuery(request, li)
 
@@ -1827,30 +1884,28 @@ def createCustomTreeForQuery(request, htmlTree):
 #                
 ################################################################################
 def manageUlForQuery(request, ul):
-    branchInfo = BranchInfo(keepTheBranch=False, selectedLeave=None)
+    branchInfo = BranchInfo(keepTheBranch=False, selectedLeave=[])
 
-    selectedLeaves = None
     for li in ul.findall("./li"):
         liBranchInfo = manageLiForQuery(request, li)
         if liBranchInfo.keepTheBranch == True:
             branchInfo.keepTheBranch = True
-        if liBranchInfo.selectedLeave is not None:
-            if selectedLeaves is None:
-                selectedLeaves = []
-            selectedLeaves.append(liBranchInfo.selectedLeave)
-            # branchInfo.selectedLeave.append(liBranchInfo.selectedLeave)
-    branchInfo.selectedLeave = selectedLeaves
+        if len(liBranchInfo.selectedLeave) > 0:
+            branchInfo.selectedLeave.extend(liBranchInfo.selectedLeave)
 
-    # ul can contain ul, because XSD allows recursive sequence or sequence with choices
-    # for ul in ul.findall("./ul"):
-    #     ulBranchInfo = manageUlForQuery(request, ul)
-    #     if ulBranchInfo.keepTheBranch == True:
-    #         branchInfo.keepTheBranch = True
-    #     if ulBranchInfo.selectedLeave is not None:
-    #         if branchInfo.selectedLeave is None:
-    #             branchInfo.selectedLeave = []
-    #         branchInfo.selectedLeave.append(ulBranchInfo.selectedLeave)
-                
+    checkbox = ul.find("./input[@type='checkbox']")
+    if checkbox is not None:
+        checkbox.attrib['style'] = "display:none;"
+        if 'value' in checkbox.attrib and checkbox.attrib['value'] == 'true':
+            request.session['anyCheckedExplore'] = True
+            # remove the checkbox and make the element clickable
+            ul.getparent().attrib['style'] = "color:orange;font-weight:bold;cursor:pointer;"
+            ul.getparent().attrib['onclick'] = "selectElement('" + ul.getparent().attrib['class'] + "')"
+            # tells to keep this branch until this leave
+            branchInfo.keepTheBranch = True
+            branchInfo.selectedLeave.append(ul.getparent().attrib['class'])
+            # return branchInfo
+
     if not branchInfo.keepTheBranch:
         ul.attrib['style'] = "display:none;"
         
@@ -1869,26 +1924,29 @@ def manageUlForQuery(request, ul):
 ################################################################################
 def manageLiForQuery(request, li):
     listUl = li.findall("./ul")
-    branchInfo = BranchInfo(keepTheBranch=False, selectedLeave=None)
+    branchInfo = BranchInfo(keepTheBranch=False, selectedLeave=[])
     if len(listUl) != 0:
         selectedLeaves = []
         for ul in listUl:
             ulBranchInfo = manageUlForQuery(request, ul)
             if ulBranchInfo.keepTheBranch == True:
                 branchInfo.keepTheBranch = True
-            if ulBranchInfo.selectedLeave is not None:
+            if len(ulBranchInfo.selectedLeave) > 0:
                 selectedLeaves.extend(ulBranchInfo.selectedLeave)
         # subelement queries
         if len(selectedLeaves) > 1: # starting at 2 because 1 is the regular case
-            li.attrib['style'] = "color:purple;font-weight:bold;cursor:pointer;"
-            leavesID = ""
-            for leave in selectedLeaves[:-1]:
-                leavesID += leave + " "
-            leavesID += selectedLeaves[-1]
-            li.attrib['onclick'] = "selectParent('" + leavesID + "')"
-    #         li.insert(0, html.fragment_fromstring("""<span onclick="selectParent('""" + leavesID + """')">""" +
-    #                                               li.text + """</span>"""))
-            li.text = ""
+            if li[0].tag != 'select':
+                li.attrib['style'] = "color:purple;font-weight:bold;cursor:pointer;"
+                leavesID = ""
+                for leave in selectedLeaves[:-1]:
+                    leavesID += leave + " "
+                leavesID += selectedLeaves[-1]
+                # get the node text
+                li_text = li[0].tail if li[0].tail is not None else ''
+                li[0].tail = ""
+                # insert span with selectParent (cannot put it on li node directly or all children will call the JS onclick)
+                li.insert(0, html.fragment_fromstring("""<span onclick="selectParent('""" + leavesID + """')">""" +
+                                                      li_text + """</span>"""))
         if not branchInfo.keepTheBranch:
             li.attrib['style'] = "display:none;"
         return branchInfo
@@ -1903,10 +1961,10 @@ def manageLiForQuery(request, li):
                 # remove the checkbox and make the element clickable
                 li.attrib['style'] = "color:orange;font-weight:bold;cursor:pointer;"
                 li.attrib['onclick'] = "selectElement('" + li.attrib['class'] + "')"
-                checkbox.attrib['style'] = "display:none;"   
+                checkbox.attrib['style'] = "display:none;"
                 # tells to keep this branch until this leave
                 branchInfo.keepTheBranch = True
-                branchInfo.selectedLeave = li.attrib['class']
+                branchInfo.selectedLeave.append(li.attrib['class'])
                 return branchInfo
         except:
             return branchInfo
@@ -2213,13 +2271,20 @@ def subElementfieldsToQuery(request, liElements, list_leaves_id):
             element_name = dot_notation.split(".")[-1]
             element_type = schema_element.options['type']
 
-            if element_type.startswith("{0}:".format(defaultPrefix)):
+            try:
+                if element_type.startswith("{0}:".format(defaultPrefix)):
+                    comparison = li[2].value
+                    value = li[3].value
+                    default_prefix = request.session['defaultPrefixExplore']
+                    criteria = build_criteria(element_name, comparison, value, element_type, default_prefix, isNot)
+                else:
+                    value = li[2].value
+                    criteria = enumCriteria(element_name, value, isNot)
+            except:
                 comparison = li[2].value
                 value = li[3].value
-                criteria = buildCriteria(request, element_name, comparison, value, element_type, isNot)
-            else:
-                value = li[2].value
-                criteria = enumCriteria(element_name, value, isNot)
+                default_prefix = request.session['defaultPrefixExplore']
+                criteria = build_criteria(element_name, comparison, value, element_type, default_prefix, isNot)
 
             elem_match.update(criteria)
 
@@ -2272,13 +2337,18 @@ def subElementfieldsToPrettyQuery(request, liElements, list_leaves_id):
             element_name = dot_notation.split(".")[-1]
             element_type = schema_element.options['type']
 
-            if element_type.startswith("{0}:".format(defaultPrefix)):
+            try:
+                if element_type.startswith("{0}:".format(defaultPrefix)):
+                    comparison = li[2].value
+                    value = li[3].value
+                    criteria = buildPrettyCriteria(element_name, comparison, value, isNot)
+                else:
+                    value = li[2].value
+                    criteria = enumToPrettyCriteria(element_name, value, isNot)
+            except:
                 comparison = li[2].value
                 value = li[3].value
                 criteria = buildPrettyCriteria(element_name, comparison, value, isNot)
-            else:
-                value = li[2].value
-                criteria = enumToPrettyCriteria(element_name, value, isNot)
 
             if elem_match != "(":
                 elem_match += ", "
