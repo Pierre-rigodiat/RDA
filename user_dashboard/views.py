@@ -181,9 +181,11 @@ def dashboard_resources(request):
         context.update({'otherUsersXMLdatas': otherUsersXmlData, 'usernames': usernames})
 
     #Get new version of records
-    listIdsUser = [str(x['_id']) for x in userXmlData]
-    listIdsOtherUsers = [str(x['_id']) for x in otherUsersXmlData]
-    listIds = list(set(listIdsUser).union(set(listIdsOtherUsers)))
+    listIds = [str(x['_id']) for x in userXmlData]
+    if request.user.is_staff:
+        listIdsOtherUsers = [str(x['_id']) for x in otherUsersXmlData]
+        listIds = list(set(listIds).union(set(listIdsOtherUsers)))
+
     drafts = FormData.objects(xml_data_id__in=listIds, isNewVersionOfRecord=True).all()
     XMLdatasDrafts = dict()
     for draft in drafts:
