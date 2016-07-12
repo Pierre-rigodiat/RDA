@@ -397,8 +397,8 @@ deleteDraft = function(formID){
                     $( this ).dialog( "close" );
                 },
             	Delete: function() {
+            	    $( "#banner_wait").show();
                     delete_draft(formID);
-                    $( this ).dialog( "close" );
                 },
             }
         });
@@ -440,7 +440,7 @@ updatePublishDraft = function(draft_id){
                     $( this ).dialog( "close" );
                 },
             	Publish: function() {
-                    $( this ).dialog( "close" );
+            	$( "#banner_wait_publish").show();
                     update_publish_draft(draft_id);
                 },
             }

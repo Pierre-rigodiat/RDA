@@ -23,7 +23,7 @@ import os
 from django.utils.importlib import import_module
 from django.shortcuts import redirect
 from utils.XSDParser.parser import delete_branch_from_db
-from utils.XSDParser.renderer.xml import XmlRenderer
+from django.contrib import messages
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
 MDCS_URI = settings.MDCS_URI
@@ -140,6 +140,7 @@ def update_publish_draft(request):
                                     pathToTemplate='dashboard/email/resource_published.html',
                                     context=context)
 
+            messages.add_message(request, messages.INFO, 'New version published with success.')
             return HttpResponse(json.dumps({}), content_type='application/javascript')
         else:
             return HttpResponseBadRequest('Related record not found. Impossible to publish the draft')
