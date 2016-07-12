@@ -178,7 +178,7 @@ def dashboard_resources(request):
         usernames = dict((str(x.id), x.username) for x in User.objects.all())
         query['iduser'] = {"$ne": str(request.user.id)}
         otherUsersXmlData = sorted(XMLdata.find(query), key=lambda data: data['lastmodificationdate'], reverse=True)
-        context.update({'otherUsersXMLdatas': otherUsersXmlData, 'usernames': usernames})
+        context.update({'OtherUsersXMLdatas': otherUsersXmlData, 'usernames': usernames})
 
     return HttpResponse(template.render(context))
 
