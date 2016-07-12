@@ -79,10 +79,10 @@ mongod --config /path/to/mdcs/conf/mongodb.conf
 2)	Run the MDCS. In a command prompt :
 workon mgi
 cd path/to/mdcs
-python manage.py runserver
+python manage.py runserver --noreload
 
 
-To be able to access the system remotely, instead of using python manage.py runserver, use: python manage.py runserver 0.0.0.0:<port>
+To be able to access the system remotely, instead of using python manage.py runserver, use: python manage.py runserver 0.0.0.0:<port> --noreload
 
 Access:
 
