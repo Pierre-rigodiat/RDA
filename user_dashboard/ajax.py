@@ -117,19 +117,14 @@ def edit_curate_form(request):
 def update_publish_draft(request):
     form_id = request.GET['draft_id']
     form_data = FormData.objects.get(pk=form_id)
-    root_element = form_data.schema_element_root
-    xml_renderer = XmlRenderer(root_element)
-    xml_string = xml_renderer.render()
+    xml_string = form_data.xml_data
     title = form_data.name
-
     if xml_string == "" or xml_string is None:
         return HttpResponseBadRequest('No XML data found')
-
     try:
         # update form data if id is present
         if form_data.xml_data_id is not None:
             publicationdate = XMLdata.update_publish_draft(form_data.xml_data_id, xml_string, str(request.user.id))
-
             #Delete the form
             if form_data.schema_element_root is not None:
                 delete_branch_from_db(form_data.schema_element_root.pk)

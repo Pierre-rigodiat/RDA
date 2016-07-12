@@ -113,6 +113,8 @@ def curate_edit_data(request):
             previous_forms = FormData.objects(user=str(request.user.id), xml_data_id__exists=True,
                                               isNewVersionOfRecord=False)
             for previous_form in previous_forms:
+                if previous_form.schema_element_root is not None:
+                    delete_branch_from_db(previous_form.schema_element_root.pk)
                 previous_form.delete()
 
             #Check if a form_data already exists for this record
@@ -462,15 +464,10 @@ def start_curate(request):
 def save_xml_data_to_db(request):
     form_data_id = request.session['curateFormData']
     form_data = FormData.objects.get(pk=form_data_id)
-
     form_id = request.session['form_id']
     root_element = SchemaElement.objects.get(pk=form_id)
-
     xml_renderer = XmlRenderer(root_element)
     xml_string = xml_renderer.render()
-
-    # xmlString = request.session['xmlString']
-    # template_id = request.session['currentTemplateID']
     template_id = form_data.template
 
     # Parse data from form
