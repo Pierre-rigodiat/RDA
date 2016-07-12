@@ -192,7 +192,8 @@ TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
     "django.core.context_processors.tz",
     "django.contrib.messages.context_processors.messages",
     "utils.custom_context_processors.domain_context_processor",
-    "password_policies.context_processors.password_status",
+    # "password_policies.context_processors.password_status",
+    'mgi.context_processors.password_status',
 )
 
 # Application definition
@@ -271,7 +272,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.RemoteUserMiddleware',  # https://docs.djangoproject.com/en/dev/howto/auth-remote-user/
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'password_policies.middleware.PasswordChangeMiddleware',
+    # 'password_policies.middleware.PasswordChangeMiddleware',
+    'mgi.middleware.PasswordChangeMiddleware',
 )
 
 ROOT_URLCONF = 'mgi.urls'

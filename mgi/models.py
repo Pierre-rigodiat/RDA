@@ -528,7 +528,6 @@ class XMLdata(object):
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
-        #xmldata.remove({'_id': ObjectId(postID)})
         xmldata.update({'_id': ObjectId(postID)}, {"$set": {'deleted': True, 'deletedDate': datetime.datetime.now()}},
                        upsert=False)
 
