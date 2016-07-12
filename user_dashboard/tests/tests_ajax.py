@@ -12,8 +12,9 @@
 ################################################################################
 
 from testing.models import RegressionTest
-from mgi.models import Template, Type, XMLdata, TemplateVersion, TypeVersion
+from mgi.models import Template, Type, XMLdata, TemplateVersion, TypeVersion, SchemaElement, FormData
 import json
+import lxml.etree as etree
 
 class tests_user_dashboard_ajax(RegressionTest):
 
@@ -125,5 +126,33 @@ class tests_user_dashboard_ajax(RegressionTest):
         data = {'objectID': type.id, 'objectType': 'Type'}
         r = self.doRequestPostAdminClientLogged(url=url, data=data)
         self.assertIsNotNone(Type.objects(pk=type.id).get())
+
+    def test_update_publish_draft(self):
+        new_xml = '<test>new version of the current record</test>'
+        id = self.createXMLData(ispublished=True)
+        xmlData = XMLdata.get(id)
+        self.assertNotEquals(new_xml, XMLdata.unparse(xmlData['content']))
+        adminId = self.getAdmin().id
+        template = self.createTemplate()
+        elements = SchemaElement.objects().all()
+        self.assertEqual(len(elements), 0)
+        elementsForm = FormData.objects().all()
+        self.assertEqual(len(elementsForm), 0)
+        formData = self.createFormData(user=adminId, name='name', template=str(template.id), xml_data=new_xml,
+                                       xml_data_id=str(id))
+        url = '/dashboard/update_publish_draft'
+        data = {'draft_id': str(formData.id)}
+        r = self.doRequestGetAdminClientLogged(url=url, data=data)
+        xmlDataInDatabase = XMLdata.get(id)
+        elements = SchemaElement.objects().all()
+        self.assertEqual(len(elements), 0)
+        elementsForm = FormData.objects().all()
+        self.assertEqual(len(elementsForm), 0)
+        self.assertEquals(etree.XML(new_xml).text, etree.XML(str(XMLdata.unparse(xmlDataInDatabase['content']))).text)
+        self.assertEquals(True, xmlDataInDatabase.get('ispublished'))
+        self.assertEquals(str(adminId), xmlDataInDatabase.get('iduser'))
+        self.assertNotEquals(xmlData.get('lastmodificationdate'), xmlDataInDatabase.get('lastmodificationdate'))
+        self.assertNotEquals(xmlData.get('publicationdate'), xmlDataInDatabase.get('publicationdate'))
+
 
 
