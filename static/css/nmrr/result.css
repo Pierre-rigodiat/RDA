@@ -6,7 +6,7 @@
 #light span {
     border-radius: 50px;
     height: 15px;
-    margin: 0px 0.5em 2em;
+    margin: 0px 0.5em 0em;
     opacity: .5;
     width: 15px;
     display:none;

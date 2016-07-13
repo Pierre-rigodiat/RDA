@@ -10,7 +10,7 @@
                     <td style="width:310px">
                         <div style="margin-top:10px;">Resource Name</div>
                     </td>
-                    <td width="500em">
+                    <td width="460em">
                         {% if XMLdata.content.Resource.identity.title %}
                             {{ XMLdata.content.Resource.identity.title }}
                         {%else%}
@@ -27,20 +27,19 @@
                                     </span></a>
                             {% endautoescape %}
                         </div>
-                        <div style="float: center">
-                            <select id="status{{XMLdata_id}}" name="status{{XMLdata_id}}" onchange="change_status('{{XMLdata_id}}');">
+                        <div id="light">
+                            <span {% if status == "active" %}class="active"{%endif%} id="green"></span>
+                            <span {% if status == "inactive" %}class="active"{%endif%} id="orange"></span>
+                            <span {% if status == "deleted" %}class="active"{%endif%} id="red"></span>
+                            Status:
+                            <select style="width:auto;text-align: center;" id="status{{XMLdata_id}}" name="status{{XMLdata_id}}" onchange="change_status('{{XMLdata_id}}');">
                                 <option value="active" {% if status == "active" %}selected{%endif%}>Active</option>
                                 <option value="inactive" {% if status == "inactive" %}selected{%endif%}>Inactive</option>
                                 {% if XMLdata.ispublished %}
                                     <option value="deleted" {% if status == "deleted" %}selected{%endif%}>Deleted</option>
                                 {% endif %}
                             </select>
-                        </div>
-                        <div id="light">
-                            <span {% if status == "active" %}class="active"{%endif%} id="green"></span>
-                            <span {% if status == "inactive" %}class="active"{%endif%} id="orange"></span>
-                            <span {% if status == "deleted" %}class="active"{%endif%} id="red"></span>
-                            Status: {{status}}
+
                         </div>
                     </td>
                 </tr>
@@ -87,7 +86,7 @@
                 {% if draft %}
                  <tr>
                      <td style="width:310px"></td>
-                     <td style="width:500px">
+                     <td style="width:460px">
 
                              {% if XMLdata.content.Resource.identity.title %}
                                 {{ XMLdata.content.Resource.identity.title }}
