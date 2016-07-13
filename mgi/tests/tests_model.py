@@ -11,7 +11,8 @@
 #
 ################################################################################
 from testing.models import RegressionTest
-from mgi.models import Template, TemplateVersion, Type, TypeVersion, XMLdata, FormData, delete_template_and_version, delete_type_and_version, delete_template, delete_type
+from mgi.models import Template, TemplateVersion, Type, TypeVersion, XMLdata, FormData, delete_template_and_version, delete_type_and_version, delete_template, delete_type, Status
+from bson.objectid import ObjectId
 
 class tests_model(RegressionTest):
 
@@ -58,6 +59,31 @@ class tests_model(RegressionTest):
         self.assertEquals(len(Type.objects()), 2)
         self.assertEquals(len(TypeVersion.objects()), 1)
         self.assertEquals(listDependencies, 'testType, testTemplate')
+
+    def test_change_status_case_deleted(self):
+        id = self.createXMLData()
+        XMLdata.change_status(id, Status.DELETED)
+        list_xmldata = XMLdata.find({'_id': ObjectId(id)})
+        self.assertEquals(Status.DELETED, list_xmldata[0]['status'])
+        self.assertEquals(Status.DELETED, list_xmldata[0]['content']['Resource']['@status'])
+
+    def test_change_status_case_inactive(self):
+        id = self.createXMLData()
+        XMLdata.change_status(id, Status.INACTIVE)
+        list_xmldata = XMLdata.find({'_id': ObjectId(id)})
+        self.assertEquals(Status.INACTIVE, list_xmldata[0]['status'])
+        self.assertEquals(Status.INACTIVE, list_xmldata[0]['content']['Resource']['@status'])
+
+    def test_change_status_case_active(self):
+        id = self.createXMLData()
+        XMLdata.change_status(id, Status.INACTIVE)
+        list_xmldata = XMLdata.find({'_id': ObjectId(id)})
+        self.assertEquals(Status.INACTIVE, list_xmldata[0]['status'])
+        self.assertEquals(Status.INACTIVE, list_xmldata[0]['content']['Resource']['@status'])
+        XMLdata.change_status(id, Status.ACTIVE)
+        list_xmldata = XMLdata.find({'_id': ObjectId(id)})
+        self.assertEquals(Status.ACTIVE, list_xmldata[0]['status'])
+        self.assertEquals(Status.ACTIVE, list_xmldata[0]['content']['Resource']['@status'])
 
 
 
