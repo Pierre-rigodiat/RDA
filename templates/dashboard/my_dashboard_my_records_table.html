@@ -27,6 +27,15 @@
                                     </span></a>
                             {% endautoescape %}
                         </div>
+                        <div style="float: center">
+                            <select id="status{{XMLdata_id}}" name="status{{XMLdata_id}}" onchange="change_status('{{XMLdata_id}}');">
+                                <option value="active" {% if status == "active" %}selected{%endif%}>Active</option>
+                                <option value="inactive" {% if status == "inactive" %}selected{%endif%}>Inactive</option>
+                                {% if XMLdata.ispublished %}
+                                    <option value="deleted" {% if status == "deleted" %}selected{%endif%}>Deleted</option>
+                                {% endif %}
+                            </select>
+                        </div>
                         <div id="light">
                             <span {% if status == "active" %}class="active"{%endif%} id="green"></span>
                             <span {% if status == "inactive" %}class="active"{%endif%} id="orange"></span>

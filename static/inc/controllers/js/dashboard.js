@@ -465,3 +465,24 @@ update_publish_draft = function(draft_id){
 	    }
     });
 }
+
+/**
+ * AJAX call, change the status of a XMLdata
+ * @param result_id
+ */
+change_status = function(result_id){
+    var e = document.getElementById("status"+result_id);
+    var value = e.options[e.selectedIndex].value;
+	$.ajax({
+        url : "/dashboard/change_status",
+        type : "GET",
+        dataType: "json",
+        data : {
+        	status: value,
+        	result_id: result_id,
+        },
+		success: function(data){
+		    location.reload();
+	    }
+    });
+}

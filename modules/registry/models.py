@@ -12,6 +12,7 @@ settings = import_module(settings_file)
 MONGODB_URI = settings.MONGODB_URI
 MGI_DB = settings.MGI_DB
 from mgi import models as mgi_models, common
+from mgi.models import Status
 import random
 import string
 
@@ -96,15 +97,15 @@ class StatusModule(OptionsModule):
     """
     def __init__(self):
         self.options = {
-            'inactive': 'Inactive',
-            'active': 'Active',
-            'deleted': 'Deleted',
+            Status.INACTIVE: 'Inactive',
+            Status.ACTIVE: 'Active',
+            Status.DELETED: 'Deleted',
         }
 
         OptionsModule.__init__(self, options=self.options, disabled=True)
 
     def _get_module(self, request):
-        self.selected = "active"
+        self.selected = Status.ACTIVE
         if 'data' in request.GET:
             if request.GET['data'] in self.options.keys():
                 self.disabled = False

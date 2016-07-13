@@ -150,6 +150,21 @@ def update_publish_draft(request):
         return HttpResponseBadRequest(message)
 
 
+################################################################################
+#
+# Function Name: change_status(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   change status of a record
+#
+################################################################################
+def change_status(request):
+    XMLdata.change_status(request.GET['result_id'], request.GET['status'])
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
+
+
+
 
 
 

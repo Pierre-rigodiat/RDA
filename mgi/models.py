@@ -32,6 +32,10 @@ import re
 import datetime
 from utils.XSDhash import XSDhash
 
+class Status:
+    ACTIVE = 'active'
+    INACTIVE = 'inactive'
+    DELETED = 'deleted'
 
 class Request(Document):
     """Represents a request sent by an user to get an account"""
@@ -357,7 +361,7 @@ class XMLdata(object):
         if (publicationdate is not None):
             self.content['publicationdate'] = publicationdate
 
-        self.content['deleted'] = False
+        self.content['status'] = Status.ACTIVE
 
     @staticmethod
     def unparse(json):
@@ -666,6 +670,19 @@ class XMLdata(object):
         for result in cursor:
             results.append(result)
         return results
+
+    @staticmethod
+    def change_status(id, status):
+        """
+            Update the status of the object with the given id
+        """
+        # create a connection
+        client = MongoClient(MONGODB_URI)
+        # connect to the db 'mgi'
+        db = client[MGI_DB]
+        # get the xmldata collection
+        xmldata = db['xmldata']
+        xmldata.update({'_id': ObjectId(id)}, {'$set': {'status': status, 'content.Resource.@status': status, 'oai_datestamp': datetime.datetime.now()}}, upsert=False)
 
 
 class OaiSettings(Document):
