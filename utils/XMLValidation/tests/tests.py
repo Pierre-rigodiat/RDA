@@ -16,7 +16,8 @@
 from django.http.request import HttpRequest
 from django.test import TestCase
 
-from mgi.models import create_type
+from mgi.common import update_dependencies
+from mgi.models import create_type, create_template
 from mgi.settings import BASE_DIR
 from os.path import join
 from django.utils.importlib import import_module
@@ -64,7 +65,7 @@ class ComposerTestSuite(TestCase):
             type_content = type_file.read()
             # add the type in database
             type_object = create_type(type_content, 'type_name', type_path)
-
+            return type_object
 
     # def test_empty(self):
     #     # load template
@@ -83,6 +84,104 @@ class ComposerTestSuite(TestCase):
     def test_basic(self):
         # load template
         template_path = join(RESOURCES_PATH, 'basic.xsd')
+        self.load_template(template_path)
+
+        # test LXML
+        _lxml_validate_xsd(self.xsd_tree)
+        # test global method
+        self.assertEquals(validate_xml_schema(self.xsd_tree), None)
+
+        # test Xerces
+        if platform.system() != "Windows":
+            _xerces_validate_xsd(self.xsd_string)
+
+    def test_no_root(self):
+        # load template
+        template_path = join(RESOURCES_PATH, 'no_root.xsd')
+        self.load_template(template_path)
+
+        # test LXML
+        _lxml_validate_xsd(self.xsd_tree)
+        # test global method
+        self.assertEquals(validate_xml_schema(self.xsd_tree), None)
+
+        # test Xerces
+        if platform.system() != "Windows":
+            _xerces_validate_xsd(self.xsd_string)
+
+    def test_include_filesystem(self):
+        # load template
+        template_path = join(RESOURCES_PATH, 'include.xsd')
+        self.load_template(template_path)
+
+        # test LXML
+        _lxml_validate_xsd(self.xsd_tree)
+        # test global method
+        self.assertNotEquals(validate_xml_schema(self.xsd_tree), None)
+
+        # test Xerces
+        if platform.system() != "Windows":
+            self.assertNotEquals(_xerces_validate_xsd(self.xsd_string), None)
+
+    def test_include_django(self):
+        # load type
+        type_path = join(RESOURCES_PATH, 'to-include.xsd')
+        type_object = self.load_type(type_path)
+
+        # load template
+        template_path = join(RESOURCES_PATH, 'include.xsd')
+        self.load_template(template_path)
+
+        update_dependencies(self.xsd_tree, {'to-include.xsd': str(type_object.id)})
+        self.xsd_string = etree.tostring(self.xsd_tree)
+
+        # test LXML
+        _lxml_validate_xsd(self.xsd_tree)
+        # test global method
+        self.assertEquals(validate_xml_schema(self.xsd_tree), None)
+
+        # test Xerces
+        if platform.system() != "Windows":
+            self.assertEquals(_xerces_validate_xsd(self.xsd_string), None)
+
+    def test_import_filesystem(self):
+        # load template
+        template_path = join(RESOURCES_PATH, 'import.xsd')
+        self.load_template(template_path)
+
+        # test LXML
+        _lxml_validate_xsd(self.xsd_tree)
+        # test global method
+        self.assertNotEquals(validate_xml_schema(self.xsd_tree), None)
+
+        # test Xerces
+        if platform.system() != "Windows":
+            self.assertNotEquals(_xerces_validate_xsd(self.xsd_string), None)
+
+    def test_import_django(self):
+        # load type
+        type_path = join(RESOURCES_PATH, 'to-import.xsd')
+        type_object = self.load_type(type_path)
+
+        # load template
+        template_path = join(RESOURCES_PATH, 'import.xsd')
+        self.load_template(template_path)
+
+        update_dependencies(self.xsd_tree, {'to-import.xsd': str(type_object.id)})
+        self.xsd_string = etree.tostring(self.xsd_tree)
+
+        # test LXML
+        _lxml_validate_xsd(self.xsd_tree)
+        # test global method
+        self.assertEquals(validate_xml_schema(self.xsd_tree), None)
+
+        # test Xerces
+        if platform.system() != "Windows":
+            self.assertEquals(_xerces_validate_xsd(self.xsd_string), None)
+
+    def test_import_external(self):
+        # load template
+        template_path = join(RESOURCES_PATH, 'import-external.xsd')
         self.load_template(template_path)
 
         # test LXML
