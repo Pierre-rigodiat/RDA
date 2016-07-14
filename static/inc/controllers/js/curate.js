@@ -1344,12 +1344,6 @@ check_leaving_page = function(){
             return 'Are you sure you want to leave the page. All unsaved changes will be lost.';
         }
     });
-
-    $(window).bind('unload', function(event) {
-        if(!window.btn_clicked){
-            alert( 'Goodby!' );
-         }
-    });
 }
 
 /**
