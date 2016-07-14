@@ -13,7 +13,7 @@
 
 from oai_pmh.tests.models import OAI_PMH_Test
 from mgi.models import OaiSettings, OaiMySet, OaiMyMetadataFormat, Template, XMLdata
-from exceptions import BAD_VERB, NO_SET_HIERARCHY, BAD_ARGUMENT, DISSEMINATE_FORMAT, NO_RECORDS_MATCH, NO_METADATA_FORMAT, ID_DOES_NOT_EXIST
+from oai_pmh.server.exceptions import BAD_VERB, NO_SET_HIERARCHY, BAD_ARGUMENT, DISSEMINATE_FORMAT, NO_RECORDS_MATCH, NO_METADATA_FORMAT, ID_DOES_NOT_EXIST
 from testing.models import OAI_SCHEME, OAI_REPO_IDENTIFIER
 import datetime
 URL = '/oai_pmh/server'
