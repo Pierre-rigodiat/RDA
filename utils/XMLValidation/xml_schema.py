@@ -29,6 +29,7 @@ settings = import_module(settings_file)
 SITE_ROOT = settings.SITE_ROOT
 XERCES_VALIDATION = settings.XERCES_VALIDATION
 
+
 def validate_xml_schema(xsd_tree):
     """
     Send XML Schema to server to be validated
@@ -44,9 +45,9 @@ def validate_xml_schema(xsd_tree):
         except Exception, e:
             print "EXCEPTION DURING XERCES VALIDATION"
             print e.message
-            error = _lxml_validate_xsd(etree)
+            error = _lxml_validate_xsd(xsd_tree)
     else:
-        error = _lxml_validate_xsd(etree)
+        error = _lxml_validate_xsd(xsd_tree)
 
     return error
 
@@ -68,9 +69,9 @@ def validate_xml_data(xsd_tree, xml_tree):
         except Exception, e:
             print "EXCEPTION DURING XERCES VALIDATION"
             print e.message
-            error = _lxml_validate_xml(etree, etree.parse(StringIO(pretty_XML_string)))
+            error = _lxml_validate_xml(xsd_tree, etree.parse(StringIO(pretty_XML_string)))
     else:
-        error = _lxml_validate_xml(etree, etree.parse(StringIO(pretty_XML_string)))
+        error = _lxml_validate_xml(xsd_tree, etree.parse(StringIO(pretty_XML_string)))
 
     return error
 
