@@ -20,7 +20,7 @@ from django.http import HttpResponse, HttpResponseServerError, HttpResponseBadRe
 from django.contrib.auth import authenticate
 from django.template import RequestContext, loader
 from django.shortcuts import redirect
-from mgi.models import FormData, XMLdata
+from mgi.models import FormData, XMLdata, Status
 from admin_mdcs.forms import EditProfileForm, UserForm
 from django.contrib.auth.decorators import login_required
 from itertools import chain
@@ -191,6 +191,9 @@ def dashboard_resources(request):
     for draft in drafts:
         XMLdatasDrafts[draft.xml_data_id] = draft.id
     context.update({'XMLdatasDrafts': XMLdatasDrafts})
+
+    #Add Status enum
+    context.update({'Status': Status})
 
     return HttpResponse(template.render(context))
 
