@@ -182,6 +182,8 @@ PARSER_COLLAPSE = True
 PARSER_AUTO_KEY_KEYREF = False
 PARSER_IMPLICIT_EXTENSION_BASE = False
 
+XERCES_VALIDATION = True # will use XERCES for validation if True and XERCES installed, will use LXML otherwise 
+
 TEMPLATE_DIRS = [
     os.path.join(BASE_DIR, 'templates')
 ]
