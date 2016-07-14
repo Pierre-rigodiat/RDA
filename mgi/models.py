@@ -393,7 +393,7 @@ class XMLdata(object):
         # get the xmldata collection
         xmldata = db['xmldata']
         # find all objects of the collection
-        cursor = xmldata.find(query, as_class = OrderedDict)
+        cursor = xmldata.find(as_class = OrderedDict)
         # build a list with the objects        
         results = []
         for result in cursor:
