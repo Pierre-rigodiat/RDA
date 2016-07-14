@@ -99,7 +99,6 @@ class StatusModule(OptionsModule):
         self.options = {
             Status.INACTIVE: 'Inactive',
             Status.ACTIVE: 'Active',
-            Status.DELETED: 'Deleted',
         }
 
         OptionsModule.__init__(self, options=self.options, disabled=True)
