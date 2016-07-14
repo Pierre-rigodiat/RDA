@@ -32,7 +32,7 @@
                             <span {% if status == Status.INACTIVE %}class="active"{%endif%} id="orange"></span>
                             <span {% if status == Status.DELETED %}class="active"{%endif%} id="red"></span>
                             Status:
-                            <select style="width:auto;text-align: center;" id="status{{XMLdata_id}}" name="status{{XMLdata_id}}" onchange="change_status('{{XMLdata_id}}');">
+                            <select style="width:auto;text-align: center;" id="status{{XMLdata_id}}" name="status{{XMLdata_id}}" onchange="change_status('{{XMLdata_id}}','{{XMLdata.ispublished}}');">
                                 <option value="{{Status.ACTIVE}}" {% if status == Status.ACTIVE %}selected{%endif%}>Active</option>
                                 <option value="{{Status.INACTIVE}}" {% if status == Status.INACTIVE %}selected{%endif%}>Inactive</option>
                                 {% if XMLdata.ispublished %}

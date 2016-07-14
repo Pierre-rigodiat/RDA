@@ -160,7 +160,8 @@ def update_publish_draft(request):
 #
 ################################################################################
 def change_status(request):
-    XMLdata.change_status(request.GET['result_id'], request.GET['status'])
+    ispublished = request.GET['is_published'] == 'True'
+    XMLdata.change_status(request.GET['result_id'], request.GET['status'], ispublished)
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 

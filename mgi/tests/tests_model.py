@@ -61,29 +61,59 @@ class tests_model(RegressionTest):
         self.assertEquals(listDependencies, 'testType, testTemplate')
 
     def test_change_status_case_deleted(self):
-        id = self.createXMLData()
-        XMLdata.change_status(id, Status.DELETED)
+        self.change_status_case_deleted(ispublished=False)
+
+    def test_change_status_case_deleted_published(self):
+        self.change_status_case_deleted(ispublished=True)
+
+    def test_change_status_case_inactive(self):
+        self.change_status_case_inactive(ispublished=False)
+
+    def test_change_status_case_inactive_published(self):
+        self.change_status_case_inactive(ispublished=True)
+
+    def test_change_status_case_active(self):
+        self.change_status_case_active(ispublished=False)
+
+    def test_change_status_case_active(self):
+        self.change_status_case_active(ispublished=True)
+
+    def change_status_case_deleted(self, ispublished):
+        id = self.createXMLData(ispublished=ispublished)
+        XMLdata.change_status(id, Status.DELETED, ispublished)
         list_xmldata = XMLdata.find({'_id': ObjectId(id)})
         self.assertEquals(Status.DELETED, list_xmldata[0]['status'])
         self.assertEquals(Status.DELETED, list_xmldata[0]['content']['Resource']['@status'])
+        if ispublished:
+            self.assertNotEquals(None, list_xmldata[0].get('oai_datestamp', None))
+        else:
+            self.assertEquals(None, list_xmldata[0].get('oai_datestamp', None))
 
-    def test_change_status_case_inactive(self):
-        id = self.createXMLData()
+    def change_status_case_inactive(self, ispublished):
+        id = self.createXMLData(ispublished=ispublished)
+        XMLdata.change_status(id, Status.INACTIVE, ispublished)
+        list_xmldata = XMLdata.find({'_id': ObjectId(id)})
+        self.assertEquals(Status.INACTIVE, list_xmldata[0]['status'])
+        self.assertEquals(Status.INACTIVE, list_xmldata[0]['content']['Resource']['@status'])
+        if ispublished:
+            self.assertNotEquals(None, list_xmldata[0].get('oai_datestamp', None))
+        else:
+            self.assertEquals(None, list_xmldata[0].get('oai_datestamp', None))
+
+    def change_status_case_active(self, ispublished):
+        id = self.createXMLData(ispublished=ispublished)
         XMLdata.change_status(id, Status.INACTIVE)
         list_xmldata = XMLdata.find({'_id': ObjectId(id)})
         self.assertEquals(Status.INACTIVE, list_xmldata[0]['status'])
         self.assertEquals(Status.INACTIVE, list_xmldata[0]['content']['Resource']['@status'])
-
-    def test_change_status_case_active(self):
-        id = self.createXMLData()
-        XMLdata.change_status(id, Status.INACTIVE)
-        list_xmldata = XMLdata.find({'_id': ObjectId(id)})
-        self.assertEquals(Status.INACTIVE, list_xmldata[0]['status'])
-        self.assertEquals(Status.INACTIVE, list_xmldata[0]['content']['Resource']['@status'])
-        XMLdata.change_status(id, Status.ACTIVE)
+        XMLdata.change_status(id, Status.ACTIVE, ispublished)
         list_xmldata = XMLdata.find({'_id': ObjectId(id)})
         self.assertEquals(Status.ACTIVE, list_xmldata[0]['status'])
         self.assertEquals(Status.ACTIVE, list_xmldata[0]['content']['Resource']['@status'])
+        if ispublished:
+            self.assertNotEquals(None, list_xmldata[0].get('oai_datestamp', None))
+        else:
+            self.assertEquals(None, list_xmldata[0].get('oai_datestamp', None))
 
 
 

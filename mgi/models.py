@@ -672,7 +672,7 @@ class XMLdata(object):
         return results
 
     @staticmethod
-    def change_status(id, status):
+    def change_status(id, status, ispublished=False):
         """
             Update the status of the object with the given id
         """
@@ -682,7 +682,11 @@ class XMLdata(object):
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
-        xmldata.update({'_id': ObjectId(id)}, {'$set': {'status': status, 'content.Resource.@status': status, 'oai_datestamp': datetime.datetime.now()}}, upsert=False)
+        update_query = {'status': status, 'content.Resource.@status': status}
+        if ispublished:
+            update_query.update({'oai_datestamp': datetime.datetime.now()})
+
+        xmldata.update({'_id': ObjectId(id)}, {'$set': update_query}, upsert=False)
 
 
 class OaiSettings(Document):
