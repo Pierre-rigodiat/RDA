@@ -93,4 +93,35 @@ Tip: The following command will tell you where your current python is looking fo
 Tip: If no succes with auto install, you can directly copy and paste the file xerces_wrapper.pyc into the site-packages folder of your python.
 
 
+MacOS:
+
+Prerequisites:
+
+- Install PCRE (https://sourceforge.net/projects/pcre/files/):
+	./configure
+	make 
+	sudo make install
+- Install SWIG (http://www.swig.org/download.html):
+	./configure
+	make 
+	sudo make install
+
+- Download Xerces-C (http://xerces.apache.org/xerces-c/download.cgi):
+	tar -zxvf xerces-c-<version>.tar.gz (e.g. tar -zxvf xerces-c-3.1.3.tar.gz)
+	cd xerces-c-<version>
+	./configure --enable-netaccessor-curl CFLAGS="-arch x86_64" CXXFLAGS="-arch x86_64"  
+	sudo make install
+
+- Open setup.py:
+	- In library_dirs and include_dirs, write the path to xerces-c/src (e.g. /home/user/xerces-c/src)
+- Install the Xerces Wrapper:
+	- python setup.py install 
+- Test if the package is successfully installed:
+	- python -c "import xerces_wrapper"
+	
+If the import is returning errors, it may mean that the package has not been installed at the correct location. 
+For more information about the installation location, please read: https://docs.python.org/2/install#how-installation-works
+Tip: The following command will tell you where your current python is looking for packages:
+	- python -c "import site; print site.getsitepackages()"
+Tip: If no success with auto install, you can directly copy and paste the file xerces_wrapper.pyc into the site-packages folder of your python.
 
