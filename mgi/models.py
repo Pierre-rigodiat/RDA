@@ -445,7 +445,10 @@ class XMLdata(object):
         queryResults = []
         for result in cursor:
             # Check the deleted records
-            if not includeDeleted and not result.get('deleted', False):
+            if not includeDeleted:
+                if not result.get('deleted', False):
+                    queryResults.append(result['content'])
+            else:
                 queryResults.append(result['content'])
         return queryResults
     
