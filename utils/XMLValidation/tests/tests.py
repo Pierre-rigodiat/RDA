@@ -170,7 +170,7 @@ class ValidateXSDTestSuite(TestCase):
         # test Xerces
         if TEST_XERCES:
             if platform.system() != "Windows":
-                self.assertEquals(_xerces_validate_xsd(self.xsd_string), None)
+                self.assertNotEquals(_xerces_validate_xsd(self.xsd_string), None)
 
     def test_import_django(self):
         # load type
