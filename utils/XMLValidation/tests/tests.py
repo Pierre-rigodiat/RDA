@@ -28,6 +28,9 @@ from utils.XMLValidation.xml_schema import _lxml_validate_xsd, _xerces_validate_
 
 RESOURCES_PATH = join(BASE_DIR, 'utils', 'XMLValidation', 'tests', 'data')
 
+TEST_LXML = True
+TEST_XERCES = True
+
 
 class ValidateXSDTestSuite(TestCase):
     """
@@ -88,13 +91,15 @@ class ValidateXSDTestSuite(TestCase):
         self.load_template(template_path)
 
         # test LXML
-        self.assertEquals(_lxml_validate_xsd(self.xsd_tree), None)
+        if TEST_LXML:
+            self.assertEquals(_lxml_validate_xsd(self.xsd_tree), None)
         # test global method
         self.assertEquals(validate_xml_schema(self.xsd_tree), None)
 
         # test Xerces
-        if platform.system() != "Windows":
-            self.assertEquals(_xerces_validate_xsd(self.xsd_string), None)
+        if TEST_XERCES:
+            if platform.system() != "Windows":
+                self.assertEquals(_xerces_validate_xsd(self.xsd_string), None)
 
     def test_no_root(self):
         # load template
@@ -102,13 +107,15 @@ class ValidateXSDTestSuite(TestCase):
         self.load_template(template_path)
 
         # test LXML
-        self.assertEquals(_lxml_validate_xsd(self.xsd_tree), None)
+        if TEST_LXML:
+            self.assertEquals(_lxml_validate_xsd(self.xsd_tree), None)
         # test global method
         self.assertEquals(validate_xml_schema(self.xsd_tree), None)
 
         # test Xerces
-        if platform.system() != "Windows":
-            self.assertEquals(_xerces_validate_xsd(self.xsd_string), None)
+        if TEST_XERCES:
+            if platform.system() != "Windows":
+                self.assertEquals(_xerces_validate_xsd(self.xsd_string), None)
 
     def test_include_filesystem(self):
         # load template
@@ -116,13 +123,15 @@ class ValidateXSDTestSuite(TestCase):
         self.load_template(template_path)
 
         # test LXML
-        self.assertNotEquals(_lxml_validate_xsd(self.xsd_tree), None)
+        if TEST_LXML:
+            self.assertNotEquals(_lxml_validate_xsd(self.xsd_tree), None)
         # test global method
         self.assertNotEquals(validate_xml_schema(self.xsd_tree), None)
 
         # test Xerces
-        if platform.system() != "Windows":
-            self.assertNotEquals(_xerces_validate_xsd(self.xsd_string), None)
+        if TEST_XERCES:
+            if platform.system() != "Windows":
+                self.assertNotEquals(_xerces_validate_xsd(self.xsd_string), None)
 
     def test_include_django(self):
         # load type
@@ -137,13 +146,15 @@ class ValidateXSDTestSuite(TestCase):
         self.xsd_string = etree.tostring(self.xsd_tree)
 
         # test LXML
-        self.assertEquals(_lxml_validate_xsd(self.xsd_tree), None)
+        if TEST_LXML:
+            self.assertEquals(_lxml_validate_xsd(self.xsd_tree), None)
         # test global method
         self.assertEquals(validate_xml_schema(self.xsd_tree), None)
 
         # test Xerces
-        if platform.system() != "Windows":
-            self.assertEquals(_xerces_validate_xsd(self.xsd_string), None)
+        if TEST_XERCES:
+            if platform.system() != "Windows":
+                self.assertEquals(_xerces_validate_xsd(self.xsd_string), None)
 
     def test_import_filesystem(self):
         # load template
@@ -151,13 +162,15 @@ class ValidateXSDTestSuite(TestCase):
         self.load_template(template_path)
 
         # test LXML
-        self.assertNotEquals(_lxml_validate_xsd(self.xsd_tree), None)
+        if TEST_LXML:
+            self.assertNotEquals(_lxml_validate_xsd(self.xsd_tree), None)
         # test global method
         self.assertNotEquals(validate_xml_schema(self.xsd_tree), None)
 
         # test Xerces
-        if platform.system() != "Windows":
-            self.assertEquals(_xerces_validate_xsd(self.xsd_string), None)
+        if TEST_XERCES:
+            if platform.system() != "Windows":
+                self.assertEquals(_xerces_validate_xsd(self.xsd_string), None)
 
     def test_import_django(self):
         # load type
@@ -172,13 +185,15 @@ class ValidateXSDTestSuite(TestCase):
         self.xsd_string = etree.tostring(self.xsd_tree)
 
         # test LXML
-        self.assertEquals(_lxml_validate_xsd(self.xsd_tree), None)
+        if TEST_LXML:
+            self.assertEquals(_lxml_validate_xsd(self.xsd_tree), None)
         # test global method
         self.assertEquals(validate_xml_schema(self.xsd_tree), None)
 
         # test Xerces
-        if platform.system() != "Windows":
-            self.assertEquals(_xerces_validate_xsd(self.xsd_string), None)
+        if TEST_XERCES:
+            if platform.system() != "Windows":
+                self.assertEquals(_xerces_validate_xsd(self.xsd_string), None)
 
     def test_import_external(self):
         # load template
@@ -186,13 +201,15 @@ class ValidateXSDTestSuite(TestCase):
         self.load_template(template_path)
 
         # test LXML
-        self.assertEquals(_lxml_validate_xsd(self.xsd_tree), None)
+        if TEST_LXML:
+            self.assertEquals(_lxml_validate_xsd(self.xsd_tree), None)
         # test global method
         self.assertEquals(validate_xml_schema(self.xsd_tree), None)
 
         # test Xerces
-        if platform.system() != "Windows":
-            self.assertEquals(_xerces_validate_xsd(self.xsd_string), None)
+        if TEST_XERCES:
+            if platform.system() != "Windows":
+                self.assertEquals(_xerces_validate_xsd(self.xsd_string), None)
 
     def test_1_1(self):
         # load template
@@ -201,13 +218,15 @@ class ValidateXSDTestSuite(TestCase):
 
         # test LXML
         # TODO: LXML fails to validate
-        self.assertEquals(_lxml_validate_xsd(self.xsd_tree), None)
+        if TEST_LXML:
+            self.assertEquals(_lxml_validate_xsd(self.xsd_tree), None)
         # test global method
         self.assertEquals(validate_xml_schema(self.xsd_tree), None)
 
         # test Xerces
-        if platform.system() != "Windows":
-            self.assertEquals(_xerces_validate_xsd(self.xsd_string), None)
+        if TEST_XERCES:
+            if platform.system() != "Windows":
+                self.assertEquals(_xerces_validate_xsd(self.xsd_string), None)
 
 
 class ValidateXMLTestSuite(TestCase):
@@ -266,13 +285,15 @@ class ValidateXMLTestSuite(TestCase):
         self.load_data(data_path)
 
         # test LXML
-        self.assertEquals(_lxml_validate_xml(self.xsd_tree, self.xml_tree), None)
+        if TEST_LXML:
+            self.assertEquals(_lxml_validate_xml(self.xsd_tree, self.xml_tree), None)
         # test global method
         self.assertEquals(validate_xml_data(self.xsd_tree, self.xml_tree), None)
 
         # test Xerces
-        if platform.system() != "Windows":
-            self.assertEquals(_xerces_validate_xml(self.xsd_string, self.xml_string), None)
+        if TEST_XERCES:
+            if platform.system() != "Windows":
+                self.assertEquals(_xerces_validate_xml(self.xsd_string, self.xml_string), None)
 
     def test_basic_nok(self):
         # load template
@@ -284,13 +305,15 @@ class ValidateXMLTestSuite(TestCase):
         self.load_data(data_path)
 
         # test LXML
-        self.assertNotEquals(_lxml_validate_xml(self.xsd_tree, self.xml_tree), None)
+        if TEST_LXML:
+            self.assertNotEquals(_lxml_validate_xml(self.xsd_tree, self.xml_tree), None)
         # test global method
         self.assertNotEquals(validate_xml_data(self.xsd_tree, self.xml_tree), None)
 
         # test Xerces
-        if platform.system() != "Windows":
-            self.assertNotEquals(_xerces_validate_xml(self.xsd_string, self.xml_string), None)
+        if TEST_XERCES:
+            if platform.system() != "Windows":
+                self.assertNotEquals(_xerces_validate_xml(self.xsd_string, self.xml_string), None)
 
     def test_no_root_ok(self):
         # load template
@@ -303,13 +326,15 @@ class ValidateXMLTestSuite(TestCase):
 
         # test LXML
         #TODO: LXML fails to validate
-        self.assertEquals(_lxml_validate_xml(self.xsd_tree, self.xml_tree), None)
+        if TEST_LXML:
+            self.assertEquals(_lxml_validate_xml(self.xsd_tree, self.xml_tree), None)
         # test global method
         self.assertEquals(validate_xml_data(self.xsd_tree, self.xml_tree), None)
 
         # test Xerces
-        if platform.system() != "Windows":
-            self.assertEquals(_xerces_validate_xml(self.xsd_string, self.xml_string), None)
+        if TEST_XERCES:
+            if platform.system() != "Windows":
+                self.assertEquals(_xerces_validate_xml(self.xsd_string, self.xml_string), None)
 
     def test_no_root_nok(self):
         # load template
@@ -321,13 +346,15 @@ class ValidateXMLTestSuite(TestCase):
         self.load_data(data_path)
 
         # test LXML
-        self.assertNotEquals(_lxml_validate_xml(self.xsd_tree, self.xml_tree), None)
+        if TEST_LXML:
+            self.assertNotEquals(_lxml_validate_xml(self.xsd_tree, self.xml_tree), None)
         # test global method
         self.assertNotEquals(validate_xml_data(self.xsd_tree, self.xml_tree), None)
 
         # test Xerces
-        if platform.system() != "Windows":
-            self.assertNotEquals(_xerces_validate_xml(self.xsd_string, self.xml_string), None)
+        if TEST_XERCES:
+            if platform.system() != "Windows":
+                self.assertNotEquals(_xerces_validate_xml(self.xsd_string, self.xml_string), None)
 
     def test_include_django_ok(self):
         # load type
@@ -346,13 +373,15 @@ class ValidateXMLTestSuite(TestCase):
         self.load_data(data_path)
 
         # test LXML
-        self.assertEquals(_lxml_validate_xml(self.xsd_tree, self.xml_tree), None)
+        if TEST_LXML:
+            self.assertEquals(_lxml_validate_xml(self.xsd_tree, self.xml_tree), None)
         # test global method
         self.assertEquals(validate_xml_data(self.xsd_tree, self.xml_tree), None)
 
         # test Xerces
-        if platform.system() != "Windows":
-            self.assertEquals(_xerces_validate_xml(self.xsd_string, self.xml_string), None)
+        if TEST_XERCES:
+            if platform.system() != "Windows":
+                self.assertEquals(_xerces_validate_xml(self.xsd_string, self.xml_string), None)
 
     def test_include_django_nok(self):
         # load type
@@ -371,13 +400,15 @@ class ValidateXMLTestSuite(TestCase):
         self.load_data(data_path)
 
         # test LXML
-        self.assertNotEquals(_lxml_validate_xml(self.xsd_tree, self.xml_tree), None)
+        if TEST_LXML:
+            self.assertNotEquals(_lxml_validate_xml(self.xsd_tree, self.xml_tree), None)
         # test global method
         self.assertNotEquals(validate_xml_data(self.xsd_tree, self.xml_tree), None)
 
         # test Xerces
-        if platform.system() != "Windows":
-            self.assertNotEquals(_xerces_validate_xml(self.xsd_string, self.xml_string), None)
+        if TEST_XERCES:
+            if platform.system() != "Windows":
+                self.assertNotEquals(_xerces_validate_xml(self.xsd_string, self.xml_string), None)
 
     def test_import_django_ok(self):
         # load type
@@ -396,13 +427,15 @@ class ValidateXMLTestSuite(TestCase):
         self.load_data(data_path)
 
         # test LXML
-        self.assertEquals(_lxml_validate_xml(self.xsd_tree, self.xml_tree), None)
+        if TEST_LXML:
+            self.assertEquals(_lxml_validate_xml(self.xsd_tree, self.xml_tree), None)
         # test global method
         self.assertEquals(validate_xml_data(self.xsd_tree, self.xml_tree), None)
 
         # test Xerces
-        if platform.system() != "Windows":
-            self.assertEquals(_xerces_validate_xml(self.xsd_string, self.xml_string), None)
+        if TEST_XERCES:
+            if platform.system() != "Windows":
+                self.assertEquals(_xerces_validate_xml(self.xsd_string, self.xml_string), None)
 
     def test_import_django_nok(self):
         # load type
@@ -421,13 +454,15 @@ class ValidateXMLTestSuite(TestCase):
         self.load_data(data_path)
 
         # test LXML
-        self.assertNotEquals(_lxml_validate_xml(self.xsd_tree, self.xml_tree), None)
+        if TEST_LXML:
+            self.assertNotEquals(_lxml_validate_xml(self.xsd_tree, self.xml_tree), None)
         # test global method
         self.assertNotEquals(validate_xml_data(self.xsd_tree, self.xml_tree), None)
 
         # test Xerces
-        if platform.system() != "Windows":
-            self.assertNotEquals(_xerces_validate_xml(self.xsd_string, self.xml_string), None)
+        if TEST_XERCES:
+            if platform.system() != "Windows":
+                self.assertNotEquals(_xerces_validate_xml(self.xsd_string, self.xml_string), None)
 
     def test_import_external_ok(self):
         # load template
@@ -440,13 +475,15 @@ class ValidateXMLTestSuite(TestCase):
 
         # test LXML
         #TODO: LXML fails to validate
-        self.assertEquals(_lxml_validate_xml(self.xsd_tree, self.xml_tree), None)
+        if TEST_LXML:
+            self.assertEquals(_lxml_validate_xml(self.xsd_tree, self.xml_tree), None)
         # test global method
         self.assertEquals(validate_xml_data(self.xsd_tree, self.xml_tree), None)
 
         # test Xerces
-        if platform.system() != "Windows":
-            self.assertEquals(_xerces_validate_xml(self.xsd_string, self.xml_string), None)
+        if TEST_XERCES:
+            if platform.system() != "Windows":
+                self.assertEquals(_xerces_validate_xml(self.xsd_string, self.xml_string), None)
 
     def test_import_external_nok(self):
         # load template
@@ -458,10 +495,12 @@ class ValidateXMLTestSuite(TestCase):
         self.load_data(data_path)
 
         # test LXML
-        self.assertNotEquals(_lxml_validate_xml(self.xsd_tree, self.xml_tree), None)
+        if TEST_LXML:
+            self.assertNotEquals(_lxml_validate_xml(self.xsd_tree, self.xml_tree), None)
         # test global method
         self.assertNotEquals(validate_xml_data(self.xsd_tree, self.xml_tree), None)
 
         # test Xerces
-        if platform.system() != "Windows":
-            self.assertNotEquals(_xerces_validate_xml(self.xsd_string, self.xml_string), None)
+        if TEST_XERCES:
+            if platform.system() != "Windows":
+                self.assertNotEquals(_xerces_validate_xml(self.xsd_string, self.xml_string), None)
