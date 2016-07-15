@@ -393,12 +393,15 @@ class XMLdata(object):
         # get the xmldata collection
         xmldata = db['xmldata']
         # find all objects of the collection
-        cursor = xmldata.find(query, as_class = OrderedDict)
+        cursor = xmldata.find(as_class = OrderedDict)
         # build a list with the objects        
         results = []
         for result in cursor:
             # Check the deleted records
-            if not includeDeleted and not result.get('deleted', False):
+            if not includeDeleted:
+                if not result.get('deleted', False):
+                    results.append(result)
+            else:
                 results.append(result)
         return results
     
@@ -420,7 +423,10 @@ class XMLdata(object):
         results = []
         for result in cursor:
             # Check the deleted records
-            if not includeDeleted and not result.get('deleted', False):
+            if not includeDeleted:
+                if not result.get('deleted', False):
+                    results.append(result)
+            else:
                 results.append(result)
         return results
     
@@ -458,8 +464,12 @@ class XMLdata(object):
         results = []
         for result in cursor:
             # Check the deleted records
-            if not includeDeleted and not result.get('deleted', False):
+            if not includeDeleted:
+                if not result.get('deleted', False):
+                    results.append(result)
+            else:
                 results.append(result)
+
         return results
 
     @staticmethod
@@ -640,7 +650,10 @@ class XMLdata(object):
         results = []
         for result in cursor:
             # Check the deleted records
-            if not includeDeleted and not result.get('deleted', False):
+            if not includeDeleted:
+                if not result.get('deleted', False):
+                    results.append(result)
+            else:
                 results.append(result)
         return results
 
