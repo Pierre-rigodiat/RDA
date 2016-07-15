@@ -194,6 +194,21 @@ class ValidateXSDTestSuite(TestCase):
         if platform.system() != "Windows":
             self.assertEquals(_xerces_validate_xsd(self.xsd_string), None)
 
+    def test_1_1(self):
+        # load template
+        template_path = join(RESOURCES_PATH, '1.1.xsd')
+        self.load_template(template_path)
+
+        # test LXML
+        # TODO: LXML fails to validate
+        self.assertEquals(_lxml_validate_xsd(self.xsd_tree), None)
+        # test global method
+        self.assertEquals(validate_xml_schema(self.xsd_tree), None)
+
+        # test Xerces
+        if platform.system() != "Windows":
+            self.assertEquals(_xerces_validate_xsd(self.xsd_string), None)
+
 
 class ValidateXMLTestSuite(TestCase):
     """
