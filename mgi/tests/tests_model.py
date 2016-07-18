@@ -17,10 +17,12 @@ from bson.objectid import ObjectId
 class tests_model(RegressionTest):
 
     def test_delete_template_and_version(self):
+        numberTemplate = len(Template.objects())
+        numberTemplateVersion = len(TemplateVersion.objects())
         template = self.createTemplate()
         delete_template_and_version(str(template.id))
-        self.assertEquals(len(Template.objects()), 0)
-        self.assertEquals(len(TemplateVersion.objects()), 0)
+        self.assertEquals(len(Template.objects()), numberTemplate)
+        self.assertEquals(len(TemplateVersion.objects()), numberTemplateVersion)
 
     def test_delete_type_and_version(self):
         self.assertEquals(len(Type.objects()), 0)

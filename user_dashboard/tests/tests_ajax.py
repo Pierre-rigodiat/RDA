@@ -14,10 +14,12 @@
 from testing.models import RegressionTest
 from mgi.models import Template, Type, XMLdata, TemplateVersion, TypeVersion, SchemaElement, FormData
 import json
+from unittest import skip
 import lxml.etree as etree
 
 class tests_user_dashboard_ajax(RegressionTest):
 
+    @skip("Only on MDCS")
     def test_edit_information_template(self):
         template = self.createTemplate()
         url='/dashboard/edit_information'
@@ -27,6 +29,7 @@ class tests_user_dashboard_ajax(RegressionTest):
         self.assertEquals('otherfilename', modifiedTemplate.filename)
         self.assertEquals('othername', modifiedTemplate.title)
 
+    @skip("Only on MDCS")
     def test_edit_information_type(self):
         type = self.createType()
         url='/dashboard/edit_information'
@@ -36,7 +39,7 @@ class tests_user_dashboard_ajax(RegressionTest):
         self.assertEquals('otherfilename', modifiedType.filename)
         self.assertEquals('othername', modifiedType.title)
 
-
+    @skip("Only on MDCS")
     def test_edit_information_template_same_name(self):
         self.createTemplate(title='othername')
         template = self.createTemplate()
@@ -51,7 +54,7 @@ class tests_user_dashboard_ajax(RegressionTest):
         result = json.loads(r.content)
         self.assertEquals('True', result.get('name'))
 
-
+    @skip("Only on MDCS")
     def test_edit_information_type_same_filename(self):
         self.createType(filename='otherfilename')
         type = self.createType()
@@ -90,6 +93,7 @@ class tests_user_dashboard_ajax(RegressionTest):
         r = self.doRequestGetAdminClientLogged(url=url, data=data)
         self.assertEquals(False, XMLdata.get(id)['ispublished'])
 
+    @skip("Only on MDCS")
     def test_delete_object_template(self):
         template = self.createTemplate()
         url = '/dashboard/delete_object'
@@ -98,6 +102,7 @@ class tests_user_dashboard_ajax(RegressionTest):
         self.assertEquals(0, len(Template.objects()))
         self.assertEquals(0, len(TemplateVersion.objects()))
 
+    @skip("Only on MDCS")
     def test_delete_object_type(self):
         type = self.createType()
         url = '/dashboard/delete_object'
@@ -106,6 +111,7 @@ class tests_user_dashboard_ajax(RegressionTest):
         self.assertEquals(0, len(Type.objects()))
         self.assertEquals(0, len(TypeVersion.objects()))
 
+    @skip("Only on MDCS")
     def test_delete_object_template_with_dependencie(self):
         self.assertEquals(0, len(Template.objects()))
         template = self.createTemplate()
@@ -117,6 +123,7 @@ class tests_user_dashboard_ajax(RegressionTest):
         self.assertEquals(1, len(Template.objects()))
         self.assertEquals(1, len(TemplateVersion.objects()))
 
+    @skip("Only on MDCS")
     def test_delete_object_type_with_dependencie(self):
         type = self.createType()
         otherType = self.createType()

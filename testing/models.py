@@ -209,6 +209,7 @@ class RegressionTest(LiveServerTestCase):
         return TemplateVersion(nbVersions=1, isDeleted=True).save()
 
     def checkTagErrorCode(self, text, error):
+        self.checkTagExist(text, 'error')
         for tag in etree.XML(text.encode("utf8"), parser=XMLParser).iterfind('.//' + '{http://www.openarchives.org/OAI/2.0/}' + 'error'):
             self.assertEqual(tag.attrib['code'], error)
 

@@ -13,6 +13,7 @@
 
 from testing.models import RegressionTest, FAKE_ID
 from mgi.models import XMLdata
+from unittest import skip
 
 class tests_user_dashboard_views(RegressionTest):
 
@@ -20,7 +21,7 @@ class tests_user_dashboard_views(RegressionTest):
         userId = self.getUser().id
         self.createXMLData(ispublished=True, iduser=userId)
         self.createXMLData(ispublished=False, iduser=userId)
-        url = '/dashboard/records'
+        url = '/dashboard/resources'
         r = self.doRequestGetUserClientLogged(url=url)
         self.assertEquals(2, len(r.context[1].get('XMLdatas')))
 
@@ -29,7 +30,7 @@ class tests_user_dashboard_views(RegressionTest):
         self.createXMLData(ispublished=True, iduser=userId)
         self.createXMLData(ispublished=False, iduser=userId)
         data = {'ispublished': True}
-        url = '/dashboard/records'
+        url = '/dashboard/resources'
         r = self.doRequestGetUserClientLogged(url=url, data=data)
         self.assertEquals(1, len(r.context[1].get('XMLdatas')))
 
@@ -38,7 +39,7 @@ class tests_user_dashboard_views(RegressionTest):
         self.createXMLData(ispublished=True, iduser=userId)
         self.createXMLData(ispublished=False, iduser=userId)
         data = {'ispublished': False}
-        url = '/dashboard/records'
+        url = '/dashboard/resources'
         r = self.doRequestGetUserClientLogged(url=url, data=data)
         self.assertEquals(1, len(r.context[1].get('XMLdatas')))
 
@@ -46,7 +47,7 @@ class tests_user_dashboard_views(RegressionTest):
         userId = self.getUser().id
         self.createXMLData(iduser=userId)
         self.createXMLData(iduser=userId+1)
-        url = '/dashboard/records'
+        url = '/dashboard/resources'
         r = self.doRequestGetUserClientLogged(url=url)
         self.assertEquals(1, len(r.context[1].get('XMLdatas')))
 
@@ -55,16 +56,16 @@ class tests_user_dashboard_views(RegressionTest):
         adminId = self.getAdmin().id
         self.createXMLData(iduser=userId)
         self.createXMLData(iduser=adminId)
-        url = '/dashboard/records'
+        url = '/dashboard/resources'
         r = self.doRequestGetAdminClientLogged(url=url)
-        self.assertEquals(1, len(r.context[1].get('XMLdatas')))
-        self.assertEquals(1, len(r.context[1].get('OtherUsersXMLdatas')))
+        self.assertEquals(1, len(r.context.__getitem__('XMLdatas')))
+        self.assertEquals(1, len(r.context.__getitem__('OtherUsersXMLdatas')))
 
     def test_dashboard_my_forms_user_no_xmldataid(self):
         userId = self.getUser().id
         template = self.createTemplate()
         self.createFormData(user=userId, name='name', template=str(template.id))
-        url = '/dashboard/forms'
+        url = '/dashboard/drafts'
         r = self.doRequestGetUserClientLogged(url=url)
         self.assertEquals(1, len(r.context[1].get('forms')))
 
@@ -72,7 +73,7 @@ class tests_user_dashboard_views(RegressionTest):
         userId = self.getUser().id
         template = self.createTemplate()
         self.createFormData(user=userId, name='name', template=str(template.id), xml_data_id=FAKE_ID)
-        url = '/dashboard/forms'
+        url = '/dashboard/drafts'
         r = self.doRequestGetUserClientLogged(url=url)
         self.assertEquals(0, len(r.context[1].get('forms')))
 
@@ -82,11 +83,12 @@ class tests_user_dashboard_views(RegressionTest):
         template = self.createTemplate()
         self.createFormData(user=userId, name='nameuser', template=str(template.id))
         self.createFormData(user=adminId, name='nameadmin', template=str(template.id))
-        url = '/dashboard/forms'
+        url = '/dashboard/drafts'
         r = self.doRequestGetAdminClientLogged(url=url)
         self.assertEquals(1, len(r.context[1].get('forms')))
         self.assertEquals(1, len(r.context[1].get('otherUsersForms')))
 
+    @skip("Only on MDCS")
     def test_dashboard_templates_user(self):
         userId = self.getUser().id
         self.createTemplate(user=userId)
@@ -94,6 +96,7 @@ class tests_user_dashboard_views(RegressionTest):
         r = self.doRequestGetUserClientLogged(url=url)
         self.assertEquals(1, len(r.context[1].get('objects')))
 
+    @skip("Only on MDCS")
     def test_dashboard_templates_user_no_template(self):
         userId = self.getUser().id
         self.createTemplate(user=userId+1)
@@ -101,6 +104,7 @@ class tests_user_dashboard_views(RegressionTest):
         r = self.doRequestGetUserClientLogged(url=url)
         self.assertEquals(0, len(r.context[1].get('objects')))
 
+    @skip("Only on MDCS")
     def test_dashboard_templates_admin(self):
         userId = self.getUser().id
         adminId = self.getAdmin().id
@@ -111,6 +115,7 @@ class tests_user_dashboard_views(RegressionTest):
         self.assertEquals(1, len(r.context[1].get('objects')))
         self.assertEquals(1, len(r.context[1].get('otherUsersObjects')))
 
+    @skip("Only on MDCS")
     def test_dashboard_types_user(self):
         userId = self.getUser().id
         self.createType(user=userId)
@@ -118,6 +123,7 @@ class tests_user_dashboard_views(RegressionTest):
         r = self.doRequestGetUserClientLogged(url=url)
         self.assertEquals(1, len(r.context[1].get('objects')))
 
+    @skip("Only on MDCS")
     def test_dashboard_types_user_no_template(self):
         userId = self.getUser().id
         self.createType(user=userId + 1)
@@ -125,6 +131,7 @@ class tests_user_dashboard_views(RegressionTest):
         r = self.doRequestGetUserClientLogged(url=url)
         self.assertEquals(0, len(r.context[1].get('objects')))
 
+    @skip("Only on MDCS")
     def test_dashboard_types_admin(self):
         userId = self.getUser().id
         adminId = self.getAdmin().id
