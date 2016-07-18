@@ -386,9 +386,6 @@ class XMLdata(object):
         """save into mongo db"""
         # insert the content into mongo db                                                                                                                                                                                    
         self.content['lastmodificationdate'] = datetime.datetime.now()
-        self.content['deleted'] = self.content['content'].get('Resource', dict()).get('@status', None) == 'deleted'
-        if self.content['deleted']:
-            self.content['deletedDate'] = datetime.datetime.now()
         docID = self.xmldata.insert(self.content)
         return docID
 
@@ -576,13 +573,7 @@ class XMLdata(object):
                 
         json_content = xmltodict.parse(content, postprocessor=postprocessor)
         json = {'content': json_content, 'title': title, 'lastmodificationdate': datetime.datetime.now()}
-        deleted = json_content['Resource'].get('@status', None) == 'deleted'
-        json.update({'deleted': deleted})
-        if deleted:
-            json.update({'deletedDate': datetime.datetime.now()})
         xmldata.update({'_id': ObjectId(postID)}, {"$set":json})
-        if not deleted:
-            xmldata.update({'_id': ObjectId(postID)}, {'$unset': {'deletedDate':1}})
 
     @staticmethod
     def update_publish(postID):
@@ -671,7 +662,7 @@ class XMLdata(object):
             full_text_query.update(refinements)
 
         # only get published and active resources
-        full_text_query.update({'ispublished': True, 'content.Resource.@status': 'active'})
+        full_text_query.update({'ispublished': True, 'status': {'$ne': Status.DELETED}})
         cursor = xmldata.find(full_text_query, as_class = OrderedDict).sort('publicationdate', DESCENDING)
         
         results = []
