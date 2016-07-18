@@ -323,7 +323,7 @@ class XMLdata(object):
     """Wrapper to manage JSON Documents, like mongoengine would have manage them (but with ordered data)"""
 
     def __init__(self, schemaID=None, xml=None, json=None, title="", iduser=None, ispublished=False,
-                 publicationdate=None):
+                 publicationdate=None, oai_datestamp=None):
         """                                                                                                                                                                                                                   
             initialize the object                                                                                                                                                                                             
             schema = ref schema (Document)                                                                                                                                                                                    
@@ -355,6 +355,9 @@ class XMLdata(object):
         self.content['ispublished'] = ispublished
         if (publicationdate is not None):
             self.content['publicationdate'] = publicationdate
+
+        if oai_datestamp is not None:
+            self.content['oai_datestamp'] = oai_datestamp
 
         self.content['deleted'] = False
 
@@ -541,7 +544,8 @@ class XMLdata(object):
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
-        xmldata.update({'_id': ObjectId(postID)}, {"$set": {'deleted': True, 'deletedDate': datetime.datetime.now()}},
+        now = datetime.datetime.now()
+        xmldata.update({'_id': ObjectId(postID)}, {"$set": {'deleted': True, 'deletedDate': now, 'oai_datestamp': now}},
                        upsert=False)
 
     # TODO: to be tested
@@ -579,7 +583,7 @@ class XMLdata(object):
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
-                
+
         json_content = xmltodict.parse(content, postprocessor=postprocessor)
         json = {'content': json_content, 'title': title, 'lastmodificationdate': datetime.datetime.now()}
                     
@@ -596,7 +600,10 @@ class XMLdata(object):
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
-        xmldata.update({'_id': ObjectId(postID)}, {'$set':{'publicationdate': datetime.datetime.now(), 'ispublished': True}}, upsert=False)
+        now = datetime.datetime.now()
+        xmldata.update({'_id': ObjectId(postID)}, {'$set':{'publicationdate': now,
+                                                           'ispublished': True,
+                                                           'oai_datestamp': now}}, upsert=False)
 
     @staticmethod
     def update_unpublish(postID):

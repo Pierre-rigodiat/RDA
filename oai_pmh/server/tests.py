@@ -137,7 +137,7 @@ class tests_OAI_PMH_server(OAI_PMH_Test):
         self.dump_oai_my_metadata_format()
         self.dump_oai_my_set()
         self.dump_xmldata()
-        data = {'verb': 'ListIdentifiers', 'metadataPrefix': 'oai_dc', 'from': '2015-01-01T12:12:12Z', 'until': '2016-01-01T12:12:12Z', 'set': 'soft'}
+        data = {'verb': 'ListIdentifiers', 'metadataPrefix': 'oai_dc', 'from': '2015-01-01T12:12:12Z', 'until': '2017-01-01T12:12:12Z', 'set': 'soft'}
         r = self.doRequestServer(data=data)
         self.isStatusOK(r.status_code)
         self.checkTagExist(r.text, 'ListIdentifiers')
@@ -146,7 +146,7 @@ class tests_OAI_PMH_server(OAI_PMH_Test):
         self.dump_oai_templ_mf_xslt()
         self.dump_oai_my_metadata_format()
         self.dump_xmldata()
-        data = {'verb': 'ListIdentifiers', 'metadataPrefix': 'oai_dc', 'from': '2015-01-01T12:12:12Z', 'until': '2016-01-01T12:12:12Z'}
+        data = {'verb': 'ListIdentifiers', 'metadataPrefix': 'oai_dc', 'from': '2015-01-01T12:12:12Z', 'until': '2017-01-01T12:12:12Z'}
         r = self.doRequestServer(data=data)
         self.isStatusOK(r.status_code)
         self.checkTagExist(r.text, 'ListIdentifiers')
@@ -363,3 +363,14 @@ class tests_OAI_PMH_server(OAI_PMH_Test):
             self.checkTagExist(r.text, verb)
             #Check attribute status='deleted' of header does exist
             self.checkTagWithParamExist(r.text, 'header', 'status="deleted"')
+
+    def test_check_dates_form_until(self):
+        self.dump_oai_templ_mf_xslt()
+        self.dump_oai_xslt()
+        self.dump_oai_my_metadata_format()
+        self.dump_oai_my_set()
+        self.dump_xmldata()
+        data = {'verb': 'ListRecords', 'metadataPrefix': 'oai_dc', 'from': '2016-05-04T19:00:00Z', 'until': '2016-05-04T19:48:39Z', 'set': 'soft'}
+        r = self.doRequestServer(data=data)
+        self.isStatusOK(r.status_code)
+        self.checkTagErrorCode(r.text, NO_RECORDS_MATCH)

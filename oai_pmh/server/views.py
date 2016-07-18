@@ -74,7 +74,7 @@ class OAIProvider(TemplateView):
     def get_earliest_date(self):
         try:
             #Get the earliest publication date for the identify request response
-            data = XMLdata.getMinValue('publicationdate')
+            data = XMLdata.getMinValue('oai_datestamp')
             #If we have a date
             if data != None:
                 return datestamp.datetime_to_datestamp(data)
@@ -456,10 +456,7 @@ class OAIProvider(TemplateView):
 ################################################################################
     def get_last_modified_date(self, element):
         try:
-            if element.get('deleted', False):
-                date = datestamp.datetime_to_datestamp(element['deletedDate'])
-            else:
-                date = datestamp.datetime_to_datestamp(element['publicationdate'])
+            date = datestamp.datetime_to_datestamp(element['oai_datestamp'])
         except:
             date = datestamp.datetime_to_datestamp(datetime.datetime.min)
 
@@ -554,35 +551,33 @@ class OAIProvider(TemplateView):
 ################################################################################
     def check_dates(self):
         query = dict()
+        query_until = dict()
+        query_from = dict()
         #To store errors
         date_errors = []
         #Handle FROM and UNTIL
         if self.until:
             try:
                 endDate = datestamp.datestamp_to_datetime(self.until)
-                query['$or'] = [{'$and': [{'deleted': True},
-                                          {'deletedDate': {'$exists': True}},
-                                          {'deletedDate': {"$lte" : endDate}}]},
-                                {'$and': [{'deleted': False},
-                                          {'publicationdate': {"$lte" : endDate}}]},
-                                {'$and': [{'deleted': {'$exists': False}},
-                                          {'publicationdate': {"$lte" : endDate}}]}]
+                query_until['oai_datestamp'] = {"$lte" : endDate}
             except:
                 error = 'Illegal date/time for "until" (%s)' % self.until
                 date_errors.append(badArgument(error))
         if self.From:
             try:
                 startDate = datestamp.datestamp_to_datetime(self.From)
-                query['$or'] = [{'$and': [{'deleted': True},
-                                          {'deletedDate': {'$exists': True}},
-                                          {'deletedDate': {"$gte" : startDate}}]},
-                                {'$and': [{'deleted': False},
-                                          {'publicationdate': {"$gte" : startDate}}]},
-                                {'$and': [{'deleted': {'$exists': False}},
-                                          {'publicationdate': {"$gte" : startDate}}]}]
+                query_from['oai_datestamp'] = {"$gte" : startDate}
             except:
                 error = 'Illegal date/time for "from" (%s)' % self.From
                 date_errors.append(badArgument(error))
+
+        if self.until and self.From:
+            query['$and'] = [query_until, query_from]
+        elif self.until:
+            query = query_until
+        elif self.From:
+            query = query_from
+
         #Return possible errors
         if len(date_errors) > 0:
             raise OAIExceptions(date_errors)
