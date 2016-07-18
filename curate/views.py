@@ -463,6 +463,8 @@ def save_xml_data_to_db(request):
                 xml_string,
                 title=form.data['title']
             )
+            #Specific MDCS
+            XMLdata.update_publish(form_data.xml_data_id)
         else:
             # create new data otherwise
             xml_data = XMLdata(

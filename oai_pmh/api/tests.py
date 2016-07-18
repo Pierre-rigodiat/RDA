@@ -897,9 +897,9 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         req = self.doRequestPost(url=reverse("api_listObjectAllRecords"), data=data, auth=ADMIN_AUTH)
         self.assertEquals(req.status_code, status.HTTP_400_BAD_REQUEST)
 
-################################################################################
+###############################################################################
 
-################################ Get Record tests ##############################
+############################### Get Record tests ##############################
     def test_getRecord(self):
         self.dump_oai_settings()
         self.dump_oai_my_metadata_format()
@@ -2451,7 +2451,7 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         query['ispublished'] = True
         if fromDate:
             startDate = datestamp.datestamp_to_datetime(fromDate)
-            query['publicationdate'] = { "$gte" : startDate}
+            query['oai_datestamp'] = { "$gte" : startDate}
         #Get all records for this template
         dataInDatabase = XMLdata.executeQueryFullResult(query)
         self.assertEquals(len(dataInDatabase), len(data))
@@ -2461,8 +2461,8 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
     def assert_OaiRecord(self, metadataPrefix, data):
         identifier = data['identifier'].split('/')[1]
         objInDatabase = XMLdata.get(identifier)
-        if 'publicationdate' in objInDatabase:
-            date = str(datestamp.datetime_to_datestamp(objInDatabase['publicationdate']))
+        if 'oai_datestamp' in objInDatabase:
+            date = str(datestamp.datetime_to_datestamp(objInDatabase['oai_datestamp']))
             self.assertEquals(date, data['datestamp'])
         self.assertEquals(objInDatabase['deleted'], data['deleted'])
         sets = OaiMySet.objects(templates__in=[str(objInDatabase['schema'])]).all()
@@ -2512,16 +2512,16 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         query['ispublished'] = True
         if lastUpdate:
             startDate = datestamp.datestamp_to_datetime(lastUpdate)
-            query['publicationdate'] = { "$gte" : startDate}
+            query['oai_datestamp'] = { "$gte" : startDate}
         #Get all records for this template
         dataInDatabase = XMLdata.executeQueryFullResult(query)
         for dataDB in dataInDatabase:
             identifier = '%s:%s:id/%s' % (settings.OAI_SCHEME, settings.OAI_REPO_IDENTIFIER, str(dataDB['_id']))
             records = OaiRecord.objects(identifier=identifier).all()
             for record in records:
-                if 'publicationdate' in dataDB:
+                if 'oai_datestamp' in dataDB:
                     self.assertEquals(str(datestamp.datetime_to_datestamp(record.datestamp)),
-                                      str(datestamp.datetime_to_datestamp(dataDB['publicationdate'])))
+                                      str(datestamp.datetime_to_datestamp(dataDB['oai_datestamp'])))
                 self.assertEquals(record.deleted, dataDB['deleted'])
                 sets = OaiMySet.objects(templates__in=[str(dataDB['schema'])]).all().distinct('setSpec')
                 if sets:
@@ -2543,8 +2543,8 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
             identifier = obj['identifier'].split('/')[1]
             objInDatabase = next(x for x in dataInDatabase if x['_id'] == ObjectId(identifier))
             self.assertTrue(objInDatabase != None)
-            if 'publicationdate' in objInDatabase:
-                date = str(datestamp.datetime_to_datestamp(objInDatabase['publicationdate']))
+            if 'oai_datestamp' in objInDatabase:
+                date = str(datestamp.datetime_to_datestamp(objInDatabase['oai_datestamp']))
                 self.assertEquals(date, obj['datestamp'])
             sets = OaiMySet.objects(templates__in=[str(objInDatabase['schema'])]).all()
             if sets:
@@ -2954,8 +2954,9 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
                "</contact></curation><content><description>This is a new record</description><subject></subject>" \
                "<referenceURL></referenceURL></content></Resource>"
         schemaId = str(template.id)
-        XMLdata(schemaID=schemaId, xml=xml, title='newRecord', iduser=1, ispublished=True,
-                publicationdate=datetime.datetime.now()).save()
+        now = datetime.datetime.now()
+        data = XMLdata(schemaID=schemaId, xml=xml, title='newRecord', iduser=1, ispublished=True,
+                publicationdate=now, oai_datestamp=now).save()
 
     def addNewSoftwareXmlDataDeleted(self):
         template = Template.objects.get(filename="Software.xsd")
@@ -2964,8 +2965,9 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
                "</contact></curation><content><description>This is a new record</description><subject></subject>" \
                "<referenceURL></referenceURL></content></Resource>"
         schemaId = str(template.id)
-        XMLdata(schemaID=schemaId, xml=xml, title='newRecord', iduser=1, ispublished=True,
-                publicationdate=datetime.datetime.now()).save()
+        now = datetime.datetime.now()
+        data = XMLdata(schemaID=schemaId, xml=xml, title='newRecord', iduser=1, ispublished=True,
+                publicationdate=now, oai_datestamp=now).save()
 
     def addNewSoftwareXmlDataInactive(self):
         template = Template.objects.get(filename="Software.xsd")
@@ -2974,8 +2976,9 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
                "</contact></curation><content><description>This is a new record</description><subject></subject>" \
                "<referenceURL></referenceURL></content></Resource>"
         schemaId = str(template.id)
-        XMLdata(schemaID=schemaId, xml=xml, title='newRecord', iduser=1, ispublished=True,
-                publicationdate=datetime.datetime.now()).save()
+        now = datetime.datetime.now()
+        data = XMLdata(schemaID=schemaId, xml=xml, title='newRecord', iduser=1, ispublished=True,
+                publicationdate=now, oai_datestamp=now).save()
 
     def addNewDataCollectionXmlData(self):
         template = Template.objects.get(filename="DataCollection.xsd")
@@ -2984,8 +2987,9 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
                "</contact></curation><content><description>This is a data collection</description><subject></subject>" \
                "<referenceURL></referenceURL></content></Resource>"
         schemaId = str(template.id)
-        XMLdata(schemaID=schemaId, xml=xml, title='newDataCollection', iduser=1, ispublished=True,
-                publicationdate=datetime.datetime.now()).save()
+        now = datetime.datetime.now()
+        data = XMLdata(schemaID=schemaId, xml=xml, title='newDataCollection', iduser=1, ispublished=True,
+                publicationdate=now, oai_datestamp=now).save()
 
 
     def getRegistryData(self):
