@@ -179,7 +179,7 @@ OAI_DELETED_RECORD = 'persistent' #no ; transient ; persistent
 PARSER_MIN_TREE = True
 PARSER_IGNORE_MODULES = False
 PARSER_COLLAPSE = True
-PARSER_AUTO_KEY_KEYREF = False
+PARSER_AUTO_KEY_KEYREF = True
 PARSER_IMPLICIT_EXTENSION_BASE = False
 
 XERCES_VALIDATION = True # will use XERCES for validation if True and XERCES installed, will use LXML otherwise 
