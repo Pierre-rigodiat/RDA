@@ -14,7 +14,8 @@
 from django.http import HttpResponseNotFound, HttpResponseBadRequest
 from django.conf import settings
 from django.views.generic import TemplateView
-from mgi.models import XMLdata, OaiSettings, OaiMyMetadataFormat, OaiTemplMfXslt, Template, TemplateVersion, OaiMySet
+from mgi.models import XMLdata, OaiSettings, OaiMyMetadataFormat, OaiTemplMfXslt, Template, TemplateVersion, OaiMySet,\
+Status
 import os
 from oai_pmh.server.exceptions import *
 import xmltodict
@@ -266,7 +267,7 @@ class OAIProvider(TemplateView):
                         'identifier': identifier,
                         'last_modified': self.get_last_modified_date(i),
                         'sets': sets,
-                        'deleted': i.get('deleted', False)
+                        'deleted': i.get('status', '') == Status.DELETED
                     }
                     items.append(item_info)
             #If there is no records
@@ -348,7 +349,7 @@ class OAIProvider(TemplateView):
                 'last_modified': self.get_last_modified_date(data),
                 'sets': sets,
                 'XML': dataXML[0]['content'],
-                'deleted': data.get('deleted', False)
+                'deleted': data.get('status', '') == Status.DELETED
             }
             return self.render_to_response(record_info)
         except OAIExceptions, e:
@@ -426,7 +427,7 @@ class OAIProvider(TemplateView):
                         'last_modified': self.get_last_modified_date(elt),
                         'sets': sets,
                         'XML': xmlStr['content'],
-                        'deleted': elt.get('deleted', False)
+                        'deleted': elt.get('status', '') == Status.DELETED
                     }
                     items.append(record_info)
 
