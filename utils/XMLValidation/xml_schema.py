@@ -130,7 +130,6 @@ def _xerces_validate_xml(xsd_string, xml_string):
         # run xerces as subprocess to avoid server crashing on validation
         python_exe = sys.executable
         xerces_cmd = os.path.join(SITE_ROOT, 'utils', 'xerces_wrapper', 'xerces_wrapper_cmd.py')
-        print xerces_cmd
         error = check_output([python_exe, 
                               xerces_cmd,
                               '-xsd',
