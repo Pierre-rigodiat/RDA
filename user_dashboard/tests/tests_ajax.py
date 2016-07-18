@@ -71,12 +71,10 @@ class tests_user_dashboard_ajax(RegressionTest):
     def test_delete_result(self):
         id = self.createXMLData()
         self.assertIsNotNone(XMLdata.get(id))
-        self.assertFalse(XMLdata.get(id)['deleted'])
         url = '/dashboard/delete_result'
         data = {'result_id': str(id)}
         r = self.doRequestGetAdminClientLogged(url=url, data=data)
-        self.assertIsNotNone(XMLdata.get(id))
-        self.assertTrue(XMLdata.get(id)['deleted'])
+        self.assertIsNone(XMLdata.get(id))
 
     def test_update_publish(self):
         id = self.createXMLData()
