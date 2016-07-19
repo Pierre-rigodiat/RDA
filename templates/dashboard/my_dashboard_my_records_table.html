@@ -1,7 +1,7 @@
 {% load dict_key_extras %}
 
 {% for XMLdata in XMLdatas %}
-    {% with XMLdata_id=XMLdata|get:"_id" status=XMLdata.content.Resource|get:"@status" XMLdata_id_str=XMLdata|get:"_id"|stringformat:"s" %}
+    {% with XMLdata_id=XMLdata|get:"_id" status=XMLdata.status XMLdata_id_str=XMLdata|get:"_id"|stringformat:"s" %}
       {% with draft=XMLdatasDrafts|get:XMLdata_id_str %}
         <br><br>
         <div id="{{XMLdata_id}}">
