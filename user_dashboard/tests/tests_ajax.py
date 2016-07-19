@@ -12,7 +12,7 @@
 ################################################################################
 
 from testing.models import RegressionTest
-from mgi.models import Template, Type, XMLdata, TemplateVersion, TypeVersion, SchemaElement, FormData
+from mgi.models import Template, Type, XMLdata, TemplateVersion, TypeVersion, SchemaElement, FormData, Status
 import json
 from unittest import skip
 import lxml.etree as etree
@@ -135,7 +135,11 @@ class tests_user_dashboard_ajax(RegressionTest):
         self.assertIsNotNone(Type.objects(pk=type.id).get())
 
     def test_update_publish_draft(self):
-        new_xml = '<test>new version of the current record</test>'
+        status = Status.ACTIVE
+        new_xml = "<Resource localid='' status='"+status+"'><identity>" \
+               "<title>My new software</title></identity><curation><publisher>PF</publisher><contact><name></name>" \
+               "</contact></curation><content><description>This is a new record</description><subject></subject>" \
+               "<referenceURL></referenceURL></content></Resource>"
         id = self.createXMLData(ispublished=True)
         xmlData = XMLdata.get(id)
         self.assertNotEquals(new_xml, XMLdata.unparse(xmlData['content']))
@@ -160,6 +164,7 @@ class tests_user_dashboard_ajax(RegressionTest):
         self.assertEquals(str(adminId), xmlDataInDatabase.get('iduser'))
         self.assertNotEquals(xmlData.get('lastmodificationdate'), xmlDataInDatabase.get('lastmodificationdate'))
         self.assertNotEquals(xmlData.get('publicationdate'), xmlDataInDatabase.get('publicationdate'))
+        self.assertEquals(status, xmlDataInDatabase.get('status'))
 
 
 
