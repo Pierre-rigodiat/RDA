@@ -573,6 +573,10 @@ class XMLdata(object):
                 
         json_content = xmltodict.parse(content, postprocessor=postprocessor)
         json = {'content': json_content, 'title': title, 'lastmodificationdate': datetime.datetime.now()}
+        #TODO: DO NOT bind directly the field with the status
+        status = json_content['Resource'].get('@status', None)
+        if status:
+            json.update({'status': status})
         xmldata.update({'_id': ObjectId(postID)}, {"$set":json})
 
     @staticmethod
@@ -604,11 +608,14 @@ class XMLdata(object):
         xmldata = db['xmldata']
         json_content = xmltodict.parse(content, postprocessor=postprocessor)
         publicationdate = datetime.datetime.now()
+        #TODO: DO NOT bind directly the field with the status
+        status = json_content['Resource'].get('@status', None)
         xmldata.update({'_id': ObjectId(postID)}, {'$set':{'lastmodificationdate': publicationdate,
                                                            'publicationdate': publicationdate,
                                                            'oai_datestamp': publicationdate,
                                                            'ispublished': True,
                                                            'content': json_content,
+                                                           'status': status,
                                                            'iduser': user}}, upsert=False)
         return publicationdate
 
@@ -681,6 +688,7 @@ class XMLdata(object):
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
+        #TODO: DO NOT bind directly the field with the status
         update_query = {'status': status, 'content.Resource.@status': status}
         if ispublished:
             update_query.update({'oai_datestamp': datetime.datetime.now()})
