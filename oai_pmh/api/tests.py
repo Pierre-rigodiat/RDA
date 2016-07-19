@@ -17,7 +17,7 @@ from oai_pmh.api.models import createOaiIdentify, setDataToRegistry, createMetad
     getListRecords, harvestRecords, harvestByMF, harvestBySetsAndMF, modifyRegistry, modifyOaiIdentify, \
     modifyMetadataformatsForRegistry, modifySetsForRegistry, createRegistry, setMetadataFormatXMLSchema
 from mgi.models import OaiRegistry, OaiIdentify, OaiMetadataFormat, OaiMyMetadataFormat, OaiSettings, Template, OaiSet,\
-    OaiMySet, OaiRecord, XMLdata, OaiTemplMfXslt, OaiMetadataformatSet, OaiXslt
+    OaiMySet, OaiRecord, XMLdata, OaiTemplMfXslt, OaiMetadataformatSet, OaiXslt, Status
 import xmltodict
 from testing.models import URL_TEST, ADMIN_AUTH, ADMIN_AUTH_GET, USER_AUTH, TEMPLATE_VALID_CONTENT, \
     TEMPLATE_INVALID_CONTENT
@@ -2464,7 +2464,7 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         if 'oai_datestamp' in objInDatabase:
             date = str(datestamp.datetime_to_datestamp(objInDatabase['oai_datestamp']))
             self.assertEquals(date, data['datestamp'])
-        self.assertEquals(objInDatabase['status'], data['status'])
+        self.assertEquals(objInDatabase['status'] == Status.DELETED, data['deleted'])
         sets = OaiMySet.objects(templates__in=[str(objInDatabase['schema'])]).all()
         if sets:
             setSpecs = [x.setSpec for x in sets]
@@ -2522,7 +2522,7 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
                 if 'oai_datestamp' in dataDB:
                     self.assertEquals(str(datestamp.datetime_to_datestamp(record.datestamp)),
                                       str(datestamp.datetime_to_datestamp(dataDB['oai_datestamp'])))
-                self.assertEquals(record.deleted, dataDB['deleted'])
+                self.assertEquals(record.deleted, dataDB['status'] == Status.DELETED)
                 sets = OaiMySet.objects(templates__in=[str(dataDB['schema'])]).all().distinct('setSpec')
                 if sets:
                     recordSets = [x.setSpec for x in record.sets]
