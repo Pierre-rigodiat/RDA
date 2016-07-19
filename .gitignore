@@ -216,3 +216,6 @@ curate/tests/data/parser/extension/explicit-implicit/results*
 
 # redis server
 *.rdb
+
+# migration
+backups/
