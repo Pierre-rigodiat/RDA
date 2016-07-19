@@ -32,6 +32,10 @@ import re
 import datetime
 from utils.XSDhash import XSDhash
 
+class Status:
+    ACTIVE = 'active'
+    INACTIVE = 'inactive'
+    DELETED = 'deleted'
 
 class Request(Document):
     """Represents a request sent by an user to get an account"""
@@ -359,7 +363,7 @@ class XMLdata(object):
         if oai_datestamp is not None:
             self.content['oai_datestamp'] = oai_datestamp
 
-        self.content['deleted'] = False
+        self.content['status'] = Status.ACTIVE
 
     @staticmethod
     def unparse(json):
@@ -401,10 +405,9 @@ class XMLdata(object):
         results = []
         for result in cursor:
             # Check the deleted records
-            if not includeDeleted:
-                if not result.get('deleted', False):
-                    results.append(result)
-            else:
+            if includeDeleted:
+                results.append(result)
+            elif result.get('status') != Status.DELETED:
                 results.append(result)
         return results
     
@@ -426,10 +429,9 @@ class XMLdata(object):
         results = []
         for result in cursor:
             # Check the deleted records
-            if not includeDeleted:
-                if not result.get('deleted', False):
-                    results.append(result)
-            else:
+            if includeDeleted:
+                results.append(result)
+            elif result.get('status') != Status.DELETED:
                 results.append(result)
         return results
     
@@ -448,10 +450,9 @@ class XMLdata(object):
         queryResults = []
         for result in cursor:
             # Check the deleted records
-            if not includeDeleted:
-                if not result.get('deleted', False):
-                    queryResults.append(result['content'])
-            else:
+            if includeDeleted:
+                queryResults.append(result['content'])
+            elif result.get('status') != Status.DELETED:
                 queryResults.append(result['content'])
         return queryResults
     
@@ -470,10 +471,9 @@ class XMLdata(object):
         results = []
         for result in cursor:
             # Check the deleted records
-            if not includeDeleted:
-                if not result.get('deleted', False):
-                    results.append(result)
-            else:
+            if includeDeleted:
+                results.append(result)
+            elif result.get('status') != Status.DELETED:
                 results.append(result)
 
         return results
@@ -545,7 +545,7 @@ class XMLdata(object):
         # get the xmldata collection
         xmldata = db['xmldata']
         now = datetime.datetime.now()
-        xmldata.update({'_id': ObjectId(postID)}, {"$set": {'deleted': True, 'deletedDate': now, 'oai_datestamp': now}},
+        xmldata.update({'_id': ObjectId(postID)}, {"$set": {'status': Status.DELETED, 'oai_datestamp': now}},
                        upsert=False)
 
     # TODO: to be tested
@@ -660,10 +660,9 @@ class XMLdata(object):
         results = []
         for result in cursor:
             # Check the deleted records
-            if not includeDeleted:
-                if not result.get('deleted', False):
-                    results.append(result)
-            else:
+            if includeDeleted:
+                results.append(result)
+            elif result.get('status') != Status.DELETED:
                 results.append(result)
         return results
 
@@ -906,7 +905,7 @@ class OaiRecord(Document):
             full_text_query = {'metadataformat' : {'$in': listMetadataFormatObjectId} }
 
         # only no deleted records
-        full_text_query.update({'deleted': False})
+        full_text_query.update({'status':  {'$ne': Status.DELETED}})
 
         cursor = xmlrecord.find(full_text_query, as_class = OrderedDict)
 

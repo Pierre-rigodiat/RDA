@@ -12,9 +12,10 @@
 ################################################################################
 
 from oai_pmh.tests.models import OAI_PMH_Test
-from mgi.models import OaiSettings, OaiMySet, OaiMyMetadataFormat, Template, XMLdata
+from mgi.models import OaiSettings, OaiMySet, OaiMyMetadataFormat, Template, XMLdata, Status
 from oai_pmh.server.exceptions import BAD_VERB, NO_SET_HIERARCHY, BAD_ARGUMENT, DISSEMINATE_FORMAT, NO_RECORDS_MATCH, NO_METADATA_FORMAT, ID_DOES_NOT_EXIST
 from testing.models import OAI_SCHEME, OAI_REPO_IDENTIFIER
+from unittest import skip
 import datetime
 URL = '/oai_pmh/server'
 
@@ -325,7 +326,7 @@ class tests_OAI_PMH_server(OAI_PMH_Test):
         self.dump_oai_my_set()
         self.dump_xmldata()
         template = Template.objects(filename='Software.xsd').get()
-        dataSoft = XMLdata.find({'schema': str(template.id), 'deleted': False})
+        dataSoft = XMLdata.find({'schema': str(template.id), 'status':  {'$ne': Status.DELETED}})
         if len(dataSoft) > 0:
             xmlDataId = dataSoft[0]['_id']
             identifier = '%s:%s:id/%s' % (OAI_SCHEME, OAI_REPO_IDENTIFIER, xmlDataId)
@@ -336,12 +337,13 @@ class tests_OAI_PMH_server(OAI_PMH_Test):
             self.checkTagExist(r.text, 'GetRecord')
             self.checkTagExist(r.text, 'record')
             #Delete one record
-            XMLdata.update(xmlDataId, {'deletedDate': datetime.datetime.now(), 'deleted': True})
+            XMLdata.delete(xmlDataId)
             r = self.doRequestServer(data=data)
             self.isStatusOK(r.status_code)
             #Check attribute status='deleted' of header does exist
             self.checkTagExist(r.text, 'GetRecord')
-            self.checkTagWithParamExist(r.text, 'header', 'status="deleted"')
+            # Only for NMRR
+            #self.checkTagWithParamExist(r.text, 'header', 'status="deleted"')
 
     def list_test_deleted(self, verb):
         self.dump_oai_templ_mf_xslt()
@@ -355,14 +357,15 @@ class tests_OAI_PMH_server(OAI_PMH_Test):
         self.checkTagExist(r.text, verb)
         #Delete one record
         template = Template.objects(filename='Software.xsd').get()
-        dataSoft = XMLdata.find({'schema': str(template.id), 'deleted': False})
+        dataSoft = XMLdata.find({'schema': str(template.id), 'status': {'$ne': Status.DELETED}})
         if len(dataSoft) > 0:
-            XMLdata.update(dataSoft[0]['_id'], {'deletedDate': datetime.datetime.now(), 'deleted': True})
+            XMLdata.delete(dataSoft[0]['_id'])
             r = self.doRequestServer(data=data)
             self.isStatusOK(r.status_code)
             self.checkTagExist(r.text, verb)
             #Check attribute status='deleted' of header does exist
-            self.checkTagWithParamExist(r.text, 'header', 'status="deleted"')
+            # Only for NMRR
+            #self.checkTagWithParamExist(r.text, 'header', 'status="deleted"')
 
     def test_check_dates_form_until(self):
         self.dump_oai_templ_mf_xslt()

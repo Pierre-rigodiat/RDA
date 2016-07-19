@@ -12,7 +12,7 @@
 ################################################################################
 
 from testing.models import RegressionTest
-from mgi.models import Template, Type, XMLdata, TemplateVersion, TypeVersion
+from mgi.models import Template, Type, XMLdata, TemplateVersion, TypeVersion, Status
 import json
 
 class tests_user_dashboard_ajax(RegressionTest):
@@ -35,7 +35,6 @@ class tests_user_dashboard_ajax(RegressionTest):
         self.assertEquals('otherfilename', modifiedType.filename)
         self.assertEquals('othername', modifiedType.title)
 
-
     def test_edit_information_template_same_name(self):
         self.createTemplate(title='othername')
         template = self.createTemplate()
@@ -49,7 +48,6 @@ class tests_user_dashboard_ajax(RegressionTest):
         self.assertEquals('test', modifiedTemplate.title)
         result = json.loads(r.content)
         self.assertEquals('True', result.get('name'))
-
 
     def test_edit_information_type_same_filename(self):
         self.createType(filename='otherfilename')
@@ -68,12 +66,12 @@ class tests_user_dashboard_ajax(RegressionTest):
     def test_delete_result(self):
         id = self.createXMLData()
         self.assertIsNotNone(XMLdata.get(id))
-        self.assertFalse(XMLdata.get(id)['deleted'])
+        self.assertEquals(Status.ACTIVE, XMLdata.get(id)['status'])
         url = '/dashboard/delete_result'
         data = {'result_id': str(id)}
         r = self.doRequestGetAdminClientLogged(url=url, data=data)
         self.assertIsNotNone(XMLdata.get(id))
-        self.assertTrue(XMLdata.get(id)['deleted'])
+        self.assertEquals(Status.DELETED, XMLdata.get(id)['status'])
 
     def test_update_publish(self):
         id = self.createXMLData()
