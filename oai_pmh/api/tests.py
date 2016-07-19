@@ -2464,7 +2464,7 @@ class tests_OAI_PMH_API(OAI_PMH_Test):
         if 'oai_datestamp' in objInDatabase:
             date = str(datestamp.datetime_to_datestamp(objInDatabase['oai_datestamp']))
             self.assertEquals(date, data['datestamp'])
-        self.assertEquals(objInDatabase['deleted'], data['deleted'])
+        self.assertEquals(objInDatabase['status'], data['status'])
         sets = OaiMySet.objects(templates__in=[str(objInDatabase['schema'])]).all()
         if sets:
             setSpecs = [x.setSpec for x in sets]
