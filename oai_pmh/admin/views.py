@@ -305,69 +305,6 @@ def reactivate_registry(request):
     except Exception as e:
         return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
 
-
-################################################################################
-#
-# Function Name: deactivate_registry(request)
-# Inputs:        request -
-# Outputs:
-# Exceptions:    None
-# Description:   OAI-PMH Deactivate Registry
-#
-################################################################################
-@login_required(login_url='/login')
-def deactivate_registry(request):
-    uri = OAI_HOST_URI + reverse("api_deactivate_registry")
-    try:
-        id = request.POST.get('RegistryId')
-    except ValueError:
-        return HttpResponseBadRequest('Please provide an ID in order to deactivate the data provider.')
-    try:
-        req = requests.post(uri, {"RegistryId":id}, auth=(OAI_USER, OAI_PASS))
-
-        #If the status is OK, sucess message
-        if req.status_code == status.HTTP_200_OK:
-            messages.add_message(request, messages.INFO, 'Data provider deactivated with success.')
-            return HttpResponse(json.dumps({}), content_type='application/javascript')
-        #Else, we return a bad request response with the message provided by the API
-        else:
-            data = json.loads(req.text)
-            return HttpResponseBadRequest(data['message'])
-    except Exception as e:
-        return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
-
-
-################################################################################
-#
-# Function Name: reactivate_registry(request)
-# Inputs:        request -
-# Outputs:
-# Exceptions:    None
-# Description:   OAI-PMH Deactivate Registry
-#
-################################################################################
-@login_required(login_url='/login')
-def reactivate_registry(request):
-    uri = OAI_HOST_URI + reverse("api_reactivate_registry")
-    try:
-        id = request.POST.get('RegistryId')
-    except ValueError:
-        return HttpResponseBadRequest('Please provide an ID in order to reactivate the data provider.')
-    try:
-        req = requests.post(uri, {"RegistryId":id}, auth=(OAI_USER, OAI_PASS))
-
-        #If the status is OK, sucess message
-        if req.status_code == status.HTTP_200_OK:
-            messages.add_message(request, messages.INFO, 'Data provider reactivate with success.')
-            return HttpResponse(json.dumps({}), content_type='application/javascript')
-        #Else, we return a bad request response with the message provided by the API
-        else:
-            data = json.loads(req.text)
-            return HttpResponseBadRequest(data['message'])
-    except Exception as e:
-        return HttpResponseBadRequest('An error occurred. Please contact your administrator.')
-
-
 ################################################################################
 #
 # Function Name: oai_pmh_detail_registry(request)
