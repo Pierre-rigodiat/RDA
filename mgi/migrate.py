@@ -26,14 +26,12 @@ from settings import MONGODB_URI, MGI_DB, BASE_DIR
 # PARAMETERS
 BACKUPS_DIR = os.path.join(BASE_DIR, 'backups')
 
-
-# MIGRATION OPTIONS
-# True: delete the elements that are not needed anymore in the new version
-CLEAN_DATABASE = True
+WARNINGS_ENABLED = True
+BACKUP_ENABLED = True
 
 
 # UTILS FUNCTIONS
-def _error(msg):
+def _error(msg=''):
     print '\n*** MIGRATION FAILED ***'
     print msg
     sys.exit()
@@ -55,41 +53,74 @@ def _build_cmd(cmd, path=''):
     return cmd
 
 
-def _dump_database(mongo_admin_user, mongo_admin_password, mongo_path):
-    # generate time string
-    time_str = time.strftime("%Y%m%d_%H%M%S")
-    # backup directory name
-    backup_dir_name = 'backup_{}'.format(time_str)
-    # backup_directory_path
-    backup_dir_path = os.path.join(BACKUPS_DIR, backup_dir_name)
-
-    # create the backup directory if not present
-    print "Create backup directory: " + backup_dir_path
-    if not os.path.exists(backup_dir_path):
-        os.makedirs(backup_dir_path)
+def _get_user_validation(msg):
+    print msg + '\nContinue? (Y/n):'
+    user_input = raw_input()
+    if user_input == 'Y':
+        return True
+    elif user_input == 'n':
+        return False
     else:
-        _error('A backup directory with the same name already exists')
+        return _get_user_validation(msg)
 
-    print "Dump database..."
 
-    cmd = _build_cmd('mongodump', mongo_path)
+def _warn_user(msg):
+    if WARNINGS_ENABLED:
+        return _get_user_validation(msg)
+    return True
 
-    try:
-        output = check_output(
-                [
-                    cmd,
-                    '--out',
-                    backup_dir_path,
-                    '-u',
-                    mongo_admin_user,
-                    '-p',
-                    mongo_admin_password
-                ]
-            )
-    except Exception, e:
-        _error(e.message)
 
-    return backup_dir_path
+def _dump_database(mongo_admin_user, mongo_admin_password, mongo_path):
+    if BACKUP_ENABLED:
+        # generate time string
+        time_str = time.strftime("%Y%m%d_%H%M%S")
+        # backup directory name
+        backup_dir_name = 'backup_{}'.format(time_str)
+        # backup_directory_path
+        backup_dir_path = os.path.join(BACKUPS_DIR, backup_dir_name)
+
+        if not _warn_user('A backup folder will be created at : {}'.format(backup_dir_path)):
+            _error()
+
+        # create the backup directory if not present
+        print "Create backup directory: " + backup_dir_path
+        if not os.path.exists(backup_dir_path):
+            os.makedirs(backup_dir_path)
+        else:
+            _error('A backup directory with the same name already exists')
+
+        cmd = _build_cmd('mongodump', mongo_path)
+
+        if not _warn_user('A dump of the data will be crated using the following command : {}'.format(cmd)):
+            _error()
+
+        print "Dumping the database..."
+
+        try:
+            output = check_output(
+                    [
+                        cmd,
+                        '--out',
+                        backup_dir_path,
+                        '-u',
+                        mongo_admin_user,
+                        '-p',
+                        mongo_admin_password
+                    ]
+                )
+
+            # Test that the dump created files
+            if len(os.listdir(backup_dir_path)) == 0:
+                _error('Dump failed')
+
+            if not _warn_user('Please check the console for any eventual undetected problem during the dump.'):
+                _error()
+        except Exception, e:
+            _error(e.message)
+
+        return backup_dir_path
+    else:
+        return ''
 
 
 def _restore_dump(backup_dir_path, mongo_admin_user, mongo_admin_password, mongo_path):
@@ -98,20 +129,22 @@ def _restore_dump(backup_dir_path, mongo_admin_user, mongo_admin_password, mongo
     :param backup_dir_path:
     :return:
     """
-    print "*** RESTORE DUMP ***"
+    if BACKUP_ENABLED:
+        print "*** RESTORE DUMP ***"
 
-    cmd = _build_cmd('mongorestore', mongo_path)
+        cmd = _build_cmd('mongorestore', mongo_path)
 
-    output = check_output(
-        [
-            cmd,
-            backup_dir_path,
-            '-u',
-            mongo_admin_user,
-            '-p',
-            mongo_admin_password
-        ]
-    )
+        output = check_output(
+            [
+                cmd,
+                backup_dir_path,
+                '--drop',
+                '-u',
+                mongo_admin_user,
+                '-p',
+                mongo_admin_password
+            ]
+        )
 
 
 def _connect():
@@ -137,32 +170,44 @@ def _connect():
                'Please check that mongod is currently running and connected to the MDCS data.')
 
 
-def _migrate(mongo_admin_user, mongo_admin_password, mongo_path):
+def _migrate(mongo_admin_user, mongo_admin_password, mongo_path, warnings=True, backup=True):
     """
     APPLY CHANGES FROM 1.3 TO 1.4
 
     :return:
     """
-    print '*** START MIGRATION ***'
-    # /!\ PROMPT TO CREATE A ZIP OF THE DATA FIRST
     # /!\ DON"T CREATE THE DATA FOLDER IN THE INSTALLERS
     # /!\ CHECK WHEN GETTING THE CODE FROM GITHUB TOO
+
+    print '*** START MIGRATION ***'
+
+    msg = 'You are about to run the Curator Migration Tool. ' \
+          'This will update the database from version 1.3 to work for version 1.4. ' \
+          'Changes will be applied to the database such addition/deletion/modification of fields/collections/records.'
+
+    if not _warn_user(msg):
+        _error()
+
+    # /!\ PROMPT TO CREATE A ZIP OF THE DATA FIRST
+    msg = 'Please be sure that you made a copy of your data before starting.'
+
+    if not _warn_user(msg):
+        _error()
 
     # connect to the database
     db = _connect()
 
-    # TODO: /!\ CHECK IF DUMP RESULTS LOOK GOOD
+    # TODO: /!\ CHECK IF THE RESULT OF THE DUMP LOOKS GOOD
     # Create a dump of the database
     backup_dir_path = _dump_database(mongo_admin_user=mongo_admin_user,
                                      mongo_admin_password=mongo_admin_password,
                                      mongo_path=mongo_path)
 
-    # Test that the dump created files
-    if len(os.listdir(backup_dir_path)) == 0:
-        _error('Dump failed')
-
     print '*** START MIGRATING DATA ***'
     try:
+        if not _warn_user('The changes on the database are about to be applied.'):
+            _error()
+
         # GET COLLECTIONS NEEDED FOR MIGRATION
         meta_schema_col = db['meta_schema']
         template_col = db['template']
@@ -219,22 +264,20 @@ def _migrate(mongo_admin_user, mongo_admin_password, mongo_path):
                 xml_data_col.update({'_id': result['_id']}, {"$set": payload}, upsert=False)
             else:
                 # set last modification date to datetime.MIN
-                import bson
                 payload = {'lastmodificationdate': result['_id'].generation_time}
                 xml_data_col.update({'_id': result['_id']}, {"$set": payload}, upsert=False)
 
-        if CLEAN_DATABASE:
-            # CLEAN DATABASE
-            print "*** CLEAN THE DATABASE ***"
-            # remove elements from Form_data (not used in 1.4)
-            print "Removing elements from form_data collection..."
-            form_data_col.update({}, {"$unset": {"elements": 1}}, multi=True)
-            # drop form_element collection (not used in 1.4)
-            print "Dropping form_element collection..."
-            db.drop_collection('form_element')
-            # drop meta_schema collection (not used in 1.4)
-            print "Dropping meta_schema collection..."
-            db.drop_collection('meta_schema')
+        # CLEAN THE DATABASE
+        print "*** CLEAN THE DATABASE ***"
+        # remove elements from Form_data (not used in 1.4)
+        print "Removing elements from form_data collection..."
+        form_data_col.update({}, {"$unset": {"elements": 1}}, multi=True)
+        # drop form_element collection (not used in 1.4)
+        print "Dropping form_element collection..."
+        db.drop_collection('form_element')
+        # drop meta_schema collection (not used in 1.4)
+        print "Dropping meta_schema collection..."
+        db.drop_collection('meta_schema')
     except Exception, e:
         _restore_dump(backup_dir_path=backup_dir_path,
                       mongo_admin_user=mongo_admin_user,
@@ -246,8 +289,8 @@ def _migrate(mongo_admin_user, mongo_admin_password, mongo_path):
 
 
 def main(argv):
-    parser = argparse.ArgumentParser(description="MDCS Data Migration Tool")
-    required_arguments = parser.add_argument_group("Required Argument")
+    parser = argparse.ArgumentParser(description="Curator Data Migration Tool")
+    required_arguments = parser.add_argument_group("required arguments")
 
     # add required arguments
     required_arguments.add_argument('-u',
@@ -266,6 +309,12 @@ def main(argv):
                         '--mongo-path',
                         help='Path to MongoDB bin folder (if not in PATH)',
                         nargs=1)
+    parser.add_argument('-y',
+                        '--yes-to-all',
+                        help='Does not show warnings')
+    parser.add_argument('-n',
+                        '--no-backup',
+                        help='Does not create a backup of the database before starting migration.')
 
     # parse arguments
     args = parser.parse_args()
@@ -279,6 +328,12 @@ def main(argv):
         mongo_path = args.mongo_path[0]
     else:
         mongo_path = ''
+
+    # if args.yes_to_all:
+    #     WARNINGS_ENABLED = False
+    #
+    # if args.no_backup:
+    #     BACKUP_ENABLED = False
 
     # Start migration
     _migrate(mongo_admin_user=mongo_admin_user,
