@@ -85,12 +85,6 @@
             <br>
             <br>
 
-            <ul class="nav nav-tabs">
-                    {% if ispublished == None %} <li class="active"> {%else%} <li> {% endif%} <a href="/dashboard/resources{% if template  %}?template={{template}}{% endif%}">All</a></li>
-                    {% if ispublished == True %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/resources?{% if template  %}template={{template}}{% endif%}&ispublished=true">Published</a></li>
-                    {% if ispublished == False %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/resources?{% if template  %}template={{template}}{% endif%}&ispublished=false">Not Published</a></li>
-            </ul>
-
             <table>
             <tr>
                 <td align="center" style={% if not template %}" border-color:#000000;border-size:15px"{% endif%}>
@@ -137,6 +131,13 @@
                 </td>
             </tr>
             </table>
+
+            <ul class="nav nav-tabs">
+                    {% if ispublished == None %} <li class="active"> {%else%} <li> {% endif%} <a href="/dashboard/resources{% if template  %}?template={{template}}{% endif%}">All</a></li>
+                    {% if ispublished == True %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/resources?{% if template  %}template={{template}}{% endif%}&ispublished=true">Published</a></li>
+                    {% if ispublished == False %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/resources?{% if template  %}template={{template}}{% endif%}&ispublished=false">Not Published</a></li>
+            </ul>
+            
             {% if user.is_staff %}
                 <span>
                     <div class="tpl-title">My Resources</div>
