@@ -106,7 +106,7 @@ dist/
 downloads/
 eggs/
 .eggs/
-#lib/
+lib/
 lib64/
 parts/
 sdist/
@@ -219,3 +219,6 @@ curate/tests/data/parser/extension/explicit-implicit/results*
 
 #Source tree orig files (diff)
 *.orig
+
+# migration
+backups/

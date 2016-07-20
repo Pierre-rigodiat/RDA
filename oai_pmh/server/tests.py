@@ -339,11 +339,12 @@ class tests_OAI_PMH_server(OAI_PMH_Test):
             self.checkTagExist(r.text, 'GetRecord')
             self.checkTagExist(r.text, 'record')
             #Delete one record
-            XMLdata.update(xmlDataId, {'deletedDate': datetime.datetime.now(), 'status': Status.DELETED})
+            XMLdata.update(xmlDataId, {'status': Status.DELETED})
             r = self.doRequestServer(data=data)
             self.isStatusOK(r.status_code)
             #Check attribute status='deleted' of header does exist
             self.checkTagExist(r.text, 'GetRecord')
+            # Only for NMRR
             self.checkTagWithParamExist(r.text, 'header', 'status="deleted"')
 
     def list_test_deleted(self, verb):
@@ -360,7 +361,7 @@ class tests_OAI_PMH_server(OAI_PMH_Test):
         template = Template.objects(filename='Software.xsd').get()
         dataSoft = XMLdata.find({'schema': str(template.id), 'status': {'$ne': Status.DELETED}})
         if len(dataSoft) > 0:
-            XMLdata.update(dataSoft[0]['_id'], {'deletedDate': datetime.datetime.now(), 'status': Status.DELETED})
+            XMLdata.update(dataSoft[0]['_id'], {'status': Status.DELETED})
             r = self.doRequestServer(data=data)
             self.isStatusOK(r.status_code)
             self.checkTagExist(r.text, verb)

@@ -341,18 +341,11 @@ def get_element_type(element, xml_tree, namespaces, default_prefix, target_names
     element_type = None
     try:
         if attr not in element.attrib:  # element with type declared below it
-            # if tag not closed:  <element/>
-            if len(list(element)) == 1:
-                if element[0].tag == "{0}annotation".format(LXML_SCHEMA_NAMESPACE):
-                    element_type = None
-                else:
-                    element_type = element[0]
-            # with annotations
-            elif len(list(element)) == 2:
-                # FIXME Not all possibilities are tested in this case
-                element_type = element[1]
-            else:
-                element_type = None
+            for i in range(len(list(element))):
+                if element[i].tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE) or \
+                            element[i].tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
+                    element_type = element[i]
+                    break
         else:  # element with type attribute
             if element.attrib.get(attr) in common.getXSDTypes(default_prefix):
                 element_type = None
@@ -483,6 +476,9 @@ def get_ref_element(xml_tree, ref, namespaces, element_tag, schema_location=None
 def is_key(request, element, full_path):
     # remove indexes from the xpath
     xpath = re.sub(r'\[[0-9]+\]', '', full_path)
+    # remove namespaces
+    for prefix in element.nsmap.keys():
+        xpath = re.sub(r'{}:'.format(prefix), '', xpath)
     for key in request.session['keys'].keys():
         if request.session['keys'][key]['xpath'] == xpath:
             if request.session['keys'][key]['module'] is not None:
@@ -494,6 +490,9 @@ def is_key(request, element, full_path):
 def is_key_ref(request, element, db_element, full_path):
     # remove indexes from the xpath
     xpath = re.sub(r'\[[0-9]+\]', '', full_path)
+    # remove namespaces
+    for prefix in element.nsmap.keys():
+        xpath = re.sub(r'{}:'.format(prefix), '', xpath)
     for keyref in request.session['keyrefs'].keys():
         if request.session['keyrefs'][keyref]['xpath'] == xpath:
             element.attrib['{http://mdcs.ns}_mod_mdcs_'] = '/curator/auto-keyref?keyref={}'.format(keyref)
@@ -518,6 +517,9 @@ def manage_key_keyref(request, element, full_path, xmlTree):
             selector = key.find('{0}selector'.format(LXML_SCHEMA_NAMESPACE))
             selector_xpath = selector.attrib['xpath']
             key_selector = full_path + '/' + selector_xpath
+            # remove namespaces
+            for prefix in selector.nsmap.keys():
+                key_selector = re.sub(r'{}:'.format(prefix), '', key_selector)
             # print key_selector
 
             # FIXME: manage multiple fields
@@ -549,6 +551,9 @@ def manage_key_keyref(request, element, full_path, xmlTree):
             selector = keyref.find('{0}selector'.format(LXML_SCHEMA_NAMESPACE))
             selector_xpath = selector.attrib['xpath']
             keyref_selector = full_path + '/' + selector_xpath
+            # remove namespaces
+            for prefix in selector.nsmap.keys():
+                keyref_selector = re.sub(r'{}:'.format(prefix), '', keyref_selector)
             # print keyref_selector
 
             # FIXME: manage multiple fields
