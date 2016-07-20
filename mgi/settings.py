@@ -23,7 +23,7 @@ import os
 import sys
 from mongoengine import connect
 
-VERSION = "1.3"
+VERSION = "1.4"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
