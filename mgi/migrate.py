@@ -9,6 +9,7 @@ import argparse
 import platform
 from settings import MONGODB_URI, MGI_DB, BASE_DIR
 
+
 # PREREQUISITES:
 # - mongod running and connected to data\db
 
@@ -239,10 +240,11 @@ class Migration:
 
             # XMLDATA CHANGES:
             print "Updating xml_data..."
-            # print "Adding deleted property to all records (False by default)..."
-            # xml_data_col.update({}, {"$set": {"deleted": False}}, upsert=False, multi=True)
+            print "Adding status property to all records (Active by default)..."
+            xml_data_col.update({}, {"$set": {"status": 'active'}}, upsert=False, multi=True)
+            print "Set ispublished property to true for all records..."
+            xml_data_col.update({}, {"$set": {"ispublished": True}}, upsert=False, multi=True)
             print "Adding lastmodificationdate/oai_datestamp to records..."
-            xml_data_col.update({}, {"$set": {"deleted": False}}, upsert=False, multi=True)
             # find all meta_schema of the collection
             cursor = xml_data_col.find()
             # Browse xml_data collection
