@@ -93,7 +93,7 @@
                     All Resources</div>
                     </a>
                 </td>
-                <td align="center" style={% if template == "o rganization" %}"border-color:#000000;border-size:15px"{% endif%}>
+                <td align="center" style={% if template == "organization" %}"border-color:#000000;border-size:15px"{% endif%}>
                     <a href="/dashboard/resources?template=organization{% if ispublished == True %}&ispublished=true{% elif ispublished == False %}&ispublished=false{% endif%}">
                     <div align="center"><img width="100" src="/static/img/organization.png"><br>
                     Organizations</div>
@@ -137,7 +137,7 @@
                     {% if ispublished == True %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/resources?{% if template  %}template={{template}}{% endif%}&ispublished=true">Published</a></li>
                     {% if ispublished == False %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/resources?{% if template  %}template={{template}}{% endif%}&ispublished=false">Not Published</a></li>
             </ul>
-            
+
             {% if user.is_staff %}
                 <span>
                     <div class="tpl-title">My Resources</div>
