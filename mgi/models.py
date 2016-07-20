@@ -905,7 +905,7 @@ class OaiRecord(Document):
             full_text_query = {'metadataformat' : {'$in': listMetadataFormatObjectId} }
 
         # only no deleted records
-        full_text_query.update({'status':  {'$ne': Status.DELETED}})
+        full_text_query.update({'deleted':  False})
 
         cursor = xmlrecord.find(full_text_query, as_class = OrderedDict)
 
