@@ -154,8 +154,8 @@ class Migration:
                 # connect to the db 'mgi'
                 print 'Attempt connection to collection...'
                 db = client[MGI_DB]
-                return db
                 print 'Connected to collection with success.'
+                return db
             except Exception, e:
                 self._error('Unable to connect to the collection. ')
         except Exception, e:
@@ -175,7 +175,8 @@ class Migration:
 
         msg = 'You are about to run the Curator Migration Tool. ' \
               'This will update the database from version 1.3 to work for version 1.4. ' \
-              'Changes will be applied to the database such addition/deletion/modification of fields/collections/records.'
+              'Changes will be applied to the database such addition/deletion/modification ' \
+              'of fields/collections/records.'
 
         if not self._warn_user(msg):
             self._error()
@@ -268,6 +269,9 @@ class Migration:
             # drop form_element collection (not used in 1.4)
             print "Dropping form_element collection..."
             db.drop_collection('form_element')
+            # drop xml_element collection (not used in 1.4)
+            print "Dropping xml_element collection..."
+            db.drop_collection('x_m_l_element')
             # drop meta_schema collection (not used in 1.4)
             print "Dropping meta_schema collection..."
             db.drop_collection('meta_schema')
@@ -278,7 +282,7 @@ class Migration:
                                mongo_path=mongo_path)
             self._error(e.message)
 
-        print "*** MIGRATION COMPLETE ***"
+        print "\n*** MIGRATION COMPLETE ***"
 
 
 def main(argv):
