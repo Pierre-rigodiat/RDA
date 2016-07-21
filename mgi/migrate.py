@@ -173,7 +173,7 @@ class Migration:
 
         print '*** START MIGRATION ***'
 
-        msg = 'You are about to run the Curator Migration Tool. ' \
+        msg = 'You are about to run the NMRR Migration Tool. ' \
               'This will update the database from version 1.3 to work for version 1.4. ' \
               'Changes will be applied to the database such addition/deletion/modification ' \
               'of fields/collections/records.'
@@ -207,6 +207,7 @@ class Migration:
             type_col = db['type']
             form_data_col = db['form_data']
             xml_data_col = db['xmldata']
+            result_xslt_col = db['result_xslt']
 
             # METASCHEMA COLLECTION REMOVED:
             # NEED TO UPDATE THE CONTENT OF TEMPLATES/TYPES
@@ -241,26 +242,38 @@ class Migration:
 
             # XMLDATA CHANGES:
             print "Updating xml_data..."
-            print "Adding status property to all records (Active by default)..."
-            xml_data_col.update({}, {"$set": {"status": 'active'}}, upsert=False, multi=True)
-            print "Set ispublished property to true for all records..."
-            xml_data_col.update({}, {"$set": {"ispublished": True}}, upsert=False, multi=True)
-            print "Adding lastmodificationdate/oai_datestamp to records..."
             # find all meta_schema of the collection
             cursor = xml_data_col.find()
             # Browse xml_data collection
             for result in cursor:
+                print "Adding status to all records (Active by default)..."
+                #Get the status value inside the schema
+                content = result['content']
+                status = content.get('Resource', []).get('@status', None)
+                if not status:
+                    status = 'active'
+                xml_data_col.update({'_id': result['_id']}, {"$set": {"status": status}}, upsert=False)
+                print "Adding oai_datestamp to records..."
                 # xml data has a publication date
                 if 'publicationdate' in result:
                     publication_date = result['publicationdate']
-                    # set last modification date and oai_datestamp to publication date
-                    payload = {'lastmodificationdate': publication_date, 'oai_datestamp': publication_date}
-                    xml_data_col.update({'_id': result['_id']}, {"$set": payload}, upsert=False)
-                else:
-                    # set last modification date to datetime.MIN
-                    payload = {'lastmodificationdate': result['_id'].generation_time}
+                    # set oai_datestamp to publication date
+                    payload = {'oai_datestamp': publication_date}
                     xml_data_col.update({'_id': result['_id']}, {"$set": payload}, upsert=False)
 
+            # FORMDATA CHANGES:
+            print "Adding isNewVersionOfRecord to all form data (False by default)..."
+            form_data_col.update({}, {"$set": {"isNewVersionOfRecord": False}}, upsert=False, multi=True)
+
+            #XSLT OAI-PMH
+            print "Remove old full-oai_pmh result XSLT..."
+            result_xslt_col.remove({'filename': 'nmrr-full-oai_pmh.xsl'})
+            print "Remove old detail-oai_pmh result XSLT..."
+            result_xslt_col.remove({'filename': 'nmrr-detail-oai_pmh.xsl'})
+
+            #NEW REGISTRY TEMPLATES BY DEFAULT
+            #################################
+            
             # CLEAN THE DATABASE
             print "*** CLEAN THE DATABASE ***"
             # remove elements from Form_data (not used in 1.4)
@@ -286,7 +299,7 @@ class Migration:
 
 
 def main(argv):
-    parser = argparse.ArgumentParser(description="Curator Data Migration Tool")
+    parser = argparse.ArgumentParser(description="NMRR Data Migration Tool")
     required_arguments = parser.add_argument_group("required arguments")
 
     # add required arguments
