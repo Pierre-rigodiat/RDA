@@ -8,8 +8,8 @@ MONGO='mongod'
 
 usage()
 {
-        echo "  ---------------------------------------------------------------------"
-	echo " | launch_server_unix [options]                                      |"
+	echo "  ---------------------------------------------------------------------"
+	echo " | launch_server_unix [options]                                        |"
 	echo " |                                                                     |"
 	echo " |       Options:                                                      |"
 	echo " |                                                                     |"
@@ -97,7 +97,7 @@ if [[ -n $PROC ]]; then
 	ERROR=true
 fi
 
-PROC="$(pgrep celery)"
+PROC="$(pgrep -f celery)"
 if [[ -n $PROC ]]; then
 	echo "Error: Celery is already running"
 	ERROR=true
