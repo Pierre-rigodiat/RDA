@@ -147,7 +147,7 @@ done
 
 echo "  ---------------------Start celery-----------------------"
 $CELERY multi start -A $PROJ worker -l info -Ofair --purge & disown
-until $CELERY -A $PROJ status;
+until $CELERY -A $PROJ status 2>/dev/null;
 do
 	sleep 1;
 done
