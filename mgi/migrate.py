@@ -162,6 +162,39 @@ class Migration:
             self._error('Unable to connect to MongoDB. '
                         'Please check that mongod is currently running and connected to the MDCS data.')
 
+    def _check_duplicate_names(self, form_data_col):
+        """
+        Check the database for duplicated form data name
+        :param form_data_col:
+        :return:
+        """
+        # get list of users
+        users = form_data_col.distinct('user')
+        for user in users:
+            cursor = form_data_col.find({'user': user})
+            for result in cursor:
+                name = result['name']
+                duplicates = list(form_data_col.find({'user': user, 'name': name}))
+                if len(duplicates) > 1:
+                    return duplicates
+        return []
+
+    def _resolve_duplicate_names(self, form_data_col):
+        duplicates = self._check_duplicate_names(form_data_col)
+        while len(duplicates) > 0:
+            print "Duplicate form names ({2}) have been found " \
+                  "(user: {0}, form name: {1})".format(str(duplicates[0]['user']),
+                                                       duplicates[0]['name'],
+                                                       str(len(duplicates)))
+            for idx in range(len(duplicates)):
+                duplicate = duplicates[idx]
+                duplicate_id = duplicate['_id']
+                dup_form_name = '{0}_dup_{1}'.format(duplicate['name'], str(idx+1))
+                payload = {'name': dup_form_name}
+                print "Update form name (id: {0}): {1}".format(str(duplicate_id), dup_form_name)
+                form_data_col.update({'_id': ObjectId(duplicate_id)}, {"$set": payload}, upsert=False)
+            duplicates = self._check_duplicate_names(form_data_col)
+
     def migrate(self, mongo_admin_user, mongo_admin_password, mongo_path, warnings=True, backup=True):
         """
         APPLY CHANGES FROM 1.3 TO 1.4
@@ -258,8 +291,14 @@ class Migration:
                     xml_data_col.update({'_id': result['_id']}, {"$set": payload}, upsert=False)
                 else:
                     # set last modification date to datetime.MIN
-                    payload = {'lastmodificationdate': result['_id'].generation_time}
+                    generation_time = result['_id'].generation_time
+                    payload = {'lastmodificationdate': generation_time,
+                               'publicationdate': generation_time,
+                               'oai_datestamp': generation_time}
                     xml_data_col.update({'_id': result['_id']}, {"$set": payload}, upsert=False)
+
+            # FORM DATA UNIQUE NAMES
+            self._resolve_duplicate_names(form_data_col)
 
             # CLEAN THE DATABASE
             print "*** CLEAN THE DATABASE ***"
@@ -283,6 +322,9 @@ class Migration:
             self._error(e.message)
 
         print "\n*** MIGRATION COMPLETE ***"
+        print "You can now restart the server. " \
+              "Do not delete any of the backup files before making sure everything is working fine."
+        print "*** MIGRATION COMPLETE ***"
 
 
 def main(argv):
