@@ -13,9 +13,9 @@ usage()
 	echo " |                                                                     |"
 	echo " |       Options:                                                      |"
 	echo " |                                                                     |"
-	echo " |  -p  | --dir   : path to the django project (mandatory)             |"
+	echo " |  -p  | --dir   : path to the django project folder (mandatory)      |"
 	echo " |  -d  | --dport : django server port (8000 if not specified)         |"
-	echo " |  -c  | --mconf : path to mongoDB configuration (mandatory)          |"
+	echo " |  -c  | --mconf : path to mongoDB configuration file (mandatory)     |"
 	echo " |  -m  | --mport : mongoDB port (27017 if not specified)              |"
 	echo " |  -y  | --py    : path to python (not mandatory if path configured)  |"
 	echo " |  -l  | --ce    : path to celery (not mandatory if path configured)  |"
@@ -111,15 +111,24 @@ fi
 
 if [[ $ERROR = true ]]; then
 	echo "You have to stop all running processes before launching the server."
-	read -p "Would you like to kill all running processes ? (y or Y for yes) " -n 1 -r
+	read -p "Would you like to stop all running processes ? (y or Y for yes) " -n 1 -r
 	echo    # (optional) move to a new line
 	if [[ ! $REPLY =~ ^[Yy]$ ]]; then
 		echo "Terminated"
     		exit -1;
 	fi
 	echo "  --------------------Kill processes----------------------"
-	pkill -f runserver
-	pkill -f celery
+	# Launch server
+	cd $PATH_TO_PROJECT
+	echo "  ----------------------Stop celery----------------------"
+	until $CELERY multi stopwait worker -A $PROJ -l info -Ofair --purge;
+	do
+		sleep 1;
+	done
+	echo "  -------------------------------------------------------"
+	echo "  ------------------Stop django server-------------------"
+	pkill -TERM -f runserver
+	echo "  ----------------------Kill mongo-----------------------"
 	pkill -9 mongod
 
 	echo "Resuming launch server..."
@@ -130,15 +139,15 @@ fi
 cd $PATH_TO_PROJECT
 
 echo "  ----------------------Start mongo-----------------------"
-$MONGO --config $PATH_TO_MONGO_CONF --port $MONGO_PORT & disown
+$MONGO --config $PATH_TO_MONGO_CONF --port $MONGO_PORT --quiet & disown
 until nc -zv localhost $MONGO_PORT;
 do
 	sleep 1;
 done
 
 echo "  ---------------------Start celery-----------------------"
-$CELERY -A $PROJ worker -l info -Ofair --purge & disown
-until $CELERY -A $PROJ status;
+$CELERY multi start -A $PROJ worker -l info -Ofair --purge & disown
+until $CELERY -A $PROJ status 2>/dev/null;
 do
 	sleep 1;
 done
