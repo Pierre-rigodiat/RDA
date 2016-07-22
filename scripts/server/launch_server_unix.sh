@@ -111,15 +111,24 @@ fi
 
 if [[ $ERROR = true ]]; then
 	echo "You have to stop all running processes before launching the server."
-	read -p "Would you like to kill all running processes ? (y or Y for yes) " -n 1 -r
+	read -p "Would you like to stop all running processes ? (y or Y for yes) " -n 1 -r
 	echo    # (optional) move to a new line
 	if [[ ! $REPLY =~ ^[Yy]$ ]]; then
 		echo "Terminated"
     		exit -1;
 	fi
 	echo "  --------------------Kill processes----------------------"
-	pkill -f runserver
-	pkill -f celery
+	# Launch server
+	cd $PATH_TO_PROJECT
+	echo "  ----------------------Stop celery----------------------"
+	until $CELERY multi stopwait worker -A $PROJ -l info -Ofair --purge;
+	do
+		sleep 1;
+	done
+	echo "  -------------------------------------------------------"
+	echo "  ------------------Stop django server-------------------"
+	pkill -TERM -f runserver
+	echo "  ----------------------Kill mongo-----------------------"
 	pkill -9 mongod
 
 	echo "Resuming launch server..."
@@ -130,14 +139,14 @@ fi
 cd $PATH_TO_PROJECT
 
 echo "  ----------------------Start mongo-----------------------"
-$MONGO --config $PATH_TO_MONGO_CONF --port $MONGO_PORT & disown
+$MONGO --config $PATH_TO_MONGO_CONF --port $MONGO_PORT --quiet & disown
 until nc -zv localhost $MONGO_PORT;
 do
 	sleep 1;
 done
 
 echo "  ---------------------Start celery-----------------------"
-$CELERY -A $PROJ worker -l info -Ofair --purge & disown
+$CELERY multi start -A $PROJ worker -l info -Ofair --purge & disown
 until $CELERY -A $PROJ status;
 do
 	sleep 1;
