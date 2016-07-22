@@ -1,7 +1,6 @@
 {% extends "mdcs/extra/one_column.html" %}
 {% load staticfiles %}
 {% load auth_extras %}
-{% load dict_key_extras %}
 {% comment %}
 <!--
 ################################################################################
@@ -21,86 +20,54 @@
 ################################################################################
 -->
 {% endcomment %}
-{% block title %}<h1><span>My Records</span></h1>{% endblock %}
+{% block title %}
+    {% if user.is_staff %}
+        <h1><span>My Records / Other users Records</span></h1>
+    {% else %}
+        <h1><span>My Records</span></h1>
+    {% endif %}
+{% endblock %}
 {% block menu %}{% include 'mdcs/menus/main.html' with active_tab='profile' %}{% endblock %}
 {% block submenu %}{% include 'mdcs/menus/submenu/dashboard.html' with active_tab='tab1' %}{% endblock %}
 
 {% block content %}
-  <div id="body">
-
-	<div class="width">
-
-    <ul class="nav nav-tabs">
-        {% if not ispublished %} <li class="active"> {%else%} <li> {% endif%} <a href="/dashboard/records">All</a></li>
-        {% if ispublished == "true" %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/records?ispublished=true">Published</a></li>
-        {% if ispublished == "false" %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/records?ispublished=false">Not Published</a></li>
-    </ul>
-
-{% if XMLdatas%}
-{% with canEdit=request.user|has_perm:'curate.curate_edit_document' canDelete=request.user|has_perm:'curate.curate_delete_document' %}
-
-        <table class="data-table">
-            <tr>
-                <th>Resource name</th>
-                <th>Published</th>
-                <th width="175em">Last Publication date</th>
-                <th width="175em">Actions</th>
-            </tr>
-            {% for XMLdata in XMLdatas %}
-                {% cycle 'even' '' as rowcolors silent %}
-                <tr class="{{ rowcolors }}">
-                    <td>
-                            {% if XMLdata.content.Resource.identity.title %}
-                                {{ XMLdata.content.Resource.identity.title }}
-                            {%else%}
-                                <script>
-                                    document.write('{{ XMLdata.title }}'.replace(/\.[^/.]+$/, ""));
-                                </script>
-                            {% endif %}
-                    </td>
-                    <td>{% if XMLdata.ispublished %}Yes {%else%} No {% endif %}</td>
-                    <td>
-                        {% if XMLdata.publicationdate %}
-                            {{XMLdata.publicationdate}}
-                        {%else%}
-                            Never published before
-                        {% endif %}
-                    </td>
-                        <td>
-                            {% with XMLdata|get:"_id" as XMLdata_id %}
-                            {% autoescape on %}
-                            <a href="/dashboard/detail?type=record&id={{XMLdata_id}}"><span class="icon legend result">
-                                View
-                            </span></a>
-                            {% endautoescape %}
-                            <a href="/curate/enter-data?id={{XMLdata_id}}"><span class="icon legend edit">
-                                Edit
-                            </span></a>
-                            {% if not XMLdata.ispublished %}
-                            <span class="icon legend publish" onclick="updatePublish('{{XMLdata_id}}')">
-                                Publish
-                            </span>
-                            {% endif %}
-                            <span class="icon legend delete" onclick="deleteResult('{{XMLdata_id}}')">
-                                Delete
-                            </span>
-                            {% endwith%}
-                        </td>
-                </tr>
-            {% endfor %}
-        </table>
-
-{% endwith%}
-{%else%}
-    No Resources found
-{%endif%}
-
-    	<div class="clear"></div>
-    </div>
-	</div>
-
+    <div id="body">
+	    <div class="width">
+            <ul class="nav nav-tabs">
+                {% if ispublished == None %} <li class="active"> {%else%} <li> {% endif%} <a href="/dashboard/records">All</a></li>
+                {% if ispublished == True %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/records?ispublished=true">Published</a></li>
+                {% if ispublished == False %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/records?ispublished=false">Not Published</a></li>
+            </ul>
+            {% if user.is_staff %}
+                <span>
+                    <div class="tpl-title">My records</div>
+                </span>
+            {%endif%}
+            {% if XMLdatas%}
+                {% with canEdit=request.user|has_perm:'curate.curate_edit_document' canDelete=request.user|has_perm:'curate.curate_delete_document' %}
+                        {% include 'dashboard/my_dashboard_my_records_table.html' with XMLdatas=XMLdatas %}
+                {% endwith%}
+            {%else%}
+                No resources found
+            {%endif%}
             <div class="clear"></div>
-    {% endblock %}
+            {% if user.is_staff %}
+                <span>
+                    <div class="tpl-title">Other users Records</div>
+                </span>
+                {% if OtherUsersXMLdatas%}
+                    {% with canEdit=request.user|has_perm:'curate.curate_edit_document' canDelete=request.user|has_perm:'curate.curate_delete_document' %}
+                            {% include 'dashboard/my_dashboard_my_records_table.html' with XMLdatas=OtherUsersXMLdatas %}
+                    {% endwith%}
+                {%else%}
+                    No other users records found
+                {%endif%}
+            {%endif%}
+        </div>
+	</div>
+    <div class="clear"></div>
+<hr>
+{% endblock %}
 
 {% block popups %}
 <div id="dialog-delete-result" title="Delete Document" style="display:none;">
@@ -116,9 +83,23 @@ Are you sure you want to unpublish this document?
 <div id="result_detail">
 </div>
 </div>
+
+<div id="dialog-change-owner-record" title="Change Record Owner" style="display:none;">
+    <div class="alert alert-danger" id="banner_errors" style="display: none;">
+        <a href="#" class="close" data-hide="alert" aria-label="close">&times;</a>
+        <h4><i class="fa fa-exclamation-circle fa-1x"></i> Error</h4>
+        <div id="form_start_errors">
+        </div>
+    </div>
+    Please select the new owner:
+       {{user_form}}
+</div>
 {% endblock %}
 
 {% block extrajs %}
   <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
   <script src="{% static 'inc/controllers/js/dashboard.js' %}"></script>
+  <script>
+    initBanner();
+  </script>
 {% endblock %}

@@ -1,5 +1,6 @@
 {% extends "mdcs/extra/one_column.html" %}
 {% load staticfiles %}
+{% load dict_key_extras %}
 {% comment %}
 <!--
 ################################################################################
@@ -20,7 +21,13 @@
 -->
 {% endcomment %}
 
-{% block title %}<h1><span>My Files</span></h1>{% endblock %}
+{% block title %}
+    {% if user.is_staff %}
+        <h1><span>My Files / Other users Files</span></h1>
+    {% else %}
+        <h1><span>My Files</span></h1>
+    {% endif %}
+{% endblock %}
 {% block menu %}{% include 'mdcs/menus/main.html' with active_tab='profile' %}{% endblock %}
 
 {% block submenu %}
@@ -28,37 +35,29 @@
 {% endblock %}
 
 {% block content%}
-
-{% if files %}
-<table class="data-table">
-    <tr>
-        <th>File name</th>
-        <th>Upload date</th>
-        <th>Actions</th>
-    </tr>
-    {% for file in files %}
-        {% cycle 'even' '' as rowcolors silent %}
-        <tr class="{{ rowcolors }}">
-            <td>{{ file.name }}</td>
-            <td>{{ file.uploadDate }} </td>
-                <td>
-                    <span class="icon legend delete" objectname="{{ file.name }}" objecttype="File" objectid="{{ file.id }}" onclick="deleteObject()" url="{{url}}">
-                        Delete
-                    </span>
-                    <a href="{{url}}/rest/blob?id={{file.id}}">
-                        <span class="icon legend download" >
-                            Download
-                        </span>
-                    </a>
-                </td>
-        </tr>
-    {% endfor %}
-</table>
-{% else %}
-<div class="empty-table">
-    You don't currently own any files.
-</div>
-{% endif %}
+    {% if user.is_staff %}
+        <span>
+            <div class="tpl-title">My Files</div>
+        </span>
+    {%endif%}
+    {% if files %}
+        {% include 'dashboard/my_dashboard_my_files_table.html' with files=files %}
+    {% else %}
+    <div class="empty-table">
+        You don't currently own any files.
+    </div>
+    {% endif %}
+    <div class="clear"></div>
+    {% if user.is_staff %}
+        <span>
+            <div class="tpl-title">Other users Files</div>
+        </span>
+        {% if otherUsersFiles%}
+            {% include 'dashboard/my_dashboard_my_files_table.html' with files=otherUsersFiles %}
+        {%else%}
+            No other users Files found
+        {%endif%}
+    {%endif%}
 {% endblock %}
 
 {% block popups %}

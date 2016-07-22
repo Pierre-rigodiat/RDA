@@ -19,12 +19,17 @@ from django.conf import settings
 from mgi.settings import BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI
 from utils.BLOBHoster.BLOBHosterFactory import BLOBHosterFactory
 from django.http import HttpResponse
-from mgi.models import Template, FormData, XMLdata, Type
+from mgi.models import Template, XMLdata, Type, delete_template, delete_type
 from django.contrib import messages
 import lxml.etree as etree
 from io import BytesIO
-import os
 import json
+from mgi.common import send_mail_to_managers
+import os
+from django.utils.importlib import import_module
+settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
+settings = import_module(settings_file)
+MDCS_URI = settings.MDCS_URI
 
 
 ################################################################################
@@ -87,26 +92,10 @@ def delete_object(request):
 
     listObject = ''
     if object_type == "Template":
-        object = Template.objects.get(pk=object_id)
-        dependenciesData = XMLdata.find({'schema' : str(object_id)})
-        dependenciesForm = list(FormData.objects(template=object_id))
-        if len(dependenciesData) >= 1:
-            for temp in dependenciesData:
-                listObject += temp['title'] + ', '
-        if len(dependenciesForm):
-            for temp in dependenciesForm:
-                listObject += temp.name + ', '
+        listObject = delete_template(object_id)
 
     elif object_type == "Type":
-        object = Type.objects.get(pk=object_id)
-        dependenciesTemplate = list(Template.objects(dependencies=object_id))
-        dependenciesType = list(Type.objects(dependencies=object_id))
-        if len(dependenciesType) >= 1:
-            for temp in dependenciesType:
-                listObject += temp.title + ', '
-        if len(dependenciesTemplate) >= 1:
-            for temp in dependenciesTemplate:
-                listObject += temp.title + ', '
+        listObject = delete_type(object_id)
 
     else:
         url = request.POST['url']
@@ -117,12 +106,11 @@ def delete_object(request):
         print 'END def delete_object(request)'
         return HttpResponse(json.dumps({}), content_type='application/javascript')
 
-    if listObject != '':
-        response_dict = {object_type: listObject[:-2]}
+    if listObject is not None and listObject != '':
+        response_dict = {object_type: listObject}
         return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
     else:
         messages.add_message(request, messages.INFO, object_type+' deleted with success.')
-        object.delete()
 
     print 'END def delete_object(request)'
     return HttpResponse(json.dumps({}), content_type='application/javascript')
@@ -188,6 +176,17 @@ def delete_result(request):
 ################################################################################
 def update_publish(request):
     XMLdata.update_publish(request.GET['result_id'])
+    resource = XMLdata.get(request.GET['result_id'])
+
+    # Send mail to the user and the admin
+    context = {'URI': MDCS_URI,
+               'title': resource['title'],
+               'publicationdate': resource['publicationdate'],
+               'user': request.user.username}
+
+    send_mail_to_managers(subject='Resource Published',
+                                pathToTemplate='dashboard/email/resource_published.html',
+                                context=context)
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 ################################################################################

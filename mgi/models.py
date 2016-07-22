@@ -13,8 +13,8 @@
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
+import numbers
 from mongoengine import *
-import json
 
 # Specific to MongoDB ordered inserts
 from collections import OrderedDict
@@ -32,6 +32,10 @@ import re
 import datetime
 from utils.XSDhash import XSDhash
 
+class Status:
+    ACTIVE = 'active'
+    INACTIVE = 'inactive'
+    DELETED = 'deleted'
 
 class Request(Document):
     """Represents a request sent by an user to get an account"""
@@ -86,6 +90,27 @@ class Template(Document):
     ResultXsltList = ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY)
     ResultXsltDetailed = ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY)
 
+def delete_template(object_id):
+    from mgiutils import getListNameTemplateDependenciesRecordFormData
+    listName = getListNameTemplateDependenciesRecordFormData(object_id)
+    return listName if listName != '' else delete_template_and_version(object_id)
+
+def delete_template_and_version(object_id):
+    template = Template.objects(pk=object_id).get()
+    version = TemplateVersion.objects(pk=template.templateVersion).get()
+    version.delete()
+    template.delete()
+
+def delete_type(object_id):
+    from mgiutils import getListNameTypeDependenciesTemplateType
+    listName = getListNameTypeDependenciesTemplateType(object_id)
+    return listName if listName != '' else delete_type_and_version(object_id)
+
+def delete_type_and_version(object_id):
+    type = Type.objects(pk=object_id).get()
+    version = TypeVersion.objects(pk=type.typeVersion).get()
+    version.delete()
+    type.delete()
 
 def create_template(content, name, filename, dependencies=[], user=None):
     hash_value = XSDhash.get_hash(content)
@@ -248,20 +273,28 @@ class Bucket(Document):
     types = ListField()
 
 
+from curate.models import SchemaElement
+
+
 class FormData(Document):
     """Stores data being entered and not yet curated"""
     user = StringField(required=True)
     template = StringField(required=True)
-    name = name = StringField(required=True, unique_with=['user', 'template'])
-    elements = DictField()
+    name = StringField(required=True, unique_with=['user', 'template'])
+    # elements = DictField()
+    schema_element_root = ReferenceField(SchemaElement, required=False)
     xml_data = StringField(default='')
     xml_data_id = StringField()
 
 
 def postprocessor(path, key, value):
-    """Called after XML to JSON transformation"""
-    if key == "#text":
-        return key, str(value)
+    """
+    Called after XML to JSON transformation
+    :param path:
+    :param key:
+    :param value:
+    :return:
+    """
     try:
         return key, int(value)
     except (ValueError, TypeError):
@@ -271,11 +304,30 @@ def postprocessor(path, key, value):
             return key, value
 
 
+def preprocessor(key, value):
+    """
+    Called before JSON to XML transformation
+    :param key:
+    :param value:
+    :return:
+    """
+    if isinstance(value, OrderedDict):
+        for ik, iv in value.items():
+            if ik == "#text":
+                if isinstance(iv, numbers.Number):
+                    value[ik] = str(iv)
+                else:
+                    value[ik] = iv
+        return key, value
+    else:
+        return key, value
+
+
 class XMLdata(object):
     """Wrapper to manage JSON Documents, like mongoengine would have manage them (but with ordered data)"""
 
     def __init__(self, schemaID=None, xml=None, json=None, title="", iduser=None, ispublished=False,
-                 publicationdate=None):
+                 publicationdate=None, oai_datestamp=None):
         """                                                                                                                                                                                                                   
             initialize the object                                                                                                                                                                                             
             schema = ref schema (Document)                                                                                                                                                                                    
@@ -308,6 +360,15 @@ class XMLdata(object):
         if (publicationdate is not None):
             self.content['publicationdate'] = publicationdate
 
+        if oai_datestamp is not None:
+            self.content['oai_datestamp'] = oai_datestamp
+
+        self.content['status'] = Status.ACTIVE
+
+    @staticmethod
+    def unparse(json):
+        return xmltodict.unparse(json, preprocessor=preprocessor)
+
     @staticmethod
     def initIndexes():
         #create a connection
@@ -325,9 +386,9 @@ class XMLdata(object):
         self.content['lastmodificationdate'] = datetime.datetime.now()
         docID = self.xmldata.insert(self.content)
         return docID
-    
+
     @staticmethod
-    def objects():        
+    def objects(includeDeleted=False):
         """
             returns all objects as a list of dicts
              /!\ Doesn't return the same kind of objects as mongoengine.Document.objects()
@@ -343,11 +404,15 @@ class XMLdata(object):
         # build a list with the objects        
         results = []
         for result in cursor:
-            results.append(result)
+            # Check the deleted records
+            if includeDeleted:
+                results.append(result)
+            elif result.get('status') != Status.DELETED:
+                results.append(result)
         return results
     
     @staticmethod
-    def find(params):        
+    def find(params, includeDeleted=False):
         """
             returns all objects that match params as a list of dicts 
              /!\ Doesn't return the same kind of objects as mongoengine.Document.objects()
@@ -363,11 +428,15 @@ class XMLdata(object):
         # build a list with the objects        
         results = []
         for result in cursor:
-            results.append(result)
+            # Check the deleted records
+            if includeDeleted:
+                results.append(result)
+            elif result.get('status') != Status.DELETED:
+                results.append(result)
         return results
     
     @staticmethod
-    def executeQuery(query):
+    def executeQuery(query, includeDeleted=False):
         """queries mongo db and returns results data"""
         # create a connection
         client = MongoClient(MONGODB_URI)
@@ -380,11 +449,15 @@ class XMLdata(object):
         # build a list with the xml representation of objects that match the query      
         queryResults = []
         for result in cursor:
-            queryResults.append(result['content'])
+            # Check the deleted records
+            if includeDeleted:
+                queryResults.append(result['content'])
+            elif result.get('status') != Status.DELETED:
+                queryResults.append(result['content'])
         return queryResults
     
     @staticmethod
-    def executeQueryFullResult(query):
+    def executeQueryFullResult(query, includeDeleted=False):
         """queries mongo db and returns results data"""
         # create a connection
         client = MongoClient(MONGODB_URI)
@@ -397,9 +470,13 @@ class XMLdata(object):
         # build a list with the xml representation of objects that match the query
         results = []
         for result in cursor:
-            results.append(result)
-        return results
+            # Check the deleted records
+            if includeDeleted:
+                results.append(result)
+            elif result.get('status') != Status.DELETED:
+                results.append(result)
 
+        return results
 
     @staticmethod
     def get(postID):
@@ -456,8 +533,6 @@ class XMLdata(object):
 
         return results[0] if results[0] else None
 
-
-    
     @staticmethod
     def delete(postID):
         """
@@ -469,10 +544,34 @@ class XMLdata(object):
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
-        xmldata.remove({'_id': ObjectId(postID)})
-    
+        now = datetime.datetime.now()
+        xmldata.update({'_id': ObjectId(postID)}, {"$set": {'status': Status.DELETED, 'oai_datestamp': now}},
+                       upsert=False)
+
     # TODO: to be tested
-            
+    @staticmethod
+    def update(postID, json=None, xml=None):
+        """
+            Update the object with the given id
+        """
+        # create a connection
+        client = MongoClient(MONGODB_URI)
+        # connect to the db 'mgi'
+        db = client[MGI_DB]
+        # get the xmldata collection
+        xmldata = db['xmldata']
+
+        data = None
+        if (json is not None):
+            data = json
+            if '_id' in json:
+                del json['_id']
+        else:
+            data = xmltodict.parse(xml, postprocessor=postprocessor)
+
+        if data is not None:
+            xmldata.update({'_id': ObjectId(postID)}, {"$set":data}, upsert=False)
+
     @staticmethod
     def update_content(postID, content=None, title=None):
         """
@@ -484,7 +583,7 @@ class XMLdata(object):
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
-                
+
         json_content = xmltodict.parse(content, postprocessor=postprocessor)
         json = {'content': json_content, 'title': title, 'lastmodificationdate': datetime.datetime.now()}
                     
@@ -501,7 +600,10 @@ class XMLdata(object):
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
-        xmldata.update({'_id': ObjectId(postID)}, {'$set':{'publicationdate': datetime.datetime.now(), 'ispublished': True}}, upsert=False)
+        now = datetime.datetime.now()
+        xmldata.update({'_id': ObjectId(postID)}, {'$set':{'publicationdate': now,
+                                                           'ispublished': True,
+                                                           'oai_datestamp': now}}, upsert=False)
 
     @staticmethod
     def update_unpublish(postID):
@@ -517,7 +619,20 @@ class XMLdata(object):
         xmldata.update({'_id': ObjectId(postID)}, {'$set':{'ispublished': False}}, upsert=False)
 
     @staticmethod
-    def executeFullTextQuery(text, templatesID, refinements={}):
+    def update_user(postID, user=None):
+        """
+            Update the object with the given id
+        """
+        # create a connection
+        client = MongoClient(MONGODB_URI)
+        # connect to the db 'mgi'
+        db = client[MGI_DB]
+        # get the xmldata collection
+        xmldata = db['xmldata']
+        xmldata.update({'_id': ObjectId(postID)}, {'$set':{'iduser': user}}, upsert=False)
+
+    @staticmethod
+    def executeFullTextQuery(text, templatesID, refinements={}, includeDeleted=False):
         """
         Execute a full text query with possible refinements
         """
@@ -539,12 +654,16 @@ class XMLdata(object):
         if len(refinements.keys()) > 0:
             full_text_query.update(refinements)
         full_text_query.update({'ispublished': True})
-            
+
         cursor = xmldata.find(full_text_query, as_class = OrderedDict).sort('publicationdate', DESCENDING)
         
         results = []
         for result in cursor:
-            results.append(result)
+            # Check the deleted records
+            if includeDeleted:
+                results.append(result)
+            elif result.get('status') != Status.DELETED:
+                results.append(result)
         return results
 
 
@@ -784,6 +903,9 @@ class OaiRecord(Document):
             full_text_query = {'$text': {'$search': wordList}, 'metadataformat' : {'$in': listMetadataFormatObjectId}, }
         else:
             full_text_query = {'metadataformat' : {'$in': listMetadataFormatObjectId} }
+
+        # only no deleted records
+        full_text_query.update({'deleted':  False})
 
         cursor = xmlrecord.find(full_text_query, as_class = OrderedDict)
 

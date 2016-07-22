@@ -16,8 +16,7 @@ from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.contrib.auth.decorators import login_required
 from oai_pmh.explore.forms import KeywordForm, MetadataFormatsForm
-from mgi.models import OaiMetadataFormat, OaiRegistry, OaiRecord
-import xmltodict
+from mgi.models import OaiMetadataFormat, OaiRegistry, OaiRecord, XMLdata
 import json
 import os
 from mgi import settings
@@ -117,7 +116,6 @@ def get_metadata_formats_detail(request):
 # Description:   Page that allows to see detail result from a selected result
 #
 ################################################################################
-@login_required(login_url='/login')
 def explore_detail_result_keyword(request) :
     template = loader.get_template('oai_pmh/explore/explore_detail_results_keyword.html')
     result_id = request.GET['id']
@@ -127,7 +125,7 @@ def explore_detail_result_keyword(request) :
         title = request.GET['title']
     else:
         title = record.identifier
-    xmlString = xmltodict.unparse(record.metadata).encode('utf-8')
+    xmlString = XMLdata.unparse(record.metadata).encode('utf-8')
     xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
     xslt = etree.parse(xsltPath)
     transform = etree.XSLT(xslt)

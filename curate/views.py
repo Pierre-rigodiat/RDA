@@ -16,7 +16,7 @@
 
 from cStringIO import StringIO
 from django.http import HttpResponse
-from django.template import RequestContext, loader, Context
+from django.template import RequestContext, loader
 from django.shortcuts import redirect
 from django.core.servers.basehttp import FileWrapper
 from bson.objectid import ObjectId
@@ -24,16 +24,16 @@ import lxml.etree as etree
 from lxml.etree import XMLSyntaxError
 import json 
 import xmltodict
-from django.contrib import messages
 
+from curate.ajax import load_config
 from curate.models import SchemaElement
-from curate.renderer.xml import XmlRenderer
 from mgi.models import Template, TemplateVersion, XML2Download, FormData, XMLdata
 from curate.forms import NewForm, OpenForm, UploadForm, SaveDataForm, CancelChangesForm
 from django.http.response import HttpResponseBadRequest
 from admin_mdcs.models import permission_required
 import mgi.rights as RIGHTS
 from mgi.exceptions import MDCSError
+from io import BytesIO
 
 ################################################################################
 #
@@ -44,6 +44,10 @@ from mgi.exceptions import MDCSError
 # Description:   Page that allows to select a template to start curating         
 #
 ################################################################################
+from utils.XSDParser.parser import delete_branch_from_db, generate_form
+from utils.XSDParser.renderer.xml import XmlRenderer
+
+
 @permission_required(content_type=RIGHTS.curate_content_type, permission=RIGHTS.curate_access, login_url='/login')
 def index(request):
     template = loader.get_template('curate/curate.html')
@@ -100,15 +104,17 @@ def curate_edit_data(request):
         xml_data_id = request.GET['id']
         xml_data = XMLdata.get(xml_data_id)
         json_content = xml_data['content']
-        xml_content = xmltodict.unparse(json_content)
+        xml_content = XMLdata.unparse(json_content)
         request.session['curate_edit_data'] = xml_content
         request.session['curate_edit'] = True
         request.session['currentTemplateID'] = xml_data['schema']
         # remove previously created forms when editing a new one
         previous_forms = FormData.objects(user=str(request.user.id), xml_data_id__exists=True)
+
         for previous_form in previous_forms:
             # TODO: check if need to delete all SchemaElements
             previous_form.delete()
+
         form_data = FormData(
             user=str(request.user.id),
             template=xml_data['schema'],
@@ -117,11 +123,11 @@ def curate_edit_data(request):
             xml_data_id=xml_data_id
         )
         form_data.save()
-        request.session['curateFormData'] = str(form_data.id)
+
+        request.session['curateFormData'] = str(form_data.pk)
+
         if 'form_id' in request.session:
             del request.session['form_id']
-        if 'formString' in request.session:
-            del request.session['formString']
         if 'xmlDocTree' in request.session:
             del request.session['xmlDocTree']
     except:
@@ -157,9 +163,7 @@ def curate_from_schema(request):
 
             request.session['curateFormData'] = str(form_data.pk)
             request.session['curate_edit'] = False            
-            
-            if 'formString' in request.session:
-                del request.session['formString']
+
             if 'xmlDocTree' in request.session:
                 del request.session['xmlDocTree']
         else:
@@ -388,9 +392,6 @@ def start_curate(request):
 
                     template = loader.get_template('curate/curate_full_start.html')
 
-                    if 'formString' in request.session:
-                        del request.session['formString']
-
                     if 'xmlDocTree' in request.session:
                         del request.session['xmlDocTree']
 
@@ -443,8 +444,6 @@ def save_xml_data_to_db(request):
     xml_renderer = XmlRenderer(root_element)
     xml_string = xml_renderer.render()
 
-    # xmlString = request.session['xmlString']
-    # template_id = request.session['currentTemplateID']
     template_id = form_data.template
 
     # Parse data from form
@@ -466,6 +465,8 @@ def save_xml_data_to_db(request):
                 xml_string,
                 title=form.data['title']
             )
+            #Specific MDCS
+            XMLdata.update_publish(form_data.xml_data_id)
         else:
             # create new data otherwise
             xml_data = XMLdata(
@@ -476,6 +477,9 @@ def save_xml_data_to_db(request):
             )
             xml_data_id = xml_data.save()
             XMLdata.update_publish(xml_data_id)
+
+        if form_data.schema_element_root is not None:
+            delete_branch_from_db(form_data.schema_element_root.pk)
 
         form_data.delete()
 
@@ -510,10 +514,30 @@ def curate_edit_form(request):
                 # parameters that will be used during curation
                 request.session['curateFormData'] = str(form_data.id)
 
-                if 'formString' in request.session:
-                    del request.session['formString']
-                if 'xmlDocTree' in request.session:
-                    del request.session['xmlDocTree']
+                request.session['currentTemplateID'] = form_data.template
+                templateObject = Template.objects.get(pk=form_data.template)
+                xmlDocData = templateObject.content
+                XMLtree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
+                request.session['xmlDocTree'] = etree.tostring(XMLtree)
+
+                if form_data.schema_element_root is None:
+                    if form_data.template is not None:
+                        template_object = Template.objects.get(pk=form_data.template)
+                        xsd_doc_data = template_object.content
+                    else:
+                        raise MDCSError("No schema attached to this file")
+
+                    if form_data.xml_data is not None:
+                        xml_doc_data = form_data.xml_data
+                    else:
+                        xml_doc_data = None
+
+                    root_element_id = generate_form(request, xsd_doc_data, xml_doc_data, config=load_config())
+                    root_element = SchemaElement.objects.get(pk=root_element_id)
+
+                    form_data.schema_element_root = root_element
+
+                request.session['form_id'] = str(form_data.schema_element_root.id)
 
                 context = RequestContext(request, {
                 })

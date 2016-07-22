@@ -1,5 +1,6 @@
 {% extends "mdcs/extra/one_column.html" %}
 {% load staticfiles %}
+{% load dict_key_extras %}
 
 {% comment %}
 <!--
@@ -25,51 +26,43 @@
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/exploreTabs.css' %}"  media="screen" />
 {% endblock %}
 
-{% block title %}<h1><span>My Forms</span></h1>{% endblock %}
+{% block title %}
+    {% if user.is_staff %}
+        <h1><span>My Forms / Other users Forms</span></h1>
+    {% else %}
+        <h1><span>My Forms</span></h1>
+    {% endif %}
+{% endblock %}
 {% block menu %}{% include 'mdcs/menus/main.html' with active_tab='profile' %}{% endblock %}
 {% block submenu %}{% include 'mdcs/menus/submenu/dashboard.html' with active_tab='tab2' %}{% endblock %}
 
 {% block content%}
-{% if forms %}
-<span>
-You can review all forms you have created. You can either delete your form or change the owner.
-</span>
-<br/><br/>
-
-<div id="my-forms">
-    <table class="data-table">
-        <tr>
-        	<th>Name</th>
-        	<th>Template</th>
-            <th>Actions</th>
-        </tr>
-        {% for form in forms %}
-            {% cycle 'even' '' as rowcolors silent %}
-            <tr class="{{ rowcolors }}">
-                <td>{{ form.form.name }}</td>
-                <td>{{ form.template_name}}</td>
-                <td>
-                    <a href="/dashboard/detail?type=form&id={{form.form.id}}"><span class="icon legend result">
-                                View
-                    </span></a>
-                    <a href="/curate/edit-form?id={{form.form.id}}"><span class="icon legend edit">
-                                Edit
-                    </span></a>
-                    <div class="icon legend delete" onclick='deleteForm("{{form.form.id}}")'>Delete</div>
-                    <div class="icon legend changeOwner" onclick='changeOwnerForm("{{form.form.id}}")'>Change Owner</div>
-                </td>
-            </tr>
-        {% endfor %}
-    </table>
-</div>
-{% else %}
-<div>
-    <br/>
-        There are no forms saved for now.
-    <br/>
-</div>
-{% endif %}
-
+    {% if user.is_staff %}
+        <span>
+            <div class="tpl-title">My Forms</div>
+        </span>
+    {%endif%}
+    {% if forms %}
+        <span>
+        You can review all forms you have created. You can either delete your form or change the owner. <br><br>
+        </span>
+        {% include 'dashboard/my_dashboard_my_forms_table.html' with forms=forms %}
+    {% else %}
+        <br/>
+            There are no forms saved for now.
+        <br/>
+    {% endif %}
+    <div class="clear"></div>
+    {% if user.is_staff %}
+        <span>
+            <div class="tpl-title">Other users Forms</div>
+        </span>
+        {% if otherUsersForms%}
+            {% include 'dashboard/my_dashboard_my_forms_table.html' with forms=otherUsersForms %}
+        {%else%}
+            No other users forms found
+        {%endif%}
+    {%endif%}
 {% endblock %}
 
 {% block popups %}

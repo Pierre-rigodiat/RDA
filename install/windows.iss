@@ -6,12 +6,12 @@
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppName=mdcs
-AppVersion=1.3
-AppVerName=mdcs 1.3
+AppVersion=1.4
+AppVerName=mdcs 1.4
 AppPublisher=NIST
 DefaultDirName={userdocs}\mdcs
 DefaultGroupName=mdcs
-OutputBaseFilename=setup
+OutputBaseFilename=mdcs_1.4
 Compression=lzma
 SolidCompression=yes
 

@@ -16,7 +16,8 @@
 
 from django import forms
 from django.contrib.auth.models import User
-
+from password_policies.forms.fields import PasswordPoliciesField
+from user_dashboard.forms import PasswordPoliciesLowerUpperField
 # list of possible protocols available in the form
 from mgi.models import Bucket
 
@@ -49,13 +50,24 @@ class RequestAccountForm(forms.Form):
     """
     Form to request an account
     """
+    def clean_password2(self):
+        """
+        Validates that the two new passwords match.
+        """
+        password1 = self.cleaned_data.get('password1')
+        password2 = self.cleaned_data.get('password2')
+        if password1 and password2:
+            if password1 != password2:
+                raise forms.ValidationError("The two password fields didn't match.")
+        return password2
+
     username = forms.CharField(label='Username', max_length=100, required=True)
-    password1 = forms.CharField(label='Password',widget=forms.PasswordInput, required=True)
+    password1 = PasswordPoliciesLowerUpperField(label='Password', required=True)
     password2 = forms.CharField(label='Confirm Password',widget=forms.PasswordInput, required=True)
     firstname = forms.CharField(label='First Name', max_length=100, required=True)
     lastname = forms.CharField(label='Last Name', max_length=100, required=True)
     email = forms.EmailField(label='Email Address', max_length=100, required=True)
-    
+
 class EditProfileForm(forms.Form):
     """
     Form to edit the profile information
@@ -64,15 +76,7 @@ class EditProfileForm(forms.Form):
     lastname = forms.CharField(label='Last Name', max_length=100, required=True)
     username = forms.CharField(label='Username', max_length=100, required=True, widget=forms.HiddenInput())
     email = forms.EmailField(label='Email Address', max_length=100, required=True)
-    
-class ChangePasswordForm(forms.Form):
-    """
-    Form to change the password
-    """
-    old = forms.CharField(label='Old Password',widget=forms.PasswordInput, required=True)
-    new1 = forms.CharField(label='New Password',widget=forms.PasswordInput, required=True)
-    new2 = forms.CharField(label='Confirm New Password',widget=forms.PasswordInput, required=True)
-    
+
 class ContactForm(forms.Form):
     """
     Form to contact the administrator
@@ -135,7 +139,7 @@ class UserForm(forms.Form):
         #We retrieve all users
         sortUsers = User.objects.all()
         #We exclude the current user
-        sortUsers = sortUsers.exclude(pk=currentUser.pk)
+        #sortUsers = sortUsers.exclude(pk=currentUser.pk)
         #We sort by username, case insensitive
         sortUsers = sorted(sortUsers, key=lambda s: s.username.lower())
 
