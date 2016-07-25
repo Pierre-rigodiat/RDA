@@ -208,14 +208,14 @@ class Migration:
 
         msg = 'You are about to run the Curator Migration Tool. ' \
               'This will update the database from version 1.3 to work for version 1.4. ' \
-              'Changes will be applied to the database such addition/deletion/modification ' \
+              'Changes will be applied to the database such as additions/deletions/modifications ' \
               'of fields/collections/records.'
 
         if not self._warn_user(msg):
             self._error()
 
         # /!\ PROMPT TO CREATE A ZIP OF THE DATA FIRST
-        msg = 'Please be sure that you made a copy of your data/db and db.sqlite3 before starting.'
+        msg = 'Please be sure that you made a copy of data/db and db.sqlite3 before starting.'
 
         if not self._warn_user(msg):
             self._error()
