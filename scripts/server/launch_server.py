@@ -11,7 +11,7 @@
 #
 ################################################################################
 
-import sys, argparse, psutil, os, time, platform
+import sys, argparse, psutil, os, time
 from subprocess import Popen
 
 def query_yes_no(question, default="yes"):

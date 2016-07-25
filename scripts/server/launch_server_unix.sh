@@ -119,6 +119,7 @@ if [[ $ERROR = true ]]; then
 	fi
 	echo "  --------------------Kill processes----------------------"
 	echo "  ----------------------Stop celery----------------------"
+	cd $PATH_TO_PROJECT
 	until $CELERY multi stopwait worker -A $PROJ -l info -Ofair --purge;
 	do
 		sleep 1;
