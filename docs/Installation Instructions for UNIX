@@ -26,6 +26,10 @@ alias pip=~/usr/local/bin/pip
 
 Any installed package via pip will now go under your '~/usr/local/lib/python2.7/site-packages' directory.
 
+Install redis server:
+sudo apt-get install redis-server
+
+
 Setup:
 
 We need pip to do the installation of the required dependencies.  pip requires setuptools and it has to be installed first, before pip can run: http://www.pip-installer.org/en/latest/installing.html 
