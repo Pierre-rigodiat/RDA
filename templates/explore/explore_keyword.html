@@ -130,13 +130,15 @@ Resource Type:
 <input type="radio" name="resource_type" value="software"> Software<br/>
 <br/>
 </form>
+{% if search_Form.form_oai_pmh.my_registries %}
 <div id="id_my_registries">
-Data Providers:
-	<br/>
-{% for value, label in search_Form.form_oai_pmh.my_registries.field.choices %}
-	<input type='checkbox' checked_id="id_my_registries_{{ forloop.counter0 }}" name="my_registries" value='{{value}}' onchange='get_results_keyword_refined();'> {{label}} <br/>
-{% endfor %}
+	Data Providers:
+		<br/>
+	{% for value, label in search_Form.form_oai_pmh.my_registries.field.choices %}
+		<input type='checkbox' checked_id="id_my_registries_{{ forloop.counter0 }}" name="my_registries" value='{{value}}' onchange='get_results_keyword_refined();'> {{label}} <br/>
+	{% endfor %}
 </div>
+{% endif %}
 </div>
 <br/><br/>
 <div id="refine_common"></div>
