@@ -1610,6 +1610,14 @@ enterKeyPressSubscription = function ()
             event.stopPropagation();
         }
     });
+
+    $('#form_edit_current #id_harvestrate').keypress(function(event) {
+        if(event.which == $.ui.keyCode.ENTER){
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    });
+
 }
 
 ////////////////////////////////////////////////
