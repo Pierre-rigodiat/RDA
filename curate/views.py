@@ -26,6 +26,7 @@ from lxml.etree import XMLSyntaxError
 import json
 import xmltodict
 from django.contrib import messages
+from curate.ajax import load_config
 
 from curate.models import SchemaElement
 from mgi.models import Template, TemplateVersion, XML2Download, FormData, XMLdata
@@ -45,7 +46,7 @@ from mgi.exceptions import MDCSError
 # Description:   Page that allows to select a template to start curating         
 #
 ################################################################################
-from utils.XSDParser.parser import delete_branch_from_db
+from utils.XSDParser.parser import delete_branch_from_db, generate_form
 from utils.XSDParser.renderer.xml import XmlRenderer
 
 
@@ -538,20 +539,36 @@ def curate_edit_form(request):
                     raise MDCSError("The form you are looking for doesn't exist.")
 
                 # parameters to build FormData object in db
-                request.session['currentTemplateID'] = form_data.template
+                #                 request.session['currentTemplateID'] = form_data.template
                 request.session['curate_edit'] = True
                 request.session['curate_edit_data'] = form_data.xml_data
 
                 # parameters that will be used during curation
                 request.session['curateFormData'] = str(form_data.id)
 
-                if 'formString' in request.session:
-                    del request.session['formString']
                 request.session['currentTemplateID'] = form_data.template
                 templateObject = Template.objects.get(pk=form_data.template)
                 xmlDocData = templateObject.content
                 XMLtree = etree.parse(BytesIO(xmlDocData.encode('utf-8')))
                 request.session['xmlDocTree'] = etree.tostring(XMLtree)
+
+                if form_data.schema_element_root is None:
+                    if form_data.template is not None:
+                        template_object = Template.objects.get(pk=form_data.template)
+                        xsd_doc_data = template_object.content
+                    else:
+                        raise MDCSError("No schema attached to this file")
+
+                    if form_data.xml_data is not None:
+                        xml_doc_data = form_data.xml_data
+                    else:
+                        xml_doc_data = None
+
+                    root_element_id = generate_form(request, xsd_doc_data, xml_doc_data, config=load_config())
+                    root_element = SchemaElement.objects.get(pk=root_element_id)
+
+                    form_data.schema_element_root = root_element
+
                 request.session['form_id'] = str(form_data.schema_element_root.id)
 
                 context = RequestContext(request, {})

@@ -222,3 +222,6 @@ curate/tests/data/parser/extension/explicit-implicit/results*
 
 # migration
 backups/
+
+# Celery
+*.pid
