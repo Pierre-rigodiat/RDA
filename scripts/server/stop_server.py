@@ -16,10 +16,13 @@ import os, psutil, argparse, time
 def get_list_pid(name=None, arg=None):
     list_pid = []
     for proc in psutil.process_iter():
-        if name is not None and proc.name() == name:
-            list_pid.append(proc.pid)
-        elif arg is not None and arg in proc.cmdline():
-            list_pid.append(proc.pid)
+        try:
+            if name is not None and proc.name() == name:
+                list_pid.append(proc.pid)
+            elif arg is not None and arg in proc.cmdline():
+                list_pid.append(proc.pid)
+        except:
+            pass
     return list_pid
 
 if __name__ == "__main__":
