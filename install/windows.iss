@@ -11,7 +11,7 @@ AppVerName=mdcs 1.4
 AppPublisher=NIST
 DefaultDirName={userdocs}\mdcs
 DefaultGroupName=mdcs
-OutputBaseFilename=setup
+OutputBaseFilename=mdcs_1.4
 Compression=lzma
 SolidCompression=yes
 

@@ -215,7 +215,7 @@ class Migration:
             self._error()
 
         # /!\ PROMPT TO CREATE A ZIP OF THE DATA FIRST
-        msg = 'Please be sure that you made a copy of your data before starting.'
+        msg = 'Please be sure that you made a copy of your data/db and db.sqlite3 before starting.'
 
         if not self._warn_user(msg):
             self._error()
