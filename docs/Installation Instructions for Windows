@@ -4,23 +4,27 @@ for Materials Data Curation Project
 Setup:
 
 For python:
-
 1)	Download python 2.7 for windows 32bits (https://www.python.org/download/)
 2)	Add to PATH:
 C:\Python27\
 C:\Python27\Scripts
 
 For pip:
-
 We need pip to do the installation of the required dependencies.  pip requires setuptools and it has to be installed first, before pip can run: http://www.pip-installer.org/en/latest/installing.html 
 
 1)	Download get-pip.py
 2)	In a command prompt :
 python get-pip.py 
 
+For MongoDB:
+1) Download from https://www.mongodb.com/download-center#community
+2) Follow the instructions provided by MongoDB to install it
 
-For the virtual environment:
+For Redis:
+1) Download from https://github.com/MSOpenTech/redis/releases
+2) Run the msi
 
+(Optional) For the virtual environment:
 1)	In a command prompt:
 pip install virtualenvwrapper-win
 2)	Add environment variable (Win 7 :Start, right click on Computer, Properties, click on Advance system settings in the left panel, go to advanced tab, Environment Variables…, New)
@@ -36,9 +40,10 @@ workon mgi (the prompt will change and become mgi. You should always see the mgi
 Configure MongoDB:
 Please follow general instructions provided in the file called MongoDB Configuration.
 
-Install all required python packages:
 
-Use the file called Required Python Packages to install them in their good version. If you are using a virtual environment, make sure it is activated before starting the installation. Instructions specific to Windows platform can be found below.
+Install all required python packages:
+pip install -r docs\requirements.txt
+If you are using a virtual environment, make sure it is activated before starting the installation. Instructions specific to Windows platform can be found below.
 
 
 For ldap:
