@@ -3,24 +3,24 @@ for Materials Data Curation Project
 
 Setup:
 
-For python:
+Install python:
 1)	Download python 2.7 for windows 32bits (https://www.python.org/download/)
 2)	Add to PATH:
 C:\Python27\
 C:\Python27\Scripts
 
-For pip:
+Install pip:
 We need pip to do the installation of the required dependencies.  pip requires setuptools and it has to be installed first, before pip can run: http://www.pip-installer.org/en/latest/installing.html 
 
 1)	Download get-pip.py
 2)	In a command prompt :
 python get-pip.py 
 
-For MongoDB:
+Install MongoDB:
 1) Download from https://www.mongodb.com/download-center#community
 2) Follow the instructions provided by MongoDB to install it
 
-For Redis:
+Install Redis Server:
 1) Download from https://github.com/MSOpenTech/redis/releases
 2) Run the msi
 

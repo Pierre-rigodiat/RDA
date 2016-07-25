@@ -26,7 +26,11 @@ alias pip=~/usr/local/bin/pip
 
 Any installed package via pip will now go under your '~/usr/local/lib/python2.7/site-packages' directory.
 
-Install redis server:
+Install MongoDB:
+1) Download from https://www.mongodb.com/download-center#community
+2) Follow the instructions provided by MongoDB to install it
+
+Install Redis Server:
 sudo apt-get install redis-server
 
 
@@ -51,7 +55,8 @@ Configure MongoDB:
 Please follow general instructions provided in the file called MongoDB Configuration.
 
 Install all required python packages:
-Use the file called Required Python Packages to install them in their good version. If you are using a virtual environment, make sure it is activated before starting the installation. Instructions specific to Linux platform can be found below.
+pip install -r docs/requirements.txt
+If you are using a virtual environment, make sure it is activated before starting the installation. Instructions specific to Linux platform can be found below.
 
 For lxml:
 
