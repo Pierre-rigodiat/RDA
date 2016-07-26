@@ -567,7 +567,8 @@ def curate_edit_form(request):
                     root_element_id = generate_form(request, xsd_doc_data, xml_doc_data, config=load_config())
                     root_element = SchemaElement.objects.get(pk=root_element_id)
 
-                    form_data.schema_element_root = root_element
+                    form_data.update(set__schema_element_root=root_element)
+                    form_data.reload()
 
                 request.session['form_id'] = str(form_data.schema_element_root.id)
 

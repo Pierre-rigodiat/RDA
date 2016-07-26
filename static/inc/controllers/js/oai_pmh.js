@@ -1618,7 +1618,6 @@ enterKeyPressSubscription = function ()
         }
     });
 
-
 }
 
 ////////////////////////////////////////////////
