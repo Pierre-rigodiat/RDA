@@ -292,7 +292,15 @@ class Migration:
                     publication_date = result['publicationdate']
                     # set oai_datestamp to publication date
                     payload = {'oai_datestamp': publication_date}
+                    if 'lastmodificationdate' not in result:
+                        payload.update({'lastmodificationdate': publication_date})
                     xml_data_col.update({'_id': result['_id']}, {"$set": payload}, upsert=False)
+                else:
+                    if 'lastmodificationdate' not in result:
+                        # set last modification date to datetime.MIN
+                        generation_time = result['_id'].generation_time
+                        payload = {'lastmodificationdate': generation_time}
+                        xml_data_col.update({'_id': result['_id']}, {"$set": payload}, upsert=False)
 
             # FORM DATA UNIQUE NAMES
             self._resolve_duplicate_names(form_data_col)
