@@ -11,6 +11,7 @@ python-dateutil==2.2
 requests==2.3.0
 pymongo==2.8
 sickle==0.5
-celery[redis]
+redis==2.10.5
+celery==3.1.23
 django-password-policies==0.4.1
 psutil==4.3.0
