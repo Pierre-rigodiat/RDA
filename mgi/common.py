@@ -15,7 +15,7 @@ settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
 SERVER_EMAIL = settings.SERVER_EMAIL
 USE_EMAIL = settings.USE_EMAIL
-
+USE_BACKGROUND_TASK = settings.USE_BACKGROUND_TASK
 
 ################################################################################
 # 
@@ -279,15 +279,30 @@ def update_dependencies(xsd_tree, dependencies):
 
 def send_mail(recipient_list, subject, pathToTemplate, context={}, fail_silently=True, sender=SERVER_EMAIL):
     if USE_EMAIL:
-        MgiTasks.send_mail.apply_async((recipient_list, subject, pathToTemplate, context, fail_silently, sender), countdown=1)
+        if USE_BACKGROUND_TASK:
+            #Async call. Use celery
+            MgiTasks.send_mail.apply_async((recipient_list, subject, pathToTemplate, context, fail_silently, sender), countdown=1)
+        else:
+            #Sync call
+            MgiTasks.send_mail(recipient_list, subject, pathToTemplate, context, fail_silently, sender)
 
 def send_mail_to_administrators(subject, pathToTemplate, context={}, fail_silently=True):
     if USE_EMAIL:
-        MgiTasks.send_mail_to_administrators.apply_async((subject, pathToTemplate, context, fail_silently), countdown=1)
+        if USE_BACKGROUND_TASK:
+            #Async call. Use celery
+            MgiTasks.send_mail_to_administrators.apply_async((subject, pathToTemplate, context, fail_silently), countdown=1)
+        else:
+            #Sync call
+            MgiTasks.send_mail_to_administrators(subject, pathToTemplate, context, fail_silently)
 
 def send_mail_to_managers(subject, pathToTemplate, context={}, fail_silently=True):
     if USE_EMAIL:
-        MgiTasks.send_mail_to_managers.apply_async((subject, pathToTemplate, context, fail_silently), countdown=1)
+        if USE_BACKGROUND_TASK:
+            #Async call. Use celery
+            MgiTasks.send_mail_to_managers.apply_async((subject, pathToTemplate, context, fail_silently), countdown=1)
+        else:
+            #Sync call
+            MgiTasks.send_mail_to_managers(subject, pathToTemplate, context, fail_silently)
 
 def xpath_to_dot_notation(xpath, namespaces):
     """
