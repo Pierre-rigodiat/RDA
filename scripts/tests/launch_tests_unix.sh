@@ -23,7 +23,6 @@ usage()
 if [[ -z $* ]]; then
 	echo 'No argument found. All folders known to have tests will be tested. (mgi, api, user_dashboard, oai_pmh)'
 	python manage.py test mgi/ user_dashboard/ oai_pmh/ api/ --liveserver=localhost:8082
-	exit -1;
 else
     for arg do
         case $arg in
@@ -39,11 +38,10 @@ else
             ;;
         esac
     done
-fi
-
-if [[ ${#LIST_DIR_APP[@]} -gt 0 ]]; then
-    echo 'Arguments found. Starting to run the tests for: '${LIST_DIR_APP[@]}
-    python manage.py test ${LIST_DIR_APP[@]} --liveserver=localhost:8082
-else
-    echo "No valid folders found. Terminated"
+    if [[ ${#LIST_DIR_APP[@]} -gt 0 ]]; then
+        echo 'Arguments found. Starting to run the tests for: '${LIST_DIR_APP[@]}
+        python manage.py test ${LIST_DIR_APP[@]} --liveserver=localhost:8082
+    else
+        echo "No valid folders found. Terminated"
+    fi
 fi
