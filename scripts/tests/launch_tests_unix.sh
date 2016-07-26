@@ -21,8 +21,8 @@ usage()
 
 # Check if there is no argument
 if [[ -z $* ]]; then
-	echo 'No argument found. All folders known to have tests will be tested. (mgi, api, user_dashboard, oai_pmh)'
-	python manage.py test mgi/ user_dashboard/ oai_pmh/ api/ --liveserver=localhost:8082
+	echo 'No argument found. All folders known to have tests will be tested. (mgi, api, user_dashboard, oai_pmh, compose)'
+	python manage.py test mgi/ user_dashboard/ oai_pmh/ api/ compose/ --liveserver=localhost:8082
 else
     for arg do
         case $arg in
