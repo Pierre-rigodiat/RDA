@@ -8,21 +8,22 @@ MONGO='mongod'
 
 usage()
 {
-	echo "  ---------------------------------------------------------------------"
-	echo " | launch_server_unix [options]                                        |"
-	echo " |                                                                     |"
-	echo " |       Options:                                                      |"
-	echo " |                                                                     |"
-	echo " |  -p  | --dir   : path to the django project folder (mandatory)      |"
-	echo " |  -d  | --dport : django server port (8000 if not specified)         |"
-	echo " |  -c  | --mconf : path to mongoDB configuration file (mandatory)     |"
-	echo " |  -m  | --mport : mongoDB port (27017 if not specified)              |"
-	echo " |  -y  | --py    : path to python (not mandatory if path configured)  |"
-	echo " |  -l  | --ce    : path to celery (not mandatory if path configured)  |"
-	echo " |  -g  | --mo    : path to mongoDB (not mandatory if path configured) |"
-	echo " |  -h  | --help  : help                                               |"
-	echo " |                                                                     |"
-	echo "  ---------------------------------------------------------------------"
+	echo "  -----------------------------------------------------------------------"
+	echo " | launch_server_unix [options]                                          |"
+	echo " |                                                                       |"
+	echo " |       Options:                                                        |"
+	echo " |                                                                       |"
+	echo " |  -p  | --dir     : path to the django project folder (mandatory)      |"
+	echo " |  -d  | --dport   : django server port (8000 if not specified)         |"
+	echo " |  -c  | --mconf   : path to mongoDB configuration file (mandatory)     |"
+	echo " |  -m  | --mport   : mongoDB port (27017 if not specified)              |"
+	echo " |  -y  | --py      : path to python (not mandatory if path configured)  |"
+	echo " |  -l  | --ce      : path to celery (not mandatory if path configured)  |"
+	echo " |  -g  | --mo      : path to mongoDB (not mandatory if path configured) |"
+	echo " |  -n  | --noinput : no input. Kill running processes                   |"
+	echo " |  -h  | --help    : help                                               |"
+	echo " |                                                                       |"
+	echo "  -----------------------------------------------------------------------"
 	exit -1;
 }
 
@@ -33,11 +34,15 @@ if [[ -z $* ]]; then
 	usage;
 fi
 
-# Check if there is -h or --help argument
+# Check if there is -h or --help argument, or -n --noinput argument
+NO_INPUT=false
 for arg do
 	case $arg in
 		-h|--help)
 	    	usage
+		;;
+		-n|--noinput)
+	    	NO_INPUT=true
 		;;
 	esac
 done
@@ -110,12 +115,14 @@ if [[ -n $PROC ]]; then
 fi
 
 if [[ $ERROR = true ]]; then
-	echo "You have to stop all running processes before launching the server."
-	read -p "Would you like to stop all running processes ? (y or Y for yes) " -n 1 -r
-	echo    # (optional) move to a new line
-	if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-		echo "Terminated"
-    		exit -1;
+	if [[ $NO_INPUT = false ]]; then
+		echo "You have to stop all running processes before launching the server."
+		read -p "Would you like to stop all running processes ? (y or Y for yes) " -n 1 -r
+		echo    # (optional) move to a new line
+		if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+			echo "Terminated"
+				exit -1;
+		fi
 	fi
 	echo "  --------------------Kill processes----------------------"
 	echo "  ----------------------Stop celery----------------------"
