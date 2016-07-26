@@ -15,7 +15,6 @@
 ################################################################################
 from django.http.request import HttpRequest
 from testing.models import RegressionTest
-
 from compose.ajax import insert_element_sequence
 from mgi.models import create_type
 from mgi.settings import BASE_DIR
