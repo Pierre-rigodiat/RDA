@@ -13,4 +13,4 @@ pymongo==2.8
 sickle==0.5
 celery[redis]
 django-password-policies==0.4.1
-psutil=4.3.0
+psutil==4.3.0
