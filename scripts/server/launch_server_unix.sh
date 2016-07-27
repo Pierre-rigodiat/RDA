@@ -20,11 +20,12 @@ usage()
 	echo " |  -y  | --py      : path to python (not mandatory if path configured)  |"
 	echo " |  -l  | --ce      : path to celery (not mandatory if path configured)  |"
 	echo " |  -g  | --mo      : path to mongoDB (not mandatory if path configured) |"
-	echo " |  -n  | --noinput : no input. Kill running processes                   |"
+	echo " |  -k  | --killall : Kill all running processes before launching        |"
+	echo " |  -r  | --nocelery: won't start celery                                 |"
 	echo " |  -h  | --help    : help                                               |"
 	echo " |                                                                       |"
 	echo "  -----------------------------------------------------------------------"
-	exit -1;
+	exit -0;
 }
 
 
@@ -34,15 +35,19 @@ if [[ -z $* ]]; then
 	usage;
 fi
 
-# Check if there is -h or --help argument, or -n --noinput argument
+# Check if there is -h or --help argument, or -i --noinput argument, or -r --nocelery
 NO_INPUT=false
+NO_CELERY=false
 for arg do
 	case $arg in
 		-h|--help)
 	    	usage
 		;;
-		-n|--noinput)
+		-k|--killall)
 	    	NO_INPUT=true
+		;;
+		-r|--nocelery)
+	    	NO_CELERY=true
 		;;
 	esac
 done
@@ -95,48 +100,59 @@ if [[ -z $PATH_TO_MONGO_CONF ]]; then
 fi
 
 # Check if server is already running
-ERROR=false
+PROC_MONGO=false
+PROC_CELERY=false
+PROC_PYTHON=false
 PROC="$(pgrep mongod)"
 if [[ -n $PROC ]]; then
 	echo "Error: MongoDB is already running"
-	ERROR=true
+	PROC_MONGO=true
 fi
 
 PROC="$(pgrep -f celery)"
 if [[ -n $PROC ]]; then
 	echo "Error: Celery is already running"
-	ERROR=true
+	PROC_CELERY=true
 fi
 
 PROC="$(pgrep -f runserver)"
 if [[ -n $PROC ]]; then
 	echo "Error: Python server is already running"
-	ERROR=true
+	PROC_PYTHON=true
 fi
 
-if [[ $ERROR = true ]]; then
+if [[ $PROC_PYTHON = true -o $PROC_CELERY = true -o $PROC_MONGO = true ]]; then
 	if [[ $NO_INPUT = false ]]; then
 		echo "You have to stop all running processes before launching the server."
 		read -p "Would you like to stop all running processes ? (y or Y for yes) " -n 1 -r
 		echo    # (optional) move to a new line
 		if [[ ! $REPLY =~ ^[Yy]$ ]]; then
 			echo "Terminated"
-				exit -1;
+			exit 0;
 		fi
 	fi
 	echo "  --------------------Kill processes----------------------"
-	echo "  ----------------------Stop celery----------------------"
-	cd $PATH_TO_PROJECT
-	until $CELERY multi stopwait worker -A $PROJ -l info -Ofair --purge;
-	do
-		sleep 1;
-	done
-	echo "  -------------------------------------------------------"
-	echo "  ------------------Stop django server-------------------"
-	pkill -TERM -f runserver
-	echo "  ----------------------Kill mongo-----------------------"
-	pkill -9 mongod
-
+	if [[ $PROC_CELERY = true ]] ; then
+	    echo "  ----------------------Stop celery----------------------"
+        cd $PATH_TO_PROJECT
+        until $CELERY multi stopwait worker -A $PROJ -l info -Ofair --purge;
+        do
+            sleep 1;
+        done
+        PROC="$(pgrep -f celery)"
+        if [[ -n $PROC ]]; then
+            pkill -TERM -f celery
+        fi
+        echo "  -------------------------------------------------------"
+    fi
+	if [[ $PROC_PYTHON = true ]] ; then
+        echo "  ------------------Stop django server-------------------"
+        pkill -TERM -f runserver
+	fi
+	if [[ $PROC_MONGO = true ]] ; then
+        echo "  ----------------------Kill mongo-----------------------"
+        pkill -9 mongod
+    fi
 	echo "Resuming launch server..."
 fi
 
@@ -151,12 +167,14 @@ do
 	sleep 1;
 done
 
+if [[ ! NO_CELERY ]] ; then
 echo "  ---------------------Start celery-----------------------"
-$CELERY multi start -A $PROJ worker -l info -Ofair --purge & disown
-until $CELERY -A $PROJ status 2>/dev/null;
-do
-	sleep 1;
-done
+    $CELERY multi start -A $PROJ worker -l info -Ofair --purge & disown
+    until $CELERY -A $PROJ status 2>/dev/null;
+    do
+        sleep 1;
+    done
+fi
 
 echo "  ---------------------Start python-----------------------"
 $PYTHON manage.py runserver --noreload 0.0.0.0:$DJANGO_PORT & disown
