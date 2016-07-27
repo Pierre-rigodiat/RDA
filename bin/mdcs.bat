@@ -2,7 +2,19 @@
 @cd /d "%~dp0"
 @echo off
 
-start cmd /k ..\mongodb\bin\mongod.exe --config ..\conf\mongodb.conf
+echo Starting...
+
+set init=T
+if not exist "..\data\db" set init=F
+if not exist "..\db.sqlite3" set init=F
+
+if "%init%"=="F" ( 	
+	echo DATABASE MISSING
+	call init_db.bat
+) else (
+	echo DATABASE FOUND
+	start cmd /k ..\mongodb\bin\mongod.exe --config ..\conf\mongodb.conf
+)
 
 echo Waiting for MongoDB to start...
 timeout /t 5
