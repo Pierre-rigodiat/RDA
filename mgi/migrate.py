@@ -10,12 +10,9 @@ import platform
 from settings import MONGODB_URI, MGI_DB, BASE_DIR
 
 
-# PREREQUISITES:
-# - mongod running and connected to data\db
-
 # PROCEDURE:
 # - stop mongogod, stop runserver
-# - save data/db in a different location
+# - save data/db and db.sqlite3 in a different location
 # - Update the code
 # - run mongod
 # - run migration
@@ -24,6 +21,7 @@ from settings import MONGODB_URI, MGI_DB, BASE_DIR
 
 # PARAMETERS
 BACKUPS_DIR = os.path.join(BASE_DIR, 'backups')
+
 
 class Migration:
     def __init__(self, warnings_enabled=True, backup_enabled=True):
@@ -197,13 +195,10 @@ class Migration:
 
     def migrate(self, mongo_admin_user, mongo_admin_password, mongo_path, warnings=True, backup=True):
         """
-        APPLY CHANGES FROM 1.3 TO 1.4
+        APPLIES CHANGES FROM 1.3 TO 1.4
 
         :return:
         """
-        # /!\ DON"T CREATE THE DATA FOLDER IN THE INSTALLERS
-        # /!\ CHECK WHEN GETTING THE CODE FROM GITHUB TOO
-
         print '*** START MIGRATION ***'
 
         msg = 'You are about to run the Curator Migration Tool. ' \
@@ -215,7 +210,7 @@ class Migration:
             self._error()
 
         # /!\ PROMPT TO CREATE A ZIP OF THE DATA FIRST
-        msg = 'Please be sure that you made a copy of data/db and db.sqlite3 before starting.'
+        msg = 'Please be sure that you made a copy of the data/db folder and of the db.sqlite3 file before starting.'
 
         if not self._warn_user(msg):
             self._error()
