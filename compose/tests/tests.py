@@ -14,8 +14,7 @@
 #
 ################################################################################
 from django.http.request import HttpRequest
-from django.test import TestCase
-
+from testing.models import RegressionTest
 from compose.ajax import insert_element_sequence
 from mgi.models import create_type
 from mgi.settings import BASE_DIR
@@ -27,7 +26,7 @@ from lxml import etree
 RESOURCES_PATH = join(BASE_DIR, 'compose', 'tests', 'data')
 
 
-class ComposerTestSuite(TestCase):
+class ComposerTestSuite(RegressionTest):
     """
     Test suite for the Compose application
     """

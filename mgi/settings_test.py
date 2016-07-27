@@ -152,6 +152,7 @@ OAI_SAMPLE_IDENTIFIER = OAI_SCHEME+OAI_DELIMITER+OAI_REPO_IDENTIFIER+OAI_DELIMIT
 OAI_DELETED_RECORD = 'persistent' #no ; transient ; persistent
 
 #Celery configuration
+USE_BACKGROUND_TASK = False
 BROKER_URL = 'redis://localhost:6379/0'
 BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
