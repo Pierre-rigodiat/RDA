@@ -673,7 +673,6 @@ def manageRegexBeforeAPI(query, queryStr):
 #
 ################################################################################
 def intCriteria(path, comparison, value, isNot=False):
-    print 'BEGIN def intCriteria(path, comparison, value, isNot=False)'
     criteria = dict()
 
     if comparison == "=":
@@ -687,7 +686,6 @@ def intCriteria(path, comparison, value, isNot=False):
         else:
             criteria[path] = eval('{"$' + comparison+'":' + str(value) + '}')
 
-    print 'END def intCriteria(path, comparison, value, isNot=False)'
     return criteria
 
 
