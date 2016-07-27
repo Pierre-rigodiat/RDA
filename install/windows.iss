@@ -29,6 +29,6 @@ Source: "..\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createalls
 Name: "{commondesktop}\mdcs"; Filename: "{app}\bin\mdcs.bat";
 
 [Messages]
-WelcomeLabel2=WARNINGS: Please BACKUP your data before starting by making a copy of the data\db folder and of the db.sqlite3 file of your previous installation and place them in a different location. Please INSTALL MongoDB and INSTALL Redis Server before starting the installation. For more information, please read the installation instructions.
+WelcomeLabel2=WARNINGS: Please BACKUP your data before starting by making a copy of the data\db folder and of the db.sqlite3 file of your previous installation and place them in a different location. Please INSTALL MongoDB before starting the installation. For more information, please read the installation instructions.
 SelectDirBrowseLabel=To continue, click Next. If you would like to select a different folder, click Browse. To update an existing version, please select the previous installation folder. FIRST, PLEASE MAKE SURE TO BACKUP YOUR MDCS DATA BEFORE CLICKING NEXT.
 FinishedLabel=ALMOST DONE. Setup has finished installing [name] on your computer. To migrate the databases from version the previous version, please go in the MDCS bin folder and run the migration script. The application may be launched by selecting the installed icons.

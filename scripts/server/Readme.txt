@@ -17,5 +17,8 @@ For the others options, if your path is already set up, you don't need them. If 
 
  ./launch_server_unix.sh -p ~/workspace/mgi-mdcs -c /etc/mongodb.conf -y /usr/bin/python -l /usr/bin/celery -g /usr/bin/mongo
 
- If your path is not configured, but don't know the path to the application, you can use the command 'which'.
+If your path is not configured, but don't know the path to the application, you can use the command 'which'.
 
+You can use -r or --nocelery if you don't intend to use celery. Celery is used by the software to send emails (user account, publish, and so on) and for automatic harvesting with OAI_PMH.
+
+You can use -k --killall if you want to automatically kill all running processes before launching the server.

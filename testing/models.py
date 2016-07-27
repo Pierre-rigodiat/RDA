@@ -29,6 +29,8 @@ from django.test import Client
 import base64
 import json
 from lxml import etree
+from django.test import TestCase
+
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
 MONGODB_URI = settings.MONGODB_URI
@@ -64,9 +66,12 @@ ADMIN_AUTH_GET = ('admin', 'admin')
 
 XMLParser = etree.XMLParser(remove_blank_text=True, recover=True)
 
-class RegressionTest(LiveServerTestCase):
+
+class RegressionTest(LiveServerTestCase, TestCase):
 
     def setUp(self):
+        self.clean_db()
+
         discover.init_rules()
 
         user, userCreated = User.objects.get_or_create(username='user')

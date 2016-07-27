@@ -32,6 +32,8 @@ class ComposerTestSuite(RegressionTest):
     """
 
     def setUp(self):
+        # # call parent setUp
+        # super(ComposerTestSuite, self).setUp()
         # create the request
         self.request = HttpRequest()
         # create the session

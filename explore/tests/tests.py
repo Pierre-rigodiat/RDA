@@ -14,31 +14,14 @@
 #
 ################################################################################
 
-from django.test import TestCase
-
+from testing.models import RegressionTest
 from explore.ajax import build_criteria, manageRegexBeforeExe, ORCriteria, ANDCriteria, invertQuery
 from mgi.models import create_template, XMLdata
 from mgi.settings import BASE_DIR
 from os.path import join
-from pymongo import MongoClient
-from mgi.settings import MONGODB_URI
-from pymongo.errors import OperationFailure
+
 
 RESOURCES_PATH = join(BASE_DIR, 'explore', 'tests', 'data')
-
-
-def clean_db():
-    # create a connection
-    client = MongoClient(MONGODB_URI)
-    # connect to the db 'mgi'
-    db = client['mgi']
-    # clear all collections
-    for collection in db.collection_names():
-        try:
-            if collection != 'system.indexes':
-                db.drop_collection(collection)
-        except OperationFailure:
-            pass
 
 
 def load_template(template_path):
@@ -69,11 +52,10 @@ def load_data(data_path, template_id):
         XMLdata(template_id, xml=data_content).save()
 
 
-class ExploreTestSuite(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        # clean the database
-        clean_db()
+class ExploreTestSuite(RegressionTest):
+    def setUp(self):
+        # call parent setUp
+        super(ExploreTestSuite, self).setUp()
         # add a template
         template = load_template(join(RESOURCES_PATH, 'schema.xsd'))
         # load data
@@ -286,11 +268,10 @@ class ExploreTestSuite(TestCase):
         self.assertTrue(len(inverted_results) == 3)
 
 
-class ExploreNSTestSuite(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        # clean the database
-        clean_db()
+class ExploreNSTestSuite(RegressionTest):
+    def setUp(self):
+        # call parent setUp
+        super(ExploreNSTestSuite, self).setUp()
         # add a template
         template = load_template(join(RESOURCES_PATH, 'schema-attr.xsd'))
         # load data
@@ -503,11 +484,10 @@ class ExploreNSTestSuite(TestCase):
         self.assertTrue(len(inverted_results) == 3)
 
 
-class ExploreEncodingTestSuite(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        # clean the database
-        clean_db()
+class ExploreEncodingTestSuite(RegressionTest):
+    def setUp(self):
+        # call parent setUp
+        super(ExploreEncodingTestSuite, self).setUp()
         # add a template
         template = load_template(join(RESOURCES_PATH, 'schema.xsd'))
         # load data
@@ -519,11 +499,10 @@ class ExploreEncodingTestSuite(TestCase):
         self.assertTrue(len(results) == 1)
 
 
-class ExploreNSEncodingTestSuite(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        # clean the database
-        clean_db()
+class ExploreNSEncodingTestSuite(RegressionTest):
+    def setUp(self):
+        # call parent setUp
+        super(ExploreNSEncodingTestSuite, self).setUp()
         # add a template
         template = load_template(join(RESOURCES_PATH, 'schema-attr.xsd'))
         # load data

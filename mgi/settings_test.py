@@ -173,10 +173,6 @@ CUSTOM_CURATE = 'Data Curation'
 CUSTOM_EXPLORE = 'Data Exploration'
 CUSTOM_COMPOSE = 'Composer'
 
-#CURATE
-CURATE_MIN_TREE = True
-CURATE_COLLAPSE = True
-
 # PARSER
 PARSER_MIN_TREE = True
 PARSER_IGNORE_MODULES = False
@@ -214,7 +210,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'mongoengine.django.mongo_auth',
+    # 'mongoengine.django.mongo_auth',
     'rest_framework',
     'rest_framework_swagger',
     'oauth2_provider',
@@ -225,10 +221,11 @@ INSTALLED_APPS = (
     'explore',
     'compose',
     'modules',
+    'user_dashboard',
     'oai_pmh',
     'testing',
+    'utils.XSDParser',
     'password_policies'
-
 )
 
 OAUTH2_PROVIDER = {
