@@ -13,13 +13,13 @@ if exist "..\data\db" (
 	echo MongoDB database is already present
 	start cmd /k ..\mongodb\bin\mongod.exe --config ..\conf\mongodb.conf
 	echo Waiting for MongoDB to start...
-	timeout /t 5
+	timeout /t 10
 ) else (
 	echo Creating MongoDB database...
 	mkdir ..\data\db
 	start cmd /k ..\mongodb\bin\mongod.exe --config ..\conf\mongodb.conf
 	echo Waiting for MongoDB to start...
-	timeout /t 5
+	timeout /t 10
 	echo Creating MongoDB models...
 	..\mongodb\bin\mongo.exe < create_admin.js
 	..\mongodb\bin\mongo.exe --port 27017 -u "admin" -p "admin" --authenticationDatabase admin < create_user.js
