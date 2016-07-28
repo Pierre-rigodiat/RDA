@@ -1,6 +1,6 @@
 from selenium import webdriver
 import time
-from django.test import TestCase
+from mgi.tests import SeleniumTestCase
 
 from mgi.settings import BASE_DIR
 from os.path import join
@@ -25,7 +25,7 @@ def clean_db():
     # create a connection
     client = MongoClient(MONGODB_URI)
     # connect to the db 'mgi'
-    db = client['mgi']
+    db = client['mgi_test']
     # clear all collections
     for collection in db.collection_names():
         try:
@@ -67,7 +67,7 @@ def upload_xml_form(driver, base_url, form_path):
     driver.find_element_by_xpath("(//button[@type='button'])[2]").click()
 
 
-class LoadExtensionToXML(TestCase):
+class LoadExtensionToXML(SeleniumTestCase):
     """
     """
     def setUp(self):
