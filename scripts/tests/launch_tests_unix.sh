@@ -25,14 +25,14 @@ if [[ -z $* ]]; then
 	echo 'No argument found. All folders known to have tests will be tested. (mgi, api, user_dashboard, oai_pmh, compose, explore)'
 	python manage.py test mgi/ user_dashboard/ oai_pmh/ api/ compose/ explore/ --liveserver=localhost:8082 --no-selenium
 else
-    SELENIUM=''
+    SELENIUM='--no-selenium'
     for arg do
         case $arg in
             -h|--help)
                 usage
             ;;
             -s|--selenium)
-                SELENIUM='--no-selenium'
+                SELENIUM=''
             ;;
             *)
                 if [ -d "$arg" ]; then
