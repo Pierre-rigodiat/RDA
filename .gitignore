@@ -226,4 +226,6 @@ backups/
 
 # bin
 bin/start_mongo.bat
+bin/create_test.js
+bin/init_db_test.bat
 
