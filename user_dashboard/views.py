@@ -111,17 +111,17 @@ def my_profile_edit(request):
 def dashboard_records(request):
     template = loader.get_template('dashboard/my_dashboard_my_records.html')
     query = {}
-    ispublished = request.GET.get('ispublished', None)
+    # ispublished = request.GET.get('ispublished', None)
     #If ispublished not None, check if we want publish or unpublish records
-    if ispublished:
-        ispublished = ispublished == 'true'
-        query['ispublished'] = ispublished
+    # if ispublished:
+    #     ispublished = ispublished == 'true'
+    #     query['ispublished'] = ispublished
     query['iduser'] = str(request.user.id)
     userXmlData = sorted(XMLdata.find(query), key=lambda data: data['lastmodificationdate'], reverse=True)
     #Add user_form for change owner
     user_form = UserForm(request.user)
     context = RequestContext(request, {'XMLdatas': userXmlData,
-                                       'ispublished': ispublished,
+                                       # 'ispublished': ispublished,
                                        'user_form': user_form
     })
     #If the user is an admin, we get records for other users

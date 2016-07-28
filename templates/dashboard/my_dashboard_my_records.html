@@ -33,11 +33,11 @@
 {% block content %}
     <div id="body">
 	    <div class="width">
-            <ul class="nav nav-tabs">
-                {% if ispublished == None %} <li class="active"> {%else%} <li> {% endif%} <a href="/dashboard/records">All</a></li>
-                {% if ispublished == True %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/records?ispublished=true">Published</a></li>
-                {% if ispublished == False %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/records?ispublished=false">Not Published</a></li>
-            </ul>
+            <!--<ul class="nav nav-tabs">-->
+                <!--{% if ispublished == None %} <li class="active"> {%else%} <li> {% endif%} <a href="/dashboard/records">All</a></li>-->
+                <!--{% if ispublished == True %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/records?ispublished=true">Public</a></li>-->
+                <!--{% if ispublished == False %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/records?ispublished=false">Private</a></li>-->
+            <!--</ul>-->
             {% if user.is_staff %}
                 <span>
                     <div class="tpl-title">My records</div>
