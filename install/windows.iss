@@ -5,14 +5,14 @@
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId=mdcs
-AppName=mdcs
-AppVersion=1.4 rc1
-AppVerName=mdcs 1.4 release candidate
+AppId=nmrr
+AppName=nmrr
+AppVersion=beta
+AppVerName=nmrr beta
 AppPublisher=NIST
 DefaultDirName={userdocs}\mdcs
 DefaultGroupName=mdcs
-OutputBaseFilename=mdcs_1.4_rc1
+OutputBaseFilename=nmrr_beta
 Compression=lzma
 SolidCompression=yes
 DisableDirPage=no
@@ -31,4 +31,4 @@ Name: "{commondesktop}\mdcs"; Filename: "{app}\bin\mdcs.bat";
 [Messages]
 WelcomeLabel2=WARNINGS: Please BACKUP your data before starting by making a copy of the data\db folder and of the db.sqlite3 file of your previous installation and place them in a different location. Please INSTALL MongoDB before starting the installation. For more information, please read the installation instructions.
 SelectDirBrowseLabel=To continue, click Next. If you would like to select a different folder, click Browse. To update an existing version, please select the previous installation folder. FIRST, PLEASE MAKE SURE TO BACKUP YOUR MDCS DATA BEFORE CLICKING NEXT.
-FinishedLabel=ALMOST DONE. Setup has finished installing [name] on your computer. To migrate the databases from version the previous version, please go in the MDCS bin folder and run the migration script. The application may be launched by selecting the installed icons.
+FinishedLabel=ALMOST DONE. Setup has finished installing [name] on your computer. To migrate the databases from version the previous version, please go in the [name] bin folder and run the migration script. The application may be launched by selecting the installed icons.
