@@ -277,7 +277,7 @@ class Migration:
                 print "Adding status to all records (Active by default)..."
                 #Get the status value inside the schema
                 content = result['content']
-                status = content.get('Resource', []).get('@status', None)
+                status = content.get('Resource', dict()).get('@status', None)
                 if not status:
                     status = 'active'
                 xml_data_col.update({'_id': result['_id']}, {"$set": {"status": status}}, upsert=False)
