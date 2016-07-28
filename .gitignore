@@ -223,3 +223,7 @@ backups/
 
 # Celery
 *.pid
+
+# bin
+bin/start_mongo.bat
+
