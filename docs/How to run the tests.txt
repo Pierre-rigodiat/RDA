@@ -21,7 +21,7 @@ If your are developing some tests, you can inherits from testing/models.Regressi
 
 Go to the working directory. From there, you can run this command (Windows, Mac, Linux):
 
-python manage.py test <path to the app> —liveserver=localhost:8082
+python manage.py test <path to the app> --liveserver=localhost:8082
 
 You can also use the scripts you can find at /scripts/tests/ but there are meant for Linux and Mac only for the moment. Again from the working directory, you can run the tests with the scripts.
 ./scripts/tests/launch_tests_coverage.sh <path to the app>
