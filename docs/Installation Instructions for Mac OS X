@@ -83,7 +83,7 @@ Would you like to create one now? (yes/no):yes
 To Run the software:
 
 1)	Run mongodb (if not already running). In a command prompt :
-mongod --config /path/to/nmrr/conf/mongodb.conf
+mongod --config /path/to/mrr/conf/mongodb.conf
 
 2)	Run the MRR. In a command prompt :
 workon mgi
@@ -94,6 +94,6 @@ To be able to access the system remotely, instead of using python manage.py runs
 
 Access:
 
-For Materials Data Curation System, Go to:  http://127.0.0.1:8000/ 
+For Materials Resource Registry, Go to:  http://127.0.0.1:8000/ 
 
-For Materials Data Curation Administration, Go to:  http://127.0.0.1:8000/admin/ 
+For Materials Resource Registry Administration, Go to:  http://127.0.0.1:8000/admin/ 

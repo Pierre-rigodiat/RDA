@@ -82,21 +82,21 @@ To Run the software:
 1)	Make sure Redis is running.
 
 2)	Run mongodb (if not already running). In a command prompt :
-mongod --config /path/to/nmrr/conf/mongodb.conf
+mongod --config /path/to/mrr/conf/mongodb.conf
 
 3)	Run celery. In a command prompt :
 celery -A mgi worker -l info -Ofair --purge
 
-4)	Run the NMRR. In a command prompt :
+4)	Run the MRR. In a command prompt :
 workon mgi
-cd path/to/nmrr
+cd path/to/mrr
 python manage.py runserver --noreload
 
 To be able to access the system remotely, instead of using python manage.py runserver, use: python manage.py runserver 0.0.0.0:<port> --noreload
 
 Access:
 
-For Materials Data Curation System, Go to:  http://127.0.0.1:8000/ 
+For Materials Resource Registry, Go to:  http://127.0.0.1:8000/ 
 
-For Materials Data Curation Administration, Go to:  http://127.0.0.1:8000/admin/ 
+For Materials Resource Registry Administration, Go to:  http://127.0.0.1:8000/admin/ 
 
