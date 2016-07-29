@@ -127,7 +127,7 @@ def explore_detail_result_keyword(request) :
         title = request.GET['title']
     else:
         title = record.identifier
-    xmlString = XMLdata.unparse(record.metadata).encode('utf-8')
+    xmlString = XMLdata.unparse(record.getMetadataOrdered()).encode('utf-8')
     xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
     xslt = etree.parse(xsltPath)
     transform = etree.XSLT(xslt)
