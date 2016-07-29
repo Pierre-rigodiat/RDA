@@ -20,7 +20,6 @@
 #
 ################################################################################
 import os
-import sys
 from mongoengine import connect
 
 VERSION = "DELTA"

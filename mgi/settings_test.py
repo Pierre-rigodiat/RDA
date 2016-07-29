@@ -21,9 +21,8 @@
 ################################################################################
 
 import os
-import sys
 
-VERSION = "1.3"
+VERSION = "1.4"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

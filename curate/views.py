@@ -37,6 +37,7 @@ import mgi.rights as RIGHTS
 from mgi.exceptions import MDCSError
 
 
+
 ################################################################################
 #
 # Function Name: index(request)

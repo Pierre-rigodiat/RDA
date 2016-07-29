@@ -16,7 +16,6 @@
 
 # REST Framework
 from rest_framework.decorators import api_view
-from rest_framework import generics
 from rest_framework import status
 from rest_framework.response import Response
 # Models
@@ -50,17 +49,13 @@ MDCS_URI = settings.MDCS_URI
 from bson.objectid import ObjectId
 import re
 import requests
-from django.db.models import Q as QDJ
 from mongoengine.queryset.visitor import Q
 import operator
 import json
-import xmltodict
 from collections import OrderedDict
 from StringIO import StringIO
 from django.http.response import HttpResponse
-
 from utils.XMLValidation.xml_schema import validate_xml_schema
-from utils.XSDhash import XSDhash
 from io import BytesIO
 from utils.APIschemaLocator.APIschemaLocator import getSchemaLocation
 from datetime import datetime
@@ -73,6 +68,7 @@ import zipfile
 import mongoengine.errors as MONGO_ERRORS
 from admin_mdcs.models import api_permission_required, api_staff_member_required
 import mgi.rights as RIGHTS
+
 
 ################################################################################
 # 

@@ -30,6 +30,7 @@ settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
 MDCS_URI = settings.MDCS_URI
 
+
 ################################################################################
 #
 # Function Name: home(request)

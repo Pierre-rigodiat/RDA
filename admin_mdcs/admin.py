@@ -22,6 +22,7 @@ from django.utils import timezone
 
 admin.site.register(Permission)
 
+
 class UserAdmin(auth_admin.UserAdmin):
     list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'password_age')
 

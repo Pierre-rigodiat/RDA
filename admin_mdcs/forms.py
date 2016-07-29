@@ -18,11 +18,12 @@ from django import forms
 from django.contrib.auth.models import User
 from password_policies.forms.fields import PasswordPoliciesField
 from user_dashboard.forms import PasswordPoliciesLowerUpperField
-# list of possible protocols available in the form
 from mgi.models import Bucket
 
+# list of possible protocols available in the form
 PROTOCOLS = (('http', 'HTTP'),
             ('https', 'HTTPS'))
+
 
 class RepositoryForm(forms.Form):
     """
@@ -37,7 +38,8 @@ class RepositoryForm(forms.Form):
     client_id = forms.CharField(label='Client ID', max_length=100, required=True)
     client_secret = forms.CharField(label='Client Secret', max_length=100, required=True)
     timeout = forms.IntegerField(label="Timeout (s)", min_value=1, max_value=60, initial=1)
-    
+
+
 class RefreshRepositoryForm(forms.Form):
     """
     Form to refresh the token of a repository
@@ -45,6 +47,7 @@ class RefreshRepositoryForm(forms.Form):
     client_id = forms.CharField(label='Client ID', max_length=100, required=True)
     client_secret = forms.CharField(label='Client Secret', max_length=100, required=True)
     timeout = forms.IntegerField(label="Timeout (s)", min_value=1, max_value=60, initial=1)
+
 
 class RequestAccountForm(forms.Form):
     """
@@ -68,6 +71,7 @@ class RequestAccountForm(forms.Form):
     lastname = forms.CharField(label='Last Name', max_length=100, required=True)
     email = forms.EmailField(label='Email Address', max_length=100, required=True)
 
+
 class EditProfileForm(forms.Form):
     """
     Form to edit the profile information
@@ -77,6 +81,7 @@ class EditProfileForm(forms.Form):
     username = forms.CharField(label='Username', max_length=100, required=True, widget=forms.HiddenInput())
     email = forms.EmailField(label='Email Address', max_length=100, required=True)
 
+
 class ContactForm(forms.Form):
     """
     Form to contact the administrator
@@ -85,23 +90,27 @@ class ContactForm(forms.Form):
     email = forms.EmailField(label='Email Address', max_length=100, required=True)
     message = forms.CharField(label='Message', widget=forms.Textarea, required=True)
 
+
 class PrivacyPolicyForm(forms.Form):
     """
     Form to update the privacy policy
     """
     content = forms.CharField(label="Privacy Policy", widget=forms.Textarea, required=False)
 
+
 class TermsOfUseForm(forms.Form):
     """
     Form to update the terms of use
     """
     content = forms.CharField(label="Terms of Use", widget=forms.Textarea, required=False)
-    
+
+
 class HelpForm(forms.Form):
     """
     Form to update the help
     """
     content = forms.CharField(label="Help", widget=forms.Textarea, required=False)
+
 
 class UploadXSLTForm(forms.Form):
     """
@@ -110,6 +119,7 @@ class UploadXSLTForm(forms.Form):
     name = forms.CharField(label='Enter XSLT name', max_length=100, required=True)
     xslt_file = forms.FileField(label='Select a file', required=True)
     available_for_all = forms.BooleanField(widget=forms.CheckboxInput(attrs={'class':'cmn-toggle cmn-toggle-round'}))
+
 
 class UploadResultXSLTForm(forms.Form):
     """

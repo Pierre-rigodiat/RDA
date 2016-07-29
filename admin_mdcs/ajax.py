@@ -13,8 +13,6 @@
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
-from urlparse import urlparse
-
 from django.http import HttpResponse
 import lxml.etree as etree
 import json
@@ -29,12 +27,12 @@ from utils.XMLValidation.xml_schema import validate_xml_schema
 import random
 from django.contrib import messages
 from mgi.common import send_mail
-from django.template import RequestContext
 from django.utils.importlib import import_module
 import os
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
 MDCS_URI = settings.MDCS_URI
+
 
 ################################################################################
 # 
@@ -553,7 +551,7 @@ def delete_bucket(request):
 #
 ################################################################################
 def rdm_hex_color():
-    return '#' +''.join([random.choice('0123456789ABCDEF') for x in range(6)])
+    return '#' + ''.join([random.choice('0123456789ABCDEF') for x in range(6)])
 
 
 ################################################################################

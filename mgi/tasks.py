@@ -12,7 +12,6 @@ SERVER_EMAIL = settings.SERVER_EMAIL
 EMAIL_SUBJECT_PREFIX = settings.EMAIL_SUBJECT_PREFIX
 
 
-##Private functions
 @app.task
 def send_mail(recipient_list, subject, pathToTemplate, context={}, fail_silently=True, sender=SERVER_EMAIL):
     try:

@@ -56,9 +56,11 @@ class ExportForm(forms.Form):
         self.fields['my_exporters'].choices = []
         self.fields['my_exporters'].choices = self.EXPORT_OPTIONS
 
+
 class FormDataModelChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return "XSLT: "+ obj.name
+
 
 class UploadXSLTForm(forms.Form):
     """
@@ -93,6 +95,7 @@ class UploadXSLTForm(forms.Form):
         super(UploadXSLTForm, self).__init__()
         self.fields['my_xslts'].choices = []
         self.fields['my_xslts'].choices = self.EXPORT_OPTIONS
+
 
 class KeywordForm(forms.Form):
     """

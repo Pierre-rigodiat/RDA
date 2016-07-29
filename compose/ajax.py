@@ -20,19 +20,15 @@ import json
 from django.conf import settings
 from django.http.response import HttpResponseBadRequest
 from mongoengine import *
-
 from mgi.common import LXML_SCHEMA_NAMESPACE, SCHEMA_NAMESPACE, get_default_prefix, get_namespaces, get_target_namespace
 from mgi.exceptions import MDCSError
-from mgi.models import Template, Type, XML2Download, Exporter, create_template, create_type
+from mgi.models import Template, Type, XML2Download, create_template, create_type
 import lxml.etree as etree
 from io import BytesIO
-
 from utils.XMLValidation.xml_schema import validate_xml_schema
 from utils.APIschemaLocator.APIschemaLocator import getSchemaLocation
 from urlparse import urlparse
 from mgi import common
-
-# XSL file loading
 import os
 
 

@@ -378,9 +378,6 @@ def upload_xsd(request):
                         # get the includes
                         includes = xsd_tree.findall("{}include".format(LXML_SCHEMA_NAMESPACE))
                         if len(includes) > 0 or len(imports) > 0:
-                        # if "{}include".format(LXML_SCHEMA_NAMESPACE) in e.message \
-                        #         or "{}import".format(LXML_SCHEMA_NAMESPACE) in e.message:
-
                             # build the list of dependencies
                             list_dependencies_template = loader.get_template('admin/list_dependencies.html')
                             context = RequestContext(request, {
@@ -558,9 +555,6 @@ def manage_versions(request):
                         # get the includes
                         includes = xsd_tree.findall("{}include".format(LXML_SCHEMA_NAMESPACE))
                         if len(includes) > 0 or len(imports) > 0:
-                        # if "{}include".format(LXML_SCHEMA_NAMESPACE) in e.message \
-                        #         or "{}import".format(LXML_SCHEMA_NAMESPACE) in e.message:
-
                             # build the list of dependencies
                             list_dependencies_template = loader.get_template('admin/list_dependencies.html')
                             context = RequestContext(request, {

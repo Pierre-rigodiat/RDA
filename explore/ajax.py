@@ -39,6 +39,7 @@ from utils.XSDParser.parser import generate_form
 from utils.XSDParser.renderer import DefaultRenderer
 from utils.XSDParser.renderer.checkbox import CheckboxRenderer
 
+
 # Class definition
 class ElementInfo:
     """
@@ -49,7 +50,7 @@ class ElementInfo:
         self.path = path
     
     def __to_json__(self):
-        return json.dumps(self, default=lambda o:o.__dict__)
+        return json.dumps(self, default=lambda o: o.__dict__)
 
 
 class CriteriaInfo:
@@ -82,7 +83,7 @@ class QueryInfo:
         self.displayedQuery = displayedQuery
 
     def __to_json__(self):        
-        return json.dumps(self, default=lambda o:o.__dict__)
+        return json.dumps(self, default=lambda o: o.__dict__)
  
 
 class BranchInfo:
@@ -203,6 +204,10 @@ def verify_template_is_selected(request):
 
 
 def load_config():
+    """
+    Load Configuration for the parser
+    :return:
+    """
     return {
         'PARSER_APPLICATION': 'EXPLORE',
         'PARSER_MIN_TREE': False,
@@ -243,9 +248,9 @@ def generate_xsd_tree_for_querying_data(request):
         if url == SCHEMA_NAMESPACE:
             request.session['defaultPrefixExplore'] = prefix
             break
-
+    
     if xmlDocTreeStr == "":
-        setCurrentTemplate(request, templateID)
+        setCurrentTemplate(request, templateID)        
 
     if formString == "":
         try:
@@ -476,18 +481,18 @@ def get_results_by_instance_keyword(request):
                     newdom = transform(dom)
                     custom_xslt = False
 
-                context = RequestContext(request, {'id':str(instanceResult['_id']),
-                                   'xml': str(newdom),
-                                   'title': instanceResult['title'],
-                                   'custom_xslt': custom_xslt,
-                                   'template_name': schema.title})
+                context = RequestContext(request, {'id': str(instanceResult['_id']),
+                                                   'xml': str(newdom),
+                                                   'title': instanceResult['title'],
+                                                   'custom_xslt': custom_xslt,
+                                                   'template_name': schema.title})
 
-                resultString+= template.render(context)
+                resultString += template.render(context)
             else:
                 wordList = re.sub("[^\w]", " ",  keyword).split()
-                wordList = [x + "|" + x +"\w+" for x in wordList]
+                wordList = [x + "|" + x + "\w+" for x in wordList]
                 wordList = '|'.join(wordList)
-                listWholeKeywords = re.findall("\\b("+ wordList +")\\b", XMLdata.unparse(instanceResult['content']).encode('utf-8'), flags=re.IGNORECASE)
+                listWholeKeywords = re.findall("\\b(" + wordList + ")\\b", XMLdata.unparse(instanceResult['content']).encode('utf-8'), flags=re.IGNORECASE)
                 labels = list(set(listWholeKeywords))
 
                 for label in labels:
@@ -633,12 +638,12 @@ def get_results_by_instance(request):
                         newdom = transform(dom)
                         custom_xslt = False
 
-                    context = RequestContext(request, {'id':str(instanceResult['_id']),
+                    context = RequestContext(request, {'id': str(instanceResult['_id']),
                                                        'xml': str(newdom),
                                                        'title': instanceResult['title'],
                                                        'custom_xslt': custom_xslt})
 
-                    resultString+= template.render(context)
+                    resultString += template.render(context)
                 resultString += "<br/>"
             else:
                 resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"
@@ -912,23 +917,23 @@ def build_criteria(element_path, comparison, value, element_type, default_prefix
     # build the query: value can be found at element:value or at element.#text:value
     # second case appends when the element has attributes or namespace information
     if (element_type in ['{0}:byte'.format(default_prefix),
-                     '{0}:int'.format(default_prefix),
-                     '{0}:integer'.format(default_prefix),
-                     '{0}:long'.format(default_prefix),
-                     '{0}:negativeInteger'.format(default_prefix),
-                     '{0}:nonNegativeInteger'.format(default_prefix),
-                     '{0}:nonPositiveInteger'.format(default_prefix),
-                     '{0}:positiveInteger'.format(default_prefix),
-                     '{0}:short'.format(default_prefix),
-                     '{0}:unsignedLong'.format(default_prefix),
-                     '{0}:unsignedInt'.format(default_prefix),
-                     '{0}:unsignedShort'.format(default_prefix),
-                     '{0}:unsignedByte'.format(default_prefix)]):
+                         '{0}:int'.format(default_prefix),
+                         '{0}:integer'.format(default_prefix),
+                         '{0}:long'.format(default_prefix),
+                         '{0}:negativeInteger'.format(default_prefix),
+                         '{0}:nonNegativeInteger'.format(default_prefix),
+                         '{0}:nonPositiveInteger'.format(default_prefix),
+                         '{0}:positiveInteger'.format(default_prefix),
+                         '{0}:short'.format(default_prefix),
+                         '{0}:unsignedLong'.format(default_prefix),
+                         '{0}:unsignedInt'.format(default_prefix),
+                         '{0}:unsignedShort'.format(default_prefix),
+                         '{0}:unsignedByte'.format(default_prefix)]):
         element_query = intCriteria(element_path, comparison, value)
         attribute_query = intCriteria("{}.#text".format(element_path), comparison, value)
     elif (element_type in ['{0}:float'.format(default_prefix),
-                       '{0}:double'.format(default_prefix),
-                       '{0}:decimal'.format(default_prefix)]):
+                           '{0}:double'.format(default_prefix),
+                           '{0}:decimal'.format(default_prefix)]):
         element_query = floatCriteria(element_path, comparison, value)
         attribute_query = floatCriteria("{}.#text".format(element_path), comparison, value)
     elif element_type == '{0}:string'.format(default_prefix):
@@ -1466,7 +1471,7 @@ def save_query(request):
             displayedQuery = fieldsToPrettyQuery(request, queryFormTree) 
         
             #save the query in the data base
-            savedQuery = SavedQuery(str(userID),str(templateID), str(query),displayedQuery)
+            savedQuery = SavedQuery(str(userID), str(templateID), str(query), displayedQuery)
             savedQuery.save()
             
             queryInfo = QueryInfo(query, displayedQuery)

@@ -34,10 +34,6 @@ from utils.XSDParser.renderer import DefaultRenderer
 from utils.XSDParser.renderer.list import ListRenderer
 from utils.XSDParser.renderer.xml import XmlRenderer
 
-######################################################################################################################
-# AJAX Requests
-# TODO Needs to be moved in views
-#########################
 
 ################################################################################
 #
@@ -48,7 +44,6 @@ from utils.XSDParser.renderer.xml import XmlRenderer
 # Description:   Change the form owner
 #
 ################################################################################
-
 def change_owner_form(request):
     if 'formId' and 'userID' in request.POST:
         form_data_id = request.POST['formID']
@@ -234,6 +229,10 @@ def init_curate(request):
 
 
 def load_config():
+    """
+    Load configuration for the parser
+    :return:
+    """
     return {
         'PARSER_APPLICATION': 'CURATE',
         'PARSER_MIN_TREE': settings.PARSER_MIN_TREE if hasattr(settings, 'PARSER_MIN_TREE') else True,
