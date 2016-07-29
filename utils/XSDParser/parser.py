@@ -392,6 +392,11 @@ def get_element_type(element, xml_tree, namespaces, default_prefix, target_names
 
 
 def import_xml_tree(el_import):
+    """
+    Return tree after downloading import's schemaLocation
+    :param el_import:
+    :return:
+    """
     # get the location of the schema
     ref_xml_schema_url = el_import.attrib['schemaLocation']
     schema_location = ref_xml_schema_url
@@ -474,6 +479,13 @@ def get_ref_element(xml_tree, ref, namespaces, element_tag, schema_location=None
 
 
 def is_key(request, element, full_path):
+    """
+    Is the element used as a key
+    :param request:
+    :param element:
+    :param full_path:
+    :return:
+    """
     # remove indexes from the xpath
     xpath = re.sub(r'\[[0-9]+\]', '', full_path)
     # remove namespaces
@@ -488,6 +500,14 @@ def is_key(request, element, full_path):
 
 
 def is_key_ref(request, element, db_element, full_path):
+    """
+    Is the element used as a keyref
+    :param request:
+    :param element:
+    :param db_element:
+    :param full_path:
+    :return:
+    """
     # remove indexes from the xpath
     xpath = re.sub(r'\[[0-9]+\]', '', full_path)
     # remove namespaces
@@ -501,6 +521,14 @@ def is_key_ref(request, element, db_element, full_path):
 
 
 def manage_key_keyref(request, element, full_path, xmlTree):
+    """
+    Store keys/keyrefs in data structure
+    :param request:
+    :param element:
+    :param full_path:
+    :param xmlTree:
+    :return:
+    """
     # get keys in element scope
     list_key = element.findall('{0}key'.format(LXML_SCHEMA_NAMESPACE))
     # get keyrefs in element scope
@@ -567,7 +595,11 @@ def manage_key_keyref(request, element, full_path, xmlTree):
 
 
 def get_element_form_default(xsd_tree):
-
+    """
+    Get the value of the elementFormDefault attribute
+    :param xsd_tree:
+    :return:
+    """
     # default value
     element_form_default = "unqualified"
 
@@ -579,7 +611,11 @@ def get_element_form_default(xsd_tree):
 
 
 def get_attribute_form_default(xsd_tree):
-
+    """
+    Get the value of the attributeFormDefault attribute
+    :param xsd_tree:
+    :return:
+    """
     # default value
     attribute_form_default = "unqualified"
 
@@ -592,7 +628,7 @@ def get_attribute_form_default(xsd_tree):
 
 def get_element_namespace(element, xsd_tree):
     """
-    get_element_tag
+    Get the namespace of the element
     :param element:
     :param xsd_tree:
 
@@ -673,6 +709,12 @@ def get_extensions(xml_doc_tree, base_type_name):
 ##################################################
 
 def load_config(request, config):
+    """
+    Load configuration for the parser
+    :param request:
+    :param config:
+    :return:
+    """
     if 'config' in request.session:
         del request.session['config']
 
@@ -997,28 +1039,18 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
                                                                default_prefix, target_namespace_prefix,
                                                                schema_location)
 
-    # choice_id = ''
     # management of elements inside a choice (don't display if not part of the currently selected choice)
     if choice_info:
-        # chosen = True
-
         if 'curate_edit' in request.session and request.session['curate_edit']:
             if len(edit_elements) == 0:
-                # chosen = False
-
                 if request.session['PARSER_MIN_TREE']:
                     return form_string, db_element
         else:
             if choice_info.counter > 0:
-                # chosen = False
-
                 if request.session['PARSER_MIN_TREE']:
                     return form_string, db_element
     else:
-        # chosen = True
         pass
-
-    # ul_content = ''
 
     if force_generation:
         nb_occurrences = 1
@@ -1055,7 +1087,6 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
         if request.session['PARSER_COLLAPSE']:
             # the type is complex, can be collapsed
             if element_type is not None and element_type.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
-                # li_content += render_collapse_button()
                 li_content += ''
 
         label = app_info['label'] if 'label' in app_info else text_capitalized
@@ -1069,7 +1100,6 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
         buttons = ""
         if not (add_button is False and delete_button is False):
             pass
-            # buttons = render_buttons(add_button, delete_button)
 
         # get the default value (from xsd or from loaded xml)
         default_value = ""
@@ -1145,8 +1175,6 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
                         db_elem_iter['children'].append(simple_type_result[1])
         else:
             li_content += buttons
-
-        # renders the name of the element
 
         # if len(db_elem_iter['children']) > 0:
         db_element['children'].append(db_elem_iter)
@@ -1312,8 +1340,6 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
         text = "Sequence"
 
         # init variables for buttons management
-        # add_button = False
-        # delete_button = False
         nb_occurrences = 1  # nb of occurrences to render (can't be 0 or the user won't see this element at all)
         nb_occurrences_data = min_occurs  # nb of occurrences in loaded data or in form being rendered (can be 0)
 
@@ -1327,22 +1353,6 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
                 if len(elements_found) > 0:
                     nb_occurrences_data = 1
 
-            # manage buttons
-            # if nb_occurrences_data < max_occurs:
-            #     add_button = True
-            # if nb_occurrences_data > min_occurs:
-            #     delete_button = True
-        # else:  # starting an empty form
-        #     # Don't generate the element if not necessary
-        #     if CURATE_MIN_TREE and min_occurs == 0:
-        #         add_button = True
-        #         delete_button = False
-        #     else:
-        #         if nb_occurrences_data < max_occurs:
-        #             add_button = True
-        #         if nb_occurrences_data > min_occurs:
-        #             delete_button = True
-
         if nb_occurrences_data > nb_occurrences:
             nb_occurrences = nb_occurrences_data
 
@@ -1351,21 +1361,12 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
             # chosen = True
             if 'curate_edit' in request.session and request.session['curate_edit']:
                 if nb_occurrences == 0:
-                    # chosen = False
-
                     if request.session['PARSER_MIN_TREE']:
                         return form_string, db_element
             else:
                 if choice_info.counter > 0:
-                    # chosen = False
-
                     if request.session['PARSER_MIN_TREE']:
                         return form_string, db_element
-        # else:
-        #     chosen = True
-        #     choice_id = ''
-
-        # ul_content = ''
 
         if force_generation:
             nb_occurrences = 1
@@ -1380,11 +1381,9 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
             li_content = ''
 
             if len(list(element)) > 0 and request.session['PARSER_COLLAPSE']:
-                # li_content += render_collapse_button()
                 li_content += ''
 
             li_content += text
-            # li_content += render_buttons(add_button, delete_button)
 
             # generates the sequence
             for child in element:
@@ -1416,7 +1415,6 @@ def generate_sequence(request, element, xml_tree, choice_info=None, full_path=""
 
             db_element['children'].append(db_elem_iter)
 
-        # form_string += render_ul(ul_content, choice_id, chosen)
     else:  # min_occurs == 1 and max_occurs == 1
         db_elem_iter = {
             'tag': 'sequence-iter',
@@ -1567,10 +1565,7 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
     remove_annotations(element)
 
     # init variables for buttons management
-    # add_button = False
-    # delete_button = False
     nb_occurrences = 1  # nb of occurrences to render (can't be 0 or the user won't see this element at all)
-    # nb_occurrences_data = 1
 
     max_occurs = 1
 
@@ -1600,21 +1595,6 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
                 if len(elements_found) > 0:
                     nb_occurrences_data = 1
 
-            # if nb_occurrences_data < max_occurs:
-            #     add_button = True
-            # if nb_occurrences_data > min_occurs:
-            #     delete_button = True
-        # else:  # starting an empty form
-        #     # Don't generate the element if not necessary
-        #     if CURATE_MIN_TREE and min_occurs == 0:
-        #         add_button = True
-        #         delete_button = False
-        #     else:
-        #         if nb_occurrences_data < max_occurs:
-        #             add_button = True
-        #         if nb_occurrences_data > min_occurs:
-        #             delete_button = True
-
         if nb_occurrences_data > nb_occurrences:
             nb_occurrences = nb_occurrences_data
 
@@ -1625,8 +1605,6 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
 
     # keeps track of elements to display depending on the selected choice
     if choice_info:
-        # chosen = True
-
         if 'curate_edit' in request.session and request.session['curate_edit']:
             if nb_occurrences == 0:
                 # chosen = False
@@ -1639,11 +1617,6 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
 
                 if request.session['PARSER_MIN_TREE']:
                     return form_string, db_element
-    # else:
-    #     choice_id = ''
-    #     chosen = True
-    #
-    # ul_content = ''
 
     if force_generation:
         nb_occurrences = 1
@@ -1655,7 +1628,6 @@ def generate_choice(request, element, xml_tree, choice_info=None, full_path="", 
             'children': []
         }
 
-        # is_removed = (nb_occurrences == 0)
         li_content = ''
 
         element_found = None
@@ -2130,30 +2102,17 @@ def generate_choice_extensions(request, element, xml_tree, choice_info=None, ful
     remove_annotations(element)
 
     # init variables for buttons management
-    # add_button = False
-    # delete_button = False
     nb_occurrences = 1  # nb of occurrences to render (can't be 0 or the user won't see this element at all)
-    # nb_occurrences_data = 1
-    # xml_element = None
 
     # keeps track of elements to display depending on the selected choice
     if choice_info:
-        # choice_id = choice_info.chooseIDStr + "-" + str(choice_info.counter)
-        # chosen = True
-
         if 'curate_edit' in request.session and request.session['curate_edit']:
             if nb_occurrences == 0:
-                # chosen = False
-
                 if request.session['PARSER_MIN_TREE']:
-                    # form_string += render_ul('', choice_id, chosen)
                     return form_string, db_element
         else:
             if choice_info.counter > 0:
-                # chosen = False
-
                 if request.session['PARSER_MIN_TREE']:
-                    # form_string += render_ul('', choice_id, chosen)
                     return form_string, db_element
 
     for x in range(0, int(nb_occurrences)):
@@ -2542,8 +2501,6 @@ def generate_extension(request, element, xml_tree, full_path="", edit_data_tree=
     # 'base' (required) is the only attribute to parse
     ##################################################
     if 'base' in element.attrib:
-        # base = element.attrib['base']
-
         xml_tree_str = etree.tostring(xml_tree)
         namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
         default_prefix = common.get_default_prefix(namespaces)

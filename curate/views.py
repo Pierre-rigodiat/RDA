@@ -23,8 +23,6 @@ from bson.objectid import ObjectId
 import lxml.etree as etree
 from lxml.etree import XMLSyntaxError
 import json 
-import xmltodict
-
 from curate.ajax import load_config
 from curate.models import SchemaElement
 from mgi.models import Template, TemplateVersion, XML2Download, FormData, XMLdata
@@ -34,6 +32,7 @@ from admin_mdcs.models import permission_required
 import mgi.rights as RIGHTS
 from mgi.exceptions import MDCSError
 from io import BytesIO
+
 
 ################################################################################
 #
@@ -68,6 +67,7 @@ def index(request):
     })
 
     return HttpResponse(template.render(context))
+
 
 ################################################################################
 #
@@ -275,6 +275,7 @@ def curate_enter_data_downloadxsd(request):
         response['Content-Disposition'] = 'attachment; filename=' + template_filename
         return response
 
+
 ################################################################################
 #
 # Function Name: curate_view_data_downloadxml(request)
@@ -309,7 +310,6 @@ def curate_view_data_downloadxml(request):
             return response
         else:
             return redirect('/')
-
 
 
 ################################################################################

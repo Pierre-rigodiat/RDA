@@ -27,8 +27,8 @@ from utils.XMLValidation.xml_schema import _lxml_validate_xsd, validate_xml_sche
     validate_xml_data
 
 RESOURCES_PATH = join(BASE_DIR, 'utils', 'XMLValidation', 'tests', 'data')
-
 TEST_LXML = True
+
 
 class ValidateXSDTestSuite(TestCase):
     """

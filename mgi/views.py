@@ -16,7 +16,7 @@
 
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.contrib.auth import authenticate, logout
+from django.contrib.auth import logout
 from django.template import RequestContext, loader
 from django.shortcuts import redirect
 from mgi.models import Template, Request, Message, TermsOfUse, PrivacyPolicy, Help
@@ -29,6 +29,7 @@ from django.utils.importlib import import_module
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
 MDCS_URI = settings.MDCS_URI
+
 
 ################################################################################
 #

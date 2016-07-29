@@ -20,22 +20,23 @@ from mongoengine import *
 from collections import OrderedDict
 from bson.objectid import ObjectId
 import xmltodict
-from pymongo import MongoClient, TEXT, ASCENDING, DESCENDING, errors
-
+from pymongo import MongoClient, TEXT, DESCENDING, errors
+import re
+import datetime
+from utils.XSDhash import XSDhash
 import os
 from django.utils.importlib import import_module
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
 MONGODB_URI = settings.MONGODB_URI
 MGI_DB = settings.MGI_DB
-import re
-import datetime
-from utils.XSDhash import XSDhash
+
 
 class Status:
     ACTIVE = 'active'
     INACTIVE = 'inactive'
     DELETED = 'deleted'
+
 
 class Request(Document):
     """Represents a request sent by an user to get an account"""

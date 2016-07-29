@@ -13,6 +13,7 @@
 
 from testing.models import TokenTest, TemplateVersion, XMLDATA_VALID_CONTENT, FAKE_ID, XMLdata
 
+
 class tests_token(TokenTest):
 
     def test_select_all_schema_admin(self):

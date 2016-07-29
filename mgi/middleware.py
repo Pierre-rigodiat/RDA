@@ -22,6 +22,7 @@ from password_policies.models import PasswordChangeRequired, PasswordHistory
 from password_policies.utils import PasswordCheck
 from utils.DateTimeDecoder import DateTimeEncoder, DateTimeDecoder
 
+
 class PasswordChangeMiddleware(object):
     """
 A middleware to force a password change.

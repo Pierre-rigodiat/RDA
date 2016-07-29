@@ -31,6 +31,7 @@ from io import BytesIO
 from exporter.builtin.models import XSLTExporter
 from admin_mdcs.models import permission_required
 
+
 ################################################################################
 #
 # Function Name: index(request)
@@ -62,6 +63,7 @@ def index(request):
 
     return HttpResponse(template.render(context))
 
+
 ################################################################################
 #
 # Function Name: index(request)
@@ -81,6 +83,7 @@ def index_keyword(request):
     })
     return HttpResponse(template.render(context))
 
+
 ################################################################################
 #
 # Function Name: explore_select_template(request)
@@ -97,6 +100,7 @@ def explore_select_template(request):
         '': '',
     })
     return HttpResponse(template.render(context))
+
 
 ################################################################################
 #
@@ -116,6 +120,7 @@ def explore_customize_template(request):
         return redirect('/explore/select-template')
     else:
         return HttpResponse(template.render(context))
+
 
 ################################################################################
 #
@@ -177,6 +182,7 @@ def explore_results(request):
     else:
         return HttpResponse(template.render(context))
 
+
 ################################################################################
 #
 # Function Name: explore_all_results(request)
@@ -208,6 +214,7 @@ def explore_all_results(request):
         return redirect('/explore/select-template')
     else:
         return HttpResponse(template.render(context))
+
 
 ################################################################################
 #
@@ -252,6 +259,7 @@ def explore_all_versions_results(request):
     else:
         return HttpResponse(template.render(context))
 
+
 ################################################################################
 #
 # Function Name: explore_detail_result
@@ -287,6 +295,7 @@ def explore_detail_result_keyword(request) :
     context = explore_detail_result_process(request)
 
     return HttpResponse(template.render(context))
+
 
 ################################################################################
 #
@@ -333,6 +342,7 @@ def explore_detail_result_process(request):
     })
 
     return context
+
 
 ################################################################################
 #
