@@ -1458,8 +1458,7 @@ def getData(url):
         else:
             raise OAIAPIException(message='An error occurred, url malformed.', status=status.HTTP_400_BAD_REQUEST)
     except requests.HTTPError, err:
-        content = APIMessage.getMessageLabelled(err.message)
-        return OAIAPILabelledException(content, status=err.response.status_code)
+        raise OAIAPILabelledException(message=err.message, status=err.response.status_code)
     except OAIAPIException as e:
         raise e
     except Exception as e:
