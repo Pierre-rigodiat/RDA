@@ -90,10 +90,12 @@ class Template(Document):
     ResultXsltList = ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY)
     ResultXsltDetailed = ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY)
 
+
 def delete_template(object_id):
     from mgiutils import getListNameTemplateDependenciesRecordFormData
     listName = getListNameTemplateDependenciesRecordFormData(object_id)
     return listName if listName != '' else delete_template_and_version(object_id)
+
 
 def delete_template_and_version(object_id):
     template = Template.objects(pk=object_id).get()
@@ -101,16 +103,19 @@ def delete_template_and_version(object_id):
     version.delete()
     template.delete()
 
+
 def delete_type(object_id):
     from mgiutils import getListNameTypeDependenciesTemplateType
     listName = getListNameTypeDependenciesTemplateType(object_id)
     return listName if listName != '' else delete_type_and_version(object_id)
+
 
 def delete_type_and_version(object_id):
     type = Type.objects(pk=object_id).get()
     version = TypeVersion.objects(pk=type.typeVersion).get()
     version.delete()
     type.delete()
+
 
 def create_template(content, name, filename, dependencies=[], user=None):
     hash_value = XSDhash.get_hash(content)
@@ -181,6 +186,39 @@ def create_type_version(content, filename, versions_id):
     type_versions.save()
 
     return new_type
+
+
+def template_list_current():
+    """
+    List current templates
+    :param request:
+    :return:
+    """
+    current_template_versions = TemplateVersion.objects().values_list('current')
+
+    current_templates = []
+    for tpl_version in current_template_versions:
+        tpl = Template.objects.get(pk=tpl_version)
+        if tpl.user is None:
+            current_templates.append(tpl)
+
+    return current_templates
+
+
+def type_list_current():
+    """
+    List current types
+    :return:
+    """
+    current_type_versions = TypeVersion.objects().values_list('current')
+
+    current_types = []
+    for tpl_version in current_type_versions:
+        tpl = Type.objects.get(pk=tpl_version)
+        if tpl.user is None:
+            current_types.append(tpl)
+
+    return current_types
 
 
 class TemplateVersion(Document):

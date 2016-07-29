@@ -7,8 +7,6 @@ import sys
 from bson.objectid import ObjectId
 import argparse
 import platform
-from settings import MONGODB_URI, MGI_DB, BASE_DIR
-
 
 # PROCEDURE:
 # - stop mongogod, stop runserver
@@ -17,10 +15,6 @@ from settings import MONGODB_URI, MGI_DB, BASE_DIR
 # - run mongod
 # - run migration
 # - runserver
-
-
-# PARAMETERS
-BACKUPS_DIR = os.path.join(BASE_DIR, 'backups')
 
 
 class Migration:
@@ -65,11 +59,13 @@ class Migration:
 
     def _dump_database(self, mongo_admin_user, mongo_admin_password, mongo_path):
         if self.backup_enabled:
+            from settings import BASE_DIR
             # generate time string
             time_str = time.strftime("%Y%m%d_%H%M%S")
             # backup directory name
             backup_dir_name = 'backup_{}'.format(time_str)
             # backup_directory_path
+            BACKUPS_DIR = os.path.join(BASE_DIR, 'backups')
             backup_dir_path = os.path.join(BACKUPS_DIR, backup_dir_name)
 
             if not self._warn_user('A backup folder will be created at : {}'.format(backup_dir_path)):
@@ -143,6 +139,7 @@ class Migration:
         Connect to the database
         :return: database connection
         """
+        from settings import MONGODB_URI, MGI_DB
         try:
             # Connect to mongodb
             print 'Attempt connection to database...'
