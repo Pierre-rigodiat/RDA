@@ -22,7 +22,7 @@
 import os
 from mongoengine import connect
 
-VERSION = "DELTA"
+VERSION = "BETA"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
