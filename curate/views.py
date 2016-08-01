@@ -124,7 +124,7 @@ def curate_edit_data(request):
             if not form_data:
                 xml_data = XMLdata.get(xml_data_id)
                 json_content = xml_data['content']
-                xml_content = xmltodict.unparse(json_content)
+                xml_content = XMLdata.unparse(json_content)
                 form_data = FormData(
                     user=str(request.user.id),
                     template=xml_data['schema'],

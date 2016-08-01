@@ -622,7 +622,7 @@ def get_results_by_instance(request):
                 for instanceResult in instanceResults:
                     custom_xslt = False
                     results.append({'title':instanceResult['title'], 'content':instanceResult['content'],'id':str(instanceResult['_id'])})
-                    dom = etree.XML(str(xmltodict.unparse(instanceResult['content']).encode('utf-8')))
+                    dom = etree.XML(str(XMLdata.unparse(instanceResult['content']).encode('utf-8')))
                     #Check if a custom list result XSLT has to be used
                     try:
                         schema = Template.objects.get(pk=instanceResult['schema'])
