@@ -62,14 +62,14 @@ class CriteriaInfo:
     def __to_json__(self):
         jsonDict = dict()
         if self.elementInfo == None:
-            jsonDict['elementInfo'] = None
+            jsonDict["elementInfo"] = None
         else:
-            jsonDict['elementInfo'] = self.elementInfo.__to_json__()
+            jsonDict["elementInfo"] = self.elementInfo.__to_json__()
         if self.queryInfo == None:
-            jsonDict['queryInfo'] = None
+            jsonDict["queryInfo"] = None
         else:
-            jsonDict['queryInfo'] = self.queryInfo.__to_json__()
-        return str(jsonDict)
+            jsonDict["queryInfo"] = self.queryInfo.__to_json__()
+        return json.dumps(jsonDict)
 
 
 class QueryInfo:
@@ -525,7 +525,7 @@ def get_results_by_instance(request):
 
     for i in range(int(num_instance)):
         results = []
-        instance = eval(instances[int(i)])
+        instance = json.loads(instances[int(i)])
         sessionName = "resultsExplore" + instance['name']
         resultString += "<p style='font-weight:bold; color:#369;'>From " + instance['name'] + ":</p>"
         if instance['name'] == "Local":
@@ -676,19 +676,13 @@ def manageRegexBeforeAPI(query, queryStr):
 # Description:   Build a criteria for mongo db for the type integer
 #
 ################################################################################
-def intCriteria(path, comparison, value, isNot=False):
+def intCriteria(path, comparison, value):
     criteria = dict()
 
     if comparison == "=":
-        if isNot:
-            criteria[path] = eval('{"$ne":' + str(value) + '}')
-        else:
-            criteria[path] = int(value)
+        criteria[path] = int(value)
     else:
-        if isNot:
-            criteria[path] = eval('{"$not":{"$' + comparison + '":' + str(value) + '}}')
-        else:
-            criteria[path] = eval('{"$' + comparison+'":' + str(value) + '}')
+        criteria[path] = json.loads('{{"${0}": {1} }}'.format(comparison, value))
 
     return criteria
 
@@ -699,55 +693,40 @@ def intCriteria(path, comparison, value, isNot=False):
 # Inputs:        path - 
 #                comparison -
 #                value -
-#                isNot -
 # Outputs:       a criteria
 # Exceptions:    None
 # Description:   Build a criteria for mongo db for the type float
 #
 ################################################################################
-def floatCriteria(path, comparison, value, isNot=False):
+def floatCriteria(path, comparison, value):
     criteria = dict()
 
     if comparison == "=":
-        if isNot:
-            criteria[path] = eval('{"$ne":' + value + '}')
-        else:
-            criteria[path] = float(value)
+        criteria[path] = float(value)
     else:
-        if isNot:
-            criteria[path] = eval('{"$not":{"$' + comparison + '":' + value + '}}')
-        else:
-            criteria[path] = eval('{"$' + comparison + '":' + value + '}')
+        criteria[path] = json.loads('{{"${0}": {1} }}'.format(comparison, value))
 
     return criteria
 
 
 ################################################################################
 # 
-# Function Name: stringCriteria(path, comparison, value, isNot=False)
+# Function Name: stringCriteria(path, comparison, value)
 # Inputs:        path - 
 #                comparison -
 #                value -
-#                isNot -
 # Outputs:       a criteria
 # Exceptions:    None
 # Description:   Build a criteria for mongo db for the type string
 #
 ################################################################################
-def stringCriteria(path, comparison, value, isNot=False):
+def stringCriteria(path, comparison, value):
     criteria = dict()
     
     if comparison == "is":
-        if isNot:
-            criteria[path] = eval('{"$ne":' + repr(value) + '}')
-        else:
-            criteria[path] = str(value)
+        criteria[path] = str(value)
     elif comparison == "like":
-        if isNot:
-            criteria[path] = dict()
-            criteria[path]["$not"] = "/" + value + "/"
-        else:
-            criteria[path] = "/" + value + "/"
+        criteria[path] = "/" + value + "/"
     
     return criteria
 
@@ -755,7 +734,7 @@ def stringCriteria(path, comparison, value, isNot=False):
 ################################################################################
 # 
 # Function Name: queryToCriteria(query, isNot=False)
-# Inputs:        query - 
+# Inputs:        query -
 #                isNot -
 # Outputs:       a criteria
 # Exceptions:    None
@@ -843,7 +822,7 @@ def enumCriteria(path, value, isNot=False):
     criteria = dict()
     
     if isNot:
-        criteria[path] = eval('{"$ne":' + repr(value) + '}')
+        criteria[path] = json.loads('{{"ne": "{0}" }}'.format(repr(value)))
     else:
         criteria[path] = str(value)
             
@@ -960,15 +939,15 @@ def fieldsToQuery(request, htmlTree):
         else:
             isNot = False
             
-        criteriaInfo = eval(mapCriterias[field.attrib['id']])
+        criteriaInfo = json.loads(mapCriterias[field.attrib['id']])
         if criteriaInfo['elementInfo'] is None:
             elementInfo = None
         else:
-            elementInfo = eval(criteriaInfo['elementInfo'])
+            elementInfo = json.loads(criteriaInfo['elementInfo'])
         if criteriaInfo['queryInfo'] is None:
             queryInfo = None
         else:
-            queryInfo = eval(criteriaInfo['queryInfo'])
+            queryInfo = json.loads(criteriaInfo['queryInfo'])
         elemType = elementInfo['type']
         if elemType == "query":
             queryValue = queryInfo['query']
@@ -1030,8 +1009,8 @@ def checkQueryForm(request, htmlTree):
         errors.append("Some fields are empty !")
     else:
         for field in fields:
-            criteriaInfo = eval(mapCriterias[field.attrib['id']])
-            elementInfo = eval(criteriaInfo['elementInfo']) 
+            criteriaInfo = json.loads(mapCriterias[field.attrib['id']])
+            elementInfo = json.loads(criteriaInfo['elementInfo'])
             elemType = elementInfo['type']
             
             if (elemType in ['{0}:float'.format(defaultPrefix), 
@@ -1384,15 +1363,15 @@ def fieldsToPrettyQuery(request, queryFormTree):
         else:
             isNot = False
                 
-        criteriaInfo = eval(mapCriterias[field.attrib['id']])
+        criteriaInfo = json.loads(mapCriterias[field.attrib['id']])
         if criteriaInfo['elementInfo'] is None:
             elementInfo = None
         else:
-            elementInfo = eval(criteriaInfo['elementInfo'])
+            elementInfo = json.loads(criteriaInfo['elementInfo'])
         if criteriaInfo['queryInfo'] is None:
             queryInfo = None
         else:
-            queryInfo = eval(criteriaInfo['queryInfo']) 
+            queryInfo = json.loads(criteriaInfo['queryInfo'])
         elemType = elementInfo['type']
         if elemType == "query":
             queryValue = queryInfo['displayedQuery']
@@ -1457,7 +1436,7 @@ def save_query(request):
             displayedQuery = fieldsToPrettyQuery(request, queryFormTree) 
         
             #save the query in the data base
-            savedQuery = SavedQuery(str(userID), str(templateID), str(query), displayedQuery)
+            savedQuery = SavedQuery(str(userID), str(templateID), json.dumps(query), displayedQuery)
             savedQuery.save()
             
             queryInfo = QueryInfo(query, displayedQuery)
@@ -1644,7 +1623,7 @@ def add_saved_query_to_form(request):
         fields[0].append(minusButton)
         
     lastID = fields[-1].attrib['id'][4:]
-    queryInfo = eval(mapQueryInfo[saved_query_id[5:]])
+    queryInfo = json.loads(mapQueryInfo[saved_query_id[5:]])
     query = queryInfo['displayedQuery']
     if len(fields) == 1 and fields[0][1].value == "":
         queryTree.remove(fields[0])
@@ -1664,8 +1643,8 @@ def add_saved_query_to_form(request):
     
     mapCriterias = request.session['mapCriteriasExplore']
     criteriaInfo = CriteriaInfo()
-    criteriaInfo.queryInfo = QueryInfo(query=eval(mapQueryInfo[saved_query_id[5:]])['query'],
-                                       displayedQuery=eval(mapQueryInfo[saved_query_id[5:]])['displayedQuery'])
+    criteriaInfo.queryInfo = QueryInfo(query=json.loads(mapQueryInfo[saved_query_id[5:]])['query'],
+                                       displayedQuery=json.loads(mapQueryInfo[saved_query_id[5:]])['displayedQuery'])
     criteriaInfo.elementInfo = ElementInfo("query")
     mapCriterias['crit'+ str(tag_id)] = criteriaInfo.__to_json__()
     request.session['mapCriteriasExplore'] = mapCriterias
@@ -1795,7 +1774,7 @@ def get_custom_form(request):
         templateID = request.session['exploreCurrentTemplateID']
         userQueries = SavedQuery.objects(user=str(userID),template=str(templateID))
         for savedQuery in userQueries:
-            query = eval(savedQuery.query)
+            query = json.loads(savedQuery.query)
 #            manageRegexFromDB(query)     
             queryInfo = QueryInfo(query, savedQuery.displayedQuery)
             mapQueryInfo[str(savedQuery.id)] = queryInfo.__to_json__()
