@@ -39,7 +39,7 @@ def load_schema_data_in_db(xsd_data):
     xsd_element.tag = xsd_data['tag']
 
     if xsd_data['value'] is not None:
-        element_value = str(xsd_data['value'])
+        element_value = xsd_data['value']
         element_value = element_value.lstrip()
         xsd_data['value'] = element_value.rstrip()
 
@@ -47,7 +47,7 @@ def load_schema_data_in_db(xsd_data):
 
     if 'options' in xsd_data:
         if xsd_element.tag == 'module' and xsd_data['options']['data'] is not None:
-            module_data = str(xsd_data['options']['data']).encode('utf-8')
+            module_data = xsd_data['options']['data'].encode('utf-8')
             module_data = module_data.lstrip()
             xsd_data['options']['data'] = module_data.rstrip()
 
@@ -778,7 +778,7 @@ def generate_form(request, xsd_doc_data, xml_doc_data=None, config=None):
             # xml data not empty
             if xml_doc_data != "":
                 # load the XML tree from the text
-                edit_data_tree = etree.XML(str(xml_doc_data.encode('utf-8')))
+                edit_data_tree = etree.XML(xml_doc_data.encode('utf-8'))
             else:
                 request.session['curate_edit'] = False
         else:  # no data found, not editing
@@ -1117,7 +1117,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
                     # get the value of the attribute
                     if edit_elements[x] is not None:
                         # set the value of the element
-                        default_value = str(edit_elements[x])
+                        default_value = str(edit_elements[x].encode('utf-8'))
         elif 'default' in element.attrib:
             # if the default attribute is present
             default_value = element.attrib['default']
