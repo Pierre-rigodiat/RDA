@@ -724,7 +724,7 @@ def stringCriteria(path, comparison, value):
     criteria = dict()
     
     if comparison == "is":
-        criteria[path] = str(value)
+        criteria[path] = value
     elif comparison == "like":
         criteria[path] = "/" + value + "/"
     
@@ -824,7 +824,7 @@ def enumCriteria(path, value, isNot=False):
     if isNot:
         criteria[path] = json.loads('{{"ne": "{0}" }}'.format(repr(value)))
     else:
-        criteria[path] = str(value)
+        criteria[path] = value
             
     return criteria
 
@@ -1268,7 +1268,7 @@ def buildPrettyCriteria(elementName, comparison, value, isNot=False):
     if value == "":
         prettyCriteria += ' &ldquo;  &ldquo;'
     else:
-        prettyCriteria += str(value)        
+        prettyCriteria += value
     
     if isNot:
         prettyCriteria += ")"
@@ -1306,9 +1306,9 @@ def queryToPrettyCriteria(queryValue, isNot):
 ################################################################################
 def enumToPrettyCriteria(element, value, isNot=False):
     if isNot:
-        return "NOT(" + str(element) + " is " + str(value) + ")"
+        return "NOT(" + element + " is " + value + ")"
     else:
-        return str(element) + " is " + str(value)
+        return element + " is " + value
 
 
 ################################################################################
@@ -1646,7 +1646,7 @@ def add_saved_query_to_form(request):
     criteriaInfo.queryInfo = QueryInfo(query=json.loads(mapQueryInfo[saved_query_id[5:]])['query'],
                                        displayedQuery=json.loads(mapQueryInfo[saved_query_id[5:]])['displayedQuery'])
     criteriaInfo.elementInfo = ElementInfo("query")
-    mapCriterias['crit'+ str(tag_id)] = criteriaInfo.__to_json__()
+    mapCriterias['crit' + str(tag_id)] = criteriaInfo.__to_json__()
     request.session['mapCriteriasExplore'] = mapCriterias
 
     response_dict = {'queryForm': html.tostring(queryTree)}
