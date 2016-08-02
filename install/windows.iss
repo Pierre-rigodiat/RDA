@@ -10,8 +10,8 @@ AppName=nmrr
 AppVersion=beta
 AppVerName=nmrr beta
 AppPublisher=NIST
-DefaultDirName={userdocs}\mdcs
-DefaultGroupName=mdcs
+DefaultDirName={userdocs}\nmrr
+DefaultGroupName=nmrr
 OutputBaseFilename=nmrr_beta
 Compression=lzma
 SolidCompression=yes
@@ -26,7 +26,7 @@ Source: "..\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createalls
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-Name: "{commondesktop}\mdcs"; Filename: "{app}\bin\mdcs.bat";
+Name: "{commondesktop}\nmrr"; Filename: "{app}\bin\mdcs.bat";
 
 [Messages]
 WelcomeLabel2=WARNINGS: Please BACKUP your data before starting by making a copy of the data\db folder and of the db.sqlite3 file of your previous installation and place them in a different location. Please INSTALL MongoDB before starting the installation. For more information, please read the installation instructions.
