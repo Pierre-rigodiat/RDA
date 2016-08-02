@@ -344,7 +344,7 @@ def dashboard_detail_record(request):
 
     if record_type == 'form':
         form_data = FormData.objects.get(pk=ObjectId(record_id))
-        xml_string = form_data.xml_data
+        xml_string = form_data.xml_data.encode(encoding='UTF-8')
         title = form_data.name
         schema_id = form_data.template
     elif record_type == 'record':
@@ -364,7 +364,7 @@ def dashboard_detail_record(request):
     # Check if a custom detailed result XSLT has to be used
     try:
         if xml_string != "":
-            dom = etree.fromstring(str(xml_string))
+            dom = etree.fromstring(xml_string)
             schema = Template.objects.get(pk=schema_id)
 
             if schema.ResultXsltDetailed:
