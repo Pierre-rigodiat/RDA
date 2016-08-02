@@ -182,7 +182,7 @@ class DescriptionModule(TextAreaModule):
 
     def _get_module(self, request):
         if 'data' in request.GET:
-            self.data = str(request.GET['data'])
+            self.data = str(request.GET['data'].encode("utf-8"))
         return TextAreaModule.get_module(self, request)
 
     def _get_display(self, request):
