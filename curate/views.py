@@ -112,7 +112,8 @@ def curate_edit_data(request):
         previous_forms = FormData.objects(user=str(request.user.id), xml_data_id__exists=True)
 
         for previous_form in previous_forms:
-            # TODO: check if need to delete all SchemaElements
+            if previous_form.schema_element_root is not None:
+                delete_branch_from_db(previous_form.schema_element_root.pk)
             previous_form.delete()
 
         form_data = FormData(
