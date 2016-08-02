@@ -625,7 +625,7 @@ def remove_module(request):
     element = etree.Element(element.tag, nsmap = nsmap)
     
     # save the tree in the session
-    request.session['moduleTemplateContent'] = etree.tostring(dom) 
+    request.session['moduleTemplateContent'] = etree.tostring(dom)
     
     return HttpResponse(json.dumps({}), content_type='application/javascript')
     
