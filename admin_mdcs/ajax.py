@@ -583,8 +583,7 @@ def insert_module(request):
     element.attrib['{http://mdcs.ns}_mod_mdcs_'] = module.url
         
     # save the tree in the session
-    request.session['moduleTemplateContent'] = etree.tostring(dom) 
-    print etree.tostring(element)
+    request.session['moduleTemplateContent'] = etree.tostring(dom)
     
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
@@ -627,7 +626,6 @@ def remove_module(request):
     
     # save the tree in the session
     request.session['moduleTemplateContent'] = etree.tostring(dom) 
-    print etree.tostring(element)
     
     return HttpResponse(json.dumps({}), content_type='application/javascript')
     
