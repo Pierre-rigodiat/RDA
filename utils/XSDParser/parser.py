@@ -1122,7 +1122,10 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
                     # get the value of the attribute
                     if edit_elements[x] is not None:
                         # set the value of the element
-                        default_value = str(edit_elements[x])
+                        if isinstance(edit_elements[x], numbers.Number):
+                            default_value = str(edit_elements[x])
+                        else:
+                            default_value = edit_elements[x]
         elif 'default' in element.attrib:
             # if the default attribute is present
             default_value = element.attrib['default']
