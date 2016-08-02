@@ -1,6 +1,7 @@
 """
 """
 import logging
+import numbers
 import traceback
 import sys
 import re
@@ -39,7 +40,11 @@ def load_schema_data_in_db(xsd_data):
     xsd_element.tag = xsd_data['tag']
 
     if xsd_data['value'] is not None:
-        element_value = str(xsd_data['value'])
+        if isinstance(xsd_data['value'], numbers.Number):
+            element_value = str(xsd_data['value'])
+        else:
+            element_value = xsd_data['value']
+
         element_value = element_value.lstrip()
         xsd_data['value'] = element_value.rstrip()
 
