@@ -199,7 +199,7 @@ def download_current_xml(request):
     form_id = request.session['form_id']
     xml_root_element = SchemaElement.objects.get(pk=form_id)
     xml_renderer = XmlRenderer(xml_root_element)
-    xml_data = StringIO(xml_renderer.render())
+    xml_data = StringIO(xml_renderer.render().encode("utf-8"))
 
     response = HttpResponse(FileWrapper(xml_data), content_type='application/xml')
     response['Content-Disposition'] = 'attachment; filename=' + form_data.name + '.xml'
