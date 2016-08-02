@@ -105,7 +105,6 @@ def curate_edit_data(request):
         xml_data = XMLdata.get(xml_data_id)
         json_content = xml_data['content']
         xml_content = XMLdata.unparse(json_content)
-        request.session['curate_edit_data'] = xml_content
         request.session['curate_edit'] = True
         request.session['currentTemplateID'] = xml_data['schema']
         # remove previously created forms when editing a new one
@@ -346,7 +345,6 @@ def start_curate(request):
                 request.session['curate_edit'] = True
                 open_form = OpenForm(request.POST)
                 form_data = FormData.objects.get(pk=ObjectId(open_form.data['forms']))
-                request.session['curate_edit_data'] = form_data.xml_data
             elif selected_option == "upload":
                 request.session['curate_edit'] = True
                 upload_form = UploadForm(request.POST, request.FILES)
@@ -507,13 +505,9 @@ def curate_edit_form(request):
                     form_data = FormData.objects.get(pk=ObjectId(form_data_id))
                 except:
                     raise MDCSError("The form you are looking for doesn't exist.")
-                # parameters to build FormData object in db
-                #                 request.session['currentTemplateID'] = form_data.template
                 request.session['curate_edit'] = True
-                request.session['curate_edit_data'] = form_data.xml_data
                 # parameters that will be used during curation
                 request.session['curateFormData'] = str(form_data.id)
-
                 request.session['currentTemplateID'] = form_data.template
                 templateObject = Template.objects.get(pk=form_data.template)
                 xmlDocData = templateObject.content
