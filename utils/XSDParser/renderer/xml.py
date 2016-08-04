@@ -4,6 +4,8 @@ from django.template import loader
 from os.path import join
 from curate.models import SchemaElement
 from bson.objectid import ObjectId
+
+from mgi.exceptions import MDCSError
 from utils.XSDParser.renderer import DefaultRenderer
 
 
@@ -151,10 +153,13 @@ class XmlRenderer(AbstractXmlRenderer):
                         xmlns = ' xmlns="{}"'.format(element.options['xmlns'])
                         content[0] += xmlns
 
-                if child.tag == 'module' and child.options['multiple']:
+                # content[2] has the value returned by a module (the entire tag, when multiple is True)
+                if content[2] != '':
+                    if content[0] != '' or content[1] != '':
+                        raise MDCSError('ERROR: More values than expected were returned (Module multiple).')
                     xml_string += content[2]
                 else:
-                    xml_string += self._render_xml(element_name, content[0], content[1]) + content[2]
+                    xml_string += self._render_xml(element_name, content[0], content[1])
 
         return xml_string
 
