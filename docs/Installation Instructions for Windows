@@ -1,5 +1,5 @@
 Installation Instructions (Windows)
-for Materials Resource Registry
+for Materials Data Curation Project
 
 Setup:
 
@@ -63,10 +63,10 @@ a.	If you use a virtual environment.
 You can’t change the destination folder set in the installer so you will have to install the package in the specified folder (C:\Python27\Lib\site-packages\) and then copy the lxml directories from C:\Python27\Lib\site-packages\ to %USERPROFILE%\Develop\Envs\mgi\Lib\site-packages.
 
 
-Running the MRR for the first time:
+Running the MDCS for the first time:
 
 1)	Run mongodb (if not already running). In a command prompt :
-mongod --config /path/to/mrr/conf/mongodb.conf
+mongod --config /path/to/mdcs/conf/mongodb.conf
 
 2)	python manage.py migrate
 	python manage.py createsuperuser
@@ -81,14 +81,14 @@ To Run the software:
 1)	Make sure Redis is running.
 
 2)	Run mongodb (if not already running). In a command prompt :
-mongod --config /path/to/mrr/conf/mongodb.conf
+mongod --config /path/to/mdcs/conf/mongodb.conf
 
 3)	Run celery. In a command prompt :
 celery -A mgi worker -l info -Ofair --purge
 
-4)	Run the MRR. In a command prompt :
+4)	Run the MDCS. In a command prompt :
 workon mgi
-cd path/to/mrr
+cd path/to/mdcs
 python manage.py runserver --noreload
 
 
@@ -96,6 +96,6 @@ To be able to access the system remotely, instead of using python manage.py runs
 
 Access:
 
-For Materials Resource Registry, Go to:  http://127.0.0.1:8000/ 
+For Materials Data Curation System, Go to:  http://127.0.0.1:8000/ 
 
-For Materials Resource Registry Administration, Go to:  http://127.0.0.1:8000/admin/ 
+For Materials Data Curation Administration, Go to:  http://127.0.0.1:8000/admin/ 
