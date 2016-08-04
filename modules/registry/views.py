@@ -1,4 +1,5 @@
-from modules.registry.models import RegistryCheckboxesModule, StatusModule, LocalIDModule, DescriptionModule, TypeModule
+from modules.registry.models import RegistryCheckboxesModule, StatusModule, LocalIDModule, DescriptionModule, TypeModule, \
+    NamePIDModule
 
 
 def registry_checkboxes_materialType(request):
@@ -39,3 +40,7 @@ def description(request):
 
 def resource_type(request):
     return TypeModule().render(request)
+
+
+def name_pid(request):
+    return NamePIDModule().render(request)
