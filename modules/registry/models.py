@@ -10,6 +10,7 @@ from django.utils.importlib import import_module
 from mgi import models as mgi_models, common
 import random
 import string
+from mgi.models import Status
 from forms import NamePIDForm
 from django.template import Context, Template
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
