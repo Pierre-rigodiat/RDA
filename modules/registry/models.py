@@ -72,15 +72,11 @@ class NamePIDModule(Module):
         return ''
 
     def _post_result(self, request):
-        result_xml = ''
+        pid = ' pid="' + request.POST['pid'] + '"' if 'pid' in request.POST and len(request.POST['pid']) > 0 else ''
+        if 'name' in request.POST and request.POST['name'] != '':
+            return '<' + request.POST['tag'] + pid + '>' + request.POST['name'] + '</' + request.POST['tag'] + '>'
 
-        form = NamePIDForm(request.POST)
-        if form.is_valid():
-            if 'name' in request.POST and request.POST['name'] != '':
-                pid = ' pid="' + request.POST['pid'] + '"' if 'pid' in request.POST and len(request.POST['pid']) > 0 else ''
-                return '<' + request.POST['tag'] + pid + '>' + request.POST['name'] + '</' + request.POST['tag'] + '>'
-
-        return '<' + request.POST['tag'] + '></' + request.POST['tag'] + '>'
+        return '<' + request.POST['tag'] + pid + '></' + request.POST['tag'] + '>'
 
 
 class RegistryCheckboxesModule(CheckboxesModule):
