@@ -78,7 +78,6 @@ $ celery -A mgi worker -l info -Ofair --purge
 ```
 4. Run the software:
 ```
-$ workon mgi
 $ cd path/to/source
 $ python manage.py runserver --noreload
 ```
