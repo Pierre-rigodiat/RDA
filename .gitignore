@@ -235,3 +235,6 @@ bin/init_db_test.bat
 #pylint
 pylint.out
 
+#radon
+radon.xml
+
