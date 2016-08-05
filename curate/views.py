@@ -103,6 +103,8 @@ def curate_edit_data(request):
     try:
         xml_data_id = request.GET['id']
         xml_data = XMLdata.get(xml_data_id)
+        if request.user.id != str(xml_data['iduser']):
+            raise MDCSError("The document doesn't belong to you. You don't have the rights to edit this document.")
         json_content = xml_data['content']
         xml_content = XMLdata.unparse(json_content)
         request.session['curate_edit'] = True
@@ -130,6 +132,8 @@ def curate_edit_data(request):
             del request.session['form_id']
         if 'xmlDocTree' in request.session:
             del request.session['xmlDocTree']
+    except MDCSError, mdcs_error:
+        raise mdcs_error
     except:
         raise MDCSError("The document you are looking for doesn't exist.")
 
