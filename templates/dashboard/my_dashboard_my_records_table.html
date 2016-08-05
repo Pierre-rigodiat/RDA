@@ -44,9 +44,11 @@
                     View
                 </span></a>
                 {% endautoescape %}
+                {% if canEdit %}
                 <a href="/curate/enter-data?id={{XMLdata_id}}"><span class="icon legend edit">
                     Edit
                 </span></a>
+                {% endif %}
                 {% if not XMLdata.ispublished %}
                 <span class="icon legend publish" onclick="updatePublish('{{XMLdata_id}}')">
                     Publish
