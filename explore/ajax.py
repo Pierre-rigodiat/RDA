@@ -476,12 +476,13 @@ def get_results_by_instance_keyword(request):
                     #We use the default one
                     newdom = transform(dom)
                     custom_xslt = False
-
+                modification = request.user.is_staff or (str(instanceResult['iduser']) ==  str(request.user.id))
                 context = RequestContext(request, {'id': str(instanceResult['_id']),
                                                    'xml': str(newdom),
                                                    'title': instanceResult['title'],
                                                    'custom_xslt': custom_xslt,
-                                                   'template_name': schema.title})
+                                                   'template_name': schema.title,
+                                                   'modification': modification})
 
                 resultString += template.render(context)
             else:
@@ -578,11 +579,13 @@ def get_results_by_instance(request):
                         newdom = transform(dom)
                         custom_xslt = False
 
+                    modification = request.user.is_staff or (str(instanceResult['iduser']) == str(request.user.id))
                     context = RequestContext(request, {'id':str(instanceResult['_id']),
                                                'xml': str(newdom),
                                                'title': instanceResult['title'],
                                                'custom_xslt': custom_xslt,
-                                               'template_name': schema.title})
+                                               'template_name': schema.title,
+                                                'modification': modification})
 
                     resultString+= template.render(context)
 
@@ -624,10 +627,12 @@ def get_results_by_instance(request):
                         newdom = transform(dom)
                         custom_xslt = False
 
+                    modification = request.user.is_staff or (str(instanceResult['iduser']) == str(request.user.id))
                     context = RequestContext(request, {'id': str(instanceResult['_id']),
                                                        'xml': str(newdom),
                                                        'title': instanceResult['title'],
-                                                       'custom_xslt': custom_xslt})
+                                                       'custom_xslt': custom_xslt,
+                                                       'modification': modification})
 
                     resultString += template.render(context)
                 resultString += "<br/>"
