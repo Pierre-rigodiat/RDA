@@ -56,12 +56,12 @@ def init_rules():
         #### CURATE ####
         curate_access_perm = Permission.objects.get(codename=curate_access)
         curate_view_data_save_repo_perm = Permission.objects.get(codename=curate_view_data_save_repo)
-#         curate_edit_document_perm = Permission.objects.get(codename=curate_edit_document)
-#         curate_delete_document_perm = Permission.objects.get(codename=curate_delete_document)
+        curate_edit_document_perm = Permission.objects.get(codename=curate_edit_document)
+        curate_delete_document_perm = Permission.objects.get(codename=curate_delete_document)
         defaultGroup.permissions.add(curate_access_perm)
         defaultGroup.permissions.add(curate_view_data_save_repo_perm)
-#         defaultGroup.permissions.add(curate_edit_document_perm)
-#         defaultGroup.permissions.add(curate_delete_document_perm)
+        defaultGroup.permissions.add(curate_edit_document_perm)
+        defaultGroup.permissions.add(curate_delete_document_perm)
         #### END CURATE ####
 
         #### COMPOSE ####
