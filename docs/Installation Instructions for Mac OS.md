@@ -1,0 +1,86 @@
+# Mac OS Installation Instructions
+
+## Prerequisites
+
+### Homebrew
+See installation instructions at [Homebrew](http://brew.sh)
+
+
+### Python
+```
+$ brew intall python
+```
+
+### (Optional) Virtual Environment
+```
+$ brew install pyenv pyenv-virtualenv
+$ pyenv install 2.7.2
+$ pyenv virtualenv 2.7.2 curator
+$ pyenv activate curator
+```
+Find more details at [pyenv](https://github.com/yyuu/pyenv)
+
+### MongoDB
+1. Download from https://www.mongodb.com/download-center#community
+2. Follow the instructions provided by MongoDB to install it
+
+### Redis Server
+```
+$ brew install redis
+```
+Please check out the following link if you got a problem during the brew install:
+http://apple.stackexchange.com/questions/153790/how-to-fix-brew-after-osx-upgrade-to-yosemite
+
+## Setup
+
+### Configure MongoDB
+Please follow general instructions provided in the file called "MongoDB Configuration".
+
+### Install required python packages
+If you are using a virtual environment, make sure it is activated before starting the installation. 
+```
+$ pip install -r docs\requirements.txt
+```
+
+#### For lxml
+If you get the error “clang error: linker command failed”, then run the following command instead (See http://lxml.de/installation.html):
+STATIC_DEPS=true pip install lxml==<version>
+
+## Run the software for the first time
+1. Run mongodb (if not already running):
+```
+$ mongod --config /path/to/source/conf/mongodb.conf
+```
+2. Setup the database:
+```bash
+$ python manage.py migrate
+$ python manage.py createsuperuser
+# Answer yes to:
+# You just installed Django's auth system, which means you don't have any superusers defined.
+# Would you like to create one now? (yes/no): yes
+```
+
+## Run the software
+1. Make sure Redis Server is running.
+2. Run mongodb (if not already running):
+```
+$ mongod --config /path/to/source/conf/mongodb.conf
+```
+3. Run celery:
+```
+$ celery -A mgi worker -l info -Ofair --purge
+```
+4. Run the software:
+```
+$ cd path/to/source
+$ python manage.py runserver --noreload
+```
+5. (Optional) Allow remote access:
+```
+$ python manage.py runserver 0.0.0.0:<port> --noreload
+```
+
+## Access
+For the Homepage, Go to:  http://127.0.0.1:8000/
+
+For the Admin Dashboard, Go to:  http://127.0.0.1:8000/admin/ 
