@@ -15,15 +15,7 @@ We need pip to do the installation of the required dependencies.  pip requires s
 $ python get-pip.py 
 ```
 
-### MongoDB
-1. Download from https://www.mongodb.com/download-center#community
-2. Follow the instructions provided by MongoDB to install it
-
-### Redis Server
-1. Download from https://github.com/MSOpenTech/redis/releases
-2. Run the msi
-
-### Virtual Environment(Optional)
+### (Optional) Virtual Environment
 1. In a command prompt:
 ```
 $ pip install virtualenvwrapper-win
@@ -41,10 +33,19 @@ $ mkvirtualenv mgi
 $ workon mgi
 ```
 
+### MongoDB
+1. Download from https://www.mongodb.com/download-center#community
+2. Follow the instructions provided by MongoDB to install it
+
+### Redis Server
+1. Download from https://github.com/MSOpenTech/redis/releases
+2. Run the msi
+
+
 ## Setup
 
 ### Configure MongoDB
-Please follow general instructions provided in the file called MongoDB Configuration.
+Please follow general instructions provided in the file called "MongoDB Configuration".
 
 ### Install required python packages
 If you are using a virtual environment, make sure it is activated before starting the installation. 
