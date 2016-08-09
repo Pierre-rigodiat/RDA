@@ -3,7 +3,7 @@
 This document provides a list of all python packages that are required to make the MDCS run well. 
 To install a specific version of a package, the following command can be used: 
 
-pip install <PACKAGE_NAME>==<PACKAGE_VERSION>
+pip install <package_name>==<package_version>
 
 
 ```bash
