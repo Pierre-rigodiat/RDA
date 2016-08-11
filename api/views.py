@@ -19,7 +19,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
 # Models
-from mgi.common import LXML_SCHEMA_NAMESPACE
+from mgi.common import LXML_SCHEMA_NAMESPACE, update_dependencies
 from mgi.models import SavedQuery, XMLdata, Template, TemplateVersion, Type, TypeVersion, Instance, Exporter, \
     ExporterXslt, create_template_version, create_template, create_type_version, create_type
 from exporter.builtin.models import XSLTExporter
@@ -582,6 +582,7 @@ def curate(request):
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 ################################################################################
 # 
 # Function Name: add_schema(request)
@@ -598,83 +599,59 @@ def add_schema(request):
     POST http://localhost/rest/templates/add
     POST data title="title", filename="filename", content="<xsd:schema>...</xsd:schema>" templateVersion="id", dependencies{}="id,id"
     """
-
-    sSerializer = schemaSerializer(data=request.DATA)
-    if sSerializer.is_valid():
-        xsdContent = request.DATA['content']
+    schema_serializer = schemaSerializer(data=request.DATA)
+    if schema_serializer.is_valid():
+        xsd_content = request.DATA['content']
 
         # is this a valid XMl document?
         try:
-            xmlTree = etree.parse(BytesIO(xsdContent.encode('utf-8')))
+            xml_tree = etree.parse(BytesIO(xsd_content.encode('utf-8')))
         except Exception, e:
-            content = {'message':'This is not a valid XML document.' + e.message.replace("'", "")}
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
-        # check that the schema is valid for the MDCS
-        errors = common.getValidityErrorsForMDCS(xmlTree, "Template")
-        if len(errors) > 0:
-            content = {'message':'This template is not supported by the current version of the MDCS.', 'errors': errors}
+            content = {'message': 'This is not a valid XML document.' + e.message.replace("'", "")}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
         # manage the dependencies
-        includes = xmlTree.findall("{}include".format(LXML_SCHEMA_NAMESPACE))
-        idxInclude = 0
-        dependencies = []
-
-        if 'dependencies[]' in request.DATA:
-            dependencies = request.DATA['dependencies[]'].strip().split(",")
-            if len(dependencies) == len(includes):
-                listTypesId = []
-                for typeId in Type.objects.all().values_list('id'):
-                    listTypesId.append(str(typeId))
-
-                # replace includes/imports by API calls
-                for dependency in dependencies:
-                    if dependency in listTypesId:
-                        includes[idxInclude].attrib['schemaLocation'] = getSchemaLocation(str(dependency))
-                        idxInclude += 1
-                    else:
-                        content = {'message':'One or more dependencies can not be found in the database.'}
-                        return Response(content, status=status.HTTP_400_BAD_REQUEST)
-
-                # validate the schema
-                error = validate_xml_schema(xmlTree)
-
-                if error is not None:
-                    content = {'message':'This is not a valid XML schema.' + error.replace("'","")}
-                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    xsdContent = etree.tostring(xmlTree)
+        try:
+            if 'dependencies' in request.DATA:
+                dependencies = json.loads(request.DATA['dependencies'])
             else:
-                content = {'message':'The number of given dependencies (' + str(len(dependencies)) + ')  is different from the actual number of dependencies found in the uploaded template (' + str(len(includes)) + ').'}
-                return Response(content, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            if len(includes) > 0:
-                content = {'message':'The template that you are trying to upload has some dependencies. Use the "dependencies" keyword to register a template with its dependencies.'}
-                return Response(content, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                # validate the schema
-                error = validate_xml_schema(xmlTree)
+                dependencies = []
+        except Exception, e:
+            content = {'message': 'Something went wrong during update of dependencies:' + e.message}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
-                if error is not None:
-                    content = {'message':'This is not a valid XML schema.' + error.replace("'","")}
-                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        if len(dependencies) > 0:
+            try:
+                update_dependencies(xml_tree, dependencies)
+                dependencies = dependencies.values()
+                xsd_content = etree.tostring(xml_tree)
+            except Exception, e:
+                content = {'message': 'Something went wrong during update of dependencies:' + e.message}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
         # a template version is provided: if it exists, add the schema as a new version and manage the version numbers
         if "templateVersion" in request.DATA:
             try:
-                templateVersions = TemplateVersion.objects.get(pk=request.DATA['templateVersion'])
-                if templateVersions.isDeleted == True:
-                    content = {'message':'This template version belongs to a deleted template. You are not allowed to add a template to it.'}
-                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
-                new_template = create_template_version(xsdContent, request.DATA['filename'], str(templateVersions.id))
-            except:
-                content = {'message':'No template version found with the given id.'}
+                template_versions = TemplateVersion.objects.get(pk=request.DATA['templateVersion'])
+                new_template = create_template_version(xsd_content,
+                                                       request.DATA['filename'],
+                                                       str(template_versions.id),
+                                                       dependencies)
+            except Exception, e:
+                content = {'message': e.message}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
         else:
-            new_template = create_template(xsdContent, request.DATA['title'], request.DATA['filename'], dependencies)
+            try:
+                new_template = create_template(xsd_content,
+                                               request.DATA['title'],
+                                               request.DATA['filename'],
+                                               dependencies)
+            except Exception, e:
+                content = {'message': e.message}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(json.loads(new_template.to_json()), status=status.HTTP_201_CREATED)
-    return Response(sSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(schema_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 ################################################################################
@@ -796,7 +773,7 @@ def select_all_schemas(request):
 @api_staff_member_required()
 def select_all_schemas_versions(request):
     """
-    GET http://localhost/rest/schemas/versions/select/all
+    GET http://localhost/rest/templates/versions/select/all
     """
     templateVersions = TemplateVersion.objects
     serializer = TemplateVersionSerializer(templateVersions)
@@ -1009,10 +986,8 @@ def restore_schema(request):
     else:
         content = {'message':'Template version not deleted. No need to be restored.'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
-    # else:
-    #     content = {'message':'Only an administrator can use this feature.'}
-    #     return Response(content, status=status.HTTP_401_UNAUTHORIZED)
-    
+
+
 ################################################################################
 # 
 # Function Name: add_type(request)
@@ -1029,85 +1004,60 @@ def add_type(request):
     POST http://localhost/rest/types/add
     POST data title="title", filename="filename", content="..." typeVersion="id" dependencies[]="id,id"
     """
-
-    oSerializer = typeSerializer(data=request.DATA)
-    if oSerializer.is_valid():
-        xsdContent = request.DATA['content']
+    type_serializer = typeSerializer(data=request.DATA)
+    if type_serializer.is_valid():
+        xsd_content = request.DATA['content']
 
         # is this a valid XMl document?
         try:
-            xmlTree = etree.parse(BytesIO(xsdContent.encode('utf-8')))
+            xml_tree = etree.parse(BytesIO(xsd_content.encode('utf-8')))
         except Exception, e:
-            content = {'message':'This is not a valid XML document.' + e.message.replace("'","")}
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
-
-        # check that the schema is valid for the MDCS
-        errors = common.getValidityErrorsForMDCS(xmlTree, "Type")
-        if len(errors) > 0:
-            content = {'message':'This type is not supported by the current version of the MDCS.', 'errors': errors}
+            content = {'message': 'This is not a valid XML document.' + e.message.replace("'", "")}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
         # manage the dependencies
-        includes = xmlTree.findall("{}include".format(LXML_SCHEMA_NAMESPACE))
-        idxInclude = 0
-        dependencies = []
-
-        if 'dependencies[]' in request.DATA:
-            dependencies = request.DATA['dependencies[]'].strip().split(",")
-            if len(dependencies) == len(includes):
-                listTypesId = []
-                for typeId in Type.objects.all().values_list('id'):
-                    listTypesId.append(str(typeId))
-
-                # replace includes/imports by API calls
-                for dependency in dependencies:
-                    if dependency in listTypesId:
-                        includes[idxInclude].attrib['schemaLocation'] = getSchemaLocation(str(dependency))
-                        idxInclude += 1
-                    else:
-                        content = {'message':'One or more dependencies can not be found in the database.'}
-                        return Response(content, status=status.HTTP_400_BAD_REQUEST)
-
-                # validate the schema
-                error = validate_xml_schema(xmlTree)
-
-                if error is not None:
-                    content = {'message':'This is not a valid XML schema.' + error.replace("'","")}
-                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    xsdContent = etree.tostring(xmlTree)
+        try:
+            if 'dependencies' in request.DATA:
+                dependencies = json.loads(request.DATA['dependencies'])
             else:
-                content = {'message':'The number of given dependencies (' + str(len(dependencies)) + ') is different from the actual number of dependencies found in the uploaded template (' + str(len(includes)) + ').'}
-                return Response(content, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            if len(includes) > 0:
-                content = {'message':'The template that you are trying to upload has some dependencies. Use the "dependencies" keyword to register a template with its dependencies.'}
-                return Response(content, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                # validate the schema
-                error = validate_xml_schema(xmlTree)
+                dependencies = []
+        except Exception, e:
+            content = {'message': 'Something went wrong during update of dependencies:' + e.message}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
-                if error is not None:
-                    content = {'message':'This is not a valid XML schema.' + error.replace("'","")}
-                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        if len(dependencies) > 0:
+            try:
+                update_dependencies(xml_tree, dependencies)
+                dependencies = dependencies.values()
+                xsd_content = etree.tostring(xml_tree)
+            except Exception, e:
+                content = {'message': 'Something went wrong during update of dependencies:' + e.message}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
         # a type version is provided: if it exists, add the type as a new version and manage the version numbers
         if "typeVersion" in request.DATA:
             try:
-                typeVersions = TypeVersion.objects.get(pk=request.DATA['typeVersion'])
-                if typeVersions.isDeleted == True:
-                    content = {'message':'This type version belongs to a deleted type. You can not add a type to it.'}
-                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
-
-                new_type = create_type_version(xsdContent, request.DATA['filename'], str(typeVersions.id))
-            except:
-                content = {'message':'No type version found with the given id.'}
+                type_versions = TypeVersion.objects.get(pk=request.DATA['typeVersion'])
+                new_type = create_type_version(xsd_content,
+                                               request.DATA['filename'],
+                                               str(type_versions.id),
+                                               dependencies)
+            except Exception, e:
+                content = {'message': e.message}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
         else:
-            new_type = create_type(xsdContent, request.DATA['title'], request.DATA['filename'], [], dependencies)
+            try:
+                new_type = create_type(xsd_content,
+                                       request.DATA['title'],
+                                       request.DATA['filename'],
+                                       [],
+                                       dependencies)
+            except Exception, e:
+                content = {'message': e.message}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(json.loads(new_type.to_json()), status=status.HTTP_201_CREATED)
-    return Response(oSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(type_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 ################################################################################
 # 
@@ -1172,7 +1122,7 @@ def select_type(request):
             else:
                 query['typeVersion'] = typeVersion
         if len(query.keys()) == 0:
-            content = {'message':'No parameters given.'}
+            content = {'message': 'No parameters given.'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         else:
             cursor = type.find(query)

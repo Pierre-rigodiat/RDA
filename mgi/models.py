@@ -14,6 +14,8 @@
 #
 ################################################################################
 import numbers
+from lxml import etree
+
 from mongoengine import *
 
 # Specific to MongoDB ordered inserts
@@ -23,6 +25,11 @@ import xmltodict
 from pymongo import MongoClient, TEXT, DESCENDING, errors
 import re
 import datetime
+from io import BytesIO
+
+from mgi import common
+from mgi.exceptions import MDCSError, XMLError, XSDError
+from utils.XMLValidation.xml_schema import validate_xml_schema
 from utils.XSDhash import XSDhash
 import os
 from django.utils.importlib import import_module
@@ -45,7 +52,7 @@ class Request(Document):
     password = StringField(required=True)
     first_name = StringField(required=True)
     last_name = StringField(required=True)
-    email = StringField(required=True)    
+    email = StringField(required=True)
 
 
 class Message(Document):
@@ -119,13 +126,40 @@ def delete_type_and_version(object_id):
     type.delete()
 
 
+def is_schema_valid(object_type, content, name=None):
+    # is the name unique?
+    if name is not None:
+        names = Template.objects.all().values_list('title')
+        if name in names:
+            raise MDCSError('A {} with the same name already exists'.format(object_type))
+
+    # is it a valid XML document?
+    try:
+        xsd_tree = etree.parse(BytesIO(content.encode('utf-8')))
+    except Exception:
+        raise XMLError('Uploaded file is not well formatted XML.')
+
+    # is it supported by the MDCS?
+    errors = common.getValidityErrorsForMDCS(xsd_tree, object_type)
+    if len(errors) > 0:
+        errors_str = ", ".join(errors)
+        raise MDCSError(errors_str)
+
+    # is it a valid XML schema?
+    error = validate_xml_schema(xsd_tree)
+    if error is not None:
+        raise XSDError(error)
+
+
 def create_template(content, name, filename, dependencies=[], user=None):
+    is_schema_valid('Template', content, name)
     hash_value = XSDhash.get_hash(content)
     # save the template
     template_versions = TemplateVersion(nbVersions=1, isDeleted=False).save()
     new_template = Template(title=name, filename=filename, content=content,
                             version=1, templateVersion=str(template_versions.id), hash=hash_value, user=user).save()
     new_template.dependencies = dependencies
+
     # Add default exporters
     try:
         exporters = Exporter.objects.filter(available_for_all=True)
@@ -141,6 +175,7 @@ def create_template(content, name, filename, dependencies=[], user=None):
 
 
 def create_type(content, name, filename, buckets=[], dependencies=[], user=None):
+    is_schema_valid('Type', content, name)
     hash_value = XSDhash.get_hash(content)
     # save the type
     type_versions = TypeVersion(nbVersions=1, isDeleted=False).save()
@@ -160,7 +195,8 @@ def create_type(content, name, filename, buckets=[], dependencies=[], user=None)
     return new_type
 
 
-def create_template_version(content, filename, versions_id):
+def create_template_version(content, filename, versions_id, dependencies=[]):
+    is_schema_valid('Template', content)
     hash_value = XSDhash.get_hash(content)
     template_versions = TemplateVersion.objects.get(pk=versions_id)
     template_versions.nbVersions += 1
@@ -168,6 +204,7 @@ def create_template_version(content, filename, versions_id):
     new_template = Template(title=current_template.title, filename=filename, content=content,
                             version=template_versions.nbVersions, templateVersion=str(versions_id),
                             hash=hash_value).save()
+    new_template.dependencies = dependencies
 
     template_versions.versions.append(str(new_template.id))
     template_versions.save()
@@ -175,7 +212,8 @@ def create_template_version(content, filename, versions_id):
     return new_template
 
 
-def create_type_version(content, filename, versions_id):
+def create_type_version(content, filename, versions_id, dependencies=[]):
+    is_schema_valid('Type', content)
     hash_value = XSDhash.get_hash(content)
     type_versions = TypeVersion.objects.get(pk=versions_id)
     type_versions.nbVersions += 1
@@ -183,6 +221,7 @@ def create_type_version(content, filename, versions_id):
     new_type = Type(title=current_type.title, filename=filename, content=content,
                     version=type_versions.nbVersions, typeVersion=str(versions_id),
                     hash=hash_value).save()
+    new_type.dependencies = dependencies
 
     type_versions.versions.append(str(new_type.id))
     type_versions.save()
