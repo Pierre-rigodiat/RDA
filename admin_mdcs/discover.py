@@ -16,7 +16,13 @@
 #
 ################################################################################
 from django.contrib.auth.models import Permission, Group
+import os
+
+from mgi.models import Template, Type, create_template, create_type
 from mgi.rights import *
+from mgi.settings import SITE_ROOT
+
+STATIC_DIR = os.path.join(SITE_ROOT, 'static', 'resources', 'xsd')
 
 
 def init_rules():
@@ -85,3 +91,37 @@ def init_rules():
         print('ERROR : Impossible to init the rules : ' + e.message)
 
 
+def scan_static_resources():
+    """
+    Dynamically load templates/types in resource folder
+    :return:
+    """
+    try:
+        # if templates are already present, initialization already happened
+        existing_templates = Template.objects()
+        existing_types = Type.objects()
+
+        if len(existing_templates) == 0 and len(existing_types) == 0:
+            templates_dir = os.path.join(STATIC_DIR, 'templates')
+            if os.path.exists(templates_dir):
+                for filename in os.listdir(templates_dir):
+                    file_path = os.path.join(templates_dir, filename)
+                    file = open(file_path, 'r')
+                    file_content = file.read()
+                    try:
+                        create_template(file_content, filename, filename)
+                    except Exception, e:
+                        print "ERROR: Unable to load {0} ({1})".format(filename, e.message)
+
+            types_dir = os.path.join(STATIC_DIR, 'types')
+            if os.path.exists(types_dir):
+                for filename in os.listdir(types_dir):
+                    file_path = os.path.join(types_dir, filename)
+                    file = open(file_path, 'r')
+                    file_content = file.read()
+                    try:
+                        create_type(file_content, filename, filename)
+                    except Exception, e:
+                        print "ERROR: Unable to load {0} ({1})".format(filename, e.message)
+    except Exception:
+        print "ERROR: An unexpected error happened during the scan of static resources"
