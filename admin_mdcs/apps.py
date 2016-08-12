@@ -10,3 +10,4 @@ class AdminMdcsConfig(AppConfig):
 
     def ready(self):
         discover.init_rules()
+        discover.scan_static_resources()
