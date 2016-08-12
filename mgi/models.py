@@ -129,13 +129,19 @@ def delete_type_and_version(object_id):
 def is_schema_valid(object_type, content, name=None):
     # is the name unique?
     if name is not None:
-        names = Template.objects.all().values_list('title')
+        if object_type.lower() == 'template':
+            names = Template.objects.all().values_list('title')
+        elif object_type.lower() == 'type':
+            names = Type.objects.all().values_list('title')
         if name in names:
             raise MDCSError('A {} with the same name already exists'.format(object_type))
 
     # is it a valid XML document?
     try:
-        xsd_tree = etree.parse(BytesIO(content.encode('utf-8')))
+        try:
+            xsd_tree = etree.parse(BytesIO(content.encode('utf-8')))
+        except Exception:
+            xsd_tree = etree.parse(BytesIO(content))
     except Exception:
         raise XMLError('Uploaded file is not well formatted XML.')
 
@@ -157,8 +163,8 @@ def create_template(content, name, filename, dependencies=[], user=None):
     # save the template
     template_versions = TemplateVersion(nbVersions=1, isDeleted=False).save()
     new_template = Template(title=name, filename=filename, content=content,
-                            version=1, templateVersion=str(template_versions.id), hash=hash_value, user=user).save()
-    new_template.dependencies = dependencies
+                            version=1, templateVersion=str(template_versions.id),
+                            hash=hash_value, user=user, dependencies=dependencies).save()
 
     # Add default exporters
     try:
@@ -180,8 +186,9 @@ def create_type(content, name, filename, buckets=[], dependencies=[], user=None)
     # save the type
     type_versions = TypeVersion(nbVersions=1, isDeleted=False).save()
     new_type = Type(title=name, filename=filename, content=content,
-                    version=1, typeVersion=str(type_versions.id), hash=hash_value, user=user).save()
-    new_type.dependencies = dependencies
+                    version=1, typeVersion=str(type_versions.id), hash=hash_value,
+                    user=user, dependencies=dependencies).save()
+
     # Add to the selected buckets
     for bucket_id in buckets:
         bucket = Bucket.objects.get(pk=bucket_id)
@@ -203,8 +210,7 @@ def create_template_version(content, filename, versions_id, dependencies=[]):
     current_template = Template.objects.get(pk=template_versions.current)
     new_template = Template(title=current_template.title, filename=filename, content=content,
                             version=template_versions.nbVersions, templateVersion=str(versions_id),
-                            hash=hash_value).save()
-    new_template.dependencies = dependencies
+                            hash=hash_value, dependencies=dependencies).save()
 
     template_versions.versions.append(str(new_template.id))
     template_versions.save()
@@ -220,8 +226,7 @@ def create_type_version(content, filename, versions_id, dependencies=[]):
     current_type = Type.objects.get(pk=type_versions.current)
     new_type = Type(title=current_type.title, filename=filename, content=content,
                     version=type_versions.nbVersions, typeVersion=str(versions_id),
-                    hash=hash_value).save()
-    new_type.dependencies = dependencies
+                    hash=hash_value, dependencies=dependencies).save()
 
     type_versions.versions.append(str(new_type.id))
     type_versions.save()
