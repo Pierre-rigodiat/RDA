@@ -322,6 +322,8 @@ get_results_by_instance = function(numInstance){
         success: function(data){
             $("#banner_results_wait").hide(200);
         	$("#results").html(data.results);
+        	if (data.hasResult)
+        	    $("#results_select").show();
         }
     });
 }
@@ -1367,6 +1369,7 @@ clearSearch = function() {
     $("#results_errors").html('');
     $("#banner_results_errors").hide(200);
     $("#results_infos").html('');
+    $("#results_select").hide();
 }
 
 /**
@@ -1400,6 +1403,7 @@ get_results_keyword = function(numInstance){
                     $("#banner_results_errors").show(200)
                 }
                 else{
+                    $("#results_select").show();
                     if(data.count > 1)
                         $("#results_infos").html(data.count + " results");
                     else
@@ -1496,4 +1500,20 @@ initBanner = function()
     $("[data-hide]").on("click", function(){
         $(this).closest("." + $(this).attr("data-hide")).hide(200);
     });
+}
+
+initSelectAll =function ()
+{
+    $('#select_all').on('click',function(){
+        if(this.checked){
+            $('#results :checkbox').each(function(){
+                this.checked = true;
+            });
+        }else{
+             $('#results :checkbox').each(function(){
+                this.checked = false;
+            });
+        }
+    });
+    $("#results_select").buttonset();
 }

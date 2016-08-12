@@ -523,7 +523,7 @@ def get_results_by_instance(request):
     num_instance = request.GET['numInstance']
     instances = request.session['instancesExplore']
     resultString = ""
-
+    hasResult = False
     for i in range(int(num_instance)):
         results = []
         instance = json.loads(instances[int(i)])
@@ -553,6 +553,7 @@ def get_results_by_instance(request):
             instanceResults = XMLdata.executeQueryFullResult(query)
 
             if len(instanceResults) > 0:
+                hasResult = True
                 template = loader.get_template('explore/explore_result.html')
                 xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
                 xslt = etree.parse(xsltPath)
@@ -602,6 +603,7 @@ def get_results_by_instance(request):
             result = r.text
             instanceResults = json.loads(result,object_pairs_hook=OrderedDict)
             if len(instanceResults) > 0:
+                hasResult = True
                 template = loader.get_template('explore/explore_result.html')
                 xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
                 xslt = etree.parse(xsltPath)
@@ -642,7 +644,7 @@ def get_results_by_instance(request):
         request.session[sessionName] = results
     
     print 'END def getResults(request)'
-    response_dict = {'results': resultString}
+    response_dict = {'results': resultString, 'hasResult': hasResult}
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
  
  
