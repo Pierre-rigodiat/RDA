@@ -105,23 +105,29 @@ def scan_static_resources():
             templates_dir = os.path.join(STATIC_DIR, 'templates')
             if os.path.exists(templates_dir):
                 for filename in os.listdir(templates_dir):
-                    file_path = os.path.join(templates_dir, filename)
-                    file = open(file_path, 'r')
-                    file_content = file.read()
-                    try:
-                        create_template(file_content, filename, filename)
-                    except Exception, e:
-                        print "ERROR: Unable to load {0} ({1})".format(filename, e.message)
+                    if filename.endswith(".xsd"):
+                        file_path = os.path.join(templates_dir, filename)
+                        file = open(file_path, 'r')
+                        file_content = file.read()
+                        try:
+                            create_template(file_content, filename, filename)
+                        except Exception, e:
+                            print "ERROR: Unable to load {0} ({1})".format(filename, e.message)
+                    else:
+                        print "WARNING: {0} not loaded because extension is not {1}".format(filename, ".xsd")
 
             types_dir = os.path.join(STATIC_DIR, 'types')
             if os.path.exists(types_dir):
                 for filename in os.listdir(types_dir):
-                    file_path = os.path.join(types_dir, filename)
-                    file = open(file_path, 'r')
-                    file_content = file.read()
-                    try:
-                        create_type(file_content, filename, filename)
-                    except Exception, e:
-                        print "ERROR: Unable to load {0} ({1})".format(filename, e.message)
+                    if filename.endswith(".xsd"):
+                        file_path = os.path.join(types_dir, filename)
+                        file = open(file_path, 'r')
+                        file_content = file.read()
+                        try:
+                            create_type(file_content, filename, filename)
+                        except Exception, e:
+                            print "ERROR: Unable to load {0} ({1})".format(filename, e.message)
+                    else:
+                        print "WARNING: {0} not loaded because extension is not {1}".format(filename, ".xsd")
     except Exception:
         print "ERROR: An unexpected error happened during the scan of static resources"
