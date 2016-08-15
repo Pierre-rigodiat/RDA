@@ -530,8 +530,6 @@ def query_by_example(request):
     return Response(qSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-  
-
 ################################################################################
 # 
 # Function Name: curate(request)
@@ -560,24 +558,31 @@ def curate(request):
             content = {'message: No template found with the given id.'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         
-        xmlStr = request.DATA['content']
-        docID = None
+        xml_str = request.DATA['content']
+        doc_id = None
         try:
             try:
-                common.validateXMLDocument(xmlStr, schema.content)
+                common.validateXMLDocument(xml_str, schema.content)
             except etree.XMLSyntaxError, xse:
-                #xmlParseEntityRef exception: use of & < > forbidden
-                content= {'message': "Validation Failed. May be caused by : Syntax problem, use of forbidden symbols like '&' or '<' or '>'"}
+                # xmlParseEntityRef exception: use of & < > forbidden
+                content = {'message': "Validation Failed. May be caused by : Syntax problem, "
+                                      "use of forbidden symbols like '&' or '<' or '>'"}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
             except Exception, e:
                 content = {'message': e.message}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
-            jsondata = XMLdata(schemaID = request.DATA['schema'], xml = xmlStr, title = request.DATA['title'], iduser=str(request.user.id))
-            docID = jsondata.save()            
+
+            is_published = serializer.data['ispublished']
+            json_data = XMLdata(schemaID=request.DATA['schema'],
+                                xml=xml_str,
+                                title=request.DATA['title'],
+                                iduser=str(request.user.id),
+                                ispublished=is_published)
+            doc_id = json_data.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except:
-            if docID is not None:
-                jsondata.delete(docID)
+            if doc_id is not None:
+                json_data.delete(doc_id)
             content = {'message: Unable to insert data.'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
