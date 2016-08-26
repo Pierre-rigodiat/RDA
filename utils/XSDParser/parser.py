@@ -17,13 +17,6 @@ import urllib2
 from mgi.common import LXML_SCHEMA_NAMESPACE, getAppInfo
 from utils.XSDParser.renderer.list import ListRenderer
 from utils.XSDflattener.XSDflattener import XSDFlattenerURL
-
-from django.utils.importlib import import_module
-import os
-settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
-settings = import_module(settings_file)
-PARSER_DOWNLOAD_DEPENDENCIES = settings.PARSER_DOWNLOAD_DEPENDENCIES
-
 logger = logging.getLogger(__name__)
 
 
@@ -408,29 +401,26 @@ def import_xml_tree(el_import):
     :param el_import:
     :return:
     """
-    if PARSER_DOWNLOAD_DEPENDENCIES:
-        # get the location of the schema
-        ref_xml_schema_url = el_import.attrib['schemaLocation']
-        schema_location = ref_xml_schema_url
-        # download the file
-        ref_xml_schema_file = urllib2.urlopen(ref_xml_schema_url)
-        # read the content of the file
-        ref_xml_schema_content = ref_xml_schema_file.read()
+    # get the location of the schema
+    ref_xml_schema_url = el_import.attrib['schemaLocation']
+    schema_location = ref_xml_schema_url
+    # download the file
+    ref_xml_schema_file = urllib2.urlopen(ref_xml_schema_url)
+    # read the content of the file
+    ref_xml_schema_content = ref_xml_schema_file.read()
+    # build the tree
+    xml_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
+    # look for includes
+    includes = xml_tree.findall('//{}include'.format(LXML_SCHEMA_NAMESPACE))
+    # if includes are present
+    if len(includes) > 0:
+        # create a flattener with the file content
+        flattener = XSDFlattenerURL(ref_xml_schema_content)
+        # flatten the includes
+        ref_xml_schema_content = flattener.get_flat()
         # build the tree
         xml_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
-        # look for includes
-        includes = xml_tree.findall('//{}include'.format(LXML_SCHEMA_NAMESPACE))
-        # if includes are present
-        if len(includes) > 0:
-            # create a flattener with the file content
-            flattener = XSDFlattenerURL(ref_xml_schema_content)
-            # flatten the includes
-            ref_xml_schema_content = flattener.get_flat()
-            # build the tree
-            xml_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
-        return xml_tree, schema_location
-    else:
-        raise MDCSError('Dependency cannot be loaded.')
+    return xml_tree, schema_location
 
 
 def remove_annotations(element):
@@ -1226,17 +1216,14 @@ def generate_element_absent(request, element_id, config=None):
 
     # if the xml element is from an imported schema
     if schema_location is not None:
-        if PARSER_DOWNLOAD_DEPENDENCIES:
-            # open the imported file
-            ref_xml_schema_file = urllib2.urlopen(schema_element.options['schema_location'])
-            # get the content of the file
-            ref_xml_schema_content = ref_xml_schema_file.read()
-            # build the XML tree
-            xml_doc_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
-            # get the namespaces from the imported schema
-            namespaces = common.get_namespaces(BytesIO(str(ref_xml_schema_content)))
-        else:
-            raise MDCSError('Dependency cannot be loaded')
+        # open the imported file
+        ref_xml_schema_file = urllib2.urlopen(schema_element.options['schema_location'])
+        # get the content of the file
+        ref_xml_schema_content = ref_xml_schema_file.read()
+        # build the XML tree
+        xml_doc_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
+        # get the namespaces from the imported schema
+        namespaces = common.get_namespaces(BytesIO(str(ref_xml_schema_content)))
     else:
         # get the content of the XML tree
         xml_doc_tree_str = request.session['xmlDocTree']
@@ -1759,17 +1746,14 @@ def generate_choice_absent(request, element_id, config=None):
 
     # if the xml element is from an imported schema
     if schema_location is not None:
-        if PARSER_DOWNLOAD_DEPENDENCIES:
-            # open the imported file
-            ref_xml_schema_file = urllib2.urlopen(element.options['schema_location'])
-            # get the content of the file
-            ref_xml_schema_content = ref_xml_schema_file.read()
-            # build the XML tree
-            xml_doc_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
-            # get the namespaces from the imported schema
-            namespaces = common.get_namespaces(BytesIO(str(ref_xml_schema_content)))
-        else:
-            raise MDCSError('Dependency cannot be loaded')
+        # open the imported file
+        ref_xml_schema_file = urllib2.urlopen(element.options['schema_location'])
+        # get the content of the file
+        ref_xml_schema_content = ref_xml_schema_file.read()
+        # build the XML tree
+        xml_doc_tree = etree.parse(BytesIO(ref_xml_schema_content.encode('utf-8')))
+        # get the namespaces from the imported schema
+        namespaces = common.get_namespaces(BytesIO(str(ref_xml_schema_content)))
     else:
         # get the content of the XML tree
         xml_doc_tree_str = request.session['xmlDocTree']

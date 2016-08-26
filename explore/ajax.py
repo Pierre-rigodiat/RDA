@@ -213,6 +213,8 @@ def load_config():
         'PARSER_COLLAPSE': False,
         'PARSER_AUTO_KEY_KEYREF': False,
         'PARSER_IMPLICIT_EXTENSION_BASE': False,
+        'PARSER_DOWNLOAD_DEPENDENCIES': settings.PARSER_DOWNLOAD_DEPENDENCIES if
+        hasattr(settings, 'PARSER_DOWNLOAD_DEPENDENCIES') else False,
     }
 
 

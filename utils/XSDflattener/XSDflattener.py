@@ -23,13 +23,7 @@ import lxml.etree as etree
 from io import BytesIO
 from abc import ABCMeta, abstractmethod
 import urllib2
-from django.utils.importlib import import_module
-import os
-from mgi.exceptions import MDCSError
-
-settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
-settings = import_module(settings_file)
-PARSER_DOWNLOAD_DEPENDENCIES = settings.PARSER_DOWNLOAD_DEPENDENCIES
+# from mgi import settings
 
 class XSDFlattener(object):
     __metaclass__ = ABCMeta
@@ -37,6 +31,8 @@ class XSDFlattener(object):
     def __init__(self, xmlString):
         self.xmlString = xmlString
         self.dependencies = []
+        self.download_enabled = True
+        # self.download_enabled = settings.PARSER_DOWNLOAD_DEPENDENCIES
 
     def get_flat(self):
         parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
@@ -88,21 +84,16 @@ class XSDFlattener(object):
     def get_dependency_content(self, uri):
         pass
 
-################################################################################
-#
-# XSDFlattenerURL
-#
-# future: flattener that could work using URL and local files
-#
-################################################################################
+
 class XSDFlattenerURL(XSDFlattener):
+    """
+    Download the content of the dependency
+    """
     def get_dependency_content(self, uri):
         content = ""
 
-        if PARSER_DOWNLOAD_DEPENDENCIES:
+        if self.download_enabled:
             file = urllib2.urlopen(uri)
             content = file.read()
-        else:
-            raise MDCSError('Dependency cannot be loaded')
 
         return content
