@@ -23,7 +23,13 @@ import lxml.etree as etree
 from io import BytesIO
 from abc import ABCMeta, abstractmethod
 import urllib2
+from django.utils.importlib import import_module
+import os
+from mgi.exceptions import MDCSError
 
+settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
+settings = import_module(settings_file)
+PARSER_DOWNLOAD_DEPENDENCIES = settings.PARSER_DOWNLOAD_DEPENDENCIES
 
 class XSDFlattener(object):
     __metaclass__ = ABCMeta
@@ -82,43 +88,9 @@ class XSDFlattener(object):
     def get_dependency_content(self, uri):
         pass
 
-
 ################################################################################
 #
 # XSDFlattenerURL
-#
-# future: flattener that could work using URL of distant server requiring authentication
-#
-################################################################################
-class XSDFlattenerURL(XSDFlattener):
-    def __init__(self, xmlString):
-        XSDFlattener.__init__(self, xmlString)
-        self.servers = {}
-
-    def get_dependency_content(self, uri):
-        pass
-
-    # 		r = requests.get(uri,auth=(self.user, self.password))
-    # 		return r.text
-
-
-################################################################################
-#
-# XSDFlattenerLocal
-#
-# description: flattener that can flatten files on the local file system
-#
-################################################################################	
-class XSDFlattenerLocal(XSDFlattener):
-    def get_dependency_content(self, uri):
-        file = open(uri, 'r')
-        content = file.read()
-        return content
-
-
-################################################################################
-#
-# XSDFlattenerFull
 #
 # future: flattener that could work using URL and local files
 #
@@ -126,9 +98,11 @@ class XSDFlattenerLocal(XSDFlattener):
 class XSDFlattenerURL(XSDFlattener):
     def get_dependency_content(self, uri):
         content = ""
-        try:
+
+        if PARSER_DOWNLOAD_DEPENDENCIES:
             file = urllib2.urlopen(uri)
             content = file.read()
-        except:
-            pass
+        else:
+            raise MDCSError('Dependency cannot be loaded')
+
         return content
