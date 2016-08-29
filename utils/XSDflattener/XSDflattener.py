@@ -7,7 +7,6 @@
 # V1: 
 #    - works with include statement only (not import)
 #    - works with API URL in include schemaLocation attribute
-#	 - works with local URI
 #
 # Author: Guillaume SOUSA AMARAL
 #         guillaume.sousa@nist.gov
@@ -23,16 +22,15 @@ import lxml.etree as etree
 from io import BytesIO
 from abc import ABCMeta, abstractmethod
 import urllib2
-# from mgi import settings
+
 
 class XSDFlattener(object):
     __metaclass__ = ABCMeta
 
-    def __init__(self, xmlString):
+    def __init__(self, xmlString, download_enabled=True):
         self.xmlString = xmlString
         self.dependencies = []
-        self.download_enabled = True
-        # self.download_enabled = settings.PARSER_DOWNLOAD_DEPENDENCIES
+        self.download_enabled = download_enabled
 
     def get_flat(self):
         parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
