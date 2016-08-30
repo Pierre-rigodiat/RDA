@@ -90,7 +90,7 @@ If the import is returning errors, it may mean that the package has not been ins
 For more information about the installation location, please read: https://docs.python.org/2/install#how-installation-works
 Tip: The following command will tell you where your current python is looking for packages:
 	- python -c "import site; print site.getsitepackages()"
-Tip: If no succes with auto install, you can directly copy and paste the file xerces_wrapper.pyc into the site-packages folder of your python.
+Tip: If no succes with auto install, you can directly copy and paste the file xerces_wrapper.pyc and _xerces_wrapper.so into the site-packages folder of your python.
 
 
 MacOS:
@@ -123,5 +123,5 @@ If the import is returning errors, it may mean that the package has not been ins
 For more information about the installation location, please read: https://docs.python.org/2/install#how-installation-works
 Tip: The following command will tell you where your current python is looking for packages:
 	- python -c "import site; print site.getsitepackages()"
-Tip: If no success with auto install, you can directly copy and paste the file xerces_wrapper.pyc into the site-packages folder of your python.
+Tip: If no success with auto install, you can directly copy and paste the file xerces_wrapper.pyc and _xerces_wrapper.so into the site-packages folder of your python.
 

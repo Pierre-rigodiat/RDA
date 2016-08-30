@@ -22,7 +22,6 @@ from mgi.settings import BASE_DIR
 from os.path import join
 from django.utils.importlib import import_module
 from lxml import etree
-import platform
 from utils.XMLValidation.xml_schema import _lxml_validate_xsd, validate_xml_schema, _lxml_validate_xml, \
     validate_xml_data
 
