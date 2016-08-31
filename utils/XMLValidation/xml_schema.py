@@ -18,14 +18,11 @@
 from lxml import etree
 from cStringIO import StringIO
 from mgi.exceptions import MDCSError
-from subprocess import check_output
 import os
-import sys
 from django.utils.importlib import import_module
 
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
-SITE_ROOT = settings.SITE_ROOT
 XERCES_VALIDATION = settings.XERCES_VALIDATION
 
 
