@@ -15,7 +15,6 @@
 ################################################################################
 import numbers
 from lxml import etree
-
 from mongoengine import *
 
 # Specific to MongoDB ordered inserts
@@ -34,6 +33,8 @@ from utils.XSDhash import XSDhash
 import os
 from django.utils.importlib import import_module
 import json
+from curate.models import SchemaElement
+
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
 MONGODB_URI = settings.MONGODB_URI
@@ -355,9 +356,6 @@ class Bucket(Document):
     label = StringField(required=True, unique=True)
     color = StringField(required=True, unique=True)
     types = ListField()
-
-
-from curate.models import SchemaElement
 
 
 class FormData(Document):
