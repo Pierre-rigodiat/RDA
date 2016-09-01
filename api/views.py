@@ -572,12 +572,13 @@ def curate(request):
                 content = {'message': e.message}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
-            is_published = serializer.data['ispublished']
+            # is_published = serializer.data['ispublished']
+            #TODO: do not set to True by default if not MDCS
             json_data = XMLdata(schemaID=request.DATA['schema'],
                                 xml=xml_str,
                                 title=request.DATA['title'],
                                 iduser=str(request.user.id),
-                                ispublished=is_published)
+                                ispublished=True)
             doc_id = json_data.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except:
