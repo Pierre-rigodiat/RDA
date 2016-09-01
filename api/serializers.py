@@ -30,7 +30,7 @@ class jsonDataSerializer(serializers.Serializer):
     title = serializers.CharField()
     schema = serializers.CharField()
     content = serializers.CharField()
-    ispublished = serializers.BooleanField(required=False, default=True)
+    # ispublished = serializers.BooleanField(required=False, default=True)
     _id = serializers.CharField(required=False)
 
 
