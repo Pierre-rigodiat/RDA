@@ -47,12 +47,36 @@ def validate_xml_schema(xsd_tree):
             message = {'xsd_string': xsd_string}
             message = json.dumps(message)
             error = send_message(message)
-            # error = _xerces_validate_xsd(etree.tostring(xsd_tree))
         except Exception, e:
             print e.message
             error = _lxml_validate_xsd(xsd_tree)
     else:
         error = _lxml_validate_xsd(xsd_tree)
+
+    return error
+
+
+def validate_xml_data(xsd_tree, xml_tree):
+    """
+    Send XML Data and XML Schema to server to validate data against the schema
+    :param xsd_tree:
+    :param xml_tree:
+    :return:
+    """
+    error = None
+    pretty_XML_string = etree.tostring(xml_tree, pretty_print=True)
+
+    if XERCES_VALIDATION and _xerces_exists():
+        try:
+            xsd_string = etree.tostring(xsd_tree)
+            message = {'xsd_string': xsd_string, 'xml_string': pretty_XML_string}
+            message = json.dumps(message)
+            error = send_message(message)
+        except Exception, e:
+            print e.message
+            error = _lxml_validate_xml(xsd_tree, etree.parse(StringIO(pretty_XML_string)))
+    else:
+        error = _lxml_validate_xml(xsd_tree, etree.parse(StringIO(pretty_XML_string)))
 
     return error
 
@@ -119,28 +143,6 @@ def send_message(message):
     return reply
 
 
-def validate_xml_data(xsd_tree, xml_tree):
-    """
-    Send XML Data and XML Schema to server to validate data against the schema
-    :param xsd_tree:
-    :param xml_tree:
-    :return:
-    """
-    error = None
-    pretty_XML_string = etree.tostring(xml_tree, pretty_print=True)
-
-    if XERCES_VALIDATION:
-        try:
-            error = _xerces_validate_xml(etree.tostring(xsd_tree), pretty_XML_string)
-        except Exception, e:
-            print e.message
-            error = _lxml_validate_xml(xsd_tree, etree.parse(StringIO(pretty_XML_string)))
-    else:
-        error = _lxml_validate_xml(xsd_tree, etree.parse(StringIO(pretty_XML_string)))
-
-    return error
-
-
 def _xerces_exists():
     """
     Check if xerces wrapper is installed
@@ -154,43 +156,6 @@ def _xerces_exists():
     else:
         print "XERCES EXISTS"
         return True
-
-
-def _xerces_validate_xsd(xsd_string):
-    """
-    Validate schema using Xerces
-    :param xsd_string
-    :return: errors
-    """
-    if _xerces_exists():
-        import xerces_wrapper
-        error = xerces_wrapper.validate_xsd(xsd_string)
-
-        if len(error) <= 1:
-            error = None
-
-        return error
-    else:
-        raise MDCSError("Xerces is not installed")
-
-
-def _xerces_validate_xml(xsd_string, xml_string):
-    """
-    Validate document using Xerces
-    :param xsd_string
-    :param xml_string
-    :return: errors
-    """
-    if _xerces_exists():
-        import xerces_wrapper
-        error = xerces_wrapper.validate_xsd(xsd_string, xml_string)
-
-        if len(error) <= 1:
-            error = None
-
-        return error
-    else:
-        raise MDCSError("Xerces is not installed")
 
 
 def _lxml_validate_xsd(xsd_tree):
@@ -218,5 +183,5 @@ def _lxml_validate_xml(xsd_tree, xml_tree):
         xml_schema = etree.XMLSchema(xsd_tree)
         xml_schema.assertValid(xml_tree)
     except Exception, e:
-        error = e.message  
+        error = e.message
     return error
