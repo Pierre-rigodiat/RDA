@@ -196,6 +196,19 @@ class Migration:
                 form_data_col.update({'_id': ObjectId(duplicate_id)}, {"$set": payload}, upsert=False)
             duplicates = self._check_duplicate_names(form_data_col)
 
+    def _update_blob_metadata(self, db):
+        from settings import BLOB_HOSTER
+        if BLOB_HOSTER == 'GridFS':
+            import gridfs
+            fs = gridfs.GridFS(db)
+            if len(fs.list()):
+                print "Update BLOB metadata: default owner is superuser."
+                files_col = db['fs.files']
+                payload = {'metadata': {'iduser': '1'}}
+                for blob in fs.find():
+                    if 'iduser' not in blob.metadata:
+                        files_col.update({'_id':ObjectId(blob._id)}, {"$set": payload}, upsert=False)
+
     def migrate(self, mongo_admin_user, mongo_admin_password, mongo_path, warnings=True, backup=True):
         """
         APPLIES CHANGES FROM 1.3 TO 1.4
@@ -297,6 +310,9 @@ class Migration:
 
             # FORM DATA UNIQUE NAMES
             self._resolve_duplicate_names(form_data_col)
+
+            # BLOB Metadata
+            self._update_blob_metadata(db)
 
             # CLEAN THE DATABASE
             print "*** CLEAN THE DATABASE ***"
