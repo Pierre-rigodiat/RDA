@@ -454,7 +454,7 @@ class XMLdata(object):
 
     def save(self):
         """save into mongo db"""
-        # insert the content into mongo db                                                                                                                                                                                    
+        # insert the content into mongo db
         self.content['lastmodificationdate'] = datetime.datetime.now()
         docID = self.xmldata.insert(self.content)
         return docID

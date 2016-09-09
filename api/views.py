@@ -563,7 +563,7 @@ def curate(request):
         try:
             try:
                 common.validateXMLDocument(xml_str, schema.content)
-            except etree.XMLSyntaxError, xse:
+            except etree.XMLSyntaxError:
                 # xmlParseEntityRef exception: use of & < > forbidden
                 content = {'message': "Validation Failed. May be caused by : Syntax problem, "
                                       "use of forbidden symbols like '&' or '<' or '>'"}
@@ -580,6 +580,7 @@ def curate(request):
                                 iduser=str(request.user.id),
                                 ispublished=True)
             doc_id = json_data.save()
+            serializer.data['_id'] = str(doc_id)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except:
             if doc_id is not None:
