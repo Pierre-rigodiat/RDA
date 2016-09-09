@@ -24,7 +24,7 @@ import zmq
 from lxml import etree
 import json
 
-REQUEST_TIMEOUT = 10000
+REQUEST_TIMEOUT = 1000
 REQUEST_RETRIES = 3
 SERVER_ENDPOINT = "tcp://127.0.0.1:5555"
 
