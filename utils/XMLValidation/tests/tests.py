@@ -214,9 +214,9 @@
 #         self.load_template(template_path)
 #
 #         # test LXML
-#         # TODO: LXML fails to validate
 #         if TEST_LXML:
-#             self.assertEquals(_lxml_validate_xsd(self.xsd_tree), None)
+#             # TODO: if AssertionError: LXML added support of 1.1
+#             self.assertNotEquals(_lxml_validate_xsd(self.xsd_tree), None)
 #         # test global method
 #         self.assertEquals(validate_xml_schema(self.xsd_tree), None)
 #

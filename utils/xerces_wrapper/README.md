@@ -157,6 +157,10 @@ python -c "import site; print site.getsitepackages()"
 ## Enable Xerces in the MDCS
 
 Please follow the following instructions to enable Xerces validation in the MDCS:
+- Install PyZMQ:
+```
+pip install pyzmq
+```
 - Open mgi/settings.py, and set:
 ```
 XERCES_VALIDATION = True
