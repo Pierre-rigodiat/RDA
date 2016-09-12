@@ -14,15 +14,12 @@
 #
 ################################################################################
 
-
-from lxml import etree
 from cStringIO import StringIO
-from mgi.exceptions import MDCSError
 import os
 from django.utils.importlib import import_module
-import zmq
 from lxml import etree
 import json
+import zmq
 
 REQUEST_TIMEOUT = 1000
 REQUEST_RETRIES = 3
@@ -78,6 +75,50 @@ def validate_xml_data(xsd_tree, xml_tree):
     else:
         error = _lxml_validate_xml(xsd_tree, etree.parse(StringIO(pretty_XML_string)))
 
+    return error
+
+
+def _xerces_exists():
+    """
+    Check if xerces wrapper is installed
+    :return:
+    """
+    try:
+        __import__('xerces_wrapper')
+    except ImportError:
+        print "XERCES DOES NOT EXIST"
+        return False
+    else:
+        print "XERCES EXISTS"
+        return True
+
+
+def _lxml_validate_xsd(xsd_tree):
+    """
+    Validate schema using LXML
+    :param xsd_tree
+    :return: errors
+    """
+    error = None
+    try:
+        xml_schema = etree.XMLSchema(xsd_tree)
+    except Exception, e:
+        error = e.message
+    return error
+
+
+def _lxml_validate_xml(xsd_tree, xml_tree):
+    """
+    Validate document using LXML
+    :param xsd_tree
+    :return: errors
+    """
+    error = None
+    try:
+        xml_schema = etree.XMLSchema(xsd_tree)
+        xml_schema.assertValid(xml_tree)
+    except Exception, e:
+        error = e.message
     return error
 
 
@@ -142,46 +183,3 @@ def send_message(message):
         return None
     return reply
 
-
-def _xerces_exists():
-    """
-    Check if xerces wrapper is installed
-    :return:
-    """
-    try:
-        __import__('xerces_wrapper')
-    except ImportError:
-        print "XERCES DOES NOT EXIST"
-        return False
-    else:
-        print "XERCES EXISTS"
-        return True
-
-
-def _lxml_validate_xsd(xsd_tree):
-    """
-    Validate schema using LXML
-    :param xsd_tree
-    :return: errors
-    """
-    error = None
-    try:
-        xml_schema = etree.XMLSchema(xsd_tree)
-    except Exception, e:
-        error = e.message
-    return error
-
-
-def _lxml_validate_xml(xsd_tree, xml_tree):
-    """
-    Validate document using LXML
-    :param xsd_tree
-    :return: errors
-    """
-    error = None
-    try:
-        xml_schema = etree.XMLSchema(xsd_tree)
-        xml_schema.assertValid(xml_tree)
-    except Exception, e:
-        error = e.message
-    return error
