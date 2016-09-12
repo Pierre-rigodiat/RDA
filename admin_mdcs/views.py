@@ -390,7 +390,7 @@ def upload_xsd(request):
                             context = RequestContext(request, {
                                 'upload_form': form,
                                 'object_type':  object_type,
-                                'errors': utils.html.escape(error),
+                                'errors': error.replace('"', '\''),
                             })
                             return HttpResponse(template.render(context))
                     except Exception, e:
@@ -398,7 +398,7 @@ def upload_xsd(request):
                         context = RequestContext(request, {
                             'upload_form': form,
                             'object_type':  object_type,
-                            'errors': utils.html.escape(error),
+                            'errors': error.replace('"', '\''),
                         })
                         return HttpResponse(template.render(context))
 
@@ -564,7 +564,7 @@ def manage_versions(request):
                                 'object_versions': object_versions,
                                 'object_type':  object_type,
                                 'object_id': str(object_id),
-                                'errors': utils.html.escape(error),
+                                'errors': error.replace('"', '\''),
                             })
                             return HttpResponse(template.render(context))
                     except Exception, e:
@@ -575,7 +575,7 @@ def manage_versions(request):
                             'object_versions': object_versions,
                             'object_type': object_type,
                             'object_id': object_id,
-                            'errors': error,
+                            'errors': error.replace('"', '\''),
                         })
                         return HttpResponse(template.render(context))
                 else:

@@ -109,6 +109,13 @@ def validateXMLDocument(xml_string, xsd_string):
     if errors is not None:
         raise Exception(errors)
 
+    # test no root
+    root = xml_tree.getroot()
+
+    if '{http://www.w3.org/2001/XMLSchema-instance}type' in root.attrib:
+        if root.attrib['{http://www.w3.org/2001/XMLSchema-instance}type'] != root.tag:
+            raise Exception("Unsupported use of xsi:type, type name should match root tag name.")
+
 
 ################################################################################
 #
@@ -205,6 +212,11 @@ def get_namespaces(file):
 
 
 def get_default_prefix(namespaces):
+    """
+    Get prefix of XML namespace
+    :param namespaces:
+    :return:
+    """
     default_prefix = ''
     for prefix, url in namespaces.items():
         if url == SCHEMA_NAMESPACE:
@@ -214,6 +226,12 @@ def get_default_prefix(namespaces):
 
 
 def get_target_namespace_prefix(namespaces, xsd_tree):
+    """
+    Get the prefix associated to the target namespace used in the schema
+    :param namespaces:
+    :param xsd_tree:
+    :return:
+    """
     root_attributes = xsd_tree.getroot().attrib
     target_namespace = root_attributes['targetNamespace'] if 'targetNamespace' in root_attributes else None
     target_namespace_prefix = ''
@@ -226,6 +244,12 @@ def get_target_namespace_prefix(namespaces, xsd_tree):
 
 
 def get_target_namespace(namespaces, xsd_tree):
+    """
+    Get the target namespace in use in the schema
+    :param namespaces:
+    :param xsd_tree:
+    :return:
+    """
     root_attributes = xsd_tree.getroot().attrib
     target_namespace = root_attributes['targetNamespace'] if 'targetNamespace' in root_attributes else None
     target_namespace_prefix = ''
@@ -261,6 +285,12 @@ def getAppInfo(element):
 
 
 def update_dependencies(xsd_tree, dependencies):
+    """
+    Replace local schemaLocation by some accessible from MDCS
+    :param xsd_tree:
+    :param dependencies:
+    :return:
+    """
     # get the imports
     xsd_imports = xsd_tree.findall("{}import".format(LXML_SCHEMA_NAMESPACE))
     # get the includes
@@ -286,6 +316,7 @@ def send_mail(recipient_list, subject, pathToTemplate, context={}, fail_silently
             #Sync call
             MgiTasks.send_mail(recipient_list, subject, pathToTemplate, context, fail_silently, sender)
 
+
 def send_mail_to_administrators(subject, pathToTemplate, context={}, fail_silently=True):
     if USE_EMAIL:
         if USE_BACKGROUND_TASK:
@@ -295,6 +326,7 @@ def send_mail_to_administrators(subject, pathToTemplate, context={}, fail_silent
             #Sync call
             MgiTasks.send_mail_to_administrators(subject, pathToTemplate, context, fail_silently)
 
+
 def send_mail_to_managers(subject, pathToTemplate, context={}, fail_silently=True):
     if USE_EMAIL:
         if USE_BACKGROUND_TASK:
@@ -303,6 +335,7 @@ def send_mail_to_managers(subject, pathToTemplate, context={}, fail_silently=Tru
         else:
             #Sync call
             MgiTasks.send_mail_to_managers(subject, pathToTemplate, context, fail_silently)
+
 
 def xpath_to_dot_notation(xpath, namespaces):
     """
