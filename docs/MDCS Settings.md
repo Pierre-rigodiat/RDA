@@ -7,6 +7,11 @@ This document provides a list of settings specific to the MDCS. Additional infor
 **MDCS_URI:** *http://127.0.0.1:8000*
 URI of the server.
 
+**USE_EMAIL:** *False*
+If True, emails will be triggered:
+- By the request account feature (request, accept, deny).
+- Enabling of the 'Reset Password' feature. The user will receive directions to reset their password in an email.
+
 ## MongoDB
 
 **MONGO_MGI_USER:**
@@ -37,6 +42,14 @@ Set the user to connect to the BLOB Hoster.
 Set the password to connect to the BLOB Hoster.
 
 
+## Background Task
+
+**USE_BACKGROUND_TASK:** *False*
+If True:
+- Use of Celery to send emails in background rather than synchronously.
+- Enabling of the background harvesting for OAI-PMH.
+
+
 ## Template Customization
 
 **CUSTOM_TITLE:**
@@ -65,6 +78,48 @@ Change the name of the 'Explore' section.
 
 **CUSTOM_COMPOSE:**
 Change the name of the 'Compose' section.
+
+
+## OAI-PMH
+
+**OAI_ADMINS:**
+List of OAI-PMH administrators.
+
+**HOST:**
+IP of the Data Provider.
+
+**OAI_HOST_URI:** *MDCS_URI*
+URI of the Data Provider.
+
+**OAI_NAME:** *CUSTOM_NAME + HOST*
+Name of the Data Provider.
+
+**OAI_DELIMITER:** *:*
+OAI-PMH delimiter.
+
+**OAI_DESCRIPTION:**
+Description of the Data Provider.
+
+**OAI_GRANULARITY:** *YYYY-MM-DDThh:mm:ssZ*
+The finest harvesting granularity supported by the repository. 
+
+**OAI_PROTOCOLE_VERSION:** *2.0*
+the version of the OAI-PMH supported by the repository.
+
+**OAI_SCHEME:** *oai* *'OAI-PMH ' + CUSTOM_NAME*
+OAI-PMH scheme.
+
+**OAI_REPO_IDENTIFIER:**
+OAI-PMH repository identifier
+
+**OAI_SAMPLE_IDENTIFIER:**
+Example of identifier for this repository
+
+**OAI_DELETED_RECORD:** *persistent*
+Levels of support for deleted records:
+- no. The repository does not maintain information about deletions.
+- persistent. The repository maintains information about deletions with no time limit.
+- transient. The repository does not guarantee that a list of deletions is maintained persistently or consistently.
 
 
 ## XSD PARSER
