@@ -16,8 +16,6 @@
 from django.db import models
 from mongoengine.document import Document
 from mongoengine.fields import StringField, ListField, ReferenceField, DictField
-from mongoengine.queryset.base import CASCADE
-
 import mgi.rights as RIGHTS
 
 
@@ -40,5 +38,3 @@ class SchemaElement(Document):
     options = DictField()
 
     children = ListField(ReferenceField('SchemaElement'))
-
-# SchemaElement.register_delete_rule(SchemaElement, 'children', CASCADE)

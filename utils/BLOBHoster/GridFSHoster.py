@@ -12,7 +12,6 @@
 ################################################################################
 
 from BLOBHoster import BLOBHoster
-
 from pymongo import MongoClient
 import gridfs
 from urlparse import urlparse
@@ -23,6 +22,7 @@ settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
 MONGODB_URI = settings.MONGODB_URI
 MGI_DB = settings.MGI_DB
+
 
 class GridFSHoster(BLOBHoster):
     
@@ -86,4 +86,3 @@ class GridFSHoster(BLOBHoster):
 
     def find(self, key, value):
         return self.fs.find({key:value})
-        

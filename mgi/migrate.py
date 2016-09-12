@@ -7,23 +7,16 @@ import sys
 from bson.objectid import ObjectId
 import argparse
 import platform
-from settings import MONGODB_URI, MGI_DB, BASE_DIR
-
-
-# PREREQUISITES:
-# - mongod running and connected to data\db
+import getpass
 
 # PROCEDURE:
 # - stop mongogod, stop runserver
-# - save data/db in a different location
+# - save data/db and db.sqlite3 in a different location
 # - Update the code
 # - run mongod
 # - run migration
 # - runserver
 
-
-# PARAMETERS
-BACKUPS_DIR = os.path.join(BASE_DIR, 'backups')
 
 class Migration:
     def __init__(self, warnings_enabled=True, backup_enabled=True):
@@ -51,14 +44,14 @@ class Migration:
         return cmd
 
     def _get_user_validation(self, msg):
-        print msg + '\nContinue? (Y/n):'
+        print msg + '\nContinue? (y/N):'
         user_input = raw_input()
-        if user_input == 'Y':
+        if user_input.lower() == 'y' or user_input.lower() == 'yes':
             return True
-        elif user_input == 'n':
+        elif user_input.lower() == 'n' or user_input.lower() == 'no':
             return False
         else:
-            return self._get_user_validation(msg)
+            return self._get_user_validation("Invalid input.")
 
     def _warn_user(self, msg):
         if self.warnings_enabled:
@@ -67,11 +60,18 @@ class Migration:
 
     def _dump_database(self, mongo_admin_user, mongo_admin_password, mongo_path):
         if self.backup_enabled:
+            if not self._warn_user('An additional backup of the MongoDB database will be created, so the script can '
+                                   'restore data in the case of an unexpected error occurring during the migration. '
+                                   'If you do not wish to create this backup, please run the script with the option '
+                                   '--no-backup.'):
+                self._error()
+            from settings import BASE_DIR
             # generate time string
             time_str = time.strftime("%Y%m%d_%H%M%S")
             # backup directory name
             backup_dir_name = 'backup_{}'.format(time_str)
             # backup_directory_path
+            BACKUPS_DIR = os.path.join(BASE_DIR, 'backups')
             backup_dir_path = os.path.join(BACKUPS_DIR, backup_dir_name)
 
             if not self._warn_user('A backup folder will be created at : {}'.format(backup_dir_path)):
@@ -145,6 +145,7 @@ class Migration:
         Connect to the database
         :return: database connection
         """
+        from settings import MONGODB_URI, MGI_DB
         try:
             # Connect to mongodb
             print 'Attempt connection to database...'
@@ -195,27 +196,37 @@ class Migration:
                 form_data_col.update({'_id': ObjectId(duplicate_id)}, {"$set": payload}, upsert=False)
             duplicates = self._check_duplicate_names(form_data_col)
 
+    def _update_blob_metadata(self, db):
+        from settings import BLOB_HOSTER
+        if BLOB_HOSTER == 'GridFS':
+            import gridfs
+            fs = gridfs.GridFS(db)
+            if len(fs.list()):
+                print "Update BLOB metadata: default owner is superuser."
+                files_col = db['fs.files']
+                payload = {'metadata': {'iduser': '1'}}
+                for blob in fs.find():
+                    if 'iduser' not in blob.metadata:
+                        files_col.update({'_id':ObjectId(blob._id)}, {"$set": payload}, upsert=False)
+
     def migrate(self, mongo_admin_user, mongo_admin_password, mongo_path, warnings=True, backup=True):
         """
-        APPLY CHANGES FROM 1.3 TO 1.4
+        APPLIES CHANGES FROM 1.3 TO 1.4
 
         :return:
         """
-        # /!\ DON"T CREATE THE DATA FOLDER IN THE INSTALLERS
-        # /!\ CHECK WHEN GETTING THE CODE FROM GITHUB TOO
-
         print '*** START MIGRATION ***'
 
         msg = 'You are about to run the Curator Migration Tool. ' \
               'This will update the database from version 1.3 to work for version 1.4. ' \
-              'Changes will be applied to the database such addition/deletion/modification ' \
+              'Changes will be applied to the database such as additions/deletions/modifications ' \
               'of fields/collections/records.'
 
         if not self._warn_user(msg):
             self._error()
 
         # /!\ PROMPT TO CREATE A ZIP OF THE DATA FIRST
-        msg = 'Please be sure that you made a copy of your data/db and db.sqlite3 before starting.'
+        msg = 'Please be sure that you made a copy of the data/db folder and of the db.sqlite3 file before starting.'
 
         if not self._warn_user(msg):
             self._error()
@@ -300,6 +311,9 @@ class Migration:
             # FORM DATA UNIQUE NAMES
             self._resolve_duplicate_names(form_data_col)
 
+            # BLOB Metadata
+            self._update_blob_metadata(db)
+
             # CLEAN THE DATABASE
             print "*** CLEAN THE DATABASE ***"
             # remove elements from Form_data (not used in 1.4)
@@ -327,21 +341,15 @@ class Migration:
         print "*** MIGRATION COMPLETE ***"
 
 
+def _get_mongo_connection_info():
+        print '\nPlease provide admin user and password to connect to MongoDB.'
+        mongo_user = getpass.getpass('User:')
+        mongo_password = getpass.getpass('Password:')
+        return mongo_user, mongo_password
+
+
 def main(argv):
     parser = argparse.ArgumentParser(description="Curator Data Migration Tool")
-    required_arguments = parser.add_argument_group("required arguments")
-
-    # add required arguments
-    required_arguments.add_argument('-u',
-                                    '--mongo-admin-user',
-                                    help='Username of MongoDB Admin',
-                                    nargs=1,
-                                    required=True)
-    required_arguments.add_argument('-p',
-                                    '--mongo-admin-password',
-                                    help='Password of MongoDB Admin',
-                                    nargs=1,
-                                    required=True)
 
     # add optional arguments
     parser.add_argument('-path',
@@ -356,15 +364,18 @@ def main(argv):
                         '--no-backup',
                         help='Does not create a backup of the database before starting the migration',
                         action='store_true')
+    parser.add_argument('-u',
+                        '--mongo-admin-user',
+                        help='Username of MongoDB Admin for backup',
+                        nargs=1)
+    parser.add_argument('-p',
+                        '--mongo-admin-password',
+                        help='Password of MongoDB Admin for backup',
+                        nargs=1)
 
     # parse arguments
     args = parser.parse_args()
 
-    # get required arguments
-    mongo_admin_user = args.mongo_admin_user[0]
-    mongo_admin_password = args.mongo_admin_password[0]
-
-    # get optional arguments
     if args.mongo_path:
         mongo_path = args.mongo_path[0]
     else:
@@ -377,8 +388,17 @@ def main(argv):
 
     if args.no_backup:
         backup_enabled = False
+        mongo_admin_user = ""
+        mongo_admin_password = ""
+        if args.mongo_admin_user or args.mongo_admin_password:
+            print "WARNING: You chose to use the --no-backup option. The provided mongodb information will not be used."
     else:
         backup_enabled = True
+        if not args.mongo_admin_user or not args.mongo_admin_password:
+            mongo_admin_user, mongo_admin_password = _get_mongo_connection_info()
+        else:
+            mongo_admin_user = args.mongo_admin_user[0]
+            mongo_admin_password = args.mongo_admin_password[0]
 
     # Start migration
     migration = Migration(warnings_enabled=warnings_enabled, backup_enabled=backup_enabled)

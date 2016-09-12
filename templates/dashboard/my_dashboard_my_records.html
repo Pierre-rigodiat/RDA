@@ -22,9 +22,9 @@
 {% endcomment %}
 {% block title %}
     {% if user.is_staff %}
-        <h1><span>My Records / Other users Records</span></h1>
+        <h1><span>My Published Records / Other users Published Records</span></h1>
     {% else %}
-        <h1><span>My Records</span></h1>
+        <h1><span>My Published Records</span></h1>
     {% endif %}
 {% endblock %}
 {% block menu %}{% include 'mdcs/menus/main.html' with active_tab='profile' %}{% endblock %}
@@ -33,14 +33,14 @@
 {% block content %}
     <div id="body">
 	    <div class="width">
-            <ul class="nav nav-tabs">
-                {% if ispublished == None %} <li class="active"> {%else%} <li> {% endif%} <a href="/dashboard/records">All</a></li>
-                {% if ispublished == True %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/records?ispublished=true">Published</a></li>
-                {% if ispublished == False %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/records?ispublished=false">Not Published</a></li>
-            </ul>
+            <!--<ul class="nav nav-tabs">-->
+                <!--{% if ispublished == None %} <li class="active"> {%else%} <li> {% endif%} <a href="/dashboard/records">All</a></li>-->
+                <!--{% if ispublished == True %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/records?ispublished=true">Public</a></li>-->
+                <!--{% if ispublished == False %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/records?ispublished=false">Private</a></li>-->
+            <!--</ul>-->
             {% if user.is_staff %}
                 <span>
-                    <div class="tpl-title">My records</div>
+                    <div class="tpl-title">My published records</div>
                 </span>
             {%endif%}
             {% if XMLdatas%}
@@ -48,19 +48,19 @@
                         {% include 'dashboard/my_dashboard_my_records_table.html' with XMLdatas=XMLdatas %}
                 {% endwith%}
             {%else%}
-                No resources found
+                No published record found
             {%endif%}
             <div class="clear"></div>
             {% if user.is_staff %}
                 <span>
-                    <div class="tpl-title">Other users Records</div>
+                    <div class="tpl-title">Other users published records</div>
                 </span>
                 {% if OtherUsersXMLdatas%}
                     {% with canEdit=request.user|has_perm:'curate.curate_edit_document' canDelete=request.user|has_perm:'curate.curate_delete_document' %}
                             {% include 'dashboard/my_dashboard_my_records_table.html' with XMLdatas=OtherUsersXMLdatas %}
                     {% endwith%}
                 {%else%}
-                    No other users records found
+                    No other users published records found
                 {%endif%}
             {%endif%}
         </div>

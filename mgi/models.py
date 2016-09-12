@@ -14,28 +14,38 @@
 #
 ################################################################################
 import numbers
+from lxml import etree
 from mongoengine import *
 
 # Specific to MongoDB ordered inserts
 from collections import OrderedDict
 from bson.objectid import ObjectId
 import xmltodict
-from pymongo import MongoClient, TEXT, ASCENDING, DESCENDING, errors
+from pymongo import MongoClient, TEXT, DESCENDING, errors
+import re
+import datetime
+from io import BytesIO
 
+from mgi import common
+from mgi.exceptions import MDCSError, XMLError, XSDError
+from utils.XMLValidation.xml_schema import validate_xml_schema
+from utils.XSDhash import XSDhash
 import os
 from django.utils.importlib import import_module
+import json
+from curate.models import SchemaElement
+
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
 MONGODB_URI = settings.MONGODB_URI
 MGI_DB = settings.MGI_DB
-import re
-import datetime
-from utils.XSDhash import XSDhash
+
 
 class Status:
     ACTIVE = 'active'
     INACTIVE = 'inactive'
     DELETED = 'deleted'
+
 
 class Request(Document):
     """Represents a request sent by an user to get an account"""
@@ -43,7 +53,7 @@ class Request(Document):
     password = StringField(required=True)
     first_name = StringField(required=True)
     last_name = StringField(required=True)
-    email = StringField(required=True)    
+    email = StringField(required=True)
 
 
 class Message(Document):
@@ -90,10 +100,12 @@ class Template(Document):
     ResultXsltList = ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY)
     ResultXsltDetailed = ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY)
 
+
 def delete_template(object_id):
     from mgiutils import getListNameTemplateDependenciesRecordFormData
     listName = getListNameTemplateDependenciesRecordFormData(object_id)
     return listName if listName != '' else delete_template_and_version(object_id)
+
 
 def delete_template_and_version(object_id):
     template = Template.objects(pk=object_id).get()
@@ -101,10 +113,12 @@ def delete_template_and_version(object_id):
     version.delete()
     template.delete()
 
+
 def delete_type(object_id):
     from mgiutils import getListNameTypeDependenciesTemplateType
     listName = getListNameTypeDependenciesTemplateType(object_id)
     return listName if listName != '' else delete_type_and_version(object_id)
+
 
 def delete_type_and_version(object_id):
     type = Type.objects(pk=object_id).get()
@@ -112,13 +126,47 @@ def delete_type_and_version(object_id):
     version.delete()
     type.delete()
 
+
+def is_schema_valid(object_type, content, name=None):
+    # is the name unique?
+    if name is not None:
+        if object_type.lower() == 'template':
+            names = Template.objects.all().values_list('title')
+        elif object_type.lower() == 'type':
+            names = Type.objects.all().values_list('title')
+        if name in names:
+            raise MDCSError('A {} with the same name already exists'.format(object_type))
+
+    # is it a valid XML document?
+    try:
+        try:
+            xsd_tree = etree.parse(BytesIO(content.encode('utf-8')))
+        except Exception:
+            xsd_tree = etree.parse(BytesIO(content))
+    except Exception:
+        raise XMLError('Uploaded file is not well formatted XML.')
+
+    # is it supported by the MDCS?
+    errors = common.getValidityErrorsForMDCS(xsd_tree, object_type)
+    if len(errors) > 0:
+        errors_str = ", ".join(errors)
+        raise MDCSError(errors_str)
+
+    # is it a valid XML schema?
+    error = validate_xml_schema(xsd_tree)
+    if error is not None:
+        raise XSDError(error)
+
+
 def create_template(content, name, filename, dependencies=[], user=None):
+    is_schema_valid('Template', content, name)
     hash_value = XSDhash.get_hash(content)
     # save the template
     template_versions = TemplateVersion(nbVersions=1, isDeleted=False).save()
     new_template = Template(title=name, filename=filename, content=content,
-                            version=1, templateVersion=str(template_versions.id), hash=hash_value, user=user).save()
-    new_template.dependencies = dependencies
+                            version=1, templateVersion=str(template_versions.id),
+                            hash=hash_value, user=user, dependencies=dependencies).save()
+
     # Add default exporters
     try:
         exporters = Exporter.objects.filter(available_for_all=True)
@@ -134,12 +182,14 @@ def create_template(content, name, filename, dependencies=[], user=None):
 
 
 def create_type(content, name, filename, buckets=[], dependencies=[], user=None):
+    is_schema_valid('Type', content, name)
     hash_value = XSDhash.get_hash(content)
     # save the type
     type_versions = TypeVersion(nbVersions=1, isDeleted=False).save()
     new_type = Type(title=name, filename=filename, content=content,
-                    version=1, typeVersion=str(type_versions.id), hash=hash_value, user=user).save()
-    new_type.dependencies = dependencies
+                    version=1, typeVersion=str(type_versions.id), hash=hash_value,
+                    user=user, dependencies=dependencies).save()
+
     # Add to the selected buckets
     for bucket_id in buckets:
         bucket = Bucket.objects.get(pk=bucket_id)
@@ -153,14 +203,15 @@ def create_type(content, name, filename, buckets=[], dependencies=[], user=None)
     return new_type
 
 
-def create_template_version(content, filename, versions_id):
+def create_template_version(content, filename, versions_id, dependencies=[]):
+    is_schema_valid('Template', content)
     hash_value = XSDhash.get_hash(content)
     template_versions = TemplateVersion.objects.get(pk=versions_id)
     template_versions.nbVersions += 1
     current_template = Template.objects.get(pk=template_versions.current)
     new_template = Template(title=current_template.title, filename=filename, content=content,
                             version=template_versions.nbVersions, templateVersion=str(versions_id),
-                            hash=hash_value).save()
+                            hash=hash_value, dependencies=dependencies).save()
 
     template_versions.versions.append(str(new_template.id))
     template_versions.save()
@@ -168,19 +219,53 @@ def create_template_version(content, filename, versions_id):
     return new_template
 
 
-def create_type_version(content, filename, versions_id):
+def create_type_version(content, filename, versions_id, dependencies=[]):
+    is_schema_valid('Type', content)
     hash_value = XSDhash.get_hash(content)
     type_versions = TypeVersion.objects.get(pk=versions_id)
     type_versions.nbVersions += 1
     current_type = Type.objects.get(pk=type_versions.current)
     new_type = Type(title=current_type.title, filename=filename, content=content,
                     version=type_versions.nbVersions, typeVersion=str(versions_id),
-                    hash=hash_value).save()
+                    hash=hash_value, dependencies=dependencies).save()
 
     type_versions.versions.append(str(new_type.id))
     type_versions.save()
 
     return new_type
+
+
+def template_list_current():
+    """
+    List current templates
+    :param request:
+    :return:
+    """
+    current_template_versions = TemplateVersion.objects().values_list('current')
+
+    current_templates = []
+    for tpl_version in current_template_versions:
+        tpl = Template.objects.get(pk=tpl_version)
+        if tpl.user is None:
+            current_templates.append(tpl)
+
+    return current_templates
+
+
+def type_list_current():
+    """
+    List current types
+    :return:
+    """
+    current_type_versions = TypeVersion.objects().values_list('current')
+
+    current_types = []
+    for tpl_version in current_type_versions:
+        tpl = Type.objects.get(pk=tpl_version)
+        if tpl.user is None:
+            current_types.append(tpl)
+
+    return current_types
 
 
 class TemplateVersion(Document):
@@ -273,9 +358,6 @@ class Bucket(Document):
     types = ListField()
 
 
-from curate.models import SchemaElement
-
-
 class FormData(Document):
     """Stores data being entered and not yet curated"""
     user = StringField(required=True)
@@ -304,23 +386,8 @@ def postprocessor(path, key, value):
             return key, value
 
 
-def preprocessor(key, value):
-    """
-    Called before JSON to XML transformation
-    :param key:
-    :param value:
-    :return:
-    """
-    if isinstance(value, OrderedDict):
-        for ik, iv in value.items():
-            if ik == "#text":
-                if isinstance(iv, numbers.Number):
-                    value[ik] = str(iv)
-                else:
-                    value[ik] = iv
-        return key, value
-    else:
-        return key, value
+def custom_parse_numbers(num_str):
+    return str(num_str)
 
 
 class XMLdata(object):
@@ -366,8 +433,13 @@ class XMLdata(object):
         self.content['status'] = Status.ACTIVE
 
     @staticmethod
-    def unparse(json):
-        return xmltodict.unparse(json, preprocessor=preprocessor)
+    def unparse(json_dict):
+        json_dump_string = json.dumps(json_dict)
+        preprocessed_dict = json.loads(json_dump_string,
+                               parse_float=custom_parse_numbers,
+                               parse_int=custom_parse_numbers,
+                               object_pairs_hook=OrderedDict)
+        return xmltodict.unparse(preprocessed_dict)
 
     @staticmethod
     def initIndexes():

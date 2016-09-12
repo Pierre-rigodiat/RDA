@@ -144,6 +144,7 @@ coverage.xml
 *.log
 logfile*
 db.sqlite3
+db_test.sqlite3
 
 # Sphinx documentation
 docs/_build/
@@ -222,3 +223,15 @@ backups/
 
 # Celery
 *.pid
+
+# bin
+bin/start_mongo.bat
+bin/create_test.js
+bin/init_db_test.bat
+
+#pylint
+pylint.out
+
+#radon
+radon.xml
+

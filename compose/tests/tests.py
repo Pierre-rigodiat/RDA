@@ -14,8 +14,7 @@
 #
 ################################################################################
 from django.http.request import HttpRequest
-from django.test import TestCase
-
+from testing.models import RegressionTest
 from compose.ajax import insert_element_sequence
 from mgi.models import create_type
 from mgi.settings import BASE_DIR
@@ -27,12 +26,14 @@ from lxml import etree
 RESOURCES_PATH = join(BASE_DIR, 'compose', 'tests', 'data')
 
 
-class ComposerTestSuite(TestCase):
+class ComposerTestSuite(RegressionTest):
     """
     Test suite for the Compose application
     """
 
     def setUp(self):
+        # call parent setUp
+        super(ComposerTestSuite, self).setUp()
         # create the request
         self.request = HttpRequest()
         # create the session
@@ -65,7 +66,7 @@ class ComposerTestSuite(TestCase):
             # read the file content
             type_content = type_file.read()
             # add the type in database
-            type_object = create_type(type_content, 'type_name', type_path)
+            type_object = create_type(type_content, type_file.name, type_path)
             # set the type
             self.request.POST['typeID'] = type_object.id
             self.request.POST['typeName'] = 'type_name'

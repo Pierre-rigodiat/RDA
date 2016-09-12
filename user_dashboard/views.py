@@ -111,17 +111,17 @@ def my_profile_edit(request):
 def dashboard_records(request):
     template = loader.get_template('dashboard/my_dashboard_my_records.html')
     query = {}
-    ispublished = request.GET.get('ispublished', None)
+    # ispublished = request.GET.get('ispublished', None)
     #If ispublished not None, check if we want publish or unpublish records
-    if ispublished:
-        ispublished = ispublished == 'true'
-        query['ispublished'] = ispublished
+    # if ispublished:
+    #     ispublished = ispublished == 'true'
+    #     query['ispublished'] = ispublished
     query['iduser'] = str(request.user.id)
     userXmlData = sorted(XMLdata.find(query), key=lambda data: data['lastmodificationdate'], reverse=True)
     #Add user_form for change owner
     user_form = UserForm(request.user)
     context = RequestContext(request, {'XMLdatas': userXmlData,
-                                       'ispublished': ispublished,
+                                       # 'ispublished': ispublished,
                                        'user_form': user_form
     })
     #If the user is an admin, we get records for other users
@@ -344,7 +344,7 @@ def dashboard_detail_record(request):
 
     if record_type == 'form':
         form_data = FormData.objects.get(pk=ObjectId(record_id))
-        xml_string = form_data.xml_data
+        xml_string = form_data.xml_data.encode(encoding='UTF-8')
         title = form_data.name
         schema_id = form_data.template
     elif record_type == 'record':
@@ -364,7 +364,7 @@ def dashboard_detail_record(request):
     # Check if a custom detailed result XSLT has to be used
     try:
         if xml_string != "":
-            dom = etree.fromstring(str(xml_string))
+            dom = etree.fromstring(xml_string)
             schema = Template.objects.get(pk=schema_id)
 
             if schema.ResultXsltDetailed:

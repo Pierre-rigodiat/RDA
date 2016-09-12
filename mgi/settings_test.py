@@ -21,9 +21,8 @@
 ################################################################################
 
 import os
-import sys
 
-VERSION = "1.3"
+VERSION = "1.4_rc2"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -77,12 +76,10 @@ SERVER_EMAIL = 'noreply@curator.org'
 ADMINS = [('admin', 'admin@curator.org')]
 MANAGERS = [('manager', 'moderator@curator.org'),]
 EMAIL_SUBJECT_PREFIX = "[CURATOR] "
-#For test purpose
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_HOST_USER = "curator.testing.us@gmail.com"
-EMAIL_HOST_PASSWORD = "ilovecurator"
-EMAIL_PORT= 587
-EMAIL_USE_TLS = True
+#EMAIL_HOST = ""
+#EMAIL_HOST_USER = ""
+#EMAIL_HOST_PASSWORD = ""
+#EMAIL_PORT= 25
 
 #Password Policy
 # Determines wether to use the password history.
@@ -151,6 +148,7 @@ OAI_SAMPLE_IDENTIFIER = OAI_SCHEME+OAI_DELIMITER+OAI_REPO_IDENTIFIER+OAI_DELIMIT
 OAI_DELETED_RECORD = 'persistent' #no ; transient ; persistent
 
 #Celery configuration
+USE_BACKGROUND_TASK = False
 BROKER_URL = 'redis://localhost:6379/0'
 BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
@@ -170,10 +168,6 @@ CUSTOM_DATA = 'Materials Data'
 CUSTOM_CURATE = 'Data Curation'
 CUSTOM_EXPLORE = 'Data Exploration'
 CUSTOM_COMPOSE = 'Composer'
-
-#CURATE
-CURATE_MIN_TREE = True
-CURATE_COLLAPSE = True
 
 # PARSER
 PARSER_MIN_TREE = True
@@ -212,7 +206,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'mongoengine.django.mongo_auth',
+    # 'mongoengine.django.mongo_auth',
     'rest_framework',
     'rest_framework_swagger',
     'oauth2_provider',
@@ -223,10 +217,11 @@ INSTALLED_APPS = (
     'explore',
     'compose',
     'modules',
+    'user_dashboard',
     'oai_pmh',
     'testing',
+    'utils.XSDParser',
     'password_policies'
-
 )
 
 OAUTH2_PROVIDER = {

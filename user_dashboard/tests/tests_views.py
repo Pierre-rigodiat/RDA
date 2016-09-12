@@ -31,7 +31,7 @@ class tests_user_dashboard_views(RegressionTest):
         data = {'ispublished': True}
         url = '/dashboard/records'
         r = self.doRequestGetUserClientLogged(url=url, data=data)
-        self.assertEquals(1, len(r.context[1].get('XMLdatas')))
+        self.assertEquals(2, len(r.context[1].get('XMLdatas')))
 
     def test_dashboard_records_isnotpublished(self):
         userId = self.getUser().id
@@ -40,7 +40,7 @@ class tests_user_dashboard_views(RegressionTest):
         data = {'ispublished': False}
         url = '/dashboard/records'
         r = self.doRequestGetUserClientLogged(url=url, data=data)
-        self.assertEquals(1, len(r.context[1].get('XMLdatas')))
+        self.assertEquals(2, len(r.context[1].get('XMLdatas')))
 
     def test_dashboard_records_multiple_records_different_user(self):
         userId = self.getUser().id

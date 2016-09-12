@@ -124,7 +124,11 @@
         </div>
         <div id="form_result_start_current"></div>
 </div>
-<div id="results_infos" style="color:grey;"></div>
+<div id="results_infos" style="color:grey;float:left"></div>
+<div id="results_select" style="color:grey;display: none">
+	&nbsp; (<input id="select_all" name="select_all" class="cmn-toggle cmn-toggle-round3" type="checkbox" />
+	<label for="select_all"></label> &nbsp;Select/Unselect all)
+</div>
 <div class="clearer">&nbsp;</div>
 <div id="results"></div>
 {% endblock %}
@@ -155,6 +159,7 @@ Are you sure you want to delete this document?
 <script>
     initAutocomplete();
     initBanner();
+    initSelectAll();
 </script>
 {% endblock %}
 

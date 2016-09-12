@@ -13,8 +13,6 @@
 # Sponsor: National Institute of Standards and Technology (NIST)
 #
 ################################################################################
-from urlparse import urlparse
-
 from django.http import HttpResponse
 import lxml.etree as etree
 import json
@@ -29,12 +27,12 @@ from utils.XMLValidation.xml_schema import validate_xml_schema
 import random
 from django.contrib import messages
 from mgi.common import send_mail
-from django.template import RequestContext
 from django.utils.importlib import import_module
 import os
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
 MDCS_URI = settings.MDCS_URI
+
 
 ################################################################################
 # 
@@ -78,10 +76,10 @@ def resolve_dependencies(request):
         if 'uploadVersion' in request.session and request.session['uploadVersion'] is not None:
             object_versions_id = request.session['uploadVersion']
             if object_type == 'Template':
-                new_template = create_template_version(object_content, filename, object_versions_id)
+                new_template = create_template_version(object_content, filename, object_versions_id, dependencies)
                 redirect = '/admin/manage_versions?type={0}&id={1}'.format(object_type, str(new_template.id))
             elif object_type == 'Type':
-                new_type = create_type_version(object_content, filename, object_versions_id)
+                new_type = create_type_version(object_content, filename, object_versions_id, dependencies)
                 redirect = '/admin/manage_versions?type={0}&id={1}'.format(object_type, str(new_type.id))
         # create new object
         else:
@@ -553,7 +551,7 @@ def delete_bucket(request):
 #
 ################################################################################
 def rdm_hex_color():
-    return '#' +''.join([random.choice('0123456789ABCDEF') for x in range(6)])
+    return '#' + ''.join([random.choice('0123456789ABCDEF') for x in range(6)])
 
 
 ################################################################################
@@ -585,8 +583,7 @@ def insert_module(request):
     element.attrib['{http://mdcs.ns}_mod_mdcs_'] = module.url
         
     # save the tree in the session
-    request.session['moduleTemplateContent'] = etree.tostring(dom) 
-    print etree.tostring(element)
+    request.session['moduleTemplateContent'] = etree.tostring(dom)
     
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
@@ -628,8 +625,7 @@ def remove_module(request):
     element = etree.Element(element.tag, nsmap = nsmap)
     
     # save the tree in the session
-    request.session['moduleTemplateContent'] = etree.tostring(dom) 
-    print etree.tostring(element)
+    request.session['moduleTemplateContent'] = etree.tostring(dom)
     
     return HttpResponse(json.dumps({}), content_type='application/javascript')
     

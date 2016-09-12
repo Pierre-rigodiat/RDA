@@ -159,8 +159,8 @@ def getData(request):
     encoded_args = urllib.urlencode(args_url)
     #Build the url
     url = url + "?" + encoded_args
-    req = getData_model(url)
-    if req.status_code == status.HTTP_200_OK:
+    try:
+        req = getData_model(url)
         data = req.data
         xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
         xslt = etree.parse(xsltPath)
@@ -174,9 +174,8 @@ def getData(request):
 
         content = {'message' : xmlTree}
         return HttpResponse(json.dumps(content), content_type="application/javascript")
-    else:
-        data = json.load(StringIO(req.content))
-        return HttpResponseBadRequest(data[APIMessage.label], content_type="application/javascript")
+    except Exception as e:
+        return HttpResponseBadRequest(e.message, content_type="application/javascript")
 
 
 ################################################################################

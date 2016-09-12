@@ -18,13 +18,12 @@ from django.shortcuts import render, HttpResponse, HttpResponseRedirect
 from django.http.response import HttpResponseBadRequest
 from django.template import RequestContext, loader
 from django.shortcuts import redirect
-from requests import status_codes
-
 from mgi.common import LXML_SCHEMA_NAMESPACE, SCHEMA_NAMESPACE
+from mgi.exceptions import XSDError
 from mgi.models import Request, Message, PrivacyPolicy, TermsOfUse, Help, Template, TemplateVersion, Type, \
     TypeVersion, Module, Bucket, Instance, Exporter, ExporterXslt, ResultXslt, create_template, create_type, \
-    create_template_version, create_type_version, OaiXslt
-from forms import UploadResultXSLTForm, PrivacyPolicyForm, TermsOfUseForm, HelpForm, RepositoryForm, \
+    create_template_version, create_type_version, OaiXslt, template_list_current, type_list_current
+from forms import PrivacyPolicyForm, TermsOfUseForm, HelpForm, RepositoryForm, \
     RefreshRepositoryForm, UploadXSLTForm, UploadResultXSLTForm, UploadTemplateForm, UploadTypeForm, \
     UploadVersionForm
 from django.contrib import messages
@@ -321,20 +320,8 @@ def upload_xsd(request):
                     form = UploadTypeForm(request.POST, request.FILES)
 
                 if form.is_valid():
-                    # check that the name is unique
-                    if object_type == 'Template':
-                        names = Template.objects.all().values_list('title')
-                    elif object_type == 'Type':
-                        names = Type.objects.all().values_list('title')
+                    # get the schema name
                     name = request.POST['name']
-                    if name in names:
-                        context = RequestContext(request, {
-                            'upload_form': form,
-                            'object_type':  object_type,
-                            'errors': 'A {} with the same name already exists.'.format(object_type),
-                        })
-                        return HttpResponse(template.render(context))
-
                     # get the file from the form
                     xsd_file = request.FILES['xsd_file']
                     # put the cursor at the beginning of the file
@@ -342,47 +329,32 @@ def upload_xsd(request):
                     # read the content of the file
                     xsd_data = xsd_file.read()
 
-                    # is it a valid XML document ?
                     try:
+                        if object_type == 'Template':
+                            create_template(xsd_data, name, xsd_file.name)
+                            # XML schema loaded with success
+                            messages.add_message(request, messages.INFO, '{} uploaded with success.'.format(object_type))
+                            return redirect('/admin/xml-schemas/manage-schemas')
+                        elif object_type == 'Type':
+                            buckets = request.POST.getlist('buckets')
+                            create_type(xsd_data, name, xsd_file.name, buckets)
+                            # XML schema loaded with success
+                            messages.add_message(request, messages.INFO, '{} uploaded with success.'.format(object_type))
+                            return redirect('/admin/xml-schemas/manage-types')
+                    except XSDError, e:
+                        error = e.message
                         xsd_tree = etree.parse(BytesIO(xsd_data.encode('utf-8')))
-                    except Exception, e:
-                        context = RequestContext(request, {
-                            'upload_form': form,
-                            'object_type':  object_type,
-                            'errors': 'Uploaded file is not well formatted XML.',
-                        })
-                        return HttpResponse(template.render(context))
-
-                    # is it supported by the MDCS ?
-                    errors = common.getValidityErrorsForMDCS(xsd_tree, object_type)
-                    if len(errors) > 0:
-                        errors_str = ", ".join(errors)
-                        context = RequestContext(request, {
-                            'upload_form': form,
-                            'object_type':  object_type,
-                            'errors': errors_str,
-                        })
-                        return HttpResponse(template.render(context))
-
-                    # is it a valid XML schema?
-
-                    error = validate_xml_schema(xsd_tree)
-
-                    if error is not None:
                         # a problem with includes/imports has been detected
                         # get the imports
                         imports = xsd_tree.findall("{}import".format(LXML_SCHEMA_NAMESPACE))
                         # get the includes
                         includes = xsd_tree.findall("{}include".format(LXML_SCHEMA_NAMESPACE))
                         if len(includes) > 0 or len(imports) > 0:
-                        # if "{}include".format(LXML_SCHEMA_NAMESPACE) in e.message \
-                        #         or "{}import".format(LXML_SCHEMA_NAMESPACE) in e.message:
-
                             # build the list of dependencies
                             list_dependencies_template = loader.get_template('admin/list_dependencies.html')
                             context = RequestContext(request, {
-                                'templates': Template.objects(user=None),
-                                'types':  Type.objects(user=None),
+                                'templates': template_list_current(),
+                                'types':  type_list_current(),
                             })
                             list_dependencies_html = list_dependencies_template.render(context)
 
@@ -421,16 +393,15 @@ def upload_xsd(request):
                                 'errors': utils.html.escape(error),
                             })
                             return HttpResponse(template.render(context))
-                    else:
-                        # XML schema loaded with success
-                        messages.add_message(request, messages.INFO, '{} uploaded with success.'.format(object_type))
-                        if object_type == 'Template':
-                            create_template(xsd_data, name, xsd_file.name)
-                            return redirect('/admin/xml-schemas/manage-schemas')
-                        elif object_type == 'Type':
-                            buckets = request.POST.getlist('buckets')
-                            create_type(xsd_data, name, xsd_file.name, buckets)
-                            return redirect('/admin/xml-schemas/manage-types')
+                    except Exception, e:
+                        error = e.message
+                        context = RequestContext(request, {
+                            'upload_form': form,
+                            'object_type':  object_type,
+                            'errors': utils.html.escape(error),
+                        })
+                        return HttpResponse(template.render(context))
+
                 else:
                     context = RequestContext(request, {
                         'upload_form': form,
@@ -515,54 +486,42 @@ def manage_versions(request):
                     # read the content of the file
                     xsd_data = xsd_file.read()
 
-                    # is it a valid XML document ?
+                    # XML schema loaded with success
                     try:
+                        if object_type == 'Template':
+                            new_object = create_template_version(xsd_data, xsd_file.name, object_versions.id)
+                            object_versions = TemplateVersion.objects.get(pk=new_object.templateVersion)
+                            versions = get_versions(object_versions, object_type)
+                        elif object_type == 'Type':
+                            new_object = create_type_version(xsd_data, xsd_file.name, object_versions.id)
+                            object_versions = TypeVersion.objects.get(pk=new_object.typeVersion)
+                            versions = get_versions(object_versions, object_type)
+
+                        # XML schema loaded with success
+                        messages.add_message(request, messages.INFO, '{} uploaded with success.'.format(object_type))
+
+                        context = RequestContext(request, {
+                            'upload_form': form,
+                            'versions': versions,
+                            'object_versions': object_versions,
+                            'object_type': object_type,
+                            'object_id': str(new_object.id),
+                        })
+                        return HttpResponse(template.render(context))
+                    except XSDError, e:
+                        error = e.message
                         xsd_tree = etree.parse(BytesIO(xsd_data.encode('utf-8')))
-                    except Exception, e:
-                        context = RequestContext(request, {
-                            'upload_form': form,
-                            'versions': versions,
-                            'object_versions': object_versions,
-                            'object_type': object_type,
-                            'object_id': object_id,
-                            'errors': 'Uploaded file is not well formatted XML.',
-                        })
-                        return HttpResponse(template.render(context))
-
-                    # is it supported by the MDCS ?
-                    errors = common.getValidityErrorsForMDCS(xsd_tree, object_type)
-                    if len(errors) > 0:
-                        errors_str = ", ".join(errors)
-
-                        context = RequestContext(request, {
-                            'upload_form': form,
-                            'versions': versions,
-                            'object_versions': object_versions,
-                            'object_type': object_type,
-                            'object_id': object_id,
-                            'errors': errors_str,
-                        })
-                        return HttpResponse(template.render(context))
-
-                    # is it a valid XML schema?
-
-                    error = validate_xml_schema(xsd_tree)
-
-                    if error is not None:
                         # a problem with includes/imports has been detected
                         # get the imports
                         imports = xsd_tree.findall("{}import".format(LXML_SCHEMA_NAMESPACE))
                         # get the includes
                         includes = xsd_tree.findall("{}include".format(LXML_SCHEMA_NAMESPACE))
                         if len(includes) > 0 or len(imports) > 0:
-                        # if "{}include".format(LXML_SCHEMA_NAMESPACE) in e.message \
-                        #         or "{}import".format(LXML_SCHEMA_NAMESPACE) in e.message:
-
                             # build the list of dependencies
                             list_dependencies_template = loader.get_template('admin/list_dependencies.html')
                             context = RequestContext(request, {
-                                'templates': Template.objects(user=None),
-                                'types':  Type.objects(user=None),
+                                'templates': template_list_current(),
+                                'types':  type_list_current(),
                             })
                             list_dependencies_html = list_dependencies_template.render(context)
 
@@ -608,24 +567,15 @@ def manage_versions(request):
                                 'errors': utils.html.escape(error),
                             })
                             return HttpResponse(template.render(context))
-                    else:
-                        # XML schema loaded with success
-                        messages.add_message(request, messages.INFO, '{} uploaded with success.'.format(object_type))
-                        if object_type == 'Template':
-                            new_object = create_template_version(xsd_data, xsd_file.name, object_versions.id)
-                            object_versions = TemplateVersion.objects.get(pk=new_object.templateVersion)
-                            versions = get_versions(object_versions, object_type)
-                        elif object_type == 'Type':
-                            new_object = create_type_version(xsd_data, xsd_file.name, object_versions.id)
-                            object_versions = TypeVersion.objects.get(pk=new_object.typeVersion)
-                            versions = get_versions(object_versions, object_type)
-
+                    except Exception, e:
+                        error = e.message
                         context = RequestContext(request, {
                             'upload_form': form,
                             'versions': versions,
                             'object_versions': object_versions,
                             'object_type': object_type,
-                            'object_id': str(new_object.id),
+                            'object_id': object_id,
+                            'errors': error,
                         })
                         return HttpResponse(template.render(context))
                 else:
@@ -716,10 +666,7 @@ def federation_of_queries(request):
 @staff_member_required
 def add_repository(request):
     if request.method == 'POST':
-
-
         form = RepositoryForm(request.POST)
-
         if form.is_valid():
             if request.POST["action"] == "Register":
                 errors = ""
@@ -757,10 +704,7 @@ def add_repository(request):
                         }
                         r = requests.post(url=url, data=data, headers=headers, timeout=int(request.POST["timeout"]))
                         if r.status_code == 200:
-                            now = datetime.now()
-                            delta = timedelta(seconds=int(eval(r.content)["expires_in"]))
-                            expires = now + delta
-                            Instance(name=request.POST["name"], protocol=request.POST["protocol"], address=request.POST["ip_address"], port=request.POST["port"], access_token=eval(r.content)["access_token"], refresh_token=eval(r.content)["refresh_token"], expires=expires).save()
+                            create_instance(r.content, request.POST)
                             messages.add_message(request, messages.INFO, 'Repository registered with success.')
                             return redirect('/admin/repositories')
                         else:
@@ -780,8 +724,8 @@ def add_repository(request):
                     if r.status_code == 200:
                         message = "Remote API reached with success."
                     else:
-                        if 'detail' in eval(r.content):
-                            message = "Error: " + eval(r.content)['detail']
+                        if 'detail' in json.loads(r.content):
+                            message = "Error: " + json.loads(r.content)['detail']
                         else:
                             message = "Error: Unable to reach the remote API."
                 except Exception, e:
@@ -792,6 +736,15 @@ def add_repository(request):
         form = RepositoryForm()
 
     return render(request, 'admin/add_repository.html', {'form':form})
+
+
+def create_instance(content, request):
+    now = datetime.now()
+    delta = timedelta(seconds=int(json.loads(content)["expires_in"]))
+    expires = now + delta
+    Instance(name=request["name"], protocol=request["protocol"], address=request["ip_address"],
+             port=request["port"], access_token=json.loads(content)["access_token"],
+             refresh_token=json.loads(content)["refresh_token"], expires=expires).save()
 
 
 ################################################################################
@@ -824,13 +777,7 @@ def refresh_repository(request):
                 headers = {'content-type': 'application/x-www-form-urlencoded'}
                 r = requests.post(url=url, data=data, headers=headers, auth=(request.POST["client_id"], request.POST["client_secret"]), timeout=int(request.POST["timeout"]))
                 if r.status_code == 200:
-                    now = datetime.now()
-                    delta = timedelta(seconds=int(eval(r.content)["expires_in"]))
-                    expires = now + delta
-                    instance.access_token=eval(r.content)["access_token"]
-                    instance.refresh_token=eval(r.content)["refresh_token"]
-                    instance.expires=expires
-                    instance.save()
+                    update_instance(instance, r.content)
                     return HttpResponseRedirect('/admin/repositories')
                 else:
                     message = "Unable to get access to the remote instance using these parameters."
@@ -838,66 +785,21 @@ def refresh_repository(request):
             except Exception, e:
                 message = "Unable to get access to the remote instance using these parameters."
                 return render(request, 'admin/refresh_repository.html', {'form':form, 'action_result':message})
-
-
     else:
         form = RefreshRepositoryForm()
         request.session['refreshInstanceID'] = request.GET['id']
 
     return render(request, 'admin/refresh_repository.html', {'form':form})
 
-################################################################################
-#
-# Function Name: manage_versions(request)
-# Inputs:        request -
-# Outputs:       Manage Version Page
-# Exceptions:    None
-# Description:   Redirects to the version manager of a given object
-#
-################################################################################
-@staff_member_required
-def manage_versions_old(request):
-    template = loader.get_template('admin/manage_versions.html')
 
-    id = request.GET.get('id', None)
-    objectType = request.GET.get('type', None)
-
-    if id is not None and objectType is not None:
-        try:
-            if objectType == "Template":
-                object = Template.objects.get(pk=id)
-                objectVersions = TemplateVersion.objects.get(pk=object.templateVersion)
-            else:
-                object = Type.objects.get(pk=id)
-                objectVersions = TypeVersion.objects.get(pk=object.typeVersion)
-
-            versions = OrderedDict()
-            reversedVersions = list(reversed(objectVersions.versions))
-            for version_id in reversedVersions:
-                if objectType == "Template":
-                    version = Template.objects.get(pk=version_id)
-                else:
-                    version = Type.objects.get(pk=version_id)
-                objectid = ObjectId(version.id)
-                from_zone = tz.tzutc()
-                to_zone = tz.tzlocal()
-                datetimeUTC = objectid.generation_time
-                datetimeUTC = datetimeUTC.replace(tzinfo=from_zone)
-                datetimeLocal = datetimeUTC.astimezone(to_zone)
-                datetime = datetimeLocal.strftime('%m/%d/%Y %H&#58;%M&#58;%S')
-                versions[version] = datetime
-
-
-            context = RequestContext(request, {
-                'versions': versions,
-                'objectVersions': objectVersions,
-                'objectType': objectType,
-            })
-            return HttpResponse(template.render(context))
-        except:
-            return redirect('/')
-    else:
-        return redirect('/')
+def update_instance(instance, content):
+    now = datetime.now()
+    delta = timedelta(seconds=int(json.loads(content)["expires_in"]))
+    expires = now + delta
+    instance.access_token = json.loads(content)["access_token"]
+    instance.refresh_token = json.loads(content)["refresh_token"]
+    instance.expires = expires
+    instance.save()
 
 
 ################################################################################

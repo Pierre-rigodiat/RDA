@@ -37,6 +37,7 @@ from utils.XSDParser.parser import generate_form
 from utils.XSDParser.renderer import DefaultRenderer
 from utils.XSDParser.renderer.checkbox import CheckboxRenderer
 
+
 # Class definition
 class ElementInfo:
     """
@@ -47,7 +48,7 @@ class ElementInfo:
         self.path = path
     
     def __to_json__(self):
-        return json.dumps(self, default=lambda o:o.__dict__)
+        return json.dumps(self, default=lambda o: o.__dict__)
 
 
 class CriteriaInfo:
@@ -61,14 +62,14 @@ class CriteriaInfo:
     def __to_json__(self):
         jsonDict = dict()
         if self.elementInfo == None:
-            jsonDict['elementInfo'] = None
+            jsonDict["elementInfo"] = None
         else:
-            jsonDict['elementInfo'] = self.elementInfo.__to_json__()
+            jsonDict["elementInfo"] = self.elementInfo.__to_json__()
         if self.queryInfo == None:
-            jsonDict['queryInfo'] = None
+            jsonDict["queryInfo"] = None
         else:
-            jsonDict['queryInfo'] = self.queryInfo.__to_json__()
-        return str(jsonDict)
+            jsonDict["queryInfo"] = self.queryInfo.__to_json__()
+        return json.dumps(jsonDict)
 
 
 class QueryInfo:
@@ -80,7 +81,7 @@ class QueryInfo:
         self.displayedQuery = displayedQuery
 
     def __to_json__(self):        
-        return json.dumps(self, default=lambda o:o.__dict__)
+        return json.dumps(self, default=lambda o: o.__dict__)
  
 
 class BranchInfo:
@@ -201,6 +202,10 @@ def verify_template_is_selected(request):
 
 
 def load_config():
+    """
+    Load Configuration for the parser
+    :return:
+    """
     return {
         'PARSER_APPLICATION': 'EXPLORE',
         'PARSER_MIN_TREE': False,
@@ -208,6 +213,8 @@ def load_config():
         'PARSER_COLLAPSE': False,
         'PARSER_AUTO_KEY_KEYREF': False,
         'PARSER_IMPLICIT_EXTENSION_BASE': False,
+        'PARSER_DOWNLOAD_DEPENDENCIES': settings.PARSER_DOWNLOAD_DEPENDENCIES if
+        hasattr(settings, 'PARSER_DOWNLOAD_DEPENDENCIES') else False,
     }
 
 
@@ -471,19 +478,20 @@ def get_results_by_instance_keyword(request):
                     #We use the default one
                     newdom = transform(dom)
                     custom_xslt = False
+                modification = request.user.is_staff or (str(instanceResult['iduser']) ==  str(request.user.id))
+                context = RequestContext(request, {'id': str(instanceResult['_id']),
+                                                   'xml': str(newdom),
+                                                   'title': instanceResult['title'],
+                                                   'custom_xslt': custom_xslt,
+                                                   'template_name': schema.title,
+                                                   'modification': modification})
 
-                context = RequestContext(request, {'id':str(instanceResult['_id']),
-                                   'xml': str(newdom),
-                                   'title': instanceResult['title'],
-                                   'custom_xslt': custom_xslt,
-                                   'template_name': schema.title})
-
-                resultString+= template.render(context)
+                resultString += template.render(context)
             else:
                 wordList = re.sub("[^\w]", " ",  keyword).split()
-                wordList = [x + "|" + x +"\w+" for x in wordList]
+                wordList = [x + "|" + x + "\w+" for x in wordList]
                 wordList = '|'.join(wordList)
-                listWholeKeywords = re.findall("\\b("+ wordList +")\\b", XMLdata.unparse(instanceResult['content']).encode('utf-8'), flags=re.IGNORECASE)
+                listWholeKeywords = re.findall("\\b(" + wordList + ")\\b", XMLdata.unparse(instanceResult['content']).encode('utf-8'), flags=re.IGNORECASE)
                 labels = list(set(listWholeKeywords))
 
                 for label in labels:
@@ -517,10 +525,10 @@ def get_results_by_instance(request):
     num_instance = request.GET['numInstance']
     instances = request.session['instancesExplore']
     resultString = ""
-
+    hasResult = False
     for i in range(int(num_instance)):
         results = []
-        instance = eval(instances[int(i)])
+        instance = json.loads(instances[int(i)])
         sessionName = "resultsExplore" + instance['name']
         resultString += "<p style='font-weight:bold; color:#369;'>From " + instance['name'] + ":</p>"
         if instance['name'] == "Local":
@@ -547,6 +555,7 @@ def get_results_by_instance(request):
             instanceResults = XMLdata.executeQueryFullResult(query)
 
             if len(instanceResults) > 0:
+                hasResult = True
                 template = loader.get_template('explore/explore_result.html')
                 xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
                 xslt = etree.parse(xsltPath)
@@ -573,11 +582,13 @@ def get_results_by_instance(request):
                         newdom = transform(dom)
                         custom_xslt = False
 
+                    modification = request.user.is_staff or (str(instanceResult['iduser']) == str(request.user.id))
                     context = RequestContext(request, {'id':str(instanceResult['_id']),
                                                'xml': str(newdom),
                                                'title': instanceResult['title'],
                                                'custom_xslt': custom_xslt,
-                                               'template_name': schema.title})
+                                               'template_name': schema.title,
+                                                'modification': modification})
 
                     resultString+= template.render(context)
 
@@ -594,16 +605,16 @@ def get_results_by_instance(request):
             result = r.text
             instanceResults = json.loads(result,object_pairs_hook=OrderedDict)
             if len(instanceResults) > 0:
+                hasResult = True
                 template = loader.get_template('explore/explore_result.html')
                 xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
-
-                # template = loader.get_template(os.path.join('explore','explore_result.html'))
-                # xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
                 xslt = etree.parse(xsltPath)
                 transform = etree.XSLT(xslt)
                 for instanceResult in instanceResults:
                     custom_xslt = False
-                    results.append({'title':instanceResult['title'], 'content':instanceResult['content'],'id':str(instanceResult['_id'])})
+                    results.append({'title': instanceResult['title'],
+                                    'content': instanceResult['content'],
+                                    'id': str(instanceResult['_id'])})
                     dom = etree.XML(instanceResult['content'].encode('utf-8'))
                     #Check if a custom list result XSLT has to be used
                     try:
@@ -620,12 +631,14 @@ def get_results_by_instance(request):
                         newdom = transform(dom)
                         custom_xslt = False
 
-                    context = RequestContext(request, {'id':str(instanceResult['_id']),
+                    modification = request.user.is_staff or (str(instanceResult['iduser']) == str(request.user.id))
+                    context = RequestContext(request, {'id': str(instanceResult['_id']),
                                                        'xml': str(newdom),
                                                        'title': instanceResult['title'],
-                                                       'custom_xslt': custom_xslt})
+                                                       'custom_xslt': custom_xslt,
+                                                       'modification': modification})
 
-                    resultString+= template.render(context)
+                    resultString += template.render(context)
                 resultString += "<br/>"
             else:
                 resultString += "<span style='font-style:italic; color:red;'> No Results found... </span><br/><br/>"
@@ -633,7 +646,7 @@ def get_results_by_instance(request):
         request.session[sessionName] = results
     
     print 'END def getResults(request)'
-    response_dict = {'results': resultString}
+    response_dict = {'results': resultString, 'hasResult': hasResult}
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
  
  
@@ -672,22 +685,14 @@ def manageRegexBeforeAPI(query, queryStr):
 # Description:   Build a criteria for mongo db for the type integer
 #
 ################################################################################
-def intCriteria(path, comparison, value, isNot=False):
-    print 'BEGIN def intCriteria(path, comparison, value, isNot=False)'
+def intCriteria(path, comparison, value):
     criteria = dict()
 
     if comparison == "=":
-        if isNot:
-            criteria[path] = eval('{"$ne":' + str(value) + '}')
-        else:
-            criteria[path] = int(value)
+        criteria[path] = int(value)
     else:
-        if isNot:
-            criteria[path] = eval('{"$not":{"$' + comparison + '":' + str(value) + '}}')
-        else:
-            criteria[path] = eval('{"$' + comparison+'":' + str(value) + '}')
+        criteria[path] = json.loads('{{"${0}": {1} }}'.format(comparison, value))
 
-    print 'END def intCriteria(path, comparison, value, isNot=False)'
     return criteria
 
 
@@ -697,55 +702,40 @@ def intCriteria(path, comparison, value, isNot=False):
 # Inputs:        path - 
 #                comparison -
 #                value -
-#                isNot -
 # Outputs:       a criteria
 # Exceptions:    None
 # Description:   Build a criteria for mongo db for the type float
 #
 ################################################################################
-def floatCriteria(path, comparison, value, isNot=False):
+def floatCriteria(path, comparison, value):
     criteria = dict()
 
     if comparison == "=":
-        if isNot:
-            criteria[path] = eval('{"$ne":' + value + '}')
-        else:
-            criteria[path] = float(value)
+        criteria[path] = float(value)
     else:
-        if isNot:
-            criteria[path] = eval('{"$not":{"$' + comparison + '":' + value + '}}')
-        else:
-            criteria[path] = eval('{"$' + comparison + '":' + value + '}')
+        criteria[path] = json.loads('{{"${0}": {1} }}'.format(comparison, value))
 
     return criteria
 
 
 ################################################################################
 # 
-# Function Name: stringCriteria(path, comparison, value, isNot=False)
+# Function Name: stringCriteria(path, comparison, value)
 # Inputs:        path - 
 #                comparison -
 #                value -
-#                isNot -
 # Outputs:       a criteria
 # Exceptions:    None
 # Description:   Build a criteria for mongo db for the type string
 #
 ################################################################################
-def stringCriteria(path, comparison, value, isNot=False):
+def stringCriteria(path, comparison, value):
     criteria = dict()
     
     if comparison == "is":
-        if isNot:
-            criteria[path] = eval('{"$ne":' + repr(value) + '}')
-        else:
-            criteria[path] = str(value)
+        criteria[path] = value
     elif comparison == "like":
-        if isNot:
-            criteria[path] = dict()
-            criteria[path]["$not"] = "/" + value + "/"
-        else:
-            criteria[path] = "/" + value + "/"
+        criteria[path] = "/" + value + "/"
     
     return criteria
 
@@ -753,7 +743,7 @@ def stringCriteria(path, comparison, value, isNot=False):
 ################################################################################
 # 
 # Function Name: queryToCriteria(query, isNot=False)
-# Inputs:        query - 
+# Inputs:        query -
 #                isNot -
 # Outputs:       a criteria
 # Exceptions:    None
@@ -841,9 +831,9 @@ def enumCriteria(path, value, isNot=False):
     criteria = dict()
     
     if isNot:
-        criteria[path] = eval('{"$ne":' + repr(value) + '}')
+        criteria[path] = json.loads('{{"ne": "{0}" }}'.format(repr(value)))
     else:
-        criteria[path] = str(value)
+        criteria[path] = value
             
     return criteria
 
@@ -901,23 +891,23 @@ def build_criteria(element_path, comparison, value, element_type, default_prefix
     # build the query: value can be found at element:value or at element.#text:value
     # second case appends when the element has attributes or namespace information
     if (element_type in ['{0}:byte'.format(default_prefix),
-                     '{0}:int'.format(default_prefix),
-                     '{0}:integer'.format(default_prefix),
-                     '{0}:long'.format(default_prefix),
-                     '{0}:negativeInteger'.format(default_prefix),
-                     '{0}:nonNegativeInteger'.format(default_prefix),
-                     '{0}:nonPositiveInteger'.format(default_prefix),
-                     '{0}:positiveInteger'.format(default_prefix),
-                     '{0}:short'.format(default_prefix),
-                     '{0}:unsignedLong'.format(default_prefix),
-                     '{0}:unsignedInt'.format(default_prefix),
-                     '{0}:unsignedShort'.format(default_prefix),
-                     '{0}:unsignedByte'.format(default_prefix)]):
+                         '{0}:int'.format(default_prefix),
+                         '{0}:integer'.format(default_prefix),
+                         '{0}:long'.format(default_prefix),
+                         '{0}:negativeInteger'.format(default_prefix),
+                         '{0}:nonNegativeInteger'.format(default_prefix),
+                         '{0}:nonPositiveInteger'.format(default_prefix),
+                         '{0}:positiveInteger'.format(default_prefix),
+                         '{0}:short'.format(default_prefix),
+                         '{0}:unsignedLong'.format(default_prefix),
+                         '{0}:unsignedInt'.format(default_prefix),
+                         '{0}:unsignedShort'.format(default_prefix),
+                         '{0}:unsignedByte'.format(default_prefix)]):
         element_query = intCriteria(element_path, comparison, value)
         attribute_query = intCriteria("{}.#text".format(element_path), comparison, value)
     elif (element_type in ['{0}:float'.format(default_prefix),
-                       '{0}:double'.format(default_prefix),
-                       '{0}:decimal'.format(default_prefix)]):
+                           '{0}:double'.format(default_prefix),
+                           '{0}:decimal'.format(default_prefix)]):
         element_query = floatCriteria(element_path, comparison, value)
         attribute_query = floatCriteria("{}.#text".format(element_path), comparison, value)
     elif element_type == '{0}:string'.format(default_prefix):
@@ -958,15 +948,15 @@ def fieldsToQuery(request, htmlTree):
         else:
             isNot = False
             
-        criteriaInfo = eval(mapCriterias[field.attrib['id']])
+        criteriaInfo = json.loads(mapCriterias[field.attrib['id']])
         if criteriaInfo['elementInfo'] is None:
             elementInfo = None
         else:
-            elementInfo = eval(criteriaInfo['elementInfo'])
+            elementInfo = json.loads(criteriaInfo['elementInfo'])
         if criteriaInfo['queryInfo'] is None:
             queryInfo = None
         else:
-            queryInfo = eval(criteriaInfo['queryInfo'])
+            queryInfo = json.loads(criteriaInfo['queryInfo'])
         elemType = elementInfo['type']
         if elemType == "query":
             queryValue = queryInfo['query']
@@ -1028,8 +1018,8 @@ def checkQueryForm(request, htmlTree):
         errors.append("Some fields are empty !")
     else:
         for field in fields:
-            criteriaInfo = eval(mapCriterias[field.attrib['id']])
-            elementInfo = eval(criteriaInfo['elementInfo']) 
+            criteriaInfo = json.loads(mapCriterias[field.attrib['id']])
+            elementInfo = json.loads(criteriaInfo['elementInfo'])
             elemType = elementInfo['type']
             
             if (elemType in ['{0}:float'.format(defaultPrefix), 
@@ -1287,7 +1277,7 @@ def buildPrettyCriteria(elementName, comparison, value, isNot=False):
     if value == "":
         prettyCriteria += ' &ldquo;  &ldquo;'
     else:
-        prettyCriteria += str(value)        
+        prettyCriteria += value
     
     if isNot:
         prettyCriteria += ")"
@@ -1325,9 +1315,9 @@ def queryToPrettyCriteria(queryValue, isNot):
 ################################################################################
 def enumToPrettyCriteria(element, value, isNot=False):
     if isNot:
-        return "NOT(" + str(element) + " is " + str(value) + ")"
+        return "NOT(" + element + " is " + value + ")"
     else:
-        return str(element) + " is " + str(value)
+        return element + " is " + value
 
 
 ################################################################################
@@ -1382,15 +1372,15 @@ def fieldsToPrettyQuery(request, queryFormTree):
         else:
             isNot = False
                 
-        criteriaInfo = eval(mapCriterias[field.attrib['id']])
+        criteriaInfo = json.loads(mapCriterias[field.attrib['id']])
         if criteriaInfo['elementInfo'] is None:
             elementInfo = None
         else:
-            elementInfo = eval(criteriaInfo['elementInfo'])
+            elementInfo = json.loads(criteriaInfo['elementInfo'])
         if criteriaInfo['queryInfo'] is None:
             queryInfo = None
         else:
-            queryInfo = eval(criteriaInfo['queryInfo']) 
+            queryInfo = json.loads(criteriaInfo['queryInfo'])
         elemType = elementInfo['type']
         if elemType == "query":
             queryValue = queryInfo['displayedQuery']
@@ -1455,7 +1445,7 @@ def save_query(request):
             displayedQuery = fieldsToPrettyQuery(request, queryFormTree) 
         
             #save the query in the data base
-            savedQuery = SavedQuery(str(userID),str(templateID), str(query),displayedQuery)
+            savedQuery = SavedQuery(str(userID), str(templateID), json.dumps(query), displayedQuery)
             savedQuery.save()
             
             queryInfo = QueryInfo(query, displayedQuery)
@@ -1642,7 +1632,7 @@ def add_saved_query_to_form(request):
         fields[0].append(minusButton)
         
     lastID = fields[-1].attrib['id'][4:]
-    queryInfo = eval(mapQueryInfo[saved_query_id[5:]])
+    queryInfo = json.loads(mapQueryInfo[saved_query_id[5:]])
     query = queryInfo['displayedQuery']
     if len(fields) == 1 and fields[0][1].value == "":
         queryTree.remove(fields[0])
@@ -1662,10 +1652,10 @@ def add_saved_query_to_form(request):
     
     mapCriterias = request.session['mapCriteriasExplore']
     criteriaInfo = CriteriaInfo()
-    criteriaInfo.queryInfo = QueryInfo(query=eval(mapQueryInfo[saved_query_id[5:]])['query'],
-                                       displayedQuery=eval(mapQueryInfo[saved_query_id[5:]])['displayedQuery'])
+    criteriaInfo.queryInfo = QueryInfo(query=json.loads(mapQueryInfo[saved_query_id[5:]])['query'],
+                                       displayedQuery=json.loads(mapQueryInfo[saved_query_id[5:]])['displayedQuery'])
     criteriaInfo.elementInfo = ElementInfo("query")
-    mapCriterias['crit'+ str(tag_id)] = criteriaInfo.__to_json__()
+    mapCriterias['crit' + str(tag_id)] = criteriaInfo.__to_json__()
     request.session['mapCriteriasExplore'] = mapCriterias
 
     response_dict = {'queryForm': html.tostring(queryTree)}
@@ -1793,7 +1783,7 @@ def get_custom_form(request):
         templateID = request.session['exploreCurrentTemplateID']
         userQueries = SavedQuery.objects(user=str(userID),template=str(templateID))
         for savedQuery in userQueries:
-            query = eval(savedQuery.query)
+            query = json.loads(savedQuery.query)
 #            manageRegexFromDB(query)     
             queryInfo = QueryInfo(query, savedQuery.displayedQuery)
             mapQueryInfo[str(savedQuery.id)] = queryInfo.__to_json__()

@@ -21,5 +21,7 @@ urlpatterns = patterns('',
         name='Description'),
     url(r'resource-type', 'modules.registry.views.resource_type',
         name='Resource Type'),
+    url(r'name-pid', 'modules.registry.views.name_pid',
+        name='Name PID'),
 )
 

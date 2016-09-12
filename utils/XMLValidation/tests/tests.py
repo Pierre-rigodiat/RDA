@@ -27,8 +27,8 @@ from utils.XMLValidation.xml_schema import _lxml_validate_xsd, validate_xml_sche
     validate_xml_data
 
 RESOURCES_PATH = join(BASE_DIR, 'utils', 'XMLValidation', 'tests', 'data')
-
 TEST_LXML = True
+
 
 class ValidateXSDTestSuite(TestCase):
     """
@@ -323,7 +323,7 @@ class ValidateXMLTestSuite(TestCase):
         self.load_data(data_path)
 
         # test LXML
-        #TODO: LXML fails to validate
+        # TODO: LXML fails to validate
         if TEST_LXML:
             self.assertEquals(_lxml_validate_xml(self.xsd_tree, self.xml_tree), None)
         # test global method
@@ -472,7 +472,7 @@ class ValidateXMLTestSuite(TestCase):
         self.load_data(data_path)
 
         # test LXML
-        #TODO: LXML fails to validate
+        # TODO: LXML fails to validate
         if TEST_LXML:
             self.assertEquals(_lxml_validate_xml(self.xsd_tree, self.xml_tree), None)
         # test global method

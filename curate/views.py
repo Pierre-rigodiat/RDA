@@ -23,8 +23,6 @@ from bson.objectid import ObjectId
 import lxml.etree as etree
 from lxml.etree import XMLSyntaxError
 import json 
-import xmltodict
-
 from curate.ajax import load_config
 from curate.models import SchemaElement
 from mgi.models import Template, TemplateVersion, XML2Download, FormData, XMLdata
@@ -34,6 +32,7 @@ from admin_mdcs.models import permission_required
 import mgi.rights as RIGHTS
 from mgi.exceptions import MDCSError
 from io import BytesIO
+
 
 ################################################################################
 #
@@ -68,6 +67,7 @@ def index(request):
     })
 
     return HttpResponse(template.render(context))
+
 
 ################################################################################
 #
@@ -105,14 +105,14 @@ def curate_edit_data(request):
         xml_data = XMLdata.get(xml_data_id)
         json_content = xml_data['content']
         xml_content = XMLdata.unparse(json_content)
-        request.session['curate_edit_data'] = xml_content
         request.session['curate_edit'] = True
         request.session['currentTemplateID'] = xml_data['schema']
         # remove previously created forms when editing a new one
         previous_forms = FormData.objects(user=str(request.user.id), xml_data_id__exists=True)
 
         for previous_form in previous_forms:
-            # TODO: check if need to delete all SchemaElements
+            if previous_form.schema_element_root is not None:
+                delete_branch_from_db(previous_form.schema_element_root.pk)
             previous_form.delete()
 
         form_data = FormData(
@@ -275,6 +275,7 @@ def curate_enter_data_downloadxsd(request):
         response['Content-Disposition'] = 'attachment; filename=' + template_filename
         return response
 
+
 ################################################################################
 #
 # Function Name: curate_view_data_downloadxml(request)
@@ -311,7 +312,6 @@ def curate_view_data_downloadxml(request):
             return redirect('/')
 
 
-
 ################################################################################
 #
 # Function Name: start_curate(request)
@@ -346,7 +346,6 @@ def start_curate(request):
                 request.session['curate_edit'] = True
                 open_form = OpenForm(request.POST)
                 form_data = FormData.objects.get(pk=ObjectId(open_form.data['forms']))
-                request.session['curate_edit_data'] = form_data.xml_data
             elif selected_option == "upload":
                 request.session['curate_edit'] = True
                 upload_form = UploadForm(request.POST, request.FILES)
@@ -507,13 +506,9 @@ def curate_edit_form(request):
                     form_data = FormData.objects.get(pk=ObjectId(form_data_id))
                 except:
                     raise MDCSError("The form you are looking for doesn't exist.")
-                # parameters to build FormData object in db
-                #                 request.session['currentTemplateID'] = form_data.template
                 request.session['curate_edit'] = True
-                request.session['curate_edit_data'] = form_data.xml_data
                 # parameters that will be used during curation
                 request.session['curateFormData'] = str(form_data.id)
-
                 request.session['currentTemplateID'] = form_data.template
                 templateObject = Template.objects.get(pk=form_data.template)
                 xmlDocData = templateObject.content
@@ -535,7 +530,8 @@ def curate_edit_form(request):
                     root_element_id = generate_form(request, xsd_doc_data, xml_doc_data, config=load_config())
                     root_element = SchemaElement.objects.get(pk=root_element_id)
 
-                    form_data.schema_element_root = root_element
+                    form_data.update(set__schema_element_root=root_element)
+                    form_data.reload()
 
                 request.session['form_id'] = str(form_data.schema_element_root.id)
 

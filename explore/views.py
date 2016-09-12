@@ -31,6 +31,7 @@ from io import BytesIO
 from exporter.builtin.models import XSLTExporter
 from admin_mdcs.models import permission_required
 
+
 ################################################################################
 #
 # Function Name: index(request)
@@ -62,6 +63,7 @@ def index(request):
 
     return HttpResponse(template.render(context))
 
+
 ################################################################################
 #
 # Function Name: index(request)
@@ -81,6 +83,7 @@ def index_keyword(request):
     })
     return HttpResponse(template.render(context))
 
+
 ################################################################################
 #
 # Function Name: explore_select_template(request)
@@ -97,6 +100,7 @@ def explore_select_template(request):
         '': '',
     })
     return HttpResponse(template.render(context))
+
 
 ################################################################################
 #
@@ -116,6 +120,7 @@ def explore_customize_template(request):
         return redirect('/explore/select-template')
     else:
         return HttpResponse(template.render(context))
+
 
 ################################################################################
 #
@@ -177,6 +182,7 @@ def explore_results(request):
     else:
         return HttpResponse(template.render(context))
 
+
 ################################################################################
 #
 # Function Name: explore_all_results(request)
@@ -208,6 +214,7 @@ def explore_all_results(request):
         return redirect('/explore/select-template')
     else:
         return HttpResponse(template.render(context))
+
 
 ################################################################################
 #
@@ -252,6 +259,7 @@ def explore_all_versions_results(request):
     else:
         return HttpResponse(template.render(context))
 
+
 ################################################################################
 #
 # Function Name: explore_detail_result
@@ -287,6 +295,7 @@ def explore_detail_result_keyword(request) :
     context = explore_detail_result_process(request)
 
     return HttpResponse(template.render(context))
+
 
 ################################################################################
 #
@@ -334,6 +343,7 @@ def explore_detail_result_process(request):
 
     return context
 
+
 ################################################################################
 #
 # Function Name: start_export
@@ -357,7 +367,7 @@ def start_export(request):
         is_many_inst = len(instances) > 1
         for instance in instances:
             #Retrieve data
-            sessionName = "resultsExplore" + eval(instance)['name']
+            sessionName = "resultsExplore" + json.loads(instance)['name']
             results = request.session[sessionName]
             if (len(results) > 0):
                 for result in results:
@@ -369,7 +379,7 @@ def start_export(request):
                 #Init the folder name
                 folder_name = None
                 if is_many_inst:
-                    folder_name = eval(instance)['name']
+                    folder_name = json.loads(instance)['name']
                 #Check if the XSLT converter is asked. If yes, we start with this one because there is a specific treatment
                 listXslt = request.POST.getlist('my_xslts')
                 #Get the content of the file

@@ -20,10 +20,9 @@
 #
 ################################################################################
 import os
-import sys
 from mongoengine import connect
 
-VERSION = "1.4"
+VERSION = "1.4_rc2"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -76,14 +75,10 @@ SERVER_EMAIL = 'noreply@curator.org'
 ADMINS = [('admin', 'admin@curator.org'),]
 MANAGERS = [('manager', 'moderator@curator.org'),]
 EMAIL_SUBJECT_PREFIX = "[CURATOR] "
-#For test purpose
-# EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-# EMAIL_FILE_PATH = '/tmp/emails'
-#EMAIL_HOST = "mail.nist.gov"
-# EMAIL_HOST_USER = "curator.testing.us@gmail.com"
-# EMAIL_HOST_PASSWORD = "ilovecurator"
+#EMAIL_HOST = ""
+#EMAIL_HOST_USER = ""
+#EMAIL_HOST_PASSWORD = ""
 #EMAIL_PORT= 25
-# EMAIL_USE_TLS = True
 
 #Password Policy
 # Determines wether to use the password history.
@@ -136,6 +131,7 @@ BLOB_HOSTER_PSWD = MONGO_MGI_PASSWORD
 MDCS_URI = 'http://127.0.0.1:8000'
 
 #Celery configuration
+USE_BACKGROUND_TASK = False
 BROKER_URL = 'redis://localhost:6379/0'
 BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
@@ -181,6 +177,7 @@ PARSER_IGNORE_MODULES = False
 PARSER_COLLAPSE = True
 PARSER_AUTO_KEY_KEYREF = True
 PARSER_IMPLICIT_EXTENSION_BASE = False
+PARSER_DOWNLOAD_DEPENDENCIES = True
 
 TEMPLATE_DIRS = [
     os.path.join(BASE_DIR, 'templates')

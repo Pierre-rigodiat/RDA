@@ -605,7 +605,7 @@ class ListRenderer(AbstractListRenderer):
             'module_id': element.pk,
             'url': module_url,
             'xsd_xpath': module_options['xpath']['xsd'],
-            'xml_xpath': module_options['xpath']['xsd']
+            'xml_xpath': module_options['xpath']['xml']
         }
 
         # if the loaded doc has data, send them to the module for initialization
