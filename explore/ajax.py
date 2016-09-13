@@ -599,7 +599,7 @@ def get_results_by_instance(request):
         else:
             url = instance['protocol'] + "://" + instance['address'] + ":" + str(instance['port']) + "/rest/explore/query-by-example"
             query = copy.deepcopy(request.session['queryExplore'])
-            data = {"query":str(query)}
+            data = {"query": json.dumps(query)}
             headers = {'Authorization': 'Bearer ' + instance['access_token']}
             r = requests.post(url, data=data, headers=headers)   
             result = r.text
