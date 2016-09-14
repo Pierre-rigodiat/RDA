@@ -16,6 +16,7 @@
 import numbers
 from lxml import etree
 from mongoengine import *
+from django_mongoengine import fields as dme_fields, Document as dme_Document
 
 # Specific to MongoDB ordered inserts
 from collections import OrderedDict
@@ -63,14 +64,14 @@ class Message(Document):
     content = StringField()
 
 
-class Exporter(Document, EmbeddedDocument):
+class Exporter(Document):
     """Represents an exporter"""
     name = StringField(required=True, unique=True)
     url = StringField(required=True)
     available_for_all = BooleanField(required=True)
 
 
-class ExporterXslt(Document, EmbeddedDocument):
+class ExporterXslt(Document):
     """Represents an xslt file for exporter"""
     name = StringField(required=True, unique=True)
     filename = StringField(required=True)
@@ -78,7 +79,7 @@ class ExporterXslt(Document, EmbeddedDocument):
     available_for_all = BooleanField(required=True)
 
 
-class ResultXslt(Document, EmbeddedDocument):
+class ResultXslt(Document):
     """Represents an xslt file for result representation"""
     name = StringField(required=True, unique=True)
     filename = StringField(required=True)
@@ -358,15 +359,14 @@ class Bucket(Document):
     types = ListField()
 
 
-class FormData(Document):
+class FormData(dme_Document):
     """Stores data being entered and not yet curated"""
-    user = StringField(required=True)
-    template = StringField(required=True)
-    name = StringField(required=True, unique_with=['user', 'template'])
-    # elements = DictField()
-    schema_element_root = ReferenceField(SchemaElement, required=False)
-    xml_data = StringField(default='')
-    xml_data_id = StringField()
+    user = dme_fields.StringField()
+    template = dme_fields.StringField()
+    name = dme_fields.StringField(unique_with=['user', 'template'])
+    schema_element_root = dme_fields.ReferenceField(SchemaElement, blank=True)
+    xml_data = dme_fields.StringField(default='')
+    xml_data_id = dme_fields.StringField(blank=True)
 
 
 def postprocessor(path, key, value):
@@ -466,13 +466,13 @@ class XMLdata(object):
              /!\ Doesn't return the same kind of objects as mongoengine.Document.objects()
         """
         # create a connection
-        client = MongoClient(MONGODB_URI)
+        client = MongoClient(MONGODB_URI, document_class=OrderedDict)
         # connect to the db 'mgi'
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         # find all objects of the collection
-        cursor = xmldata.find(as_class = OrderedDict)
+        cursor = xmldata.find()
         # build a list with the objects        
         results = []
         for result in cursor:
@@ -490,13 +490,13 @@ class XMLdata(object):
              /!\ Doesn't return the same kind of objects as mongoengine.Document.objects()
         """
         # create a connection
-        client = MongoClient(MONGODB_URI)
+        client = MongoClient(MONGODB_URI, document_class=OrderedDict)
         # connect to the db 'mgi'
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         # find all objects of the collection
-        cursor = xmldata.find(params, as_class = OrderedDict)
+        cursor = xmldata.find(params)
         # build a list with the objects        
         results = []
         for result in cursor:
@@ -511,13 +511,13 @@ class XMLdata(object):
     def executeQuery(query, includeDeleted=False):
         """queries mongo db and returns results data"""
         # create a connection
-        client = MongoClient(MONGODB_URI)
+        client = MongoClient(MONGODB_URI, document_class=OrderedDict)
         # connect to the db 'mgi'
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         # query mongo db
-        cursor = xmldata.find(query,as_class = OrderedDict)  
+        cursor = xmldata.find(query)
         # build a list with the xml representation of objects that match the query      
         queryResults = []
         for result in cursor:
@@ -532,13 +532,13 @@ class XMLdata(object):
     def executeQueryFullResult(query, includeDeleted=False):
         """queries mongo db and returns results data"""
         # create a connection
-        client = MongoClient(MONGODB_URI)
+        client = MongoClient(MONGODB_URI, document_class=OrderedDict)
         # connect to the db 'mgi'
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         # query mongo db
-        cursor = xmldata.find(query,as_class = OrderedDict)
+        cursor = xmldata.find(query)
         # build a list with the xml representation of objects that match the query
         results = []
         for result in cursor:
@@ -556,12 +556,12 @@ class XMLdata(object):
             Returns the object with the given id
         """
         # create a connection
-        client = MongoClient(MONGODB_URI)
+        client = MongoClient(MONGODB_URI, document_class=OrderedDict)
         # connect to the db 'mgi'
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
-        return xmldata.find_one({'_id': ObjectId(postID)}, as_class = OrderedDict)
+        return xmldata.find_one({'_id': ObjectId(postID)})
 
     @staticmethod
     def getByIDsAndDistinctBy(listIDs, distinctBy=None):
@@ -569,13 +569,13 @@ class XMLdata(object):
             Returns the object with the given id
         """
         # create a connection
-        client = MongoClient(MONGODB_URI)
+        client = MongoClient(MONGODB_URI, document_class=OrderedDict)
         # connect to the db 'mgi'
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         listIDs = [ObjectId(x) for x in listIDs]
-        return xmldata.find({'_id': { '$in': listIDs }}, as_class = OrderedDict).distinct(distinctBy)
+        return xmldata.find({'_id': {'$in': listIDs}}).distinct(distinctBy)
 
     @staticmethod
     def getMinValue(attr):
@@ -588,13 +588,13 @@ class XMLdata(object):
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
-        cursor  = xmldata.aggregate(
+        cursor = xmldata.aggregate(
            [
              {
                '$group':
                {
                  '_id': {},
-                 'minAttr': { '$min': '$'+attr}
+                 'minAttr': {'$min': '$'+attr}
                }
              }
            ]
@@ -642,7 +642,7 @@ class XMLdata(object):
             data = xmltodict.parse(xml, postprocessor=postprocessor)
 
         if data is not None:
-            xmldata.update({'_id': ObjectId(postID)}, {"$set":data}, upsert=False)
+            xmldata.update({'_id': ObjectId(postID)}, {"$set": data}, upsert=False)
 
     @staticmethod
     def update_content(postID, content=None, title=None):
@@ -659,7 +659,7 @@ class XMLdata(object):
         json_content = xmltodict.parse(content, postprocessor=postprocessor)
         json = {'content': json_content, 'title': title, 'lastmodificationdate': datetime.datetime.now()}
                     
-        xmldata.update({'_id': ObjectId(postID)}, {"$set":json}, upsert=False)
+        xmldata.update({'_id': ObjectId(postID)}, {"$set": json}, upsert=False)
 
     @staticmethod
     def update_publish(postID):
@@ -673,9 +673,9 @@ class XMLdata(object):
         # get the xmldata collection
         xmldata = db['xmldata']
         now = datetime.datetime.now()
-        xmldata.update({'_id': ObjectId(postID)}, {'$set':{'publicationdate': now,
-                                                           'ispublished': True,
-                                                           'oai_datestamp': now}}, upsert=False)
+        xmldata.update({'_id': ObjectId(postID)}, {'$set': {'publicationdate': now,
+                                                            'ispublished': True,
+                                                            'oai_datestamp': now}}, upsert=False)
 
     @staticmethod
     def update_unpublish(postID):
@@ -688,7 +688,7 @@ class XMLdata(object):
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
-        xmldata.update({'_id': ObjectId(postID)}, {'$set':{'ispublished': False}}, upsert=False)
+        xmldata.update({'_id': ObjectId(postID)}, {'$set': {'ispublished': False}}, upsert=False)
 
     @staticmethod
     def update_user(postID, user=None):
@@ -701,7 +701,7 @@ class XMLdata(object):
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
-        xmldata.update({'_id': ObjectId(postID)}, {'$set':{'iduser': user}}, upsert=False)
+        xmldata.update({'_id': ObjectId(postID)}, {'$set': {'iduser': user}}, upsert=False)
 
     @staticmethod
     def executeFullTextQuery(text, templatesID, refinements={}, includeDeleted=False):
@@ -709,7 +709,7 @@ class XMLdata(object):
         Execute a full text query with possible refinements
         """
         #create a connection
-        client = MongoClient(MONGODB_URI)
+        client = MongoClient(MONGODB_URI, document_class=OrderedDict)
         # connect to the db 'mgi'
         db = client[MGI_DB]
         # get the xmldata collection
@@ -727,7 +727,7 @@ class XMLdata(object):
             full_text_query.update(refinements)
         full_text_query.update({'ispublished': True})
 
-        cursor = xmldata.find(full_text_query, as_class = OrderedDict).sort('publicationdate', DESCENDING)
+        cursor = xmldata.find(full_text_query).sort('publicationdate', DESCENDING)
         
         results = []
         for result in cursor:
@@ -961,7 +961,7 @@ class OaiRecord(Document):
         Execute a full text query with possible refinements
         """
         #create a connection
-        client = MongoClient(MONGODB_URI)
+        client = MongoClient(MONGODB_URI, document_class=OrderedDict)
         # connect to the db 'mgi'
         db = client[MGI_DB]
         # get the xmldata collection
@@ -979,7 +979,7 @@ class OaiRecord(Document):
         # only no deleted records
         full_text_query.update({'deleted':  False})
 
-        cursor = xmlrecord.find(full_text_query, as_class = OrderedDict)
+        cursor = xmlrecord.find(full_text_query)
 
         results = []
         for result in cursor:
