@@ -17,6 +17,7 @@ SERVER_EMAIL = settings.SERVER_EMAIL
 USE_EMAIL = settings.USE_EMAIL
 USE_BACKGROUND_TASK = settings.USE_BACKGROUND_TASK
 
+
 ################################################################################
 # 
 # Function Name: checkValidForMDCS(xmlTree, type)
@@ -72,18 +73,21 @@ def getValidityErrorsForMDCS(xmlTree, type):
             # only simpleType, complexType or include
             for element in elements:
                 if 'complexType' not in element.tag and 'simpleType' not in element.tag and 'include' not in element.tag:
-                    errors.append("A type should be a valid XML schema containing only one type definition (Allowed tags are: simpleType or complexType and include).")
+                    errors.append("A type should be a valid XML schema containing only one type definition "
+                                  "(Allowed tags are: simpleType or complexType and include).")
                     break
             # only one type
+            cpt_type = 0
             for element in elements:
-                cptType = 0
                 if 'complexType' in element.tag or 'simpleType' in element.tag:
-                    cptType += 1
-                    if cptType > 1:
-                        errors.append("A type should be a valid XML schema containing only one type definition (only one simpleType or complexType).")
+                    cpt_type += 1
+                    if cpt_type > 1:
+                        errors.append("A type should be a valid XML schema containing only one type definition "
+                                      "(only one simpleType or complexType).")
                         break
         else:
-            errors.append("A type should be a valid XML schema containing only one type definition (only one simpleType or complexType).")
+            errors.append("A type should be a valid XML schema containing only one type definition "
+                          "(only one simpleType or complexType).")
 
     return errors
 
