@@ -352,11 +352,11 @@ class Help(Document):
     content = StringField()
 
 
-class Bucket(Document):
+class Bucket(dme_Document):
     """Represents a bucket to store types by domain"""
-    label = StringField(required=True, unique=True)
-    color = StringField(required=True, unique=True)
-    types = ListField()
+    label = dme_fields.StringField(unique=True)
+    color = dme_fields.StringField(unique=True)
+    types = dme_fields.ListField(blank=True)
 
 
 class FormData(dme_Document):
