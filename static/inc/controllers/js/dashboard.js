@@ -12,6 +12,92 @@
  */
 
 /**
+* Allows to check or uncheck all checkboxs by their id.
+*/
+
+function countChecked() {
+      var numberChecked = $( "input:checked" ).length;
+      if (numberChecked == 0) {
+        $("#id_actions").fadeTo(200, 0)
+        document.getElementById("dropdownMenu1").disabled=true;
+      } else {
+        $("#id_actions").fadeTo(200, 1)
+        document.getElementById("dropdownMenu1").disabled=false;
+      }
+};
+
+function selectAll(source, id) {
+    var checked = source.checked;
+    var cb = document.getElementsByName(id);
+    for (var i=0; i<cb.length; i++) {
+        cb[i].checked=checked;
+    }
+}
+
+function resetAdminCheckBox() {
+    var cb = document.getElementsByName('admin');
+    for (var i=0; i<cb.length; i++) {
+        cb[i].checked=false;
+    }
+    $('#select_all_admin').prop('checked', false);
+    countChecked();
+}
+
+function resetOtherCheckBox() {
+    var cb = document.getElementsByName('other');
+    for (var i=0; i<cb.length; i++) {
+        cb[i].checked=false;
+    }
+    $('#select_all_other').prop('checked', false);
+    countChecked();
+}
+
+/**
+* Count the number of checked boxes to control visibility of action dropdown
+*/
+$(document).ready(function(){
+
+    countChecked();
+    $( "input[type=checkbox]" ).on( "change", countChecked );
+
+    $('#table-records-admin').DataTable({
+    "scrollY": "226px",
+    "iDisplayLength": 5,
+    "scrollCollapse": true,
+    "lengthMenu": [ 5, 10, 15, 20 ],
+    "columnDefs": [
+            {"className": "dt-center", "targets": 0}
+          ],
+    order: [[2, 'asc']],
+    "columns": [ { "orderable": false }, null, null, null, { "orderable": false } ],
+    "fnInfoCallback": function( oSettings, iStart, iEnd, iMax, iTotal, sPre ) {
+        resetAdminCheckBox();
+      }
+    });
+
+    $('#table-records-other').DataTable({
+    "scrollY": "226px",
+    "iDisplayLength": 5,
+    "scrollCollapse": true,
+    "lengthMenu": [ 5, 10, 15, 20 ],
+    "columnDefs": [
+            {"className": "dt-center", "targets": 0}
+          ],
+    order: [[2, 'asc']],
+    "columns": [ { "orderable": false }, null, null, null, { "orderable": false } ],
+    "fnInfoCallback": function( oSettings, iStart, iEnd, iMax, iTotal, sPre ) {
+        resetOtherCheckBox();
+      }
+    });
+
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+    $.fn.dataTable
+        .tables( { visible: true, api: true } )
+        .columns.adjust();
+    })
+});
+
+/**
  * Load controllers for template/type upload management
  */
 loadUploadManagerHandler = function()
@@ -246,6 +332,8 @@ initBanner = function()
  * @param result_id
  */
 deleteResult = function(result_id){
+    var selected = []
+    selected.push(result_id)
 	$(function() {
         $( "#dialog-delete-result" ).dialog({
             modal: true,
@@ -255,7 +343,7 @@ deleteResult = function(result_id){
                 },
             	Delete: function() {
                     $( this ).dialog( "close" );
-                    delete_result(result_id);
+                    delete_result(selected);
                 },
             }
         });
@@ -269,7 +357,7 @@ deleteResult = function(result_id){
 delete_result = function(result_id){
 	$.ajax({
         url : "/dashboard/delete_result",
-        type : "GET",
+        type : "POST",
         dataType: "json",
         data : {
         	result_id: result_id,
@@ -364,6 +452,8 @@ update_unpublish = function(result_id){
  * @param recordID
  */
 changeOwnerRecord = function(recordID){
+    var selected = []
+    selected.push(recordID)
     $("#banner_errors").hide();
     $(function() {
         $( "#dialog-change-owner-record" ).dialog({
@@ -375,7 +465,7 @@ changeOwnerRecord = function(recordID){
                 "Change": function() {
                     if (validateChangeOwner()){
                         var formData = new FormData($( "#form_start" )[0]);
-                        change_owner_record(recordID);
+                        change_owner_record(selected);
                     }
                 },
             }
@@ -427,4 +517,52 @@ change_owner_record = function(recordID){
             $("#banner_errors").show(500)
         }
     });
+}
+
+/**
+* JS script that allows to do the action on the user dashboard
+*/
+action_dashboard = function(selectValue) {
+
+    var selected = [];
+    $('#actionCheckbox input:checked').each(function() {
+        selected.push($(this).attr('id'));
+    });
+
+    // Delete
+    if (selectValue == 1) {
+        $(function() {
+            $( "#dialog-delete-result" ).dialog({
+                modal: true,
+                buttons: {
+                    Cancel: function() {
+                        $( this ).dialog( "close" );
+                    },
+                    Delete: function() {
+                        $( this ).dialog( "close" );
+                        delete_result(selected);
+                    },
+                }
+            });
+        });
+    // Change owner
+    } else if (selectValue == 2) {
+        $("#banner_errors").hide();
+        $(function() {
+            $( "#dialog-change-owner-record" ).dialog({
+                modal: true,
+                buttons: {
+                    Cancel: function() {
+                        $( this ).dialog( "close" );
+                    },
+                    "Change": function() {
+                        if (validateChangeOwner()) {
+                            var formData = new FormData($( "#form_start" )[0]);
+                            change_owner_record(selected);
+                        }
+                    },
+                }
+            });
+        });
+    }
 }

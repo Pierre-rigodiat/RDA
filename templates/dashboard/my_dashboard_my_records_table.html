@@ -1,66 +1,70 @@
 {% load dict_key_extras %}
 
-<table class="data-table">
-    <tr>
-        <th width="75em">Resource name</th>
-        <th width="30em">Published</th>
-        <th width="100em">Last Publication date</th>
+<table id="table-records-{{group}}" class="display data-table" style="margin-bottom: 0em; width:100%; border: None">
+    <thead>
         {% if user.is_staff %}
-            <th width="50em">User</th>
+            <th> {% if user.is_staff %} <input type="checkbox" id="select_all_{{group}}" onchange="selectAll(this, '{{group}}')"> {%endif%} </th>
         {% endif %}
-        <th width="200em">Actions</th>
-    </tr>
-    {% for XMLdata in XMLdatas %}
-    {% with key=XMLdata.iduser %}
-        {% cycle 'even' '' as rowcolors silent %}
-        <tr class="{{ rowcolors }}">
-            <td>
-                {% if XMLdata.content.Resource.identity.title %}
-                    {{ XMLdata.content.Resource.identity.title }}
-                {%else%}
-                    <script>
-                        document.write('{{ XMLdata.title }}'.replace(/\.[^/.]+$/, ""));
-                    </script>
-                {% endif %}
-            </td>
-            <td>{% if XMLdata.ispublished %}Yes {%else%} No {% endif %}
-            </td>
-            <td>
-                {% if XMLdata.publicationdate %}
-                    {{XMLdata.publicationdate}}
-                {%else%}
-                    Never published before
-                {% endif %}
-            </td>
-            {% if user.is_staff %}
-                <td>
-                    {{usernames|get:key}}
+        <th>Resource name</th>
+        <th>Publication date</th>
+        {% if user.is_staff %}
+            <th>User</th>
+        {% endif %}
+        <th>Actions</th>
+    </thead>
+    <tbody>
+        {% for XMLdata in XMLdatas %}
+            {% cycle 'even' '' as rowcolors silent %}
+            <tr class="{{ rowcolors }}">
+                {% if user.is_staff %}
+                <td id="actionCheckbox">
+                    {% with XMLdata|get:"_id" as XMLdata_id %}
+                    <input type="checkbox" id={{XMLdata_id}} name={{group}}>
+                    {% endwith%}
                 </td>
-            {% endif %}
-            <td>
-                {% with XMLdata|get:"_id" as XMLdata_id %}
-                {% autoescape on %}
-                <a href="/dashboard/detail?type=record&id={{XMLdata_id}}"><span class="icon legend result">
-                    View
-                </span></a>
-                {% endautoescape %}
-                <a href="/curate/enter-data?id={{XMLdata_id}}"><span class="icon legend edit">
-                    Edit
-                </span></a>
-                {% if not XMLdata.ispublished %}
-                <span class="icon legend publish" onclick="updatePublish('{{XMLdata_id}}')">
-                    Publish
-                </span>
                 {% endif %}
-                <span class="icon legend delete" onclick="deleteResult('{{XMLdata_id}}')">
-                    Delete
-                </span>
-                <span class="icon legend changeOwner" onclick="changeOwnerRecord('{{XMLdata_id}}')">
-                    Change Owner
-                </span>
-                {% endwith%}
-            </td>
-        </tr>
-    {% endwith %}
-    {% endfor %}
+                <td>
+                    {% if XMLdata.content.Resource.identity.title %}
+                        {{ XMLdata.content.Resource.identity.title }}
+                    {% else %}
+                        <script>
+                            document.write('{{ XMLdata.title }}'.replace(/\.[^/.]+$/, ""));
+                        </script>
+                    {% endif %}
+                </td>
+                <td>
+                        {{XMLdata.publicationdate}}
+                </td>
+                {% if user.is_staff %}
+                <td>
+                    {% with key=XMLdata.iduser %}
+                        {{usernames|get:key}}
+                    {% endwith %}
+                </td>
+                {% endif %}
+                <td>
+                    {% with XMLdata|get:"_id" as XMLdata_id %}
+                    <a style="text-decoration: none;" href="/dashboard/detail?type=record&id={{XMLdata_id}}">
+                        <span class="icon legend result">
+                            View
+                        </span>
+                    </a>
+                    <a style="text-decoration: none;" href="/curate/enter-data?id={{XMLdata_id}}">
+                        <span class="icon legend edit">
+                            Edit
+                        </span>
+                    </a>
+                    {% if not user.is_staff %}
+                        <span class="icon legend delete" onclick="deleteResult('{{XMLdata_id}}')">
+                            Delete
+                        </span>
+                        <span class="icon legend changeOwner" onclick="changeOwnerRecord('{{XMLdata_id}}')">
+                            Change Owner
+                        </span>
+                    {% endif %}
+                    {% endwith%}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
 </table>
