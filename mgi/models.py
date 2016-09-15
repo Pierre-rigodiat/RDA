@@ -744,6 +744,7 @@ class OaiSettings(Document):
     repositoryIdentifier = StringField(required=True)
     enableHarvesting = BooleanField()
 
+
 class OaiIdentify(Document):
     """
         An identity object
@@ -763,30 +764,33 @@ class OaiIdentify(Document):
     scheme = StringField(required=False)
     raw = DictField(required=False)
 
-class OaiSet(Document):
+
+class OaiSet(dme_Document):
     """
         A set object
     """
-    setSpec  = StringField(required=True, unique=True)
-    setName = StringField(required=True, unique=True)
-    raw = DictField(required=True)
-    registry = StringField(required=False)
-    harvest = BooleanField()
+    setSpec = dme_fields.StringField(blank=False, unique=True)
+    setName = dme_fields.StringField(blank=False, unique=True)
+    raw = dme_fields.DictField(blank=False)
+    registry = dme_fields.StringField()
+    harvest = dme_fields.BooleanField()
 
-class OaiMetadataFormat(Document):
+
+class OaiMetadataFormat(dme_Document):
     """
         A OaiMetadataFormat object
     """
-    metadataPrefix  = StringField(required=True)
-    schema = StringField(required=True)
-    xmlSchema = StringField(required=False)
-    metadataNamespace  = StringField(required=True)
-    raw = DictField(required=True)
-    template = ReferenceField(Template, reverse_delete_rule=PULL)
-    registry = StringField(required=False)
-    hash = StringField(required=False)
-    harvest = BooleanField()
-    lastUpdate = DateTimeField(required=False)
+    metadataPrefix = dme_fields.StringField(blank=False)
+    schema = dme_fields.StringField(blank=False)
+    xmlSchema = dme_fields.StringField()
+    metadataNamespace = dme_fields.StringField(blank=False)
+    raw = dme_fields.DictField(blank=False)
+    template = dme_fields.ReferenceField(Template, reverse_delete_rule=PULL)
+    registry = dme_fields.StringField()
+    hash = dme_fields.StringField()
+    harvest = dme_fields.BooleanField()
+    lastUpdate = dme_fields.DateTimeField()
+
 
 class OaiMyMetadataFormat(Document):
     """
@@ -800,6 +804,7 @@ class OaiMyMetadataFormat(Document):
     isTemplate = BooleanField()
     template = ReferenceField(Template, reverse_delete_rule=CASCADE)
 
+
 class OaiMySet(Document):
     """
         A set object
@@ -808,6 +813,7 @@ class OaiMySet(Document):
     setName = StringField(required=True, unique=True)
     templates = ListField(ReferenceField(Template, reverse_delete_rule=PULL), required=True)
     description = StringField(required=False)
+
 
 class OaiRecord(Document):
     """
