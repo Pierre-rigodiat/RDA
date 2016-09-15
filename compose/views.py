@@ -22,6 +22,7 @@ from cStringIO import StringIO
 from mgi.models import Template, TemplateVersion, XML2Download, Type, TypeVersion, Bucket
 from admin_mdcs.models import permission_required
 import mgi.rights as RIGHTS
+from mgi.common import getXSDTypes
 
 
 ################################################################################
@@ -48,7 +49,7 @@ def index(request):
             currentTemplates[tpl] = templateVersions.isDeleted
 
     context = RequestContext(request, {
-       'templates':currentTemplates,
+       'templates': currentTemplates,
        'userTemplates': Template.objects(user=str(request.user.id)),
     })
 
@@ -90,8 +91,13 @@ def compose_build_template(request):
             if hasBucket == False:
                 nobucketsTypes.append(Type.objects.get(pk=type_version.current))
 
+    default_xsd_types = []
+    for default_xsd_type in getXSDTypes(""):
+        default_xsd_types.append({'id': 'default_xsd_type', 'title': default_xsd_type})
+
     context = RequestContext(request, {
        'bucketsTypes': bucketsTypes,
+       'defaultTypes': default_xsd_types,
        'nobucketsTypes': nobucketsTypes,
        'userTypes': userTypes,
     })
