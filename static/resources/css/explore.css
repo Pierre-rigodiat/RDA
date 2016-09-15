@@ -136,3 +136,6 @@ input.cmn-toggle-round3:checked + label:before {
 input.cmn-toggle-round3:checked + label:after {
   margin-left: 17px;
 }
+.ui-autocomplete-loading {
+	background: white;
+}
