@@ -88,18 +88,18 @@ class ResultXslt(Document):
 
 class Template(dme_Document):
     """Represents an XML schema template that defines the structure of data for curation"""
-    title = dme_fields.StringField(blank=False)
-    filename = dme_fields.StringField(blank=False)
-    content = dme_fields.StringField(blank=False)
-    templateVersion = dme_fields.StringField()
-    version = dme_fields.IntField()
-    hash = dme_fields.StringField(blank=False)
-    user = dme_fields.StringField()
-    dependencies = dme_fields.ListField(StringField())
-    exporters = dme_fields.ListField(ReferenceField(Exporter, reverse_delete_rule=PULL))
-    XSLTFiles = dme_fields.ListField(ReferenceField(ExporterXslt, reverse_delete_rule=PULL))
-    ResultXsltList = dme_fields.ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY)
-    ResultXsltDetailed = dme_fields.ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY)
+    title = dme_fields.StringField()
+    filename = dme_fields.StringField()
+    content = dme_fields.StringField()
+    templateVersion = dme_fields.StringField(blank=True)
+    version = dme_fields.IntField(blank=True)
+    hash = dme_fields.StringField()
+    user = dme_fields.StringField(blank=True)
+    dependencies = dme_fields.ListField(StringField(), blank=True)
+    exporters = dme_fields.ListField(ReferenceField(Exporter, reverse_delete_rule=PULL), blank=True)
+    XSLTFiles = dme_fields.ListField(ReferenceField(ExporterXslt, reverse_delete_rule=PULL), blank=True)
+    ResultXsltList = dme_fields.ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY, blank=True)
+    ResultXsltDetailed = dme_fields.ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY, blank=True)
 
 
 def delete_template(object_id):
@@ -769,27 +769,27 @@ class OaiSet(dme_Document):
     """
         A set object
     """
-    setSpec = dme_fields.StringField(blank=False, unique=True)
-    setName = dme_fields.StringField(blank=False, unique=True)
-    raw = dme_fields.DictField(blank=False)
-    registry = dme_fields.StringField()
-    harvest = dme_fields.BooleanField()
+    setSpec = dme_fields.StringField(unique=True)
+    setName = dme_fields.StringField(unique=True)
+    raw = dme_fields.DictField()
+    registry = dme_fields.StringField(blank=True)
+    harvest = dme_fields.BooleanField(blank=True)
 
 
 class OaiMetadataFormat(dme_Document):
     """
         A OaiMetadataFormat object
     """
-    metadataPrefix = dme_fields.StringField(blank=False)
-    schema = dme_fields.StringField(blank=False)
-    xmlSchema = dme_fields.StringField()
-    metadataNamespace = dme_fields.StringField(blank=False)
-    raw = dme_fields.DictField(blank=False)
-    template = dme_fields.ReferenceField(Template, reverse_delete_rule=PULL)
-    registry = dme_fields.StringField()
-    hash = dme_fields.StringField()
-    harvest = dme_fields.BooleanField()
-    lastUpdate = dme_fields.DateTimeField()
+    metadataPrefix = dme_fields.StringField()
+    schema = dme_fields.StringField()
+    xmlSchema = dme_fields.StringField(blank=True)
+    metadataNamespace = dme_fields.StringField()
+    raw = dme_fields.DictField()
+    template = dme_fields.ReferenceField(Template, reverse_delete_rule=PULL, blank=True)
+    registry = dme_fields.StringField(blank=True)
+    hash = dme_fields.StringField(blank=True)
+    harvest = dme_fields.BooleanField(blank=True)
+    lastUpdate = dme_fields.DateTimeField(blank=True)
 
 
 class OaiMyMetadataFormat(Document):
@@ -1012,9 +1012,9 @@ class OaiRegistry(Document):
 
 class OaiXslt(dme_Document):
     """Represents an xslt file for Oai-Pmh"""
-    name = dme_fields.StringField(blank=False, unique=True)
-    filename = dme_fields.StringField(blank=False)
-    content = dme_fields.StringField(blank=False)
+    name = dme_fields.StringField(unique=True)
+    filename = dme_fields.StringField()
+    content = dme_fields.StringField()
 
 
 class OaiTemplMfXslt(Document):
