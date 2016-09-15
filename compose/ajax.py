@@ -432,7 +432,11 @@ def save_template(request):
         except:
             pass
 
-    create_template(content, template_name, template_name, dependencies, user=str(request.user.id))
+    try:
+        create_template(content, template_name, template_name, dependencies, user=str(request.user.id))
+    except Exception, e:
+        response_dict['errors'] = e.message.replace("'", "")
+        return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
@@ -490,7 +494,11 @@ def save_type(request):
         except:
             pass
 
-    create_type(content, type_name, type_name, [], dependencies, user=str(request.user.id))
+    try:
+        create_type(content, type_name, type_name, [], dependencies, user=str(request.user.id))
+    except Exception, e:
+        response_dict['errors'] = e.message.replace("'", "")
+        return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
     return HttpResponse(json.dumps(response_dict), content_type='application/javascript')
 
