@@ -86,20 +86,20 @@ class ResultXslt(Document):
     content = StringField(required=True)
 
 
-class Template(Document):
+class Template(dme_Document):
     """Represents an XML schema template that defines the structure of data for curation"""
-    title = StringField(required=True)
-    filename = StringField(required=True)
-    content = StringField(required=True)
-    templateVersion = StringField(required=False)
-    version = IntField(required=False)
-    hash = StringField(required=True)
-    user = StringField(required=False)
-    dependencies = ListField(StringField())
-    exporters = ListField(ReferenceField(Exporter, reverse_delete_rule=PULL))
-    XSLTFiles = ListField(ReferenceField(ExporterXslt, reverse_delete_rule=PULL))
-    ResultXsltList = ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY)
-    ResultXsltDetailed = ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY)
+    title = dme_fields.StringField(blank=False)
+    filename = dme_fields.StringField(blank=False)
+    content = dme_fields.StringField(blank=False)
+    templateVersion = dme_fields.StringField()
+    version = dme_fields.IntField()
+    hash = dme_fields.StringField(blank=False)
+    user = dme_fields.StringField()
+    dependencies = dme_fields.ListField(StringField())
+    exporters = dme_fields.ListField(ReferenceField(Exporter, reverse_delete_rule=PULL))
+    XSLTFiles = dme_fields.ListField(ReferenceField(ExporterXslt, reverse_delete_rule=PULL))
+    ResultXsltList = dme_fields.ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY)
+    ResultXsltDetailed = dme_fields.ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY)
 
 
 def delete_template(object_id):
@@ -986,6 +986,7 @@ class OaiRecord(Document):
             results.append(result)
         return results
 
+
 class OaiRegistry(Document):
     """
         A registry object
@@ -1002,11 +1003,13 @@ class OaiRegistry(Document):
     isDeactivated = BooleanField(required=True)
     isQueued = BooleanField()
 
-class OaiXslt(Document):
+
+class OaiXslt(dme_Document):
     """Represents an xslt file for Oai-Pmh"""
-    name = StringField(required=True, unique=True)
-    filename = StringField(required=True)
-    content = StringField(required=True)
+    name = dme_fields.StringField(blank=False, unique=True)
+    filename = dme_fields.StringField(blank=False)
+    content = dme_fields.StringField(blank=False)
+
 
 class OaiTemplMfXslt(Document):
     """Represents an xslt file for Oai-Pmh"""
@@ -1014,6 +1017,7 @@ class OaiTemplMfXslt(Document):
     myMetadataFormat = ReferenceField(OaiMyMetadataFormat, reverse_delete_rule=CASCADE)
     xslt = ReferenceField(OaiXslt, reverse_delete_rule=CASCADE, unique_with=['template', 'myMetadataFormat'])
     activated = BooleanField()
+
 
 class OaiMetadataformatSet(Document):
     """
