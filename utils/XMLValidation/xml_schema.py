@@ -24,6 +24,8 @@ settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
 XERCES_VALIDATION = settings.XERCES_VALIDATION
 
+if XERCES_VALIDATION:
+    from xerces_client import send_message
 
 def validate_xml_schema(xsd_tree):
     """
@@ -38,8 +40,7 @@ def validate_xml_schema(xsd_tree):
             xsd_string = etree.tostring(xsd_tree)
             message = {'xsd_string': xsd_string}
             message = json.dumps(message)
-            import xerces_client
-            error = xerces_client.send_message(message)
+            send_message(message)
         except Exception, e:
             print e.message
             error = _lxml_validate_xsd(xsd_tree)
@@ -64,8 +65,7 @@ def validate_xml_data(xsd_tree, xml_tree):
             xsd_string = etree.tostring(xsd_tree)
             message = {'xsd_string': xsd_string, 'xml_string': pretty_XML_string}
             message = json.dumps(message)
-            import xerces_client
-            error = xerces_client.send_message(message)
+            send_message(message)
         except Exception, e:
             print e.message
             error = _lxml_validate_xml(xsd_tree, etree.parse(StringIO(pretty_XML_string)))
