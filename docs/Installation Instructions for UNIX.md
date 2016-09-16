@@ -50,6 +50,12 @@ If you are using a virtual environment, make sure it is activated before startin
 ```
 $ pip install -r docs\requirements.txt
 ```
+Install django-mongoengine from GitHub (https://github.com/MongoEngine/django-mongoengine ):
+```
+git clone https://github.com/MongoEngine/django-mongoengine.git
+cd django-mongoengine
+python setup.py install
+```
 
 #### For lxml
 If you get the error “clang error: linker command failed”, then run the following command instead (See http://lxml.de/installation.html):

@@ -52,6 +52,12 @@ If you are using a virtual environment, make sure it is activated before startin
 ```
 $ pip install -r docs\requirements.txt
 ```
+Install django-mongoengine from GitHub (https://github.com/MongoEngine/django-mongoengine ):
+```
+git clone https://github.com/MongoEngine/django-mongoengine.git
+cd django-mongoengine
+python setup.py install
+```
 
 ## Run the software for the first time
 1. Run mongodb (if not already running):
