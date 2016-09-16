@@ -16,6 +16,7 @@
 import numbers
 from lxml import etree
 from mongoengine import *
+from django_mongoengine import fields as dme_fields, Document as dme_Document
 
 # Specific to MongoDB ordered inserts
 from collections import OrderedDict
@@ -63,14 +64,14 @@ class Message(Document):
     content = StringField()
 
 
-class Exporter(Document, EmbeddedDocument):
+class Exporter(Document):
     """Represents an exporter"""
     name = StringField(required=True, unique=True)
     url = StringField(required=True)
     available_for_all = BooleanField(required=True)
 
 
-class ExporterXslt(Document, EmbeddedDocument):
+class ExporterXslt(Document):
     """Represents an xslt file for exporter"""
     name = StringField(required=True, unique=True)
     filename = StringField(required=True)
@@ -78,27 +79,27 @@ class ExporterXslt(Document, EmbeddedDocument):
     available_for_all = BooleanField(required=True)
 
 
-class ResultXslt(Document, EmbeddedDocument):
+class ResultXslt(Document):
     """Represents an xslt file for result representation"""
     name = StringField(required=True, unique=True)
     filename = StringField(required=True)
     content = StringField(required=True)
 
 
-class Template(Document):
+class Template(dme_Document):
     """Represents an XML schema template that defines the structure of data for curation"""
-    title = StringField(required=True)
-    filename = StringField(required=True)
-    content = StringField(required=True)
-    templateVersion = StringField(required=False)
-    version = IntField(required=False)
-    hash = StringField(required=True)
-    user = StringField(required=False)
-    dependencies = ListField(StringField())
-    exporters = ListField(ReferenceField(Exporter, reverse_delete_rule=PULL))
-    XSLTFiles = ListField(ReferenceField(ExporterXslt, reverse_delete_rule=PULL))
-    ResultXsltList = ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY)
-    ResultXsltDetailed = ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY)
+    title = dme_fields.StringField()
+    filename = dme_fields.StringField()
+    content = dme_fields.StringField()
+    templateVersion = dme_fields.StringField(blank=True)
+    version = dme_fields.IntField(blank=True)
+    hash = dme_fields.StringField()
+    user = dme_fields.StringField(blank=True)
+    dependencies = dme_fields.ListField(StringField(), blank=True)
+    exporters = dme_fields.ListField(ReferenceField(Exporter, reverse_delete_rule=PULL), blank=True)
+    XSLTFiles = dme_fields.ListField(ReferenceField(ExporterXslt, reverse_delete_rule=PULL), blank=True)
+    ResultXsltList = dme_fields.ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY, blank=True)
+    ResultXsltDetailed = dme_fields.ReferenceField(ResultXslt, reverse_delete_rule=NULLIFY, blank=True)
 
 
 def delete_template(object_id):
@@ -351,22 +352,21 @@ class Help(Document):
     content = StringField()
 
 
-class Bucket(Document):
+class Bucket(dme_Document):
     """Represents a bucket to store types by domain"""
-    label = StringField(required=True, unique=True)
-    color = StringField(required=True, unique=True)
-    types = ListField()
+    label = dme_fields.StringField(unique=True)
+    color = dme_fields.StringField(unique=True)
+    types = dme_fields.ListField(blank=True)
 
 
-class FormData(Document):
+class FormData(dme_Document):
     """Stores data being entered and not yet curated"""
-    user = StringField(required=True)
-    template = StringField(required=True)
-    name = StringField(required=True, unique_with=['user', 'template'])
-    # elements = DictField()
-    schema_element_root = ReferenceField(SchemaElement, required=False)
-    xml_data = StringField(default='')
-    xml_data_id = StringField()
+    user = dme_fields.StringField()
+    template = dme_fields.StringField()
+    name = dme_fields.StringField(unique_with=['user', 'template'])
+    schema_element_root = dme_fields.ReferenceField(SchemaElement, blank=True)
+    xml_data = dme_fields.StringField(default='')
+    xml_data_id = dme_fields.StringField(blank=True)
 
 
 def postprocessor(path, key, value):
@@ -466,13 +466,13 @@ class XMLdata(object):
              /!\ Doesn't return the same kind of objects as mongoengine.Document.objects()
         """
         # create a connection
-        client = MongoClient(MONGODB_URI)
+        client = MongoClient(MONGODB_URI, document_class=OrderedDict)
         # connect to the db 'mgi'
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         # find all objects of the collection
-        cursor = xmldata.find(as_class = OrderedDict)
+        cursor = xmldata.find()
         # build a list with the objects        
         results = []
         for result in cursor:
@@ -490,13 +490,13 @@ class XMLdata(object):
              /!\ Doesn't return the same kind of objects as mongoengine.Document.objects()
         """
         # create a connection
-        client = MongoClient(MONGODB_URI)
+        client = MongoClient(MONGODB_URI, document_class=OrderedDict)
         # connect to the db 'mgi'
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         # find all objects of the collection
-        cursor = xmldata.find(params, as_class = OrderedDict)
+        cursor = xmldata.find(params)
         # build a list with the objects        
         results = []
         for result in cursor:
@@ -511,13 +511,13 @@ class XMLdata(object):
     def executeQuery(query, includeDeleted=False):
         """queries mongo db and returns results data"""
         # create a connection
-        client = MongoClient(MONGODB_URI)
+        client = MongoClient(MONGODB_URI, document_class=OrderedDict)
         # connect to the db 'mgi'
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         # query mongo db
-        cursor = xmldata.find(query,as_class = OrderedDict)  
+        cursor = xmldata.find(query)
         # build a list with the xml representation of objects that match the query      
         queryResults = []
         for result in cursor:
@@ -532,13 +532,13 @@ class XMLdata(object):
     def executeQueryFullResult(query, includeDeleted=False):
         """queries mongo db and returns results data"""
         # create a connection
-        client = MongoClient(MONGODB_URI)
+        client = MongoClient(MONGODB_URI, document_class=OrderedDict)
         # connect to the db 'mgi'
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         # query mongo db
-        cursor = xmldata.find(query,as_class = OrderedDict)
+        cursor = xmldata.find(query)
         # build a list with the xml representation of objects that match the query
         results = []
         for result in cursor:
@@ -556,12 +556,12 @@ class XMLdata(object):
             Returns the object with the given id
         """
         # create a connection
-        client = MongoClient(MONGODB_URI)
+        client = MongoClient(MONGODB_URI, document_class=OrderedDict)
         # connect to the db 'mgi'
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
-        return xmldata.find_one({'_id': ObjectId(postID)}, as_class = OrderedDict)
+        return xmldata.find_one({'_id': ObjectId(postID)})
 
     @staticmethod
     def getByIDsAndDistinctBy(listIDs, distinctBy=None):
@@ -569,13 +569,13 @@ class XMLdata(object):
             Returns the object with the given id
         """
         # create a connection
-        client = MongoClient(MONGODB_URI)
+        client = MongoClient(MONGODB_URI, document_class=OrderedDict)
         # connect to the db 'mgi'
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
         listIDs = [ObjectId(x) for x in listIDs]
-        return xmldata.find({'_id': { '$in': listIDs }}, as_class = OrderedDict).distinct(distinctBy)
+        return xmldata.find({'_id': {'$in': listIDs}}).distinct(distinctBy)
 
     @staticmethod
     def getMinValue(attr):
@@ -588,13 +588,13 @@ class XMLdata(object):
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
-        cursor  = xmldata.aggregate(
+        cursor = xmldata.aggregate(
            [
              {
                '$group':
                {
                  '_id': {},
-                 'minAttr': { '$min': '$'+attr}
+                 'minAttr': {'$min': '$'+attr}
                }
              }
            ]
@@ -642,7 +642,7 @@ class XMLdata(object):
             data = xmltodict.parse(xml, postprocessor=postprocessor)
 
         if data is not None:
-            xmldata.update({'_id': ObjectId(postID)}, {"$set":data}, upsert=False)
+            xmldata.update({'_id': ObjectId(postID)}, {"$set": data}, upsert=False)
 
     @staticmethod
     def update_content(postID, content=None, title=None):
@@ -659,7 +659,7 @@ class XMLdata(object):
         json_content = xmltodict.parse(content, postprocessor=postprocessor)
         json = {'content': json_content, 'title': title, 'lastmodificationdate': datetime.datetime.now()}
                     
-        xmldata.update({'_id': ObjectId(postID)}, {"$set":json}, upsert=False)
+        xmldata.update({'_id': ObjectId(postID)}, {"$set": json}, upsert=False)
 
     @staticmethod
     def update_publish(postID):
@@ -673,9 +673,9 @@ class XMLdata(object):
         # get the xmldata collection
         xmldata = db['xmldata']
         now = datetime.datetime.now()
-        xmldata.update({'_id': ObjectId(postID)}, {'$set':{'publicationdate': now,
-                                                           'ispublished': True,
-                                                           'oai_datestamp': now}}, upsert=False)
+        xmldata.update({'_id': ObjectId(postID)}, {'$set': {'publicationdate': now,
+                                                            'ispublished': True,
+                                                            'oai_datestamp': now}}, upsert=False)
 
     @staticmethod
     def update_unpublish(postID):
@@ -688,7 +688,7 @@ class XMLdata(object):
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
-        xmldata.update({'_id': ObjectId(postID)}, {'$set':{'ispublished': False}}, upsert=False)
+        xmldata.update({'_id': ObjectId(postID)}, {'$set': {'ispublished': False}}, upsert=False)
 
     @staticmethod
     def update_user(postID, user=None):
@@ -701,7 +701,7 @@ class XMLdata(object):
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
-        xmldata.update({'_id': ObjectId(postID)}, {'$set':{'iduser': user}}, upsert=False)
+        xmldata.update({'_id': ObjectId(postID)}, {'$set': {'iduser': user}}, upsert=False)
 
     @staticmethod
     def executeFullTextQuery(text, templatesID, refinements={}, includeDeleted=False):
@@ -709,7 +709,7 @@ class XMLdata(object):
         Execute a full text query with possible refinements
         """
         #create a connection
-        client = MongoClient(MONGODB_URI)
+        client = MongoClient(MONGODB_URI, document_class=OrderedDict)
         # connect to the db 'mgi'
         db = client[MGI_DB]
         # get the xmldata collection
@@ -727,7 +727,7 @@ class XMLdata(object):
             full_text_query.update(refinements)
         full_text_query.update({'ispublished': True})
 
-        cursor = xmldata.find(full_text_query, as_class = OrderedDict).sort('publicationdate', DESCENDING)
+        cursor = xmldata.find(full_text_query).sort('publicationdate', DESCENDING)
         
         results = []
         for result in cursor:
@@ -743,6 +743,7 @@ class OaiSettings(Document):
     repositoryName = StringField(required=True)
     repositoryIdentifier = StringField(required=True)
     enableHarvesting = BooleanField()
+
 
 class OaiIdentify(Document):
     """
@@ -763,30 +764,33 @@ class OaiIdentify(Document):
     scheme = StringField(required=False)
     raw = DictField(required=False)
 
-class OaiSet(Document):
+
+class OaiSet(dme_Document):
     """
         A set object
     """
-    setSpec  = StringField(required=True, unique=True)
-    setName = StringField(required=True, unique=True)
-    raw = DictField(required=True)
-    registry = StringField(required=False)
-    harvest = BooleanField()
+    setSpec = dme_fields.StringField(unique=True)
+    setName = dme_fields.StringField(unique=True)
+    raw = dme_fields.DictField()
+    registry = dme_fields.StringField(blank=True)
+    harvest = dme_fields.BooleanField(blank=True)
 
-class OaiMetadataFormat(Document):
+
+class OaiMetadataFormat(dme_Document):
     """
         A OaiMetadataFormat object
     """
-    metadataPrefix  = StringField(required=True)
-    schema = StringField(required=True)
-    xmlSchema = StringField(required=False)
-    metadataNamespace  = StringField(required=True)
-    raw = DictField(required=True)
-    template = ReferenceField(Template, reverse_delete_rule=PULL)
-    registry = StringField(required=False)
-    hash = StringField(required=False)
-    harvest = BooleanField()
-    lastUpdate = DateTimeField(required=False)
+    metadataPrefix = dme_fields.StringField()
+    schema = dme_fields.StringField()
+    xmlSchema = dme_fields.StringField(blank=True)
+    metadataNamespace = dme_fields.StringField()
+    raw = dme_fields.DictField()
+    template = dme_fields.ReferenceField(Template, reverse_delete_rule=PULL, blank=True)
+    registry = dme_fields.StringField(blank=True)
+    hash = dme_fields.StringField(blank=True)
+    harvest = dme_fields.BooleanField(blank=True)
+    lastUpdate = dme_fields.DateTimeField(blank=True)
+
 
 class OaiMyMetadataFormat(Document):
     """
@@ -800,6 +804,7 @@ class OaiMyMetadataFormat(Document):
     isTemplate = BooleanField()
     template = ReferenceField(Template, reverse_delete_rule=CASCADE)
 
+
 class OaiMySet(Document):
     """
         A set object
@@ -808,6 +813,7 @@ class OaiMySet(Document):
     setName = StringField(required=True, unique=True)
     templates = ListField(ReferenceField(Template, reverse_delete_rule=PULL), required=True)
     description = StringField(required=False)
+
 
 class OaiRecord(Document):
     """
@@ -961,7 +967,7 @@ class OaiRecord(Document):
         Execute a full text query with possible refinements
         """
         #create a connection
-        client = MongoClient(MONGODB_URI)
+        client = MongoClient(MONGODB_URI, document_class=OrderedDict)
         # connect to the db 'mgi'
         db = client[MGI_DB]
         # get the xmldata collection
@@ -979,12 +985,13 @@ class OaiRecord(Document):
         # only no deleted records
         full_text_query.update({'deleted':  False})
 
-        cursor = xmlrecord.find(full_text_query, as_class = OrderedDict)
+        cursor = xmlrecord.find(full_text_query)
 
         results = []
         for result in cursor:
             results.append(result)
         return results
+
 
 class OaiRegistry(Document):
     """
@@ -1002,11 +1009,13 @@ class OaiRegistry(Document):
     isDeactivated = BooleanField(required=True)
     isQueued = BooleanField()
 
-class OaiXslt(Document):
+
+class OaiXslt(dme_Document):
     """Represents an xslt file for Oai-Pmh"""
-    name = StringField(required=True, unique=True)
-    filename = StringField(required=True)
-    content = StringField(required=True)
+    name = dme_fields.StringField(unique=True)
+    filename = dme_fields.StringField()
+    content = dme_fields.StringField()
+
 
 class OaiTemplMfXslt(Document):
     """Represents an xslt file for Oai-Pmh"""
@@ -1014,6 +1023,7 @@ class OaiTemplMfXslt(Document):
     myMetadataFormat = ReferenceField(OaiMyMetadataFormat, reverse_delete_rule=CASCADE)
     xslt = ReferenceField(OaiXslt, reverse_delete_rule=CASCADE, unique_with=['template', 'myMetadataFormat'])
     activated = BooleanField()
+
 
 class OaiMetadataformatSet(Document):
     """

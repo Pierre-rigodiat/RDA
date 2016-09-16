@@ -19,10 +19,7 @@ Here are the instructions to follow to update the MDCS from version 1.3 to versi
 git pull 
 ```
 **Option 2:** Manual installation: Download the new version of the MDCS, copy the data\db directory and db.sqlite3 file from MDCS 1.3 in the MDCS 1.4 release candidate folder
-4. Update the python packages
-```
-pip install -r docs/requirements.txt
-```
+4. Follow installation instructions to update your version of python with the new set of required packages.
 5. Restart the servers
 ```
 mongod --config path/to/mongodb.conf
@@ -38,6 +35,7 @@ python mgi/migrate.py -u <mongo_admin_user> -p <-mongo_admin_password>
 ```
 
 Please replace <mongo_admin_user> and <mongo_admin_password> with your MongoDB admin user and MongoDB admin password.
+
 For more information about the migration script options, please use:
 ```
 python mgi/migrate.py -h
