@@ -3,12 +3,12 @@
 This document provides a list of all python packages that are required to make the MDCS run well. 
 To install a specific version of a package, the following command can be used: 
 
-pip install <package_name>==<package_version>
+pip install package_name==package_version
 
 
 ```bash
-pip install Django==1.7 #(https://docs.djangoproject.com/en/1.7/)
-pip install mongoengine==0.8.7 #(http://mongoengine.org/)
+pip install Django==1.8.14 #(https://docs.djangoproject.com/en/1.8/)
+pip install mongoengine==0.10.6 #(http://mongoengine.org/)
 pip install djangorestframework==2.3.13 #(http://www.django-rest-framework.org/)
 pip install django-oauth-toolkit==0.8.0 #(https://django-oauth-toolkit.readthedocs.org/en/latest/)
 pip install django-rest-framework-mongoengine==1.3 #(https://pypi.python.org/pypi/django-rest-framework-mongoengine)
@@ -25,9 +25,11 @@ pip install django-password-policies==0.4.1 #(https://pypi.python.org/pypi/djang
 pip install psutil==4.3.0 #(https://github.com/giampaolo/psutil)
 ```
 
-pymongo needs to be downgraded to 2.8 to be supported by mongoengine
+django-mongoengine needs to be downloaded manually
 ```bash
-pip install pymongo==2.8 #(https://api.mongodb.org/python/current/)
+git clone https://github.com/MongoEngine/django-mongoengine.git
+cd django-mongoengine
+python setup.py install
 ```
 
 postgreSQL can be used in production instead of SQLite. SQLite is used by default

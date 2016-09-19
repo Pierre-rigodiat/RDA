@@ -9,35 +9,43 @@ If something goes wrong you will be able to restore your data by extracting the 
 Please follow the instructions below to first update your code to the latest development version and then check that everything is working properly after migrating the data. 
 
 Here are the instructions to follow to update the MDCS from version 1.3 to version 1.4 release candidate:
-1. **STOP THE SERVERS** (MongoDB, Django)
-2. **BACKUP THE DATA** Make a copy of data/db and db.sqlite3 and place them in a different location
 
-3. Update the code with 1.4 release candidate
+- **STOP THE SERVERS** (MongoDB, Django)
+
+- **BACKUP THE DATA** Make a copy of data/db and db.sqlite3 and place them in a different location
+
+- Update the code with 1.4 release candidate
 
 **Option 1:** Pull the latest code from git:
 ```
 git pull 
 ```
 **Option 2:** Manual installation: Download the new version of the MDCS, copy the data\db directory and db.sqlite3 file from MDCS 1.3 in the MDCS 1.4 release candidate folder
-4. Update the python packages
-```
-pip install -r docs/requirements.txt
-```
-5. Restart the servers
+
+- Follow installation instructions to update your version of python with the new set of required packages.
+
+- Restart the servers
+
 ```
 mongod --config path/to/mongodb.conf
 python manage.py runserver
 ```
-6. Migrate SQLite3 database
+
+- Migrate SQLite3 database
+
 ```
 python manage.py migrate
 ```
-7. Migrate MongoDB database
+
+- Migrate MongoDB database
+
+
 ```
 python mgi/migrate.py -u <mongo_admin_user> -p <-mongo_admin_password>
 ```
 
 Please replace <mongo_admin_user> and <mongo_admin_password> with your MongoDB admin user and MongoDB admin password.
+
 For more information about the migration script options, please use:
 ```
 python mgi/migrate.py -h
