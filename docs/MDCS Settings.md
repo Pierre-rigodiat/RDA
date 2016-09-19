@@ -1,13 +1,13 @@
 # MDCS Settings
 
-This document provides a list of settings specific to the MDCS. Additional information regarding settings can be found on the Django documentation and on the documentation of individual python package.
+This document provides a list of settings specific to the MDCS. Additional information regarding settings can be found on the Django documentation and on the documentation of individual python packages.
 
 ## General Settings
 
 **MDCS_URI:** *http://127.0.0.1:8000*
 URI of the server.
 
-**USE_EMAIL:** *False*
+**USE_EMAIL:** *True|False*
 If True, emails will be triggered:
 - By the request account feature (request, accept, deny).
 - Enabling of the 'Reset Password' feature. The user will receive directions to reset their password in an email.
@@ -44,7 +44,7 @@ Set the password to connect to the BLOB Hoster.
 
 ## Background Task
 
-**USE_BACKGROUND_TASK:** *False*
+**USE_BACKGROUND_TASK:** *True|False*
 If True:
 - Use of Celery to send emails in background rather than synchronously.
 - Enabling of the background harvesting for OAI-PMH.
@@ -110,16 +110,16 @@ the version of the OAI-PMH supported by the repository.
 OAI-PMH scheme.
 
 **OAI_REPO_IDENTIFIER:**
-OAI-PMH repository identifier
+OAI-PMH repository identifier.
 
 **OAI_SAMPLE_IDENTIFIER:**
-Example of identifier for this repository
+Example of identifier for this repository.
 
-**OAI_DELETED_RECORD:** *persistent*
+**OAI_DELETED_RECORD:** *no|persistent|transient*
 Levels of support for deleted records:
-- no. The repository does not maintain information about deletions.
-- persistent. The repository maintains information about deletions with no time limit.
-- transient. The repository does not guarantee that a list of deletions is maintained persistently or consistently.
+- *no*: The repository does not maintain information about deletions.
+- *persistent*: The repository maintains information about deletions with no time limit.
+- *transient*: The repository does not guarantee that a list of deletions is maintained persistently or consistently.
 
 
 ## XSD PARSER
