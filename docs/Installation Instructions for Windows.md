@@ -3,8 +3,8 @@
 ## Prerequisites
 
 ### Python
-1. Download python 2.7 for windows 32bits from https://www.python.org/download/
-2. Add to PATH:
+- Download python 2.7 for windows 32bits from https://www.python.org/download/
+- Add to PATH:
 
 C:\Python27\
 C:\Python27\Scripts
@@ -16,30 +16,30 @@ $ python get-pip.py
 ```
 
 ### (Optional) Virtual Environment
-1. In a command prompt:
+- In a command prompt:
 ```
 $ pip install virtualenvwrapper-win
 ```
-2. Add environment variable
+- Add environment variable
 WORKON_HOME=%USERPROFILE%\Develop\Envs
-3. In a command prompt:
+- In a command prompt:
 ```
 $ mkdir %WORKON_HOME%
 $ cd %WORKON_HOME%
 $ mkvirtualenv mgi
 ```
-4. To use the environment (the prompt will become mgi. You should always see the mgi prompt when installing new packages):
+- To use the environment (the prompt will become mgi. You should always see the mgi prompt when installing new packages):
 ```
 $ workon mgi
 ```
 
 ### MongoDB
-1. Download from https://www.mongodb.com/download-center#community
-2. Follow the instructions provided by MongoDB to install it
+- Download from https://www.mongodb.com/download-center#community
+- Follow the instructions provided by MongoDB to install it
 
 ### Redis Server
-1. Download from https://github.com/MSOpenTech/redis/releases
-2. Run the msi
+- Download from https://github.com/MSOpenTech/redis/releases
+- Run the msi
 
 
 ## Setup
@@ -60,11 +60,11 @@ python setup.py install
 ```
 
 ## Run the software for the first time
-1. Run mongodb (if not already running):
+- Run mongodb (if not already running):
 ```
 $ mongod --config /path/to/source/conf/mongodb.conf
 ```
-2. Setup the database:
+- Setup the database:
 ```bash
 $ python manage.py migrate
 $ python manage.py createsuperuser
@@ -74,21 +74,21 @@ $ python manage.py createsuperuser
 ```
 
 ## Run the software
-1. Make sure Redis Server is running.
-2. Run mongodb (if not already running):
+- Make sure Redis Server is running.
+- Run mongodb (if not already running):
 ```
 $ mongod --config /path/to/source/conf/mongodb.conf
 ```
-3. Run celery:
+- Run celery:
 ```
 $ celery -A mgi worker -l info -Ofair --purge
 ```
-4. Run the software:
+- Run the software:
 ```
 $ cd path/to/source
 $ python manage.py runserver --noreload
 ```
-5. (Optional) Allow remote access:
+- (Optional) Allow remote access:
 ```
 $ python manage.py runserver 0.0.0.0:<port> --noreload
 ```

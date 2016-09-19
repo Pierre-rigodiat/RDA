@@ -21,8 +21,8 @@ $ pyenv activate curator
 Find more details at [pyenv](https://github.com/yyuu/pyenv)
 
 ### MongoDB
-1. Download from https://www.mongodb.com/download-center#community
-2. Follow the instructions provided by MongoDB to install it
+- Download from https://www.mongodb.com/download-center#community
+- Follow the instructions provided by MongoDB to install it
 
 ### Redis Server
 ```
@@ -50,14 +50,16 @@ python setup.py install
 
 #### For lxml
 If you get the error “clang error: linker command failed”, then run the following command instead (See http://lxml.de/installation.html):
+```
 STATIC_DEPS=true pip install lxml==<version>
+```
 
 ## Run the software for the first time
-1. Run mongodb (if not already running):
+- Run mongodb (if not already running):
 ```
 $ mongod --config /path/to/source/conf/mongodb.conf
 ```
-2. Setup the database:
+- Setup the database:
 ```bash
 $ python manage.py migrate
 $ python manage.py createsuperuser
@@ -67,21 +69,21 @@ $ python manage.py createsuperuser
 ```
 
 ## Run the software
-1. Make sure Redis Server is running.
-2. Run mongodb (if not already running):
+- Make sure Redis Server is running.
+- Run mongodb (if not already running):
 ```
 $ mongod --config /path/to/source/conf/mongodb.conf
 ```
-3. Run celery:
+- Run celery:
 ```
 $ celery -A mgi worker -l info -Ofair --purge
 ```
-4. Run the software:
+- Run the software:
 ```
 $ cd path/to/source
 $ python manage.py runserver --noreload
 ```
-5. (Optional) Allow remote access:
+- (Optional) Allow remote access:
 ```
 $ python manage.py runserver 0.0.0.0:<port> --noreload
 ```

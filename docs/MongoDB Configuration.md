@@ -15,10 +15,10 @@ mongod --config path/to/mdcs/conf/mongodb.conf
 ```
 
 In another command prompt, type the following commands, replacing the parameters below, by some of your choice:
-- **<mongo_admin_user>:** choose a username for the administrator of mongodb
-- **<mongo_admin_password>:** choose a password for the administrator of mongodb
-- **<mongo_mgi_user>:** choose a username for the user of mgi database
-- **<mongo_mgi_password>:** choose a password for the user of mgi database
+- **mongo_admin_user:** choose a username for the administrator of mongodb
+- **mongo_admin_password:** choose a password for the administrator of mongodb
+- **mongo_mgi_user:** choose a username for the user of mgi database
+- **mongo_mgi_password:** choose a password for the user of mgi database
 
 **Create an admin user:**
 ```
@@ -49,5 +49,5 @@ exit
 ```
 
 Edit the file path/to/mdcs/mgi/settings.py, and set the following parameters to the values you chose earlier:
-- MONGO_MGI_USER = "<mongo_mgi_user>"
-- MONGO_MGI_PASSWORD = "<mongo_mgi_password>"
+- MONGO_MGI_USER = "mongo_mgi_user"
+- MONGO_MGI_PASSWORD = "mongo_mgi_password"
