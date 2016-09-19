@@ -69,37 +69,36 @@ def index(request):
 def compose_build_template(request):
     template = loader.get_template('compose/compose_build_template.html')
     # 1) user types: list of ids
-    userTypes = []
+    user_types = []
     for user_type in Type.objects(user=str(request.user.id)):
-        userTypes.append(user_type)
+        user_types.append(user_type)
     # 2) buckets: label -> list of type that are not deleted
     # 3) nobuckets: list of types that are not assigned to a specific bucket
-    bucketsTypes = dict()
-    nobucketsTypes = []
+    buckets_types = dict()
+    no_buckets_types = []
 
     buckets = Bucket.objects
-
     for type_version in TypeVersion.objects():
-        if type_version.isDeleted == False:
-            hasBucket = False
+        if not type_version.isDeleted:
+            has_bucket = False
             for bucket in buckets:
                 if str(type_version.id) in bucket.types:
-                    if bucket not in bucketsTypes.keys():
-                        bucketsTypes[bucket] = []
-                    bucketsTypes[bucket].append(Type.objects.get(pk=type_version.current))
-                    hasBucket = True
-            if hasBucket == False:
-                nobucketsTypes.append(Type.objects.get(pk=type_version.current))
+                    if bucket not in buckets_types.keys():
+                        buckets_types[bucket] = []
+                    buckets_types[bucket].append(Type.objects.get(pk=type_version.current))
+                    has_bucket = True
+            if not has_bucket:
+                no_buckets_types.append(Type.objects.get(pk=type_version.current))
 
     default_xsd_types = []
     for default_xsd_type in getXSDTypes(""):
         default_xsd_types.append({'id': 'default_xsd_type', 'title': default_xsd_type})
 
     context = RequestContext(request, {
-       'bucketsTypes': bucketsTypes,
+       'bucketsTypes': buckets_types,
        'defaultTypes': default_xsd_types,
-       'nobucketsTypes': nobucketsTypes,
-       'userTypes': userTypes,
+       'nobucketsTypes': no_buckets_types,
+       'userTypes': user_types,
     })
 
     return HttpResponse(template.render(context))
