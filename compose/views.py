@@ -90,13 +90,13 @@ def compose_build_template(request):
             if not has_bucket:
                 no_buckets_types.append(Type.objects.get(pk=type_version.current))
 
-    default_xsd_types = []
-    for default_xsd_type in getXSDTypes(""):
-        default_xsd_types.append({'id': 'default_xsd_type', 'title': default_xsd_type})
+    built_in_types = []
+    for built_in_type in getXSDTypes(""):
+        built_in_types.append({'id': 'built_in_type', 'title': built_in_type})
 
     context = RequestContext(request, {
        'bucketsTypes': buckets_types,
-       'defaultTypes': default_xsd_types,
+       'builtinTypes': built_in_types,
        'nobucketsTypes': no_buckets_types,
        'userTypes': user_types,
     })

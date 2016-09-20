@@ -231,7 +231,7 @@ def insert_element_sequence(request):
         target_namespace, target_namespace_prefix = get_target_namespace(namespaces, xsd_tree)
         # build xpath to element
         xpath = xpath.replace(default_prefix + ":", LXML_SCHEMA_NAMESPACE)
-        if type_id == 'default_xsd_type':
+        if type_id == 'built_in_type':
             type_name = default_prefix + ':' + client_type_name
             xsd_tree.find(xpath).append(etree.Element("{}element".format(LXML_SCHEMA_NAMESPACE),
                                         attrib={'type': type_name,
