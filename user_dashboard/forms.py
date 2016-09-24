@@ -24,8 +24,10 @@ class ActionForm(forms.Form):
     """
     Form to select the action in the user dashboard
     """
-    ACTIONS_OPTIONS = [('1', 'Delete selected records'), ('2', 'Change owner of selected records')]
-    actions = forms.ChoiceField(label='', required=True, choices=ACTIONS_OPTIONS)
+    actions = forms.ChoiceField(label='', required=True, choices=[])
+    def __init__(self, listActions):
+        super(ActionForm, self).__init__()
+        self.fields['actions'].choices = listActions
 
 
 class CustomPasswordPoliciesForm(PasswordPoliciesForm):

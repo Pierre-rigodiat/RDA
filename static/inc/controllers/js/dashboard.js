@@ -52,14 +52,41 @@ function resetOtherCheckBox() {
     countChecked();
 }
 
-/**
-* Count the number of checked boxes to control visibility of action dropdown
-*/
-$(document).ready(function(){
+function initForm() {
+    $('#table-forms-admin').DataTable({
+    "scrollY": "226px",
+    "iDisplayLength": 5,
+    "scrollCollapse": true,
+    "lengthMenu": [ 5, 10, 15, 20 ],
+    "columnDefs": [
+            {"className": "dt-center", "targets": 0}
+          ],
+    order: [[2, 'asc']],
+    "columns": [ { "orderable": false }, null, null, null, { "orderable": false } ],
+    "fnInfoCallback": function( oSettings, iStart, iEnd, iMax, iTotal, sPre ) {
+        resetAdminCheckBox();
+        $( "input[type=checkbox]" ).on( "change", countChecked );
+      }
+    });
 
-    countChecked();
-    $( "input[type=checkbox]" ).on( "change", countChecked );
+    $('#table-forms-other').DataTable({
+    "scrollY": "226px",
+    "iDisplayLength": 5,
+    "scrollCollapse": true,
+    "lengthMenu": [ 5, 10, 15, 20 ],
+    "columnDefs": [
+            {"className": "dt-center", "targets": 0}
+          ],
+    order: [[2, 'asc']],
+    "columns": [ { "orderable": false }, null, null, null, { "orderable": false } ],
+    "fnInfoCallback": function( oSettings, iStart, iEnd, iMax, iTotal, sPre ) {
+        resetOtherCheckBox();
+        $( "input[type=checkbox]" ).on( "change", countChecked );
+      }
+    });
+}
 
+function initRecord() {
     $('#table-records-admin').DataTable({
     "scrollY": "226px",
     "iDisplayLength": 5,
@@ -72,6 +99,7 @@ $(document).ready(function(){
     "columns": [ { "orderable": false }, null, null, null, { "orderable": false } ],
     "fnInfoCallback": function( oSettings, iStart, iEnd, iMax, iTotal, sPre ) {
         resetAdminCheckBox();
+        $( "input[type=checkbox]" ).on( "change", countChecked );
       }
     });
 
@@ -87,15 +115,25 @@ $(document).ready(function(){
     "columns": [ { "orderable": false }, null, null, null, { "orderable": false } ],
     "fnInfoCallback": function( oSettings, iStart, iEnd, iMax, iTotal, sPre ) {
         resetOtherCheckBox();
+        $( "input[type=checkbox]" ).on( "change", countChecked );
       }
     });
+}
+
+/**
+* Count the number of checked boxes to control visibility of action dropdown
+*/
+function initAdmin() {
+
+    countChecked();
+    $( "input[type=checkbox]" ).on( "change", countChecked );
 
     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-    $.fn.dataTable
-        .tables( { visible: true, api: true } )
-        .columns.adjust();
+        $.fn.dataTable
+            .tables( { visible: true, api: true } )
+            .columns.adjust();
     })
-});
+}
 
 /**
  * Load controllers for template/type upload management
@@ -529,7 +567,7 @@ action_dashboard = function(selectValue) {
         selected.push($(this).attr('id'));
     });
 
-    // Delete
+    // Delete record
     if (selectValue == 1) {
         $(function() {
             $( "#dialog-delete-result" ).dialog({
@@ -545,7 +583,7 @@ action_dashboard = function(selectValue) {
                 }
             });
         });
-    // Change owner
+    // Change owner record
     } else if (selectValue == 2) {
         $("#banner_errors").hide();
         $(function() {
@@ -564,5 +602,86 @@ action_dashboard = function(selectValue) {
                 }
             });
         });
+    // Delete form
+    } else if (selectValue == 3) {
+        $("#banner_errors").hide();
+        $(function() {
+            $( "#dialog-delete-form" ).dialog({
+                modal: true,
+                buttons: {
+                    Cancel: function() {
+                        $( this ).dialog( "close" );
+                    },
+                    Delete: function() {
+                        $( this ).dialog( "close" );
+                        delete_forms(selected);
+                    },
+                }
+            });
+        });
+    // Change owner form
+    } else if (selectValue == 4) {
+        $("#banner_errors").hide();
+        $(function() {
+            $( "#dialog-change-owner-form" ).dialog({
+                modal: true,
+                buttons: {
+                    Cancel: function() {
+                        $( this ).dialog( "close" );
+                    },
+                    "Change": function() {
+                        if (validateChangeOwner()) {
+                            var formData = new FormData($( "#form_start" )[0]);
+                            change_owner_forms(selected);
+                        }
+                    },
+                }
+            });
+        });
     }
+}
+
+
+/**
+ * AJAX call, delete selected forms
+ * @param formID
+ */
+delete_forms = function(formsID){
+    $.ajax({
+        url : "/dashboard/delete-forms",
+        type : "POST",
+        dataType: "json",
+        data : {
+            formsID: formsID,
+        },
+		success: function(data){
+			window.location = "/dashboard/forms"
+	    },
+        error:function(data){
+        	window.location = "/dashboard/forms"
+        }
+    });
+}
+
+/**
+ * AJAX call, change selected forms owner
+ * @param formID
+ */
+change_owner_forms = function(formID){
+    var userId = $( "#id_users" ).val().trim();
+    $.ajax({
+        url : "/dashboard/change-owner-forms",
+        type : "POST",
+        dataType: "json",
+        data : {
+            formID: formID,
+            userID: userId,
+        },
+		success: function(data){
+			window.location = "/dashboard/forms"
+	    },
+        error:function(data){
+        	window.location = "/dashboard/forms"
+        }
+    });
 }

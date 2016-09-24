@@ -1,38 +1,59 @@
 {% load dict_key_extras %}
 
-<table class="data-table">
-    <tr>
-        <th width="100em">Name</th>
-        <th width="100em">Template</th>
+
+<table id="table-forms-{{group}}" class="display data-table" style="margin-bottom: 0em; width:100%; border: None">
+    <thead>
         {% if user.is_staff %}
-            <th width="100em">
+            <th> {% if user.is_staff %} <input type="checkbox" id="select_all_{{group}}" onchange="selectAll(this, '{{group}}')"> {%endif%} </th>
+        {% endif %}
+        <th>Name</th>
+        <th>Template</th>
+        {% if user.is_staff %}
+            <th>
                 User
             </th>
         {% endif %}
-        <th width="175em">Actions</th>
-    </tr>
-    {% for form in forms %}
-    {% with key=form.user %}
-        {% cycle 'even' '' as rowcolors silent %}
-        <tr class="{{ rowcolors }}">
-            <td>{{ form.form.name }}</td>
-            <td>{{ form.template_name}}</td>
-            {% if user.is_staff %}
-                <td>
-                    {{usernames|get:key}}
+        <th>Actions</th>
+    </thead>
+    <tbody>
+        {% for form in forms %}
+            {% cycle 'even' '' as rowcolors silent %}
+            <tr class="{{ rowcolors }}">
+                {% if user.is_staff %}
+                <td id="actionCheckbox">
+                    <input type="checkbox" id={{form.form.id}} name={{group}}>
                 </td>
-            {% endif %}
-            <td>
-                <a href="/dashboard/detail?type=form&id={{form.form.id}}"><span class="icon legend result">
+                {% endif %}
+                <td>
+                    {{ form.form.name }}
+                </td>
+                <td>
+                    {{ form.template_name }}
+                </td>
+                {% if user.is_staff %}
+                <td>
+                    {% with key=form.user %}
+                        {{usernames|get:key}}
+                    {% endwith %}
+                </td>
+                {% endif %}
+                <td>
+                    <a style="text-decoration: none;" href="/dashboard/detail?type=form&id={{form.form.id}}">
+                        <span class="icon legend result">
                             View
-                </span></a>
-                <a href="/curate/edit-form?id={{form.form.id}}"><span class="icon legend edit">
+                        </span>
+                    </a>
+                    <a style="text-decoration: none;" href="/curate/edit-form?id={{form.form.id}}">
+                        <span class="icon legend edit">
                             Edit
-                </span></a>
-                <div class="icon legend delete" onclick='deleteForm("{{form.form.id}}")'>Delete</div>
-                <div class="icon legend changeOwner" onclick='changeOwnerForm("{{form.form.id}}")'>Change Owner</div>
-            </td>
-        </tr>
-    {% endwith %}
-    {% endfor %}
+                        </span>
+                    </a>
+                    {% if not user.is_staff %}
+                        <div class="icon legend delete" onclick='deleteForm("{{form.form.id}}")'>Delete</div>
+                        <div class="icon legend changeOwner" onclick='changeOwnerForm("{{form.form.id}}")'>Change Owner</div>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
 </table>

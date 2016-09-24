@@ -19,12 +19,13 @@ from django.conf import settings
 from mgi.settings import BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI
 from utils.BLOBHoster.BLOBHosterFactory import BLOBHosterFactory
 from django.http import HttpResponse
-from mgi.models import Template, XMLdata, Type, delete_template, delete_type
+from mgi.models import Template, XMLdata, Type, delete_template, delete_type, FormData
 from django.contrib import messages
 import lxml.etree as etree
 from io import BytesIO
 import json
 from mgi.common import send_mail_to_managers
+from utils.XSDParser.parser import delete_branch_from_db
 import os
 from django.utils.importlib import import_module
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
@@ -200,4 +201,50 @@ def update_publish(request):
 ################################################################################
 def update_unpublish(request):
     XMLdata.update_unpublish(request.GET['result_id'])
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
+
+################################################################################
+#
+# Function Name: delete-forms(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   Deletes a saved form
+#
+################################################################################
+def delete_forms(request):
+    formsID = request.POST.getlist('formsID[]')
+    for formID in formsID:
+        try:
+            form_data = FormData.objects().get(pk=formID)
+            # TODO: check if need to delete all SchemaElements
+            if form_data.schema_element_root is not None:
+                delete_branch_from_db(form_data.schema_element_root.pk)
+            form_data.delete()
+        except Exception, e:
+            return HttpResponse(json.dumps({}), status=400)
+    messages.add_message(request, messages.INFO, 'Form deleted with success.')
+    return HttpResponse(json.dumps({}), content_type='application/javascript')
+
+################################################################################
+#
+# Function Name: change_owner_forms(request)
+# Inputs:        request -
+# Outputs:
+# Exceptions:    None
+# Description:   Change the list of form's owner
+#
+################################################################################
+def change_owner_forms(request):
+    if 'formID[]' in request.POST and 'userID' in request.POST:
+        form_data_ids = request.POST.getlist('formID[]')
+        user_id = request.POST['userID']
+        for form_data_id in form_data_ids:
+            try:
+                form_data = FormData.objects().get(pk=form_data_id)
+                form_data.user = user_id
+                form_data.save()
+            except Exception, e:
+                return HttpResponse(json.dumps({}),status=400)
+        messages.add_message(request, messages.INFO, 'Form Owner changed with success !')
     return HttpResponse(json.dumps({}), content_type='application/javascript')

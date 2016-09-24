@@ -12,7 +12,7 @@
 ################################################################################
 
 from testing.models import RegressionTest
-from mgi.models import Template, Type, XMLdata, TemplateVersion, TypeVersion, Status
+from mgi.models import Template, Type, XMLdata, TemplateVersion, TypeVersion, Status, FormData
 import json
 
 class tests_user_dashboard_ajax(RegressionTest):
@@ -140,5 +140,28 @@ class tests_user_dashboard_ajax(RegressionTest):
         data = {'objectID': type.id, 'objectType': 'Type'}
         r = self.doRequestPostAdminClientLogged(url=url, data=data)
         self.assertIsNotNone(Type.objects(pk=type.id).get())
+
+    def test_delete_forms(self):
+        form1 = self.createFormData()
+        form2 = self.createFormData()
+        self.assertEquals(2, len(FormData.objects()))
+        url = '/dashboard/delete-forms'
+        data = {'formsID[]': [form1.id, form2.id]}
+        r = self.doRequestPost(url=url, data=data)
+        self.isStatusOK(r.status_code)
+        self.assertEquals(0, len(FormData.objects()))
+
+    def test_change_owner_forms(self):
+        userId = self.getUser().id
+        adminId = self.getAdmin().id
+        template = self.createTemplate()
+        form1 = self.createFormData(user=adminId, name='nameuser', template=str(template.id))
+        form2 = self.createFormData(user=adminId, name='nameadmin', template=str(template.id))
+        url = '/dashboard/change-owner-forms'
+        data = {'formID[]': [form1.id, form2.id], 'userID': userId}
+        r = self.doRequestPost(url=url, data=data)
+        self.isStatusOK(r.status_code)
+        self.assertEquals(str(userId), str(FormData.objects().get(id=form1.id).user))
+        self.assertEquals(str(userId), str(FormData.objects().get(id=form2.id).user))
 
 
