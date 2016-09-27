@@ -1,35 +1,45 @@
 {% load dict_key_extras %}
-<table class="data-table">
-    <tr>
-        <th width="175em">File name</th>
-        <th width="175em">Upload date</th>
+<table id="table-file-{{group}}" class="display data-table" style="margin-bottom: 0em; width:100%; border: None">
+    <thead>
         {% if user.is_staff %}
-            <th width="175em">
-                User
-            </th>
+            <th> {% if user.is_staff %} <input type="checkbox" id="select_all_{{group}}" onchange="selectAll(this, '{{group}}')"> {%endif%} </th>
         {% endif %}
-        <th width="175em">Actions</th>
-    </tr>
-    {% for file in files %}
-        {% cycle 'even' '' as rowcolors silent %}
-        <tr class="{{ rowcolors }}">
-            <td>{{ file.name }}</td>
-            <td>{{ file.uploadDate }} </td>
-            {% if user.is_staff %}
-                <td>
-                    {{usernames|get:file.user}}
+        <th>File name</th>
+        <th>Upload date</th>
+        {% if user.is_staff %}
+            <th>User</th>
+        {% endif %}
+        <th>Actions</th>
+    </thead>
+    <tbody>
+        {% for file in files %}
+            {% cycle 'even' '' as rowcolors silent %}
+            <tr class="{{ rowcolors }}">
+                {% if user.is_staff %}
+                <td id="actionCheckbox">
+                    <input type="checkbox" id="{{ file.id }}" name={{group}}>
                 </td>
-            {% endif %}
-            <td>
-                <span class="icon legend delete" objectname="{{ file.name }}" objecttype="File" objectid="{{ file.id }}" onclick="deleteObject()" url="{{url}}">
-                    Delete
-                </span>
-                <a href="{{url}}/rest/blob?id={{file.id}}">
-                    <span class="icon legend download" >
-                        Download
+                {% endif %}
+                <td>{{ file.name }}</td>
+                <td>{{ file.uploadDate }} </td>
+                {% if user.is_staff %}
+                    <td>
+                        {{usernames|get:file.user}}
+                    </td>
+                {% endif %}
+                <td>
+                    {% if not user.is_staff %}
+                    <span class="icon legend delete" objectname="{{ file.name }}" objecttype="File" objectid="{{ file.id }}" onclick="deleteObject()">
+                        Delete
                     </span>
-                </a>
-            </td>
-        </tr>
-    {% endfor %}
+                    {% endif %}
+                    <a href="{{url}}/rest/blob?id={{file.id}}">
+                        <span class="icon legend download" >
+                            Download
+                        </span>
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
 </table>
