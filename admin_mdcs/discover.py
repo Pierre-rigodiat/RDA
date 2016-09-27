@@ -110,7 +110,8 @@ def scan_static_resources():
                         file = open(file_path, 'r')
                         file_content = file.read()
                         try:
-                            create_template(file_content, filename, filename)
+                            name_no_extension = filename.split(".xsd")[0]
+                            create_template(file_content, name_no_extension, name_no_extension)
                         except Exception, e:
                             print "ERROR: Unable to load {0} ({1})".format(filename, e.message)
                     else:
@@ -124,7 +125,8 @@ def scan_static_resources():
                         file = open(file_path, 'r')
                         file_content = file.read()
                         try:
-                            create_type(file_content, filename, filename)
+                            name_no_extension = filename.split(".xsd")[0]
+                            create_type(file_content, name_no_extension, name_no_extension)
                         except Exception, e:
                             print "ERROR: Unable to load {0} ({1})".format(filename, e.message)
                     else:
