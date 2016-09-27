@@ -52,6 +52,74 @@ function resetOtherCheckBox() {
     countChecked();
 }
 
+function initType() {
+    $('#table-type-admin').DataTable({
+    "scrollY": "226px",
+    "iDisplayLength": 5,
+    "scrollCollapse": true,
+    "lengthMenu": [ 5, 10, 15, 20 ],
+    "columnDefs": [
+            {"className": "dt-center", "targets": 0}
+          ],
+    order: [[2, 'asc']],
+    "columns": [ { "orderable": false }, null, null, null, { "orderable": false } ],
+    "fnInfoCallback": function( oSettings, iStart, iEnd, iMax, iTotal, sPre ) {
+        resetAdminCheckBox();
+        $( "input[type=checkbox]" ).on( "change", countChecked );
+      }
+    });
+
+    $('#table-type-other').DataTable({
+    "scrollY": "226px",
+    "iDisplayLength": 5,
+    "scrollCollapse": true,
+    "lengthMenu": [ 5, 10, 15, 20 ],
+    "columnDefs": [
+            {"className": "dt-center", "targets": 0}
+          ],
+    order: [[2, 'asc']],
+    "columns": [ { "orderable": false }, null, null, null, { "orderable": false } ],
+    "fnInfoCallback": function( oSettings, iStart, iEnd, iMax, iTotal, sPre ) {
+        resetOtherCheckBox();
+        $( "input[type=checkbox]" ).on( "change", countChecked );
+      }
+    });
+}
+
+function initTemplate() {
+    $('#table-template-admin').DataTable({
+    "scrollY": "226px",
+    "iDisplayLength": 5,
+    "scrollCollapse": true,
+    "lengthMenu": [ 5, 10, 15, 20 ],
+    "columnDefs": [
+            {"className": "dt-center", "targets": 0}
+          ],
+    order: [[2, 'asc']],
+    "columns": [ { "orderable": false }, null, null, null, { "orderable": false } ],
+    "fnInfoCallback": function( oSettings, iStart, iEnd, iMax, iTotal, sPre ) {
+        resetAdminCheckBox();
+        $( "input[type=checkbox]" ).on( "change", countChecked );
+      }
+    });
+
+    $('#table-template-other').DataTable({
+    "scrollY": "226px",
+    "iDisplayLength": 5,
+    "scrollCollapse": true,
+    "lengthMenu": [ 5, 10, 15, 20 ],
+    "columnDefs": [
+            {"className": "dt-center", "targets": 0}
+          ],
+    order: [[2, 'asc']],
+    "columns": [ { "orderable": false }, null, null, null, { "orderable": false } ],
+    "fnInfoCallback": function( oSettings, iStart, iEnd, iMax, iTotal, sPre ) {
+        resetOtherCheckBox();
+        $( "input[type=checkbox]" ).on( "change", countChecked );
+      }
+    });
+}
+
 function initForm() {
     $('#table-forms-admin').DataTable({
     "scrollY": "226px",
@@ -260,7 +328,9 @@ deleteObject = function()
             modal: true,
             buttons: {
 		Yes: function() {
-					delete_object(objectID, objectType, url);
+		            var selected = []
+                    selected.push(objectID)
+					delete_object(selected, objectType, url);
                     $( this ).dialog( "close" );
                 },
 		No: function() {
@@ -295,12 +365,11 @@ delete_object = function(objectID, objectType, url){
                 var text = 'You cannot delete this Type because it is used by at least one template or type: '+data['Type'];
                 showErrorDelete(text);
             } else if('Template' in data) {
-                var text = 'You cannot delete this Template because it is used by at least one resource or form: '+data['Template'];
+                var text = 'You cannot delete this Template because it is used by at least one published or unpublished record: '+data['Template'];
                 showErrorDelete(text);
             } else {
                 location.reload();
             }
-
         }
     });
 }
@@ -634,6 +703,38 @@ action_dashboard = function(selectValue) {
                             var formData = new FormData($( "#form_start" )[0]);
                             change_owner_forms(selected);
                         }
+                    },
+                }
+            });
+        });
+    // Delete template
+    } else if (selectValue == 5) {
+        $(function() {
+            $( "#dialog-deleteconfirm-message" ).dialog({
+                modal: true,
+                buttons: {
+                    Cancel: function() {
+                        $( this ).dialog( "close" );
+                    },
+                    Delete: function() {
+                        $( this ).dialog( "close" );
+                        delete_object(selected, "Template", "");
+                    },
+                }
+            });
+        });
+    // Delete type
+    } else if (selectValue == 6) {
+        $(function() {
+            $( "#dialog-deleteconfirm-message" ).dialog({
+                modal: true,
+                buttons: {
+                    Cancel: function() {
+                        $( this ).dialog( "close" );
+                    },
+                    Delete: function() {
+                        $( this ).dialog( "close" );
+                        delete_object(selected, "Type", "");
                     },
                 }
             });

@@ -88,21 +88,24 @@ def edit_information(request):
 @login_required(login_url='/login')
 def delete_object(request):
     print 'BEGIN def delete_object(request)'
-    object_id = request.POST['objectID']
+    objects_id = request.POST.getlist('objectID[]')
     object_type = request.POST['objectType']
 
     listObject = ''
     if object_type == "Template":
-        listObject = delete_template(object_id)
+        for object_id in objects_id:
+            listObject = delete_template(object_id)
 
     elif object_type == "Type":
-        listObject = delete_type(object_id)
+        for object_id in objects_id:
+            listObject = delete_type(object_id)
 
     else:
         url = request.POST['url']
         bh_factory = BLOBHosterFactory(BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI)
         blob_hoster = bh_factory.createBLOBHoster()
-        blob_hoster.delete(url+"/rest/blob?id="+object_id)
+        for object_id in objects_id:
+            blob_hoster.delete(url+"/rest/blob?id="+object_id)
         messages.add_message(request, messages.INFO, 'File deleted with success.')
         print 'END def delete_object(request)'
         return HttpResponse(json.dumps({}), content_type='application/javascript')

@@ -197,7 +197,7 @@ def dashboard_templates(request):
         #Get user name for admin
         usernames = dict((str(x.id), x.username) for x in User.objects.all())
         otherUsersObjects = Template.objects(user__not__in={str(request.user.id), None})
-        context.update({'otherUsersObjects': otherUsersObjects, 'usernames': usernames})
+        context.update({'otherUsersObjects': otherUsersObjects, 'usernames': usernames, 'action_form': ActionForm([('5', 'Delete selected templates')])})
 
     return HttpResponse(template.render(context))
 
@@ -224,7 +224,7 @@ def dashboard_types(request):
         #Get user name for admin
         usernames = dict((str(x.id), x.username) for x in User.objects.all())
         otherUsersObjects = Type.objects(user__not__in={str(request.user.id), None})
-        context.update({'otherUsersObjects': otherUsersObjects, 'usernames': usernames})
+        context.update({'otherUsersObjects': otherUsersObjects, 'usernames': usernames, 'action_form': ActionForm([('6', 'Delete selected types')])})
 
     return HttpResponse(template.render(context))
 
