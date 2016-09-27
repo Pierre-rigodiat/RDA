@@ -807,18 +807,27 @@ def generate_form(request, xsd_doc_data, xml_doc_data=None, config=None):
 
     try:
         if len(elements) == 1:  # One root
-            form_content = generate_element(request, elements[0], xml_doc_tree, edit_data_tree=edit_data_tree)
+            form_content = generate_element(request,
+                                            elements[0],
+                                            xml_doc_tree,
+                                            edit_data_tree=edit_data_tree)
         elif len(elements) > 1:  # Several root
             # look if a default choice to render is defined
             default_choice = False
             for element in elements:
                 app_info = getAppInfo(element)
                 if 'default' in app_info:
-                    form_content = generate_element(request, element, xml_doc_tree, edit_data_tree=edit_data_tree)
+                    form_content = generate_element(request,
+                                                    element,
+                                                    xml_doc_tree,
+                                                    edit_data_tree=edit_data_tree)
                     default_choice = True
                     break
             if not default_choice:
-                form_content = generate_choice(request, elements, xml_doc_tree, edit_data_tree=edit_data_tree)
+                form_content = generate_choice(request,
+                                               elements,
+                                               xml_doc_tree,
+                                               edit_data_tree=edit_data_tree)
         else:  # len(elements) == 0 (no root element)
             # TODO: does it make sense to get all simple types too?
             complex_types = xml_doc_tree.findall("./{0}complexType".format(LXML_SCHEMA_NAMESPACE))
@@ -828,11 +837,17 @@ def generate_form(request, xsd_doc_data, xml_doc_data=None, config=None):
                 for complex_type in complex_types:
                     app_info = getAppInfo(complex_type)
                     if 'default' in app_info:
-                        form_content = generate_choice_extensions(request, [complex_type], xml_doc_tree, None)
+                        form_content = generate_choice_extensions(request,
+                                                                  [complex_type],
+                                                                  xml_doc_tree,
+                                                                  edit_data_tree=edit_data_tree)
                         default_choice = True
                         break
                 if not default_choice:
-                    form_content = generate_choice_extensions(request, complex_types, xml_doc_tree, None)
+                    form_content = generate_choice_extensions(request,
+                                                              complex_types,
+                                                              xml_doc_tree,
+                                                              edit_data_tree=edit_data_tree)
             else:  # len(complex_types) == 0
                 raise Exception("No possible root element detected")
 
@@ -1304,7 +1319,8 @@ def generate_element_absent(request, element_id, config=None):
     schema_element.update(set__children=children)
 
     if len(sub_element.children) == 0:
-        schema_element.update(pull__children=element_id)
+        schema_element_to_pull = SchemaElement.objects.get(pk=element_id)
+        schema_element.update(pull__children=schema_element_to_pull)
 
     schema_element.reload()
     update_branch_xpath(schema_element)
@@ -2165,6 +2181,7 @@ def generate_choice_extensions(request, element, xml_tree, choice_info=None, ful
 
         request.session['implicit_extension'] = False
         for (counter, choiceChild) in enumerate(list(element)):
+            full_path = '/' + choiceChild.attrib['name']
             if choiceChild.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE) or \
                             choiceChild.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
 

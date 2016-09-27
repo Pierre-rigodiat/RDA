@@ -7,12 +7,12 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId=mdcs
 AppName=mdcs
-AppVersion=1.4 rc2
-AppVerName=mdcs 1.4 release candidate 2
+AppVersion=1.4 rc3
+AppVerName=mdcs 1.4 release candidate 3
 AppPublisher=NIST
 DefaultDirName={userdocs}\mdcs
 DefaultGroupName=mdcs
-OutputBaseFilename=mdcs_1.4_rc2
+OutputBaseFilename=mdcs_1.4_rc3
 Compression=lzma
 SolidCompression=yes
 DisableDirPage=no

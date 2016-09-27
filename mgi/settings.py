@@ -22,7 +22,7 @@
 import os
 from mongoengine import connect
 
-VERSION = "1.4_rc2"
+VERSION = "1.4_rc3"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -171,13 +171,14 @@ OAI_REPO_IDENTIFIER = 'server-' + HOST
 OAI_SAMPLE_IDENTIFIER = OAI_SCHEME+OAI_DELIMITER+OAI_REPO_IDENTIFIER+OAI_DELIMITER+'id/12345678a123aff6ff5f2d9e'
 OAI_DELETED_RECORD = 'persistent' #no ; transient ; persistent
 
-# PARSER
+# XSD PARSER
 PARSER_MIN_TREE = True
 PARSER_IGNORE_MODULES = False
 PARSER_COLLAPSE = True
 PARSER_AUTO_KEY_KEYREF = True
 PARSER_IMPLICIT_EXTENSION_BASE = False
 PARSER_DOWNLOAD_DEPENDENCIES = True
+XERCES_VALIDATION = False
 
 TEMPLATE_DIRS = [
     os.path.join(BASE_DIR, 'templates')

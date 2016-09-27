@@ -140,15 +140,6 @@
       <xsd:enumeration value="Tl"/>
       <xsd:enumeration value="Tm"/>
       <xsd:enumeration value="U"/>
-      <xsd:enumeration value="Uun"/>
-      <xsd:enumeration value="Uuu"/>
-      <xsd:enumeration value="Uub"/>
-      <xsd:enumeration value="Uut"/>
-      <xsd:enumeration value="Uuq"/>
-      <xsd:enumeration value="Uup"/>
-      <xsd:enumeration value="Uuh"/>
-      <xsd:enumeration value="Uus"/>
-      <xsd:enumeration value="Uuo"/>
       <xsd:enumeration value="V"/>
       <xsd:enumeration value="W"/>
       <xsd:enumeration value="Xe"/>

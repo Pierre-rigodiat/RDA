@@ -19,7 +19,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
 # Models
-from mgi.common import LXML_SCHEMA_NAMESPACE, update_dependencies
+from mgi.common import update_dependencies
 from mgi.models import SavedQuery, XMLdata, Template, TemplateVersion, Type, TypeVersion, Instance, Exporter, \
     ExporterXslt, create_template_version, create_template, create_type_version, create_type
 from exporter.builtin.models import XSLTExporter
@@ -46,13 +46,10 @@ import re
 import requests
 from mongoengine.queryset.visitor import Q
 import operator
-import json
 from collections import OrderedDict
 from StringIO import StringIO
 from django.http.response import HttpResponse
-from utils.XMLValidation.xml_schema import validate_xml_schema
 from io import BytesIO
-from utils.APIschemaLocator.APIschemaLocator import getSchemaLocation
 from datetime import datetime
 from datetime import timedelta
 from mgi import common
@@ -80,7 +77,7 @@ import json
 @api_permission_required(RIGHTS.explore_content_type, RIGHTS.explore_access)
 def select_all_savedqueries(request):
     """
-    GET http://localhost/rest/saved_queries/select/all
+    GET rest/saved_queries/select/all
     """
     queries = SavedQuery.objects()
     serializer = savedQuerySerializer(queries)
@@ -100,7 +97,9 @@ def select_all_savedqueries(request):
 @api_permission_required(RIGHTS.explore_content_type, RIGHTS.explore_access)
 def select_savedquery(request):
     """
-    GET http://localhost/rest/saved_queries/select
+    GET /rest/saved_queries/select
+
+    Optional:
     id: string (ObjectId)
     user: string 
     template: string
@@ -159,6 +158,7 @@ def select_savedquery(request):
         content = {'message':'No saved query found with the given parameters.'}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
+
 ################################################################################
 # 
 # Function Name: add_savedquery(request)
@@ -172,8 +172,13 @@ def select_savedquery(request):
 @api_permission_required(RIGHTS.explore_content_type, RIGHTS.explore_save_query)
 def add_savedquery(request):
     """
-    POST http://localhost/rest/saved_queries/add
-    POST data user="user", template="template" query="query", displayedQuery="displayedQuery"
+    POST /rest/saved_queries/add
+
+    Required:
+    user: string
+    template: string
+    query: string
+    displayedQuery: string
     """
     serializer = resSavedQuerySerializer(data=request.DATA)
     if serializer.is_valid():
@@ -218,22 +223,23 @@ def add_savedquery(request):
 @api_permission_required(RIGHTS.explore_content_type, RIGHTS.explore_delete_query)
 def delete_savedquery(request):
     """
-    GET http://localhost/rest/saved_queries/delete?id=id
-    URL parameters: 
-    id: string 
+    GET /rest/saved_queries/delete?id=id
+
+    Required
+    id: string (ObjectId)
     """
     id = request.QUERY_PARAMS.get('id', None)
     if id is not None:
         try:
             query = SavedQuery.objects.get(pk=id)
             query.delete()
-            content = {'message':"Query deleted with success."}
+            content = {'message': "Query deleted with success."}
             return Response(content, status=status.HTTP_200_OK)
         except:
-            content = {'message':"No query found with the given id."}
+            content = {'message': "No query found with the given id."}
             return Response(content, status=status.HTTP_404_NOT_FOUND)
     else:
-        content = {'message':"No id provided."}
+        content = {'message': "No id provided."}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 
@@ -250,14 +256,16 @@ def delete_savedquery(request):
 @api_permission_required(RIGHTS.explore_content_type, RIGHTS.explore_access)
 def explore(request):
     """
-    GET http://localhost/rest/explore/select/all
-    dataformat: [xml,json]
+    GET /rest/explore/select/all
+
+    Optional
+    dataformat: string [xml,json]
     """
     dataformat = request.QUERY_PARAMS.get('dataformat', None)
 
     jsonData = XMLdata.objects()
     
-    if dataformat== None or dataformat=="xml":
+    if dataformat is None or dataformat == "xml":
         for jsonDoc in jsonData:
             jsonDoc['content'] = XMLdata.unparse(jsonDoc['content'])
         serializer = jsonDataSerializer(jsonData)
@@ -266,8 +274,9 @@ def explore(request):
         serializer = jsonDataSerializer(jsonData)
         return Response(serializer.data, status=status.HTTP_200_OK)
     else:
-        content = {'message':'The specified format is not accepted.'}
+        content = {'message': 'The specified format is not accepted.'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
 
 ################################################################################
 # 
@@ -282,11 +291,13 @@ def explore(request):
 @api_permission_required(RIGHTS.explore_content_type, RIGHTS.explore_access)
 def explore_detail(request):
     """
-    GET http://localhost/rest/explore/select
+    GET /rest/explore/select
+
+    Optional:
     id: string (ObjectId)
     schema: string (ObjectId)
     title: string
-    dataformat: [xml,json]
+    dataformat: string [xml,json]
     """        
     id = request.QUERY_PARAMS.get('id', None)
     schema = request.QUERY_PARAMS.get('schema', None)
@@ -308,12 +319,12 @@ def explore_detail(request):
             else:
                 query['title'] = title
         if len(query.keys()) == 0:
-            content = {'message':'No parameters given.'}
+            content = {'message': 'No parameters given.'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         else:
             jsonData = XMLdata.executeQueryFullResult(query)
         
-            if dataformat== None or dataformat=="xml":
+            if dataformat is None or dataformat == "xml":
                 for jsonDoc in jsonData:
                     jsonDoc['content'] = XMLdata.unparse(jsonDoc['content'])
                 serializer = jsonDataSerializer(jsonData)
@@ -322,10 +333,10 @@ def explore_detail(request):
                 serializer = jsonDataSerializer(jsonData)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             else:
-                content = {'message':'The specified format is not accepted.'}
+                content = {'message': 'The specified format is not accepted.'}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
     except:
-        content = {'message':'No data found with the given parameters.'}
+        content = {'message': 'No data found with the given parameters.'}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 
@@ -342,9 +353,13 @@ def explore_detail(request):
 @api_permission_required(RIGHTS.explore_content_type, RIGHTS.explore_access)
 def explore_detail_data_download(request):
     """
-    GET http://localhost/rest/explore/data/download
+    GET /rest/explore/data/download
+
+    Required:
     id: string (ObjectId)
-    dataformat: [xml,json]
+
+    Optional:
+    dataformat: string [xml,json]
     """
     id = request.QUERY_PARAMS.get('id', None)
     dataformat = request.QUERY_PARAMS.get('dataformat', None)
@@ -359,10 +374,10 @@ def explore_detail_data_download(request):
         else:
             jsonData = XMLdata.executeQueryFullResult(query)
             jsonData = jsonData.pop()
-            #We remove the extension
+            # We remove the extension
             filename = os.path.splitext(jsonData['title'])[0]
 
-            if dataformat== None or dataformat=="xml":
+            if dataformat is None or dataformat == "xml":
                 jsonData['content'] = XMLdata.unparse(jsonData['content'])
                 contentEncoded = jsonData['content'].encode('utf-8')
                 fileObj = StringIO(contentEncoded)
@@ -376,11 +391,12 @@ def explore_detail_data_download(request):
                 response['Content-Disposition'] = 'attachment; filename=' + filename
                 return response
             else:
-                content = {'message':'The specified format is not accepted.'}
+                content = {'message': 'The specified format is not accepted.'}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
     except:
-        content = {'message':'No data found with the given parameters.'}
+        content = {'message': 'No data found with the given parameters.'}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
+
 
 ################################################################################
 # 
@@ -395,7 +411,9 @@ def explore_detail_data_download(request):
 @api_permission_required(RIGHTS.curate_content_type, RIGHTS.curate_delete_document)
 def explore_delete(request):
     """
-    GET http://localhost/rest/explore/delete
+    GET /rest/explore/delete
+
+    Required:
     id: string (ObjectId)
     """        
     id = request.QUERY_PARAMS.get('id', None)
@@ -405,15 +423,16 @@ def explore_delete(request):
         if id is not None:            
             query['_id'] = ObjectId(id)            
         if len(query.keys()) == 0:
-            content = {'message':'No id given.'}
+            content = {'message': 'No id given.'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         else:
             XMLdata.delete(id)
-            content = {'message':'Data deleted with success.'}
+            content = {'message': 'Data deleted with success.'}
             return Response(content, status=status.HTTP_204_NO_CONTENT)
     except:
-        content = {'message':'No data found with the given id.'}
+        content = {'message': 'No data found with the given id.'}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
+
 
 ################################################################################
 # 
@@ -435,6 +454,7 @@ def manageRegexInAPI(query):
         elif isinstance(value, dict):
             manageRegexInAPI(value)
 
+
 ################################################################################
 # 
 # Function Name: query_by_example(request)
@@ -448,9 +468,16 @@ def manageRegexInAPI(query):
 @api_permission_required(RIGHTS.explore_content_type, RIGHTS.explore_access)
 def query_by_example(request):
     """
-    POST http://localhost/rest/explore/query-by-example
-    POST data query="{'path_to_element':'value','schema':'id'}" repositories="Local,Server1,Server2" dataformat: [xml,json]
-    {"query":"{'content.root.property1.value':'xxx','schema':'id'}"}
+    POST /rest/explore/query-by-example
+
+    Required:
+    query: string (e.g. "{'path_to_element':'value','schema':'id'}")
+
+    Optional:
+    repositories: string "Local,Server1,Server2"
+    dataformat: string [xml,json]
+
+    Note: {"query": json.dumps({"content.root.property1.value":"xxx","schema":"id"})}
     """
          
     dataformat = None
@@ -543,8 +570,12 @@ def query_by_example(request):
 @api_permission_required(RIGHTS.curate_content_type, RIGHTS.curate_access)
 def curate(request):
     """
-    POST http://localhost/rest/curate
-    POST data title="title", schema="schemaID", content="<root>...</root>"
+    POST /rest/curate
+
+    Required:
+    title: string
+    schema: string (ObjectId)
+    content: string
     """        
     serializer = jsonDataSerializer(data=request.DATA)
     if serializer.is_valid():
@@ -563,7 +594,7 @@ def curate(request):
         try:
             try:
                 common.validateXMLDocument(xml_str, schema.content)
-            except etree.XMLSyntaxError, xse:
+            except etree.XMLSyntaxError:
                 # xmlParseEntityRef exception: use of & < > forbidden
                 content = {'message': "Validation Failed. May be caused by : Syntax problem, "
                                       "use of forbidden symbols like '&' or '<' or '>'"}
@@ -580,6 +611,7 @@ def curate(request):
                                 iduser=str(request.user.id),
                                 ispublished=True)
             doc_id = json_data.save()
+            serializer.data['_id'] = str(doc_id)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except:
             if doc_id is not None:
@@ -602,8 +634,18 @@ def curate(request):
 @api_staff_member_required()
 def add_schema(request):
     """
-    POST http://localhost/rest/templates/add
-    POST data title="title", filename="filename", content="<xsd:schema>...</xsd:schema>" templateVersion="id", dependencies{}="id,id"
+    POST /rest/templates/add
+
+    Required:
+    title: string
+    filename: string
+    content: string
+
+    Optional:
+    templateVersion: string (ObjectId)
+    dependencies: string (e.g. '{"schemaLocation1": "id1" ,"schemaLocation2":"id2"}')
+
+    Note: "dependencies"= json.dumps({"schemaLocation1": "id1" ,"schemaLocation2":"id2"})
     """
     schema_serializer = schemaSerializer(data=request.DATA)
     if schema_serializer.is_valid():
@@ -673,8 +715,9 @@ def add_schema(request):
 @api_staff_member_required()
 def select_schema(request):
     """
-    GET http://localhost/rest/templates/select?param1=value1&param2=value2
-    URL parameters: 
+    GET /rest/templates/select?param1=value1&param2=value2
+
+    Optional:
     id: string (ObjectId)
     filename: string
     content: string
@@ -682,7 +725,8 @@ def select_schema(request):
     version: integer
     templateVersion: string (ObjectId)
     hash: string
-    For string fields, you can use regular expressions: /exp/
+
+    Note: For string fields, you can use regular expressions: /exp/
     """
     
     id = request.QUERY_PARAMS.get('id', None)
@@ -728,7 +772,7 @@ def select_schema(request):
         if len(q_list) > 0:
             try:
                 templates = Template.objects(reduce(operator.and_, q_list)).all()
-                #If no templates available
+                # If no templates available
                 if len(templates) == 0:
                     content = {'message':'No template found with the given parameters.'}
                     return Response(content, status=status.HTTP_404_NOT_FOUND)
@@ -760,11 +804,12 @@ def select_schema(request):
 @api_staff_member_required()
 def select_all_schemas(request):
     """
-    GET http://localhost/rest/templates/select/all
+    GET /rest/templates/select/all
     """
     templates = Template.objects
     serializer = templateSerializer(templates)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 ################################################################################
 # 
@@ -779,11 +824,12 @@ def select_all_schemas(request):
 @api_staff_member_required()
 def select_all_schemas_versions(request):
     """
-    GET http://localhost/rest/templates/versions/select/all
+    GET /rest/templates/versions/select/all
     """
     templateVersions = TemplateVersion.objects
     serializer = TemplateVersionSerializer(templateVersions)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 ################################################################################
 # 
@@ -798,7 +844,10 @@ def select_all_schemas_versions(request):
 @api_staff_member_required()
 def current_template_version(request):
     """
-    GET http://localhost/rest/templates/versions/current?id=IdToBeCurrent
+    GET /rest/templates/versions/current?id=IdToBeCurrent
+
+    Required:
+    current: string (ObjectId)
     """
     id = request.QUERY_PARAMS.get('id', None)
     if id is not None:
@@ -826,6 +875,7 @@ def current_template_version(request):
     content = {'message':'Current template set with success.'}
     return Response(content, status=status.HTTP_200_OK)
 
+
 ################################################################################
 # 
 # Function Name: delete_schema(request)
@@ -839,10 +889,13 @@ def current_template_version(request):
 @api_staff_member_required()
 def delete_schema(request):
     """
-    GET http://localhost/rest/templates/delete?id=IDtodelete&next=IDnextCurrent
-    GET http://localhost/rest/templates/delete?templateVersion=IDtodelete
-    URL parameters: 
+    GET /rest/templates/delete?id=IDtodelete&next=IDnextCurrent
+    GET /rest/templates/delete?templateVersion=IDtodelete
+
+    Required:
     id: string (ObjectId)
+
+    Optional:
     next: string (ObjectId)
     templateVersion: string (ObjectId)
     """
@@ -914,19 +967,15 @@ def delete_schema(request):
         content = {'message':'Current template deleted with success. A new version is current.'}
         return Response(content, status=status.HTTP_204_NO_CONTENT)
     else:
-#             del templateVersion.versions[templateVersion.versions.index(str(template.id))]
-#             template.delete()
         if str(template.id) in templateVersion.deletedVersions:
-            content = {'message':'This template is already deleted.'}
+            content = {'message': 'This template is already deleted.'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         templateVersion.deletedVersions.append(str(template.id))
         templateVersion.save()
         content = {'message':'Template deleted with success.'}
         return Response(content, status=status.HTTP_204_NO_CONTENT)
-    # else:
-    #     content = {'message':'Only an administrator can use this feature.'}
-    #     return Response(content, status=status.HTTP_401_UNAUTHORIZED)
-    
+
+
 ################################################################################
 # 
 # Function Name: restore_schema(request)
@@ -940,9 +989,10 @@ def delete_schema(request):
 @api_staff_member_required()
 def restore_schema(request):
     """
-    GET http://localhost/rest/templates/restore?id=IDtorestore
-    GET http://localhost/rest/templates/restore?templateVersion=IDtorestore
-    URL parameters: 
+    GET /rest/templates/restore?id=IDtorestore
+    GET /rest/templates/restore?templateVersion=IDtorestore
+
+    Optional:
     id: string (ObjectId)
     templateVersion: string (ObjectId)
     """
@@ -1007,8 +1057,18 @@ def restore_schema(request):
 @api_staff_member_required()
 def add_type(request):
     """
-    POST http://localhost/rest/types/add
-    POST data title="title", filename="filename", content="..." typeVersion="id" dependencies[]="id,id"
+    POST /rest/types/add
+
+    Required:
+    title: string
+    filename: string
+    content: string
+
+    Optional:
+    typeVersion: string (ObjectId)
+    dependencies: string (e.g. '{"schemaLocation1": "id1" ,"schemaLocation2":"id2"}')
+
+    Note: "dependencies"= json.dumps({"schemaLocation1": "id1" ,"schemaLocation2":"id2"})
     """
     type_serializer = typeSerializer(data=request.DATA)
     if type_serializer.is_valid():
@@ -1065,6 +1125,7 @@ def add_type(request):
         return Response(json.loads(new_type.to_json()), status=status.HTTP_201_CREATED)
     return Response(type_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 ################################################################################
 # 
 # Function Name: select_type(request)
@@ -1078,15 +1139,17 @@ def add_type(request):
 @api_staff_member_required()
 def select_type(request):
     """
-    GET http://localhost/rest/types/select?param1=value1&param2=value2
-    URL parameters: 
+    GET /rest/types/select?param1=value1&param2=value2
+
+    Optional:
     id: string (ObjectId)
     filename: string
     content: string
     title: string
     version: integer
     typeVersion: string (ObjectId)
-    For string fields, you can use regular expressions: /exp/
+
+    Note: For string fields, you can use regular expressions: /exp/
     """
     id = request.QUERY_PARAMS.get('id', None)
     filename = request.QUERY_PARAMS.get('filename', None)
@@ -1143,6 +1206,7 @@ def select_type(request):
         content = {'message':'No type found with the given parameters.'}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
+
 ################################################################################
 # 
 # Function Name: select_all_types(request)
@@ -1156,11 +1220,12 @@ def select_type(request):
 @api_staff_member_required()
 def select_all_types(request):
     """
-    GET http://localhost/rest/types/select/all
+    GET /rest/types/select/all
     """
     types = Type.objects
     serializer = resTypeSerializer(types)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 ################################################################################
 # 
@@ -1175,11 +1240,12 @@ def select_all_types(request):
 @api_staff_member_required()
 def select_all_types_versions(request):
     """
-    GET http://localhost/rest/types/versions/select/all
+    GET /rest/types/versions/select/all
     """
     typeVersions = TypeVersion.objects
     serializer = TypeVersionSerializer(typeVersions)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 ################################################################################
 # 
@@ -1194,9 +1260,11 @@ def select_all_types_versions(request):
 @api_staff_member_required()
 def current_type_version(request):
     """
-    GET http://localhost/rest/types/versions/current?id=IdToBeCurrent
+    GET /rest/types/versions/current?id=IdToBeCurrent
+
+    Required:
+    current: string (ObjectId)
     """
-    # if request.user.is_staff is True:
     id = request.QUERY_PARAMS.get('id', None)
     if id is not None:
         try:
@@ -1222,9 +1290,6 @@ def current_type_version(request):
     typeVersion.save()
     content = {'message':'Current type set with success.'}
     return Response(content, status=status.HTTP_200_OK)
-    # else:
-    #     content = {'message':'Only an administrator can use this feature.'}
-    #     return Response(content, status=status.HTTP_401_UNAUTHORIZED)
     
     
 ################################################################################
@@ -1240,14 +1305,16 @@ def current_type_version(request):
 @api_staff_member_required()
 def delete_type(request):
     """
-    GET http://localhost/rest/types/delete?id=IDtodelete&next=IDnextCurrent
-    GET http://localhost/rest/types/delete?typeVersion=IDtodelete
-    URL parameters: 
+    GET /rest/types/delete?id=IDtodelete&next=IDnextCurrent
+    GET /rest/types/delete?typeVersion=IDtodelete
+
+    Required:
     id: string (ObjectId)
+
+    Optional:
     next: string (ObjectId)
     typeVersion: string (ObjectId)
     """
-    # if request.user.is_staff is True:
     id = request.QUERY_PARAMS.get('id', None)
     next = request.QUERY_PARAMS.get('next', None)
     versionID = request.QUERY_PARAMS.get('typeVersion', None)
@@ -1322,9 +1389,6 @@ def delete_type(request):
         typeVersion.save()
         content = {'message':'Type deleted with success.'}
         return Response(content, status=status.HTTP_204_NO_CONTENT)
-    # else:
-    #     content = {'message':'Only an administrator can use this feature.'}
-    #     return Response(content, status=status.HTTP_401_UNAUTHORIZED)
     
 
 ################################################################################
@@ -1340,13 +1404,15 @@ def delete_type(request):
 @api_staff_member_required()
 def restore_type(request):
     """
-    GET http://localhost/rest/types/restore?id=IDtorestore
-    GET http://localhost/rest/types/restore?typeVersion=IDtorestore
-    URL parameters: 
+    GET /rest/types/restore?id=IDtorestore
+    GET /rest/types/restore?typeVersion=IDtorestore
+
+    Required:
     id: string (ObjectId)
+
+    Optional:
     typeVersion: string (ObjectId)
     """
-    # if request.user.is_staff is True:
     id = request.QUERY_PARAMS.get('id', None)
     versionID = request.QUERY_PARAMS.get('typeVersion', None)
 
@@ -1392,10 +1458,7 @@ def restore_type(request):
     else:
         content = {'message':'Type version not deleted. No need to be restored.'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
-    # else:
-    #     content = {'message':'Only an administrator can use this feature.'}
-    #     return Response(content, status=status.HTTP_401_UNAUTHORIZED)
-    
+
 
 ################################################################################
 # 
@@ -1410,11 +1473,12 @@ def restore_type(request):
 @api_staff_member_required()
 def select_all_repositories(request):
     """
-    GET http://localhost/rest/repositories/select/all
+    GET /rest/repositories/select/all
     """
     instances = Instance.objects
     serializer = instanceSerializer(instances)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 ################################################################################
 # 
@@ -1429,14 +1493,16 @@ def select_all_repositories(request):
 @api_staff_member_required()
 def select_repository(request):
     """
-    GET http://localhost/rest/repositories/select?param1=value1&param2=value2
-    URL parameters: 
+    GET /rest/repositories/select?param1=value1&param2=value2
+
+    Optional:
     id: string (ObjectId)
     name: string
     protocol: string
     address: string
     port: integer
-    For string fields, you can use regular expressions: /exp/
+
+    Note: For string fields, you can use regular expressions: /exp/
     """
     id = request.QUERY_PARAMS.get('id', None)
     name = request.QUERY_PARAMS.get('filename', None)
@@ -1501,8 +1567,17 @@ def select_repository(request):
 @api_staff_member_required()
 def add_repository(request):
     """
-    POST http://localhost/rest/repositories/add
-    POST data name="name", protocol="protocol", address="address", port=port, user="user", password="password", client_id="client_id", client_secret="client_secret"
+    POST /rest/repositories/add
+
+    Required:
+    name: string
+    protocol: string
+    address: string
+    port: string
+    user: string
+    password: string
+    client_id: string
+    client_secret: string
     """
     # if request.user.is_staff is True:
     iSerializer = newInstanceSerializer(data=request.DATA)
@@ -1575,6 +1650,7 @@ def add_repository(request):
             return Response(json.loads(instance.to_json()), status=status.HTTP_201_CREATED)
     return Response(iSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 ################################################################################
 # 
 # Function Name: delete_repository(request)
@@ -1588,7 +1664,10 @@ def add_repository(request):
 @api_staff_member_required()
 def delete_repository(request):
     """
-    GET http://localhost/rest/repositories/delete?id=IDtodelete
+    GET /rest/repositories/delete?id=IDtodelete
+
+    Required:
+    id: string (ObjectId)
     """
     id = request.QUERY_PARAMS.get('id', None)
 
@@ -1620,11 +1699,12 @@ def delete_repository(request):
 @api_staff_member_required()
 def select_all_users(request):
     """
-    GET http://localhost/rest/users/select/all
+    GET /rest/users/select/all
     """
     users = User.objects.all()
     serializer = UserSerializer(users)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 ################################################################################
 # 
@@ -1639,13 +1719,15 @@ def select_all_users(request):
 @api_staff_member_required()
 def select_user(request):
     """
-    GET http://localhost/rest/users/select?param1=value1&param2=value2
-    URL parameters: 
+    GET /rest/users/select?param1=value1&param2=value2
+
+    Optional:
     username: string
     first_name: string
     last_name: string
-    email: string    
-    For string fields, you can use regular expressions: /exp/
+    email: string
+
+    Note: For string fields, you can use regular expressions: /exp/
     """
     username = request.QUERY_PARAMS.get('username', None)
     first_name = request.QUERY_PARAMS.get('first_name', None)
@@ -1685,6 +1767,7 @@ def select_user(request):
     serializer = UserSerializer(users)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 ################################################################################
 # 
 # Function Name: add_user(request)
@@ -1698,8 +1781,15 @@ def select_user(request):
 @api_staff_member_required()
 def add_user(request):
     """
-    POST http://localhost/rest/users/add
-    POST data username="username", password="password" first_name="first_name", last_name="last_name", port=port, email="email"
+    POST /rest/users/add
+
+    Required:
+    username: string
+    password: string
+    first_name: string
+    last_name: string
+    port: string
+    email: string
     """
     serializer = insertUserSerializer(data=request.DATA)
     if serializer.is_valid():
@@ -1744,8 +1834,9 @@ def add_user(request):
 @api_staff_member_required()
 def delete_user(request):
     """
-    GET http://localhost/rest/users/delete?username=username
-    URL parameters: 
+    GET /rest/users/delete?username=username
+
+    Required:
     username: string
     """
     username = request.QUERY_PARAMS.get('username', None)
@@ -1776,8 +1867,15 @@ def delete_user(request):
 @api_staff_member_required()
 def update_user(request):
     """
-    PUT http://localhost/rest/users/update?username=userToUpdate
-    PUT data first_name="first_name", last_name="last_name", email="email"
+    PUT /rest/users/update?username=userToUpdate
+
+    Required:
+    username: string
+
+    Optional:
+    first_name: string
+    last_name: string
+    email: string
     """
     username = request.QUERY_PARAMS.get('username', None)
 
@@ -1807,7 +1905,8 @@ def update_user(request):
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
+
 ################################################################################
 # 
 # Function Name: docs(request)
@@ -1819,8 +1918,9 @@ def update_user(request):
 ################################################################################
 @api_view(['GET'])
 def docs(request):
-    content={'message':'Invalid command','docs':'http://'+str(request.get_host())+'/docs/api'}
+    content = {'message': 'Invalid command', 'docs': 'http://'+str(request.get_host())+'/docs/api'}
     return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
 
 ################################################################################
 # 
@@ -1833,7 +1933,7 @@ def docs(request):
 ################################################################################
 @api_view(['GET'])
 def ping(request):
-    content={'message':'Endpoint reached'}
+    content = {'message': 'Endpoint reached'}
     return Response(content, status=status.HTTP_200_OK)
 
 
@@ -1849,7 +1949,10 @@ def ping(request):
 @api_view(['GET'])
 def get_dependency(request):
     """
-    GET http://localhost/rest/types/get-dependency?id=id
+    GET /rest/types/get-dependency?id=id
+
+    Required:
+    id: string (ObjectId)
     """  
     # TODO: can change to the hash
     id = request.QUERY_PARAMS.get('id', None)
@@ -1888,16 +1991,21 @@ def get_dependency(request):
 @api_view(['GET', 'POST'])
 def blob(request):
     """
-    GET    http://localhost/rest/blob?id=id
-    
-    POST   http://localhost/rest/blob
-    POST data: {'blob': FILE}
+    GET  /rest/blob?id=id
+
+    Required:
+    id: string (ObjectId)
+
+    POST /rest/blob
+
+    Required:
+    blob: FILE
     """  
     
     if request.method == 'GET':
         blob_id = request.QUERY_PARAMS.get('id', None)
         if blob_id is None:
-            content={'message':'No id provided.'}
+            content = {'message': 'No id provided.'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         else:
             try:
@@ -1909,32 +2017,36 @@ def blob(request):
                     response['Content-Disposition'] = 'attachment; filename=' + str(blob.filename)
                     return response
                 except:
-                    content={'message':'No file could be found with the given id.'}
+                    content = {'message': 'No file could be found with the given id.'}
                     return Response(content, status=status.HTTP_400_BAD_REQUEST)                            
             except: 
-                content={'message':'No file could be found with the given id.'}
+                content = {'message': 'No file could be found with the given id.'}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'POST':
         try:
             blob = request.FILES.get('blob')
             try:        
-                bh_factory = BLOBHosterFactory(BLOB_HOSTER, BLOB_HOSTER_URI, BLOB_HOSTER_USER, BLOB_HOSTER_PSWD, MDCS_URI)
+                bh_factory = BLOBHosterFactory(BLOB_HOSTER,
+                                               BLOB_HOSTER_URI,
+                                               BLOB_HOSTER_USER,
+                                               BLOB_HOSTER_PSWD,
+                                               MDCS_URI)
                 blob_hoster = bh_factory.createBLOBHoster()
                 try:
                     handle = blob_hoster.save(blob=blob, filename=blob.name, userid=str(request.user.id))
-                    content={'handle': handle}
+                    content = {'handle': handle}
                     return Response(content, status=status.HTTP_201_CREATED)
                 except:
-                    content={'message':'Something went wrong with BLOB upload.'}
+                    content = {'message': 'Something went wrong with BLOB upload.'}
                     return Response(content, status=status.HTTP_400_BAD_REQUEST)
             except:
-                content={'message':'Something went wrong with BLOB Hoster Initialization. Please check the settings.'}
+                content = {'message': 'Something went wrong with BLOB Hoster Initialization. '
+                                      'Please check the settings.'}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
         except:
-            content={'message':'blob parameter not found'}
+            content = {'message': 'blob parameter not found'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
-    
     
         
 ################################################################################
@@ -1950,7 +2062,7 @@ def blob(request):
 @api_permission_required(RIGHTS.explore_content_type, RIGHTS.explore_access)
 def select_all_exporters(request):
     """
-    GET http://localhost/rest/exporter/select/all
+    GET /rest/exporter/select/all
     """
     exporters = Exporter.objects(name__ne='XSLT')
     serializer = exporterSerializer(exporters)
@@ -1974,12 +2086,13 @@ def select_all_exporters(request):
 @api_permission_required(RIGHTS.explore_content_type, RIGHTS.explore_access)
 def select_exporter(request):
     """
-    GET http://localhost/rest/exporter/select?param1=value1&amp;param2=value2
-    URL parameters:
+    GET /rest/exporter/select?param1=value1&amp;param2=value2
+
+    Optional:
     id: string (ObjectId)
     name: string
 
-    For string fields, you can use regular expressions: /exp/
+    Note: For string fields, you can use regular expressions: /exp/
     """
     id = request.QUERY_PARAMS.get('id', None)
     name = request.QUERY_PARAMS.get('name', None)
@@ -2019,7 +2132,6 @@ def select_exporter(request):
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
 
-
 ################################################################################
 #
 # Function Name: add_xslt(request)
@@ -2033,8 +2145,13 @@ def select_exporter(request):
 @api_staff_member_required()
 def add_xslt(request):
     """
-    POST http://localhost/rest/exporter/xslt/add
-    POST data name="name", filename="filename", content="...", available_for_all="True or False"
+    POST /rest/exporter/xslt/add
+
+    Required:
+    name: string
+    filename: string
+    content: string
+    available_for_all: string [True|False]
     """
     serializer = jsonXSLTSerializer(data=request.DATA)
     if serializer.is_valid():
@@ -2050,7 +2167,7 @@ def add_xslt(request):
                 available = request.DATA['available_for_all'] == 'True'
                 jsondata = ExporterXslt(name=request.DATA['name'], filename=request.DATA['filename'], content=request.DATA['content'], available_for_all=available)
                 docID = jsondata.save()
-                #IF it's available for all templates, we add the reference for all templates using the XSLT exporter
+                # IF it's available for all templates, we add the reference for all templates using the XSLT exporter
                 if available:
                     xslt_exporter = None
                     try:
@@ -2074,6 +2191,7 @@ def add_xslt(request):
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 ################################################################################
 #
 # Function Name: delete_xslt(request)
@@ -2087,8 +2205,9 @@ def add_xslt(request):
 @api_staff_member_required()
 def delete_xslt(request):
     """
-    GET http://localhost/rest/exporter/xslt/delete?id=id
-    URL parameters:
+    GET /rest/exporter/xslt/delete?id=id
+
+    Required:
     id: string
     """
     id = request.QUERY_PARAMS.get('id', None)
@@ -2105,6 +2224,7 @@ def delete_xslt(request):
         content = {'message':"No id provided."}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
 
+
 ################################################################################
 #
 # Function Name: export(request)
@@ -2118,8 +2238,14 @@ def delete_xslt(request):
 @api_permission_required(RIGHTS.explore_content_type, RIGHTS.explore_access)
 def export(request):
     """
-    POST http://localhost/rest/exporter/export
-    POST data files[]="fileID,fileID,...", exporter="exporterID", dataformat: [json,zip]
+    POST /rest/exporter/export
+
+    Required:
+    files[]: string (e.g. "fileID,fileID,...")
+    exporter: string (ObjectId)
+
+    Optional:
+    dataformat: string [json,zip]
     """
     dataXML = []
     serializer = jsonExportSerializer(data=request.DATA)

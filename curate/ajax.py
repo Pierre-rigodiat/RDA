@@ -553,7 +553,8 @@ def remove_element(request):
 
     # Removing the element from the data structure
     schema_element = element_list[0]
-    schema_element.update(pull__children=element_id)
+    schema_element_to_pull = SchemaElement.objects.get(pk=element_id)
+    schema_element.update(pull__children=schema_element_to_pull)
 
     schema_element.reload()
     update_branch_xpath(schema_element)
