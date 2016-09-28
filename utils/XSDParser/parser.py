@@ -278,6 +278,26 @@ def has_module(request, element):
     return _has_module
 
 
+def is_module_multiple(request, element):
+    """ Checks if the module is multiple (means it manages the occurrences)
+
+    :param request:
+    :param element:
+    :return:
+    """
+    # check if a module is set for this element
+    if '{http://mdcs.ns}_mod_mdcs_' in element.attrib:
+        # get the url of the module
+        url = element.attrib['{http://mdcs.ns}_mod_mdcs_']
+
+        url = urlparse(url).path
+
+        module = Module.objects.get(url=url)
+        return module.multiple
+
+    return False
+
+
 def get_xml_element_data(xsd_element, xml_element):
     """Return the content of an xml element
 
@@ -896,6 +916,8 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
 
     # check if the element has a module
     _has_module = has_module(request, element)
+    # checks if the module manage the occurrences by itself
+    _is_multiple = is_module_multiple(request, element)
 
     # FIXME see if we can avoid these basic initialization
     # FIXME this is not necessarily true (see attributes)
@@ -1045,7 +1067,7 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
         if nb_occurrences_data > min_occurs:
             delete_button = True
 
-    if _has_module:
+    if _has_module and _is_multiple:
         # block maxOccurs to one, the module should take care of occurrences when the element is replaced
         nb_occurrences = 1
         # max_occurs = 1
@@ -1137,42 +1159,46 @@ def generate_element(request, element, xml_tree, choice_info=None, full_path="",
         if not (add_button is False and delete_button is False):
             pass
 
-        # get the default value (from xsd or from loaded xml)
-        default_value = ""
-        if 'curate_edit' in request.session and request.session['curate_edit']:
-            # if elements are found at this xpath
-            if len(edit_elements) > 0:
-                # it is an XML element
-                if element_tag == 'element':
-                    # get the value of the element x
-                    if edit_elements[x].text is not None:
-                        # set the value of the element
-                        default_value = edit_elements[x].text
-                # it is an XMl attribute
-                elif element_tag == 'attribute':
-                    # get the value of the attribute
-                    if edit_elements[x] is not None:
-                        # set the value of the element
-                        if isinstance(edit_elements[x], numbers.Number):
-                            default_value = str(edit_elements[x])
-                        else:
-                            default_value = edit_elements[x]
-        elif 'default' in element.attrib:
-            # if the default attribute is present
-            default_value = element.attrib['default']
-
-        default_value = default_value.strip()
-
         # if element not removed
         if not removed:
             # if module is present, replace default input by module
             if _has_module:
-                module = generate_module(request, element, xsd_xpath, full_path, xml_tree=xml_tree,
+                xml_path = full_path
+                if not _is_multiple:
+                    xml_path = '{0}[{1}]'.format(full_path, str(x+1))
+
+                module = generate_module(request, element, xsd_xpath, xml_path, xml_tree=xml_tree,
                                          edit_data_tree=edit_data_tree)
 
                 form_string += module[0]
                 db_elem_iter['children'].append(module[1])
             else:  # generate the type
+                # get the default value (from xsd or from loaded xml)
+                default_value = ""
+                if 'curate_edit' in request.session and request.session['curate_edit']:
+                    # if elements are found at this xpath
+                    if len(edit_elements) > 0:
+                        # it is an XML element
+                        if element_tag == 'element':
+                            # get the value of the element x
+                            if edit_elements[x].text is not None:
+                                # set the value of the element
+                                default_value = edit_elements[x].text
+                        # it is an XMl attribute
+                        elif element_tag == 'attribute':
+                            # get the value of the attribute
+                            if edit_elements[x] is not None:
+                                # set the value of the element
+                                if isinstance(edit_elements[x], numbers.Number):
+                                    default_value = str(edit_elements[x])
+                                else:
+                                    default_value = edit_elements[x]
+                elif 'default' in element.attrib:
+                    # if the default attribute is present
+                    default_value = element.attrib['default']
+
+                default_value = default_value.strip()
+
                 if element_type is None:  # no complex/simple type
                     placeholder = app_info['placeholder'] if 'placeholder' in app_info else ''
                     tooltip = _fmt_tooltip(app_info['tooltip']) if 'tooltip' in app_info else ''
@@ -2169,6 +2195,19 @@ def generate_choice_extensions(request, element, xml_tree, choice_info=None, ful
                 if request.session['PARSER_MIN_TREE']:
                     return form_string, db_element
 
+    # get the schema namespaces
+    xml_tree_str = etree.tostring(xml_tree)
+    namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
+    # add the XSI prefix used by extensions
+    namespaces['xsi'] = "http://www.w3.org/2001/XMLSchema-instance"
+    target_namespace, target_namespace_prefix = common.get_target_namespace(namespaces, xml_tree)
+
+    # if root xsi:type
+    if full_path == "":
+        is_root = True
+    else:
+        is_root = False
+
     for x in range(0, int(nb_occurrences)):
         db_child = {
             'tag': 'choice-iter',
@@ -2181,7 +2220,13 @@ def generate_choice_extensions(request, element, xml_tree, choice_info=None, ful
 
         request.session['implicit_extension'] = False
         for (counter, choiceChild) in enumerate(list(element)):
-            full_path = '/' + choiceChild.attrib['name']
+
+            if is_root:
+                if target_namespace_prefix != "":
+                    full_path = "/{0}:{1}".format(target_namespace_prefix, choiceChild.attrib['name'])
+                else:
+                    full_path = "/{0}".format(choiceChild.attrib['name'])
+
             if choiceChild.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE) or \
                             choiceChild.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
 
@@ -2208,13 +2253,6 @@ def generate_choice_extensions(request, element, xml_tree, choice_info=None, ful
 
                 # look for active choice when editing
                 if 'curate_edit' in request.session and request.session['curate_edit']:
-                    # get the schema namespaces
-                    xml_tree_str = etree.tostring(xml_tree)
-                    namespaces = common.get_namespaces(BytesIO(str(xml_tree_str)))
-                    # add the XSI prefix used by extensions
-                    namespaces['xsi'] = "http://www.w3.org/2001/XMLSchema-instance"
-                    target_namespace, target_namespace_prefix = common.get_target_namespace(namespaces, xml_tree)
-                    # TODO: create prefix if no prefix?
                     ns_prefix = target_namespace_prefix + ":" if target_namespace is not None else ""
                     ns_element_path = '{0}[@xsi:type="{1}{2}"]'.format(full_path, ns_prefix, opt_label)
                     element_path = '{0}[@xsi:type="{1}"]'.format(full_path, opt_label)
@@ -2367,12 +2405,7 @@ def generate_module(request, element, xsd_xpath=None, xml_xpath=None, xml_tree=N
 
                             reload_data = get_xml_element_data(element, edit_element)
                         else:
-                            reload_data = []
-                            reload_attrib = []
-
-                            for edit_element in edit_elements:
-                                reload_attrib.append(dict(edit_element.attrib))
-                                reload_data.append(get_xml_element_data(element, edit_element))
+                            raise MDCSError("Unexpected number of elements found in the XML document.")
 
             db_element['options']['url'] = url
             db_element['options']['data'] = reload_data
