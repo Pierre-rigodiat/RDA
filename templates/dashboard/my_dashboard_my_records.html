@@ -106,11 +106,5 @@ Are you sure you want to unpublish this document?
   <script src="{% static 'inc/controllers/js/dashboard.js' %}"></script>
   <script>
     initBanner();
-    {% if user.is_staff %}
-    $(document).ready(function(){
-        initRecord();
-        initAdmin();
-    });
-    {% endif %}
   </script>
 {% endblock %}

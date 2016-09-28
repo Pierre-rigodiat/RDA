@@ -40,8 +40,6 @@ urlpatterns = patterns('',
     url(r'^update_publish', 'user_dashboard.ajax.update_publish'),
     url(r'^update_unpublish', 'user_dashboard.ajax.update_unpublish'),
     url(r'^change-owner-record', 'user_dashboard.views.change_owner_record'),
-    url(r'^delete-forms', 'user_dashboard.ajax.delete_forms'),
-    url(r'^change-owner-forms', 'user_dashboard.ajax.change_owner_forms')
 )+static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 

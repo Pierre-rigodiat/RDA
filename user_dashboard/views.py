@@ -131,7 +131,7 @@ def dashboard_records(request):
         usernames = dict((str(x.id), x.username) for x in User.objects.all())
         query['iduser'] = {"$ne": str(request.user.id)}
         otherUsersXmlData = sorted(XMLdata.find(query), key=lambda data: data['lastmodificationdate'], reverse=True)
-        context.update({'OtherUsersXMLdatas': otherUsersXmlData, 'usernames': usernames, 'action_form': ActionForm([('1', 'Delete selected records'), ('2', 'Change owner of selected records')])})
+        context.update({'OtherUsersXMLdatas': otherUsersXmlData, 'usernames': usernames, 'action_form': ActionForm()})
 
     return HttpResponse(template.render(context))
 
@@ -170,7 +170,7 @@ def dashboard_my_forms(request):
             other_users_detailed_forms.append({'form': form,
                                                'template_name': Template.objects().get(pk=form.template).title,
                                                'user': form.user})
-        context.update({'otherUsersForms': other_users_detailed_forms, 'usernames': usernames, 'action_form': ActionForm([('3', 'Delete selected forms'), ('4', 'Change owner of selected forms')])})
+        context.update({'otherUsersForms': other_users_detailed_forms, 'usernames': usernames})
 
     return HttpResponse(template.render(context))
 
@@ -401,7 +401,7 @@ def dashboard_detail_record(request):
 ################################################################################
 def change_owner_record(request):
     if 'recordID[]' in request.POST and 'userID' in request.POST:
-        xml_data_ids = request.POST.getlist('recordID[]')
+        xml_data_ids = request.POST.getlist('recordID[]')#request.POST['recordID']
         user_id = request.POST['userID']
         for xml_data_id in xml_data_ids:
             try:
