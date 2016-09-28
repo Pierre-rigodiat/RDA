@@ -311,7 +311,7 @@ def dashboard_files(request):
         #Get user name for admin
         usernames = dict((str(x.id), x.username) for x in User.objects.all())
         otherUsersFiles = getListFiles(blob_hoster.find("metadata.iduser", { '$ne': str(request.user.id) }))
-        context.update({'otherUsersFiles': otherUsersFiles, 'usernames': usernames, 'action_form': ActionForm([('7', 'Delete selected files')])})
+        context.update({'otherUsersFiles': otherUsersFiles, 'usernames': usernames})
 
     return HttpResponse(template.render(context))
 

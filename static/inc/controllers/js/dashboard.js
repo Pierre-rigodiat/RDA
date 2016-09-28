@@ -52,40 +52,6 @@ function resetOtherCheckBox() {
     countChecked();
 }
 
-function initFile() {
-    $('#table-file-admin').DataTable({
-    "scrollY": "226px",
-    "iDisplayLength": 5,
-    "scrollCollapse": true,
-    "lengthMenu": [ 5, 10, 15, 20 ],
-    "columnDefs": [
-            {"className": "dt-center", "targets": 0}
-          ],
-    order: [[2, 'asc']],
-    "columns": [ { "orderable": false }, null, null, null, { "orderable": false } ],
-    "fnInfoCallback": function( oSettings, iStart, iEnd, iMax, iTotal, sPre ) {
-        resetAdminCheckBox();
-        $( "input[type=checkbox]" ).on( "change", countChecked );
-      }
-    });
-
-    $('#table-file-other').DataTable({
-    "scrollY": "226px",
-    "iDisplayLength": 5,
-    "scrollCollapse": true,
-    "lengthMenu": [ 5, 10, 15, 20 ],
-    "columnDefs": [
-            {"className": "dt-center", "targets": 0}
-          ],
-    order: [[2, 'asc']],
-    "columns": [ { "orderable": false }, null, null, null, { "orderable": false } ],
-    "fnInfoCallback": function( oSettings, iStart, iEnd, iMax, iTotal, sPre ) {
-        resetOtherCheckBox();
-        $( "input[type=checkbox]" ).on( "change", countChecked );
-      }
-    });
-}
-
 function initType() {
     $('#table-type-admin').DataTable({
     "scrollY": "226px",
@@ -354,6 +320,7 @@ deleteObject = function()
     var objectType = $(this).attr("objecttype");
     var objectFilename = $(this).attr("objectfilename");
     var objectName = $(this).attr("objectname");
+    var url = $(this).attr("url");
 
     document.getElementById("object-to-delete").innerHTML = objectName;
     $(function() {
@@ -363,7 +330,7 @@ deleteObject = function()
 		Yes: function() {
 		            var selected = []
                     selected.push(objectID)
-					delete_object(selected, objectType);
+					delete_object(selected, objectType, url);
                     $( this ).dialog( "close" );
                 },
 		No: function() {
@@ -381,8 +348,9 @@ deleteObject = function()
  * AJAX call, delete an object
  * @param objectID id of the object
  * @param objectType type of the object
+ * @param url mdcs url
  */
-delete_object = function(objectID, objectType){
+delete_object = function(objectID, objectType, url){
     $.ajax({
         url : "/dashboard/delete_object",
         type : "POST",
@@ -390,6 +358,7 @@ delete_object = function(objectID, objectType){
         data : {
         	objectID : objectID,
         	objectType : objectType,
+        	url : url,
         },
         success: function(data){
             if ('Type' in data) {
@@ -749,7 +718,7 @@ action_dashboard = function(selectValue) {
                     },
                     Delete: function() {
                         $( this ).dialog( "close" );
-                        delete_object(selected, "Template");
+                        delete_object(selected, "Template", "");
                     },
                 }
             });
@@ -765,23 +734,7 @@ action_dashboard = function(selectValue) {
                     },
                     Delete: function() {
                         $( this ).dialog( "close" );
-                        delete_object(selected, "Type");
-                    },
-                }
-            });
-        });
-    // Delete file
-    } else if (selectValue == 7) {
-        $(function() {
-            $( "#dialog-deleteconfirm-message" ).dialog({
-                modal: true,
-                buttons: {
-                    Cancel: function() {
-                        $( this ).dialog( "close" );
-                    },
-                    Delete: function() {
-                        $( this ).dialog( "close" );
-                        delete_object(selected, "");
+                        delete_object(selected, "Type", "");
                     },
                 }
             });
