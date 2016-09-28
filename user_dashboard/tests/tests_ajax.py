@@ -106,18 +106,16 @@ class tests_user_dashboard_ajax(RegressionTest):
 
     def test_delete_object_template(self):
         template = self.createTemplate()
-        template2 = self.createTemplate()
         url = '/dashboard/delete_object'
-        data = {'objectID[]': [template.id, template2.id], 'objectType': 'Template'}
+        data = {'objectID': template.id, 'objectType': 'Template'}
         r = self.doRequestPostAdminClientLogged(url=url, data=data)
         self.assertEquals(0, len(Template.objects()))
         self.assertEquals(0, len(TemplateVersion.objects()))
 
     def test_delete_object_type(self):
         type = self.createType()
-        type2 = self.createType()
         url = '/dashboard/delete_object'
-        data = {'objectID[]': [type.id, type2.id], 'objectType': 'Type'}
+        data = {'objectID': type.id, 'objectType': 'Type'}
         r = self.doRequestPostAdminClientLogged(url=url, data=data)
         self.assertEquals(0, len(Type.objects()))
         self.assertEquals(0, len(TypeVersion.objects()))
@@ -128,7 +126,7 @@ class tests_user_dashboard_ajax(RegressionTest):
         self.assertEquals(1, len(Template.objects()))
         self.createXMLData(schemaID=template.id)
         url = '/dashboard/delete_object'
-        data = {'objectID[]': [template.id], 'objectType': 'Template'}
+        data = {'objectID': template.id, 'objectType': 'Template'}
         r = self.doRequestPostAdminClientLogged(url=url, data=data)
         self.assertEquals(1, len(Template.objects()))
         self.assertEquals(1, len(TemplateVersion.objects()))
@@ -139,7 +137,7 @@ class tests_user_dashboard_ajax(RegressionTest):
         otherType.dependencies = [str(type.id)]
         otherType.save()
         url = '/dashboard/delete_object'
-        data = {'objectID[]': [type.id], 'objectType': 'Type'}
+        data = {'objectID': type.id, 'objectType': 'Type'}
         r = self.doRequestPostAdminClientLogged(url=url, data=data)
         self.assertIsNotNone(Type.objects(pk=type.id).get())
 
