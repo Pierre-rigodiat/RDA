@@ -20,14 +20,6 @@ from django.utils.importlib import import_module
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
 
-class ActionForm(forms.Form):
-    """
-    Form to select the action in the user dashboard
-    """
-    ACTIONS_OPTIONS = [('1', 'Delete selected records'), ('2', 'Change owner of selected records')]
-    actions = forms.ChoiceField(label='', required=True, choices=ACTIONS_OPTIONS)
-
-
 class CustomPasswordPoliciesForm(PasswordPoliciesForm):
     """
 A form that lets a user set his/her password without entering the

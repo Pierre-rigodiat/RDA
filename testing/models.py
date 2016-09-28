@@ -97,10 +97,10 @@ class RegressionTest(LiveServerTestCase, TestCase):
             client.defaults['HTTP_AUTHORIZATION'] = 'Basic ' + credentials
         return client
 
-    def doRequestPostAdminClientLogged(self, url, data=None, params=None, format=None):
+    def doRequestPostAdminClientLogged(self, url, data=None, params=None):
         client = self.getClient('admin:admin')
         client.login(username='admin', password='admin')
-        return client.post(URL_TEST + url, data=data, params=params, format=format)
+        return client.post(URL_TEST + url, data=data, params=params)
 
     def doRequestGetAdminClientLogged(self, url, data=None, params=None):
         self.client = self.getClient('admin:admin')

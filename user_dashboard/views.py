@@ -40,7 +40,6 @@ from password_policies.views import PasswordChangeFormView
 from django.utils import timezone
 from django.core.urlresolvers import reverse
 from utils.DateTimeDecoder import DateTimeEncoder
-from user_dashboard.forms import ActionForm
 
 ################################################################################
 #
@@ -131,7 +130,7 @@ def dashboard_records(request):
         usernames = dict((str(x.id), x.username) for x in User.objects.all())
         query['iduser'] = {"$ne": str(request.user.id)}
         otherUsersXmlData = sorted(XMLdata.find(query), key=lambda data: data['lastmodificationdate'], reverse=True)
-        context.update({'OtherUsersXMLdatas': otherUsersXmlData, 'usernames': usernames, 'action_form': ActionForm()})
+        context.update({'OtherUsersXMLdatas': otherUsersXmlData, 'usernames': usernames})
 
     return HttpResponse(template.render(context))
 
@@ -400,15 +399,14 @@ def dashboard_detail_record(request):
 #
 ################################################################################
 def change_owner_record(request):
-    if 'recordID[]' in request.POST and 'userID' in request.POST:
-        xml_data_ids = request.POST.getlist('recordID[]')#request.POST['recordID']
+    if 'recordID' in request.POST and 'userID' in request.POST:
+        xml_data_id = request.POST['recordID']
         user_id = request.POST['userID']
-        for xml_data_id in xml_data_ids:
-            try:
-                XMLdata.update_user(xml_data_id, user=user_id)
-            except Exception, e:
-                return HttpResponseServerError({"Something wrong occurred during the change of owner."}, status=500)
-        messages.add_message(request, messages.INFO, 'Record Owner changed with success.')
+        try:
+            XMLdata.update_user(xml_data_id, user=user_id)
+            messages.add_message(request, messages.INFO, 'Record Owner changed with success.')
+        except Exception, e:
+            return HttpResponseServerError({"Something wrong occurred during the change of owner."}, status=500)
     else:
         return HttpResponseBadRequest({"Bad entries. Please check the parameters."})
 

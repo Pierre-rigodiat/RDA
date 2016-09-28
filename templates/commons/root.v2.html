@@ -41,7 +41,6 @@
           media="screen" />
 	<!--<link rel="stylesheet" type="text/css" href="{% static 'resources/css/icons.css' %}" media="screen" />-->
     <link rel="stylesheet" type="text/css" href="{% static 'libs/jquery-ui/smoothness/1.11.4/jquery-ui.css' %}"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/jquery.dataTables.min.css' %}"/>
 
     {% block theme %}{% endblock %}
     {% block extrastyle %}{% endblock %}
@@ -59,8 +58,7 @@
     {% block body %}{% endblock %}
 
     <!-- JQuery & JQuery UI -->
-	<script src="{% static 'libs/jquery/1.12.4/jquery-1.12.4.js' %}"></script>
-    <script src="{% static 'libs/jquery/1.12.4/jquery.dataTables.min.js' %}"></script>
+	<script src="{% static 'libs/jquery/1.11.3/jquery.min.js' %}"></script>
 	<script src="{% static 'libs/bootstrap/3.3.5/js/bootstrap.min.js' %}"></script>
     <script src="{% static 'libs/jquery-ui/smoothness/1.11.4/jquery-ui.js' %}"></script>
     <script src="{% static 'inc/controllers/js/csrf.js' %}"></script>

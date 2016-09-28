@@ -151,18 +151,18 @@ def dashboard_toXML(request):
 # Inputs:        request -
 # Outputs:
 # Exceptions:    None
-# Description:   Delete a list of XML document from the database
+# Description:   Delete an XML document from the database
 #
 ################################################################################
 def delete_result(request):
-    result_ids = request.POST.getlist('result_id[]')
-    for result_id in result_ids:
-        try:
-            XMLdata.delete(result_id)
-            messages.add_message(request, messages.INFO, 'Resource deleted with success.')
-        except:
-            # XML can't be found
-            pass
+    result_id = request.GET['result_id']
+
+    try:
+        XMLdata.delete(result_id)
+    except:
+        # XML can't be found
+        pass
+
     return HttpResponse(json.dumps({}), content_type='application/javascript')
 
 ################################################################################

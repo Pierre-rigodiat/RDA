@@ -167,7 +167,7 @@ class tests_user_dashboard_views(RegressionTest):
         xmldataid = self.createXMLData(iduser=userId, schemaID=template.id)
         self.assertEquals(str(userId), str(XMLdata.get(xmldataid)['iduser']))
         url = '/dashboard/change-owner-record'
-        data = {'recordID[]': [str(xmldataid)], 'userID': str(adminId)}
+        data = {'recordID': str(xmldataid), 'userID': str(adminId)}
         r = self.doRequestPostUserClientLogged(url=url, data=data)
         self.assertEquals(str(adminId), str(XMLdata.get(xmldataid)['iduser']))
         self.isStatusOK(r.status_code)

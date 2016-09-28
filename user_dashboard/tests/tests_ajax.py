@@ -68,25 +68,10 @@ class tests_user_dashboard_ajax(RegressionTest):
         self.assertIsNotNone(XMLdata.get(id))
         self.assertEquals(Status.ACTIVE, XMLdata.get(id)['status'])
         url = '/dashboard/delete_result'
-        data = {'result_id[]': [str(id)]}
-        r = self.doRequestPost(url=url, data=data)
+        data = {'result_id': str(id)}
+        r = self.doRequestGetAdminClientLogged(url=url, data=data)
         self.assertIsNotNone(XMLdata.get(id))
         self.assertEquals(Status.DELETED, XMLdata.get(id)['status'])
-
-    def test_delete_result_list(self):
-        id1 = self.createXMLData()
-        self.assertIsNotNone(XMLdata.get(id1))
-        self.assertEquals(Status.ACTIVE, XMLdata.get(id1)['status'])
-        id2 = self.createXMLData()
-        self.assertIsNotNone(XMLdata.get(id2))
-        self.assertEquals(Status.ACTIVE, XMLdata.get(id2)['status'])
-        url = '/dashboard/delete_result'
-        data = {'result_id[]': [id1, id2]}
-        r = self.doRequestPost(url=url, data=data)
-        self.assertIsNotNone(XMLdata.get(id1))
-        self.assertEquals(Status.DELETED, XMLdata.get(id1)['status'])
-        self.assertIsNotNone(XMLdata.get(id2))
-        self.assertEquals(Status.DELETED, XMLdata.get(id2)['status'])
 
     def test_update_publish(self):
         id = self.createXMLData()

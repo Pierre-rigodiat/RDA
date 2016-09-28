@@ -22,53 +22,48 @@
 {% endcomment %}
 {% block title %}
     {% if user.is_staff %}
-        <h1><span>Published Records</span></h1>
+        <h1><span>My Published Records / Other users Published Records</span></h1>
     {% else %}
         <h1><span>My Published Records</span></h1>
     {% endif %}
 {% endblock %}
 {% block menu %}{% include 'mdcs/menus/main.html' with active_tab='profile' %}{% endblock %}
 {% block submenu %}{% include 'mdcs/menus/submenu/dashboard.html' with active_tab='tab1' %}{% endblock %}
+
 {% block content %}
     <div id="body">
+	    <div class="width">
+            <!--<ul class="nav nav-tabs">-->
+                <!--{% if ispublished == None %} <li class="active"> {%else%} <li> {% endif%} <a href="/dashboard/records">All</a></li>-->
+                <!--{% if ispublished == True %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/records?ispublished=true">Public</a></li>-->
+                <!--{% if ispublished == False %} <li class="active"> {%else%} <li> {% endif%}<a href="/dashboard/records?ispublished=false">Private</a></li>-->
+            <!--</ul>-->
             {% if user.is_staff %}
-            <ul  class="nav nav-tabs">
-                        <li class="active"> <a href="#admin" data-toggle="tab" onclick="resetOtherCheckBox();" style="text-decoration:none;">Admin</a> </li>
-                        <li><a href="#others" data-toggle="tab" onclick="resetAdminCheckBox();" style="text-decoration:none;">Others</a> </li>
-            </ul>
-            <div class="dropdown" id="id_actions" style="display:none">
-                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                    Choose action
-                    <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    {% for value, text in action_form.fields.actions.choices %}
-                        <li style="cursor:  pointer;" onclick="action_dashboard({{value}});">{{text}}</li>
-                    {% endfor %}
-                </ul>
-            </div>
+                <span>
+                    <div class="tpl-title">My published records</div>
+                </span>
             {%endif%}
-            <br/>
-            <div class="tab-content">
-			  <div class="tab-pane active" id="admin" style="width:98%">
-                {% if XMLdatas%}
-                    {% with canEdit=request.user|has_perm:'curate.curate_edit_document' canDelete=request.user|has_perm:'curate.curate_delete_document' %}
-                            {% include 'dashboard/my_dashboard_my_records_table.html' with XMLdatas=XMLdatas group='admin' %}
-                    {% endwith%}
-                {%else%}
-                    No published record found.
-                {%endif%}
-              </div>
-              <div class="tab-pane" id="others" style="width:98%">
+            {% if XMLdatas%}
+                {% with canEdit=request.user|has_perm:'curate.curate_edit_document' canDelete=request.user|has_perm:'curate.curate_delete_document' %}
+                        {% include 'dashboard/my_dashboard_my_records_table.html' with XMLdatas=XMLdatas %}
+                {% endwith%}
+            {%else%}
+                No published record found
+            {%endif%}
+            <div class="clear"></div>
+            {% if user.is_staff %}
+                <span>
+                    <div class="tpl-title">Other users published records</div>
+                </span>
                 {% if OtherUsersXMLdatas%}
                     {% with canEdit=request.user|has_perm:'curate.curate_edit_document' canDelete=request.user|has_perm:'curate.curate_delete_document' %}
-                            {% include 'dashboard/my_dashboard_my_records_table.html' with XMLdatas=OtherUsersXMLdatas group='other' %}
+                            {% include 'dashboard/my_dashboard_my_records_table.html' with XMLdatas=OtherUsersXMLdatas %}
                     {% endwith%}
                 {%else%}
-                    No other users published records found.
+                    No other users published records found
                 {%endif%}
-              </div>
-            </div>
+            {%endif%}
+        </div>
 	</div>
     <div class="clear"></div>
 <hr>
