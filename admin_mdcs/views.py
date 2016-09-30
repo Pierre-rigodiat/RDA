@@ -343,7 +343,10 @@ def upload_xsd(request):
                             return redirect('/admin/xml-schemas/manage-types')
                     except XSDError, e:
                         error = e.message
-                        xsd_tree = etree.parse(BytesIO(xsd_data.encode('utf-8')))
+                        try:
+                            xsd_tree = etree.parse(BytesIO(xsd_data.encode('utf-8')))
+                        except:
+                            xsd_tree = etree.parse(BytesIO(xsd_data))
                         # a problem with includes/imports has been detected
                         # get the imports
                         imports = xsd_tree.findall("{}import".format(LXML_SCHEMA_NAMESPACE))
@@ -510,7 +513,10 @@ def manage_versions(request):
                         return HttpResponse(template.render(context))
                     except XSDError, e:
                         error = e.message
-                        xsd_tree = etree.parse(BytesIO(xsd_data.encode('utf-8')))
+                        try:
+                            xsd_tree = etree.parse(BytesIO(xsd_data.encode('utf-8')))
+                        except:
+                            xsd_tree = etree.parse(BytesIO(xsd_data))
                         # a problem with includes/imports has been detected
                         # get the imports
                         imports = xsd_tree.findall("{}import".format(LXML_SCHEMA_NAMESPACE))
