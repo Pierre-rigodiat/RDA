@@ -24,7 +24,7 @@ import os
 from django.core.urlresolvers import reverse_lazy
 from mongoengine import connect
 
-VERSION = "1.4_rc3"
+VERSION = "1.4"
 
 FORCE_SCRIPT_NAME = ""
 # SECURITY WARNING: don't run with debug turned on in production!

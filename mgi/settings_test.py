@@ -22,7 +22,7 @@
 
 import os
 
-VERSION = "1.4_rc3"
+VERSION = "1.4"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
