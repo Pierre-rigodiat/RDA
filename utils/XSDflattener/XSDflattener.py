@@ -7,7 +7,6 @@
 # V1: 
 #    - works with include statement only (not import)
 #    - works with API URL in include schemaLocation attribute
-#	 - works with local URI
 #
 # Author: Guillaume SOUSA AMARAL
 #         guillaume.sousa@nist.gov
@@ -28,9 +27,10 @@ import urllib2
 class XSDFlattener(object):
     __metaclass__ = ABCMeta
 
-    def __init__(self, xmlString):
+    def __init__(self, xmlString, download_enabled=True):
         self.xmlString = xmlString
         self.dependencies = []
+        self.download_enabled = download_enabled
 
     def get_flat(self):
         parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, remove_pis=True)
@@ -83,52 +83,15 @@ class XSDFlattener(object):
         pass
 
 
-################################################################################
-#
-# XSDFlattenerURL
-#
-# future: flattener that could work using URL of distant server requiring authentication
-#
-################################################################################
 class XSDFlattenerURL(XSDFlattener):
-    def __init__(self, xmlString):
-        XSDFlattener.__init__(self, xmlString)
-        self.servers = {}
-
-    def get_dependency_content(self, uri):
-        pass
-
-    # 		r = requests.get(uri,auth=(self.user, self.password))
-    # 		return r.text
-
-
-################################################################################
-#
-# XSDFlattenerLocal
-#
-# description: flattener that can flatten files on the local file system
-#
-################################################################################	
-class XSDFlattenerLocal(XSDFlattener):
-    def get_dependency_content(self, uri):
-        file = open(uri, 'r')
-        content = file.read()
-        return content
-
-
-################################################################################
-#
-# XSDFlattenerFull
-#
-# future: flattener that could work using URL and local files
-#
-################################################################################
-class XSDFlattenerURL(XSDFlattener):
+    """
+    Download the content of the dependency
+    """
     def get_dependency_content(self, uri):
         content = ""
-        try:
+
+        if self.download_enabled:
             file = urllib2.urlopen(uri)
             content = file.read()
-        except:
-            pass
+
         return content

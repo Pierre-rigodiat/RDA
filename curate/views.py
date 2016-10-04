@@ -410,7 +410,8 @@ def start_curate(request):
                         template_id = TemplateVersion.objects().get(pk=templates[0].templateVersion).current
                         request.session['currentTemplateID'] = template_id
                     else:
-                        raise MDCSError("The selection of template by name can't be used if the MDCS contain more than one template with the same name.")
+                        raise MDCSError("The selection of template by name can't be used if the MDCS contain more than "
+                                        "one template with the same name.")
 
                     template = loader.get_template('curate/curate_full_start.html')
 
@@ -424,9 +425,9 @@ def start_curate(request):
                     ajaxCall = True
                     template = loader.get_template('curate/curate_start.html')
 
-                open_form = OpenForm(
-                    forms=FormData.objects(user=str(request.user.id), template=request.session['currentTemplateID'],
-                                           xml_data_id__exists=False))
+                open_form = OpenForm(forms=FormData.objects(user=str(request.user.id),
+                                                            template=request.session['currentTemplateID'],
+                                                            xml_data_id__exists=False))
                 new_form = NewForm()
                 upload_form = UploadForm()
 

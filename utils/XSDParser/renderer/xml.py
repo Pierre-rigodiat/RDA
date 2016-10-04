@@ -4,9 +4,9 @@ from django.template import loader
 from os.path import join
 from curate.models import SchemaElement
 from bson.objectid import ObjectId
-
 from mgi.exceptions import MDCSError
 from utils.XSDParser.renderer import DefaultRenderer
+import numbers
 
 
 class AbstractXmlRenderer(DefaultRenderer):
@@ -215,7 +215,11 @@ class XmlRenderer(AbstractXmlRenderer):
                         else:
                             xmlns = ''
 
+                if isinstance(attr_value, numbers.Number):
+                    attr_value = str(attr_value)
+
                 attr_list.append(xmlns + " " + attr_key + "='" + attr_value + "'")
+
                 # TODO: check that sibling attributes are not declaring the same namespaces
             else:
                 attr_list.append(attr_key + '="' + attr_value + '"')
