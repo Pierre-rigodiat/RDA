@@ -137,14 +137,14 @@ def load_xslt():
         file = open(os.path.join(SITE_ROOT, 'oai_pmh', 'resources', 'xsl', xsltFullPath),'r')
         fileContent = file.read()
         objFull = ResultXslt(name=xsltFullName, filename=xsltFullPath, content=fileContent).save()
-        Template.objects().update(set__ResultXsltList=str(objFull.id), upsert=True)
+        Template.objects().update(set__ResultXsltList=objFull, upsert=True)
 
     objDetail = ResultXslt.objects(filename='nmrr-detail-oai_pmh.xsl')
     if not objDetail:
         file = open(os.path.join(SITE_ROOT, 'oai_pmh', 'resources', 'xsl', sltDetailPath),'r')
         fileContent = file.read()
         objDetail = ResultXslt(name=xsltDetailName, filename=sltDetailPath, content=fileContent).save()
-        Template.objects().update(set__ResultXsltDetailed=str(objDetail.id), upsert=True)
+        Template.objects().update(set__ResultXsltDetailed=objDetail, upsert=True)
 
 def init_registries_status():
     """
