@@ -279,6 +279,11 @@ get_results_keyword_refined = function(numInstance){
             		// filter the view
             		filter_result_display($("#results_view").val());
             	}
+            	$(".description").shorten({showChars: 350,
+                    ellipsesText: "",
+                    moreText: "... show more",
+                    lessText: " show less",
+                });
             },
             complete: function(){
                 $("#loading").removeClass("isloading");

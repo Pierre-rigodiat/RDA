@@ -25,10 +25,10 @@
 {% endcomment %}
 
 {% block extrastyle %}
-<link rel="stylesheet" type="text/css" href="{% static 'resources/css/explore.css' %}"  media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}"  media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'css/nmrr/keyword.css' %}"  media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/jquery.tagit.css' %}"  media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'resources/css/explore.css' %}"  media="screen" />
 {% endblock %}
 
 {% block title %}<h3>Search for Resources</h3>{% endblock %}
@@ -144,7 +144,7 @@ Resource Type:
 <div id="refine_common"></div>
 <div id="refine_resource"></div>
 </td>
-<td style="background-color:#e0e0e0">
+<td style="background-color:#FFFFFF">
 <div id="results">
 Please wait...
 </div>
@@ -179,6 +179,7 @@ No Custom View available for this type of resource.
 <script src="{% static 'libs/tags/tag-it.js' %}"></script>
 <script src="{% static 'inc/controllers/js/nmrr/nmrr_explore.js' %}"></script>
 <script src="{% static 'inc/controllers/js/nmrr/oai_pmh_explore.js' %}"></script>
+<script src="{% static 'libs/jquery-shorten/1.1.0/jquery.shorten.js' %}"></script>
 <script>
     initAutocomplete();
     initSearch();

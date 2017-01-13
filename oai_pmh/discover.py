@@ -127,12 +127,12 @@ def load_sets():
 
 def load_xslt():
     # Add OAI Xslt
-    xsltFullName = 'full-oai_pmh'
-    xsltFullPath = 'nmrr-full-oai_pmh.xsl'
+    xsltFullName = 'full_demo-oai_pmh'
+    xsltFullPath = 'nmrr-full_demo-oai_pmh.xsl'
     xsltDetailName = 'detail-oai_pmh'
     sltDetailPath = 'nmrr-detail-oai_pmh.xsl'
 
-    objFull = ResultXslt.objects(filename='nmrr-full-oai_pmh.xsl')
+    objFull = ResultXslt.objects(filename='nmrr-full_demo-oai_pmh.xsl')
     if not objFull:
         file = open(os.path.join(SITE_ROOT, 'oai_pmh', 'resources', 'xsl', xsltFullPath),'r')
         fileContent = file.read()

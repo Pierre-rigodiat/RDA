@@ -21,6 +21,7 @@ import json
 import lxml.etree as etree
 from mgi.models import Template, Instance, TemplateVersion, OaiRecord, OaiMetadataFormat, OaiRegistry, XMLdata
 from django.template import loader, Context, RequestContext
+from urlparse import urlparse
 
 
 ################################################################################
@@ -124,9 +125,11 @@ def get_results_by_instance_keyword(request):
         registriesName = {}
         objMetadataFormats = {}
         listRegistriesID = set([x['registry'] for x in instanceResults])
+        registriesURL = {}
         for registryId in listRegistriesID:
             obj = OaiRegistry.objects(pk=registryId).get()
             registriesName[str(registryId)] = obj.name
+            registriesURL[str(registryId)] = obj.url
         listSchemaId = set([x['metadataformat'] for x in instanceResults])
         for schemaId in listSchemaId:
             obj = OaiMetadataFormat.objects(pk=schemaId).get()
@@ -162,12 +165,14 @@ def get_results_by_instance_keyword(request):
                 if len(registry_name) > 30:
                     registry_name = "{0}...".format(registry_name[:30])
 
+                url = urlparse(registriesURL[instanceResult['registry']])
                 context = RequestContext(request, {'id':str(instanceResult['_id']),
                                    'xml': str(newdom),
                                    'title': instanceResult['identifier'],
                                    'custom_xslt': custom_xslt,
                                    'template_name': metadataFormat.template.title,
                                    'registry_name': registry_name,
+                                   'registry_url': "{0}://{1}".format(url.scheme, url.netloc),
                                    'oai_pmh': True})
 
 
