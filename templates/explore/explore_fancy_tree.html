@@ -1,0 +1,19 @@
+{% for item in items %}
+	<div class="col-md-4">
+	  <div class="panel panel-default">
+		<div class="panel-heading">
+			<h4 class="panel-title">
+				<a data-toggle="collapse" data-parent="#accordion" href="#collapse{{item.id_label}}">
+					<b>{{item.enum_name}}</b>
+				</a>
+			</h4>
+		</div>
+		<div id="collapse{{item.id_label}}" class="panel-collapse collapse">
+			<div class="panel-body">
+				<div id="tree_{{item.id_label}}" class="panel-body refine_criteria" query="{{item.query}}">
+				</div>
+			</div>
+		</div>
+	  </div>
+	</div>
+{% endfor %}

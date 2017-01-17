@@ -91,22 +91,6 @@ initResources = function(){
 }
 
 
-loadRefinements = function(schema){
-	$("#refine_resource").html('');
-	$.ajax({
-        url : "/explore/load_refinements",
-        type : "GET",
-        dataType: "json",
-        data : {
-        	schema:schema,
-        },
-        success: function(data){
-        	$("#refine_resource").html(data.refinements);
-        }
-    });
-}
-
-
 dialog_detail = function(id){
 	$.ajax({
         url : "/explore/detail_result_keyword?id=" + id,
@@ -225,12 +209,13 @@ load_custom_view = function(schema){
  */
 loadRefinementQueries = function(){
 	var refinements = [];
-	$("#refine_resource").find("input:checked").each(function(){
-		query = $(this).closest("div.refine_criteria").attr("query");
-		val = $(this).val();
-		refinements.push(query + ":" + val);
-	});
-	console.log(refinements);
+
+    $('*[id^="tree_"]').each(function(){
+        var nodes = $(this).fancytree('getRootNode').tree.getSelectedNodes();
+        $(nodes).each(function() {
+            refinements.push($(this)[0].data.query + ":" + $(this)[0].title);
+        });
+    });
 
 	return refinements;
 }
@@ -297,3 +282,70 @@ clearRefinements = function(){
 	$("#refine_resource").find('input:checked').prop('checked',false);
 	get_results_keyword_refined();
 }
+
+
+loadRefinements = function(schema){
+	$("#refine_resource").html('');
+	$.ajax({
+        url : "/explore/load_refinements",
+        type : "GET",
+        dataType: "json",
+        data : {
+        	schema:schema,
+        },
+        success: function(data){
+            $("#refine_resource").html(data.template);
+            $.map(data.items, function (item) {
+                initFancyTree(item.div_id, item.json_data);
+            });
+        }
+    });
+}
+
+initFancyTree = function(div_id, json_data) {
+
+    $("#tree_"+div_id).fancytree({
+      extensions: ["glyph", "wide"],
+      checkbox: true,
+      glyph: glyph_opts,
+      selectMode: 3,
+      source: JSON.parse(json_data),
+      toggleEffect: { effect: "drop", options: {direction: "left"}, duration: 400 },
+      wide: {
+        iconWidth: "1em",
+        iconSpacing: "0.5em",
+        levelOfs: "1.5em"
+      },
+      icon: function(event, data){
+      	if( data.node.isFolder() ) {
+  			return "glyphicon glyphicon-book";
+		}
+      },
+      init: function(event, data) {
+        $("#tree_"+div_id+" ul").addClass("fancytree-colorize-selected");
+      },
+      select: function(event, data){
+          get_results_keyword_refined();
+      }
+    });
+}
+
+glyph_opts = {
+    map: {
+      doc: "glyphicon glyphicon-file",
+      docOpen: "glyphicon glyphicon-file",
+      checkbox: "glyphicon glyphicon-unchecked",
+      checkboxSelected: "glyphicon glyphicon-check",
+      checkboxUnknown: "glyphicon glyphicon-share",
+      dragHelper: "glyphicon glyphicon-play",
+      dropMarker: "glyphicon glyphicon-arrow-right",
+      error: "glyphicon glyphicon-warning-sign",
+      expanderClosed: "glyphicon glyphicon-menu-right",
+      expanderLazy: "glyphicon glyphicon-menu-right",  // glyphicon-plus-sign
+      expanderOpen: "glyphicon glyphicon-menu-down",  // glyphicon-collapse-down
+      folder: "glyphicon glyphicon-folder-close",
+      folderOpen: "glyphicon glyphicon-folder-open",
+      loading: "glyphicon glyphicon-refresh glyphicon-spin"
+    }
+};
+

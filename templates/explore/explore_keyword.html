@@ -25,10 +25,12 @@
 {% endcomment %}
 
 {% block extrastyle %}
-<link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTree.css' %}"  media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'libs/fancytree/skin-bootstrap/ui.fancytree.css' %}"  class="skinswitcher">
 <link rel="stylesheet" type="text/css" href="{% static 'css/nmrr/keyword.css' %}"  media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/jquery.tagit.css' %}"  media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/explore.css' %}"  media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'libs/bootstrap/3.3.5/css/glyphicon.css' %}">
+
 {% endblock %}
 
 {% block title %}<h3>Search for Resources</h3>{% endblock %}
@@ -142,7 +144,9 @@ Resource Type:
 </div>
 <br/><br/>
 <div id="refine_common"></div>
-<div id="refine_resource"></div>
+<div id="refine_resource">
+
+</div>
 </td>
 <td style="background-color:#FFFFFF">
 <div id="results">
@@ -180,6 +184,11 @@ No Custom View available for this type of resource.
 <script src="{% static 'inc/controllers/js/nmrr/nmrr_explore.js' %}"></script>
 <script src="{% static 'inc/controllers/js/nmrr/oai_pmh_explore.js' %}"></script>
 <script src="{% static 'libs/jquery-shorten/1.1.0/jquery.shorten.js' %}"></script>
+<script src="{% static 'libs/fancytree/jquery.fancytree.js' %}"></script>
+<script src="{% static 'libs/fancytree/jquery.fancytree.dnd.js' %}"></script>
+<script src="{% static 'libs/fancytree/jquery.fancytree.glyph.js' %}"></script>
+<script src="{% static 'libs/fancytree/jquery.fancytree.wide.js' %}"></script>
+
 <script>
     initAutocomplete();
     initSearch();

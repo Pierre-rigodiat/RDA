@@ -2380,14 +2380,14 @@ def load_refinements(request):
     target_ns_prefix = common.get_target_namespace_prefix(namespaces, xmlDocTree)
     target_ns_prefix = "{}:".format(target_ns_prefix) if target_ns_prefix != '' else ''
 
-    # building refinement options based on the schema
-    refinement_options = "<a onclick='clearRefinements();' style='cursor:pointer;'>Clear Refinements</a> <br/><br/>"
-
     # TODO: change enumeration look up by something more generic (using annotations in the schema)
     # looking for enumerations
     simple_types = xmlDocTree.findall("./{0}simpleType".format(LXML_SCHEMA_NAMESPACE))
+    tree_info = []
+    tree_items = []
     for simple_type in simple_types:
         try:
+            entries = []
             enums = simple_type.findall("./{0}restriction/{0}enumeration".format(LXML_SCHEMA_NAMESPACE))
             refinement = ""
             if len(enums) > 0:
@@ -2436,16 +2436,29 @@ def load_refinements(request):
                 dot_query = ".".join(query)
 
                 # get the name of the enumeration
-                refinement += "<div class='refine_criteria' query='" + dot_query + "'>" + label + ": <br/>"
                 for enum in sorted(enums, key=lambda x: x.attrib['value']):
-                    refinement += "<input type='checkbox' value='" + enum.attrib['value'] + "' onchange='get_results_keyword_refined();'> " + enum.attrib['value'].title() + "<br/>"
-                refinement += "<br/>"
-                refinement += "</div>"
+                    entries.append({"title": enum.attrib['value'], 'query': dot_query})
+
+                item_info = {
+                    'enum_name': label,
+                    'id_label': simple_type.attrib['name'],
+                    'query': dot_query
+                }
+                tree_items.append(item_info)
+
+                result_json = {}
+                result_json['div_id'] = item_info['id_label']
+                result_json['json_data'] = json.dumps(entries)
+                tree_info.append(result_json)
+
         except:
             print "ERROR AUTO GENERATION OF REFINEMENTS."
-        refinement_options += refinement
 
-    return HttpResponse(json.dumps({'refinements': refinement_options}), content_type='application/javascript')
+    template = loader.get_template('explore/explore_fancy_tree.html')
+    context = Context({'items': tree_items})
+
+    return HttpResponse(json.dumps({'items': tree_info,
+                                    'template': template.render(context)}), content_type='application/javascript')
 
 
 ################################################################################
