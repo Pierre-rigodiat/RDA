@@ -34,6 +34,9 @@
 
    <xs:element name="Resource" type="rsm:AccessibleResource">
       <xs:annotation>
+        <xs:appinfo>
+          <label/>
+        </xs:appinfo>
          <xs:documentation>
            a root element for a document describing a Resource,
            an identified, described, and discoverable component of the 
@@ -53,6 +56,9 @@
 
          <xs:element name="identity" type="rsm:Identity">
             <xs:annotation>
+              <xs:appinfo>
+                <label>Identity</label>
+              </xs:appinfo>
                <xs:documentation>
                   a collection of metadata that help identify the resource in 
                   various contexts.  It includes its title and unique 
@@ -69,6 +75,9 @@
 
          <xs:element name="providers" type="rsm:Providers">
            <xs:annotation>
+             <xs:appinfo>
+               <label>Providers</label>
+             </xs:appinfo>
              <xs:documentation>
                Information regarding the general curation of the resource
              </xs:documentation>
@@ -77,6 +86,9 @@
 
          <xs:element name="content" type="rsm:Content">
            <xs:annotation>
+             <xs:appinfo>
+               <label>Content</label>
+             </xs:appinfo>
              <xs:documentation>
                General information describing what the resource is and,
                as appropriate, what it contains.
@@ -87,6 +99,9 @@
          <xs:element name="role" type="rsm:ResourceRole"
                      minOccurs="1" maxOccurs="unbounded">
            <xs:annotation>
+             <xs:appinfo>
+               <label>Role</label>
+             </xs:appinfo>
              <xs:documentation>
                A label that identifies the type of resource this is along
                with, if appropriate, a description of how this resource
@@ -108,6 +123,9 @@
          <xs:element name="applicability" type="rsm:Applicability"
                      minOccurs="0" maxOccurs="unbounded">
            <xs:annotation>
+             <xs:appinfo>
+               <label>Applicability</label>
+             </xs:appinfo>
              <xs:documentation>
                Information describing the resource's applicability to a 
                particular domain.
@@ -122,6 +140,9 @@
 
       <xs:attribute name="localid">
          <xs:annotation>
+           <xs:appinfo>
+             <label>Local ID</label>
+           </xs:appinfo>
             <xs:documentation>
               An unambiguous identifier for this resource description as 
               assigned by its author or its curating registry.  
@@ -135,16 +156,22 @@
               replicated as an identifier under the identity section.
             </xs:documentation>
          </xs:annotation>
+        <xs:simpleType xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/local-id">
+          <xs:restriction base="xs:string"/>                      
+        </xs:simpleType>
       </xs:attribute>
 
       <xs:attribute name="status" use="required">
          <xs:annotation>
+           <xs:appinfo>
+             <label>Status</label>
+           </xs:appinfo>
             <xs:documentation>
               a tag indicating whether this resource is believed to be still
               actively maintained.
             </xs:documentation>
          </xs:annotation>
-         <xs:simpleType>
+        <xs:simpleType xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/status">
             <xs:restriction base="xs:string">
                <xs:enumeration value="active">
                  <xs:annotation>
@@ -184,6 +211,10 @@
          <xs:element name="title" type="xs:token">
             <xs:annotation>
                <xs:appinfo>
+                 <label>*** Name</label>
+                 <placeholder>Enter your ***'s name (ex. Materials Data Curation System)</placeholder>
+                 <use>required</use>
+                 <tooltip>The full name given to the resource</tooltip>
                  <am:dcterm>Title</am:dcterm>
                  <am:dataciteproperty>Title</am:dataciteproperty>
                </xs:appinfo>           
@@ -197,6 +228,7 @@
                      minOccurs="0" maxOccurs="unbounded">
             <xs:annotation>
                <xs:appinfo>
+                 <label>Alternate Name</label>
                  <am:dcterm>Title</am:dcterm>
                  <am:dataciteproperty>Title</am:dataciteproperty>
                  <am:comment>inspired by datacite Title</am:comment>
@@ -209,6 +241,10 @@
 
          <xs:element name="version" type="xs:token" minOccurs="0">
             <xs:annotation>
+              <xs:appinfo>
+                <label>Version</label>
+                <placeholder>Enter your ***'s version</placeholder>
+              </xs:appinfo>
                <xs:documentation>
                  Label a particular release or variation of the resource.
                </xs:documentation>
@@ -223,6 +259,8 @@
                      minOccurs="0" maxOccurs="unbounded">
             <xs:annotation>
                <xs:appinfo>
+                 <label>Identifier</label>
+                 <placeholder>Enter your ***'s identifier</placeholder>
                  <am:dcterm>Identifier</am:dcterm>
                </xs:appinfo>           
                <xs:documentation>
@@ -238,6 +276,10 @@
        
         <xs:element name="logo" type="xs:anyURI" minOccurs="0">
            <xs:annotation>
+             <xs:appinfo>
+               <label>Logo</label>
+               <placeholder>Enter your ***'s logo url</placeholder>
+             </xs:appinfo>
               <xs:documentation>
                 URL pointing to a graphical logo, which may be used to help 
                 identify the information source
@@ -263,6 +305,9 @@
 
          <xs:attribute name="type" type="rsm:TitleType" use="required">
             <xs:annotation>
+              <xs:appinfo>
+                <label>Type</label>
+              </xs:appinfo>
               <xs:appinfo>
                 <am:comment>inspired by datacite titleType</am:comment>
                 <am:dataciteproperty>titleType</am:dataciteproperty>
@@ -349,6 +394,10 @@
        <xs:element name="publisher" type="rsm:NamePID">
           <xs:annotation>
              <xs:appinfo>
+               <label>Publisher</label>
+               <use>required</use>
+               <tooltip>Entity (e.g. person or organisation) responsible for making the
+                 resource available.</tooltip>
                <am:dcterm>Publisher</am:dcterm>
              </xs:appinfo>
              <xs:documentation>
@@ -360,6 +409,9 @@
 
        <xs:element name="publicationYear" type="rsm:Year" minOccurs="0">
           <xs:annotation>
+            <xs:appinfo>
+              <label>Publication Year</label>
+            </xs:appinfo>
              <xs:appinfo>
                <am:datacite>publicationYear</am:datacite>
              </xs:appinfo>
@@ -373,6 +425,10 @@
                    minOccurs="0" maxOccurs="unbounded">
           <xs:annotation>
              <xs:appinfo>
+               <label>Creator</label>
+               <use>required</use>
+               <tooltip>The entity (e.g. person or organization) primarily responsible
+                 for creating the content or constitution of the resource.</tooltip>
                <am:dcterm>Creator</am:dcterm>
              </xs:appinfo>
              <xs:documentation>
@@ -386,6 +442,10 @@
                    minOccurs="0" maxOccurs="unbounded">
           <xs:annotation>
              <xs:appinfo>
+               <label>Contributor</label>
+               <use>required</use>
+               <tooltip>Entity responsible for contributions to the content of
+                 the resource</tooltip>
                <am:dcterm>Contributor</am:dcterm>
              </xs:appinfo>
              <xs:documentation>
@@ -399,6 +459,10 @@
                    minOccurs="0" maxOccurs="unbounded">
           <xs:annotation>
              <xs:appinfo>
+               <label>Date</label>
+               <use>required</use>
+               <tooltip>Date associated with an event in the life cycle of the
+                 resource.</tooltip>
                <am:dcterm>Date</am:dcterm>
              </xs:appinfo>
              <xs:documentation>
@@ -420,6 +484,9 @@
 
        <xs:element name="contact" type="rsm:Contact" maxOccurs="unbounded">
           <xs:annotation>
+            <xs:appinfo>
+              <label>Contact</label>
+            </xs:appinfo>
              <xs:documentation>
                Information that can be used for contacting someone with
                regard to this resource.
@@ -430,7 +497,7 @@
      </xs:sequence>
    </xs:complexType>
 
-   <xs:complexType name="NamePID">
+  <xs:complexType name="NamePID">
      <xs:annotation>
        <xs:documentation>
          a name or title that can potentially have an associated identifier.
@@ -450,6 +517,9 @@
 
          <xs:attribute name="pid" type="xs:anyURI">
             <xs:annotation>
+              <xs:appinfo>
+                <label>PID</label>
+              </xs:appinfo>
               <xs:documentation>
                 An unambigous identifier for the intended entity having 
                 the name given by this element's value.
@@ -482,6 +552,9 @@
 
          <xs:attribute name="sur" type="xs:string">
             <xs:annotation>
+              <xs:appinfo>
+                <label>Surname</label>
+              </xs:appinfo>
               <xs:documentation>
                 The part of the person's name that should be considered the
                 surname or family name.
@@ -491,6 +564,9 @@
          
          <xs:attribute name="given" type="xs:string">
             <xs:annotation>
+              <xs:appinfo>
+                <label>Given Name</label>
+              </xs:appinfo>
               <xs:documentation>
                 The part of the person's name that should be considered the
                 given or first name.
@@ -500,6 +576,9 @@
          
          <xs:attribute name="middle" type="xs:string">
             <xs:annotation>
+              <xs:appinfo>
+                <label>Middle Name</label>
+              </xs:appinfo>
               <xs:documentation>
                 The part of the person's name that should be considered the
                 middle names or initials.  
@@ -521,6 +600,9 @@
      <xs:sequence>
        <xs:element name="name" type="rsm:PersonName">
           <xs:annotation>
+            <xs:appinfo>
+              <label>Name</label>
+            </xs:appinfo>
              <xs:documentation>
                  the name or title of the contact person.
              </xs:documentation>
@@ -533,6 +615,9 @@
 
        <xs:element name="affiliation" type="rsm:NamePID" minOccurs="0">
           <xs:annotation>
+            <xs:appinfo>
+              <label>Affiliation</label>
+            </xs:appinfo>
              <xs:documentation>
                the name of the institute or organization that this
                person was affiliated with when the person contributed
@@ -613,6 +698,9 @@
 
          <xs:attribute name="role" type="xs:string">
             <xs:annotation>
+              <xs:appinfo>
+                <label>Role</label>
+              </xs:appinfo>
               <xs:documentation>
                 A label indicating the role this date plays in the lifecycle
                 of a resource.  
@@ -638,6 +726,9 @@
      <xs:sequence>
        <xs:element name="name" type="rsm:PersonName">
           <xs:annotation>
+            <xs:appinfo>
+              <label>Name</label>
+            </xs:appinfo>
              <xs:documentation>
                  the name or title of the contact person.
              </xs:documentation>
@@ -650,6 +741,9 @@
 
        <xs:element name="postalAddress" type="rsm:PostalAddress" minOccurs="0">
           <xs:annotation>
+            <xs:appinfo>
+              <label>Postal Address</label>
+            </xs:appinfo>
              <xs:documentation>the contact mailing address</xs:documentation>
              <xs:documentation>
                All components of the mailing address are given in one
@@ -660,12 +754,18 @@
 
        <xs:element name="emailAddress" type="xs:token" minOccurs="0">
           <xs:annotation>
+            <xs:appinfo>
+              <label>Email Address</label>
+            </xs:appinfo>
              <xs:documentation>the contact email address</xs:documentation>
           </xs:annotation>
        </xs:element>
 
        <xs:element name="phoneNumber" type="xs:token" minOccurs="0">
           <xs:annotation>
+            <xs:appinfo>
+              <label>Phone Number</label>
+            </xs:appinfo>
              <xs:documentation>the contact telephone number</xs:documentation>
              <xs:documentation>
                Complete international dialing codes should be given, e.g.
@@ -676,6 +776,9 @@
 
        <xs:element name="timeZone" type="rsm:TimeZone" minOccurs="0">
           <xs:annotation>
+            <xs:appinfo>
+              <label>Time Zone</label>
+            </xs:appinfo>
              <xs:documentation>
                the time zone where the contact typically operates
              </xs:documentation>
@@ -696,6 +799,9 @@
        <xs:element name="addressLine" type="xs:token"
                    minOccurs="1" maxOccurs="unbounded">
           <xs:annotation>
+            <xs:appinfo>
+              <label>Address Line</label>
+            </xs:appinfo>
              <xs:documentation>
                One line of the address as it should appear on an envelope.
              </xs:documentation>
@@ -726,8 +832,14 @@
      </xs:annotation>
 
      <xs:sequence>
-       <xs:element name="description" type="xs:token" maxOccurs="unbounded">
+       <xs:element name="description" type="xs:token" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/description" maxOccurs="unbounded">
           <xs:annotation>
+            <xs:appinfo>
+              <label>Description</label>
+              <placeholder>Enter ***'s description</placeholder>
+              <use>required</use>
+              <tooltip>An account of the nature of the resource</tooltip>
+            </xs:appinfo>
              <xs:appinfo>
                <am:dcterm>Description</am:dcterm>
                <am:datacite>description</am:datacite>
@@ -750,6 +862,13 @@
 
        <xs:element name="subject" type="rsm:Subject" maxOccurs="unbounded">
           <xs:annotation>
+            <xs:appinfo>
+              <label>Subject</label>
+              <placeholder>Enter a subject(ex. molecular dynamics, metals, force fields)</placeholder>
+              <use>recommended</use>
+              <tooltip>a topic, object type, or other descriptive keywords
+                about the resource.</tooltip>
+            </xs:appinfo>
              <xs:appinfo>
                <am:dcterm>Subject</am:dcterm>
              </xs:appinfo>           
@@ -762,6 +881,14 @@
 
        <xs:element name="landingPage" type="xs:anyURI">
           <xs:annotation>
+            <xs:appinfo>
+              <label>Landing Page</label>
+              <placeholder>Enter a landing page</placeholder>
+              <use>required</use>
+              <tooltip>URL pointing to the definitive, human-readable document or web
+                page that serves as the primary description of or entry to
+                this resource.</tooltip>
+            </xs:appinfo>
             <xs:documentation>
                 URL pointing to the definitive, human-readable document or web
                 page that serves as the primary description of or entry to
@@ -773,6 +900,10 @@
        <xs:element name="reference" type="rsm:NamePID" 
                    minOccurs="0" maxOccurs="unbounded">
           <xs:annotation>
+            <xs:appinfo>
+              <label>Reference</label>
+              <placeholder>Enter your ***'s reference citation</placeholder>
+            </xs:appinfo>
              <xs:documentation>
                 a bibliographic reference to a literature article that 
                 discusses this resource.
@@ -795,6 +926,10 @@
        
        <xs:element name="primaryAudience" type="rsm:Audience" minOccurs="0">
           <xs:annotation>
+            <xs:appinfo>
+              <label>Primary Audience</label>
+              <placeholder>Enter your ***'s primary audience</placeholder>
+            </xs:appinfo>
              <xs:appinfo>
                <am:dcterm>Subject</am:dcterm>
                <am:dcterm>Subject.Audience</am:dcterm>
@@ -828,6 +963,9 @@
        <xs:extension base="xs:token">
          <xs:attribute name="scheme" use="optional" type="xs:string">
            <xs:annotation>
+             <xs:appinfo>
+               <label>Scheme</label>
+             </xs:appinfo>
              <xs:documentation>
                a label or classification code indicating the vocabulary that
                this subject keyword was drawn from
@@ -837,6 +975,9 @@
 
          <xs:attribute name="schemeURI" use="optional" type="xs:anyURI">
            <xs:annotation>
+             <xs:appinfo>
+               <label>Scheme URI</label>
+             </xs:appinfo>
              <xs:documentation>
                The URI identifying or describing the vocabulary that
                the subject keyword was drawn from
@@ -846,6 +987,9 @@
 
          <xs:attribute name="pid" type="xs:anyURI">
            <xs:annotation>
+             <xs:appinfo>
+               <label>PID</label>
+             </xs:appinfo>
              <xs:documentation>
                The machine-recognizable URI identifying the specific subject 
                keyword.
@@ -941,6 +1085,9 @@
      <xs:sequence>
        <xs:element name="relationship" type="rsm:NamePID">
          <xs:annotation>
+           <xs:appinfo>
+             <label>Relationship</label>
+           </xs:appinfo>
            <xs:documentation>
              The kind of relationship given by a relationship name
              and, optionally, a URI.
@@ -961,6 +1108,9 @@
        <xs:element name="resource" type="rsm:NamePID"
                    maxOccurs="unbounded">
          <xs:annotation>
+           <xs:appinfo>
+             <label>Resource</label>
+           </xs:appinfo>
            <xs:documentation>
              The other resource that this resource is related to.
            </xs:documentation>
@@ -976,6 +1126,9 @@
 
    <xs:complexType name="AccessibleResource">
      <xs:annotation>
+       <xs:appinfo>
+         <label>Accessible Resource</label>
+       </xs:appinfo>
        <xs:documentation>
          a kind of resource that can be accessed as part of a federated data
          application.  
@@ -994,6 +1147,9 @@
            <xs:element name="access" type="rsm:Access" minOccurs="0"
                        maxOccurs="unbounded">
              <xs:annotation>
+               <xs:appinfo>
+                 <label>Access</label>
+               </xs:appinfo>
                <xs:documentation>
                  Information describing how to access the resource and its 
                  features and capabilities.  
@@ -1019,6 +1175,9 @@
 
        <xs:element name="policy" type="rsm:Policy">
          <xs:annotation>
+           <xs:appinfo>
+             <label>Policy</label>
+           </xs:appinfo>
            <xs:documentation>
              A description of the policy for accessing a resource.
            </xs:documentation>
@@ -1028,6 +1187,9 @@
        <xs:element name="method" type="rsm:AccessMethod"
                    minOccurs="0" maxOccurs="unbounded">
          <xs:annotation>
+           <xs:appinfo>
+             <label>Access Method</label>
+           </xs:appinfo>
            <xs:documentation>
              A description of the access to a resource through some 
              mechanism (other than simple download).
@@ -1058,6 +1220,9 @@
        <xs:element name="title" type="xs:token"
                    minOccurs="0" maxOccurs="1">
          <xs:annotation>
+           <xs:appinfo>
+             <label>Title</label>
+           </xs:appinfo>
            <xs:documentation>
              A name for the access method or the thing accessed via the
              accessURL.
@@ -1069,8 +1234,11 @@
          </xs:annotation>
        </xs:element>
 
-       <xs:element name="description" type="xs:token" minOccurs="0">
+       <xs:element name="description" type="xs:token" xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/description" minOccurs="0">
           <xs:annotation>
+            <xs:appinfo>
+              <label>Description</label>
+            </xs:appinfo>
              <xs:documentation>
                A summary of how this mechanism provides access to the resource.
              </xs:documentation>
@@ -1083,6 +1251,9 @@
 
        <xs:element name="accessURL" type="rsm:AccessURL" minOccurs="0">
           <xs:annotation>
+            <xs:appinfo>
+              <label>Access URL</label>
+            </xs:appinfo>
              <xs:documentation>
                The URL that through which user can access the resource via
                this method.
@@ -1117,6 +1288,9 @@
            <xs:element name="format" type="xs:token"
                        minOccurs="0" maxOccurs="unbounded">
              <xs:annotation>
+               <xs:appinfo>
+                 <label>Format</label>
+               </xs:appinfo>
                <xs:documentation>
                  The MIME type describing the format of the downloadable
                  file or files.
@@ -1125,6 +1299,9 @@
            </xs:element>
            <xs:element name="filesize" type="xs:token" minOccurs="0">
              <xs:annotation>
+               <xs:appinfo>
+                 <label>File Size</label>
+               </xs:appinfo>
                <xs:documentation>
                  The maximum size of the downloadable file in measured
                  in kilobytes.
@@ -1153,6 +1330,9 @@
                    minOccurs="1" maxOccurs="4">
          <xs:annotation>
            <xs:appinfo>
+             <label>Restriction</label>
+           </xs:appinfo>
+           <xs:appinfo>
              <am:dcterm>accessRights</am:dcterm>
            </xs:appinfo>           
            <xs:documentation>
@@ -1166,6 +1346,9 @@
 
        <xs:element name="rights" type="xs:token" minOccurs="0" maxOccurs="1">
          <xs:annotation>
+           <xs:appinfo>
+             <label>Rights</label>
+           </xs:appinfo>
            <xs:appinfo>
              <am:dcterm>Rights</am:dcterm>
            </xs:appinfo>           
@@ -1182,6 +1365,9 @@
 
        <xs:element name="termsURL" type="xs:anyURI" minOccurs="0" maxOccurs="1">
          <xs:annotation>
+           <xs:appinfo>
+             <label>Terms URL</label>
+           </xs:appinfo>
            <xs:appinfo>
              <am:dcterm>Rights</am:dcterm>
            </xs:appinfo>           
@@ -1239,6 +1425,9 @@
        <xs:extension base="xs:anyURI">
          <xs:attribute name="use">
            <xs:annotation>
+             <xs:appinfo>
+               <label>Use</label>
+             </xs:appinfo>
              <xs:documentation>
                A flag indicating whether this should be interpreted as a base
                URL, a full URL, or a URL to a directory that will produce a 
@@ -1282,6 +1471,9 @@
 
          <xs:attribute name="returns" type="xs:token">
            <xs:annotation>
+             <xs:appinfo>
+               <label>Returns</label>
+             </xs:appinfo>
              <xs:documentation>
                a MIME type indicating what is (typically) returned when
                this URL is retrieved.
@@ -1342,6 +1534,9 @@
            <xs:element name="mediaType" type="rsm:MediaType"
                        minOccurs="1" maxOccurs="unbounded">
               <xs:annotation>
+                <xs:appinfo>
+                  <label>Media Type</label>
+                </xs:appinfo>
                  <xs:documentation>
                    The type of media provided
                  </xs:documentation>
@@ -1456,6 +1651,9 @@
            <xs:element name="materialType" type="rsm:Material_type" 
                        minOccurs="0" maxOccurs="unbounded">
              <xs:annotation>
+               <xs:appinfo>
+                 <label>Material Type</label>
+               </xs:appinfo>
                <xs:documentation>
                  the category of material studied in the data contained in 
                  this resource.
@@ -1467,6 +1665,9 @@
                        type="rsm:Structural_Feature" 
                        minOccurs="0" maxOccurs="unbounded">
              <xs:annotation>
+               <xs:appinfo>
+                 <label>Structural Feature</label>
+               </xs:appinfo>
                <xs:documentation>
                  the primary or prevalent characteristic of the structure of 
                  the material of interest to this resource
@@ -1477,6 +1678,9 @@
            <xs:element name="propertyAddressed" type="rsm:Properties_addressed"
                        minOccurs="0" maxOccurs="unbounded">
              <xs:annotation>
+               <xs:appinfo>
+                 <label>Property Addressed</label>
+               </xs:appinfo>
                <xs:documentation>
                  a category of property that is sampled by the contained data
                </xs:documentation>
@@ -1486,6 +1690,9 @@
            <xs:element name="experimentalMethod" type="rsm:Experimental_Methods"
                        minOccurs="0" maxOccurs="unbounded">
              <xs:annotation>
+               <xs:appinfo>
+                 <label>Experimental Method</label>
+               </xs:appinfo>
                <xs:documentation>
                   the experimental technique used to acquire the data
                   within this resource 
@@ -1496,6 +1703,9 @@
            <xs:element name="computationalMethod" type="rsm:Computational_method"
                        minOccurs="0" maxOccurs="unbounded">
              <xs:annotation>
+               <xs:appinfo>
+                 <label>Computational Method</label>
+               </xs:appinfo>
                <xs:documentation>
                   the computational technique used to acquire the data
                   within this resource 
@@ -1507,6 +1717,9 @@
                        type="rsm:Synthesis_and_Processing"
                        minOccurs="0" maxOccurs="unbounded">
              <xs:annotation>
+               <xs:appinfo>
+                 <label>Synthesis Processing</label>
+               </xs:appinfo>
                <xs:documentation>
                  the physical processing or preparation technique applied 
                  to the material being studied.
@@ -1535,6 +1748,9 @@
 
          <xs:attribute name="role" type="rsm:DateType">
             <xs:annotation>
+              <xs:appinfo>
+                <label>Role</label>
+              </xs:appinfo>
               <xs:documentation>
                 A label indicating the role this date plays in the lifecycle
                 of a resource.  
@@ -1688,6 +1904,9 @@
 
           <xs:attribute name="role" type="rsm:ContributorType" use="required">
             <xs:annotation>
+              <xs:appinfo>
+                <label>Role</label>
+              </xs:appinfo>
               <xs:documentation>
                 a label indicating the contribution that this person
                 or organization made to the resource.
@@ -2001,6 +2220,9 @@
        <xs:extension base="rsm:NamePID">
           <xs:attribute name="label" type="rsm:RelationType" use="required">
             <xs:annotation>
+              <xs:appinfo>
+                <label>Label</label>
+              </xs:appinfo>
               <xs:documentation>
                 a label indicating the Datacite defined relationship type.
               </xs:documentation>
@@ -2520,6 +2742,9 @@
            <xs:element name="type" type="rsm:DatabaseRoleType" minOccurs="1"
                        maxOccurs="1">
              <xs:annotation>
+               <xs:appinfo>
+                 <label>Type</label>
+               </xs:appinfo>
                <xs:documentation>
                  It is recommended that the pid attribute be set to
                  http://purl.org/dc/dcmitype/Dataset.  
@@ -2566,6 +2791,9 @@
 
            <xs:element name="type" type="rsm:ServiceRoleType">
              <xs:annotation>
+               <xs:appinfo>
+                 <label>Type</label>
+               </xs:appinfo>
                 <xs:documentation>
                   a label that indicates the kind of resource it is.
                 </xs:documentation>
@@ -2574,6 +2802,9 @@
            
            <xs:element name="baseURL" type="xs:anyURI">
               <xs:annotation>
+                <xs:appinfo>
+                  <label>Base URL</label>
+                </xs:appinfo>
                  <xs:documentation>
                   The base URL for accessing the service API; it is expected that
                   additional URL components (paths or arguments) may be needed to
@@ -2584,6 +2815,9 @@
 
            <xs:element name="specificationURL" type="xs:anyURI">
               <xs:annotation>
+                <xs:appinfo>
+                  <label>Specification URL</label>
+                </xs:appinfo>
                  <xs:documentation>
                    a URL that will retrieve a structured description of the
                    service interface (e.g. WSDL, ...).
@@ -2593,6 +2827,9 @@
 
            <xs:element name="complianceID" type="xs:anyURI">
               <xs:annotation>
+                <xs:appinfo>
+                  <label>Compliance ID</label>
+                </xs:appinfo>
                  <xs:documentation>
                    a URI for a service standard that this service is 
                    compliant with.
@@ -2641,6 +2878,9 @@
 
            <xs:element name="type" type="rsm:SoftwareRoleType">
              <xs:annotation>
+               <xs:appinfo>
+                 <label>Type</label>
+               </xs:appinfo>
                 <xs:documentation>
                   a label that indicates the kind of resource it is.
                 </xs:documentation>
@@ -2650,6 +2890,9 @@
            <xs:element name="codeLanguage" type="xs:token"
                        minOccurs="0" maxOccurs="unbounded">
              <xs:annotation>
+               <xs:appinfo>
+                 <label>Code Language</label>
+               </xs:appinfo>
                <xs:documentation>
                  The name of the code language that the software is implemented
                  in
@@ -2697,6 +2940,9 @@
            <xs:element name="type" type="rsm:SiteRoleType" minOccurs="1"
                        maxOccurs="2">
              <xs:annotation>
+               <xs:appinfo>
+                 <label>Type</label>
+               </xs:appinfo>
                <xs:documentation>
                  It is recommended that the pid attribute be set to
                  http://purl.org/dc/dcmitype/Dataset.  
