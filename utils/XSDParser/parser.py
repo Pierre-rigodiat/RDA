@@ -784,6 +784,7 @@ def generate_form(request, xsd_doc_data, xml_doc_data=None, config=None):
     Returns:
         rendered HTMl form
     """
+
     request.session['implicit_extension'] = True
     load_config(request, config)
 
@@ -1945,7 +1946,7 @@ def generate_simple_type(request, element, xml_tree, full_path, edit_data_tree=N
             # add the base type that can be rendered alone without extensions
             extensions.insert(0, element)
             choice_content = generate_choice_extensions(request, extensions, xml_tree, None, full_path, edit_data_tree,
-                                                        schema_location)
+                                                        default_value, schema_location)
             form_string += choice_content[0]
             db_element['children'].append(choice_content[1])
             return form_string, db_element
@@ -2076,7 +2077,7 @@ def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=
                 extensions.insert(0, element)
 
             choice_content = generate_choice_extensions(request, extensions, xml_tree, None, full_path,
-                                                        edit_data_tree,
+                                                        edit_data_tree, default_value,
                                                         schema_location)
             form_string += choice_content[0]
             db_element['children'].append(choice_content[1])
@@ -2148,7 +2149,7 @@ def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=
 
 
 def generate_choice_extensions(request, element, xml_tree, choice_info=None, full_path="",
-                               edit_data_tree=None, schema_location=None):
+                               edit_data_tree=None, default_value='', schema_location=None):
     """Generates a section of the form that represents an implicit extension
 
     Parameters:
@@ -2233,12 +2234,14 @@ def generate_choice_extensions(request, element, xml_tree, choice_info=None, ful
                     result = generate_complex_type(request, choiceChild, xml_tree,
                                                    full_path=full_path,
                                                    edit_data_tree=edit_data_tree,
+                                                   default_value=default_value,
                                                    schema_location=schema_location)
 
                 elif choiceChild.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE):
                     result = generate_simple_type(request, choiceChild, xml_tree,
                                                   full_path=full_path,
                                                   edit_data_tree=edit_data_tree,
+                                                  default_value=default_value,
                                                   schema_location=schema_location)
 
                 # Find the default element
