@@ -33,36 +33,7 @@
 
 {% block title %}
 <h3>
-{% if template_name == 'organization' %}
-<img width="100" src="/static/img/organization.png">
-Add New Organization
-{% elif template_name == 'datacollection' %}
-<img width="100" src="/static/img/datacollection.png">
-Add New Data Collection
-{% elif template_name == 'repository' %}
-<img width="100" src="/static/img/datacollection.png">
-Add New Repository
-{% elif template_name == 'projectarchive' %}
-<img width="100" src="/static/img/datacollection.png">
-Add New Project Archive
-{% elif template_name == 'database' %}
-<img width="100" src="/static/img/datacollection.png">
-Add New Database
-{% elif template_name == 'dataset' %}
-<img width="100" src="/static/img/dataset.png">
-Add New Dataset
-{% elif template_name == 'service' %}
-<img width="100" src="/static/img/service.png">
-Add New Service
-{% elif template_name == 'informational' %}
-<img width="100" src="/static/img/informational.png">
-Add New Informational Site
-{% elif template_name == 'software' %}
-<img width="100" src="/static/img/software.jpg">
-Add New Software
-{% endif %}
-
-
+    Add New Resource
 </h3>
 {% endblock %}
 
@@ -70,25 +41,6 @@ Add New Software
 {% block content %}
 <div class="toolbar">
 	<div class="btn-group pull-right">
-		{% if template_name == 'organization' %}
-		<button class="btn" onclick="location.href='/dashboard/resources?template=organization';"><i class="icon-file"></i> My Organizations </button>
-		{% elif template_name == 'datacollection' %}
-		<button class="btn" onclick="location.href='/dashboard/resources?template=datacollection';"><i class="icon-file"></i> My Data Collections </button>
-		{% elif template_name == 'repository' %}
-		<button class="btn" onclick="location.href='/dashboard/resources?template=datacollection';"><i class="icon-file"></i> My Repositories </button>
-		{% elif template_name == 'projectarchive' %}
-		<button class="btn" onclick="location.href='/dashboard/resources?template=datacollection';"><i class="icon-file"></i> My Project Archives </button>
-		{% elif template_name == 'database' %}
-		<button class="btn" onclick="location.href='/dashboard/resources?template=datacollection';"><i class="icon-file"></i> My Databases </button>
-		{% elif template_name == 'dataset' %}
-		<button class="btn" onclick="location.href='/dashboard/resources?template=dataset';"><i class="icon-file"></i> My Datasets </button>
-		{% elif template_name == 'service' %}
-		<button class="btn" onclick="location.href='/dashboard/resources?template=service';"><i class="icon-file"></i> My Services </button>
-		{% elif template_name == 'informational' %}
-		<button class="btn" onclick="location.href='/dashboard/resources?template=informational';"><i class="icon-file"></i> My Informational Sites </button>
-		{% elif template_name == 'software' %}
-		<button class="btn" onclick="location.href='/dashboard/resources?template=software';"><i class="icon-file"></i> My Software </button>
-		{% endif %}
     	<button class="btn" onclick="location.href='/dashboard/resources';"><i class="icon-hdd"></i> My Resources </button>
 	</div>
 <br/><br/>
