@@ -211,9 +211,8 @@
          <xs:element name="title" type="xs:token">
             <xs:annotation>
                <xs:appinfo>
-                 <label>*** Name</label>
-                 <placeholder>Enter your ***'s name (ex. Materials Data Curation System)</placeholder>
-                 <use>required</use>
+                 <label>Resource Name</label>
+                 <placeholder>Enter your Resource's name (ex. Materials Data Curation System)</placeholder>
                  <tooltip>The full name given to the resource</tooltip>
                  <am:dcterm>Title</am:dcterm>
                  <am:dataciteproperty>Title</am:dataciteproperty>
@@ -243,7 +242,7 @@
             <xs:annotation>
               <xs:appinfo>
                 <label>Version</label>
-                <placeholder>Enter your ***'s version</placeholder>
+                <placeholder>Enter your Resource's version</placeholder>
               </xs:appinfo>
                <xs:documentation>
                  Label a particular release or variation of the resource.
@@ -260,7 +259,7 @@
             <xs:annotation>
                <xs:appinfo>
                  <label>Identifier</label>
-                 <placeholder>Enter your ***'s identifier</placeholder>
+                 <placeholder>Enter your Resource's identifier</placeholder>
                  <am:dcterm>Identifier</am:dcterm>
                </xs:appinfo>           
                <xs:documentation>
@@ -278,7 +277,7 @@
            <xs:annotation>
              <xs:appinfo>
                <label>Logo</label>
-               <placeholder>Enter your ***'s logo url</placeholder>
+               <placeholder>Enter your Resource's logo url</placeholder>
              </xs:appinfo>
               <xs:documentation>
                 URL pointing to a graphical logo, which may be used to help 
@@ -395,7 +394,6 @@
           <xs:annotation>
              <xs:appinfo>
                <label>Publisher</label>
-               <use>required</use>
                <tooltip>Entity (e.g. person or organisation) responsible for making the
                  resource available.</tooltip>
                <am:dcterm>Publisher</am:dcterm>
@@ -426,7 +424,6 @@
           <xs:annotation>
              <xs:appinfo>
                <label>Creator</label>
-               <use>required</use>
                <tooltip>The entity (e.g. person or organization) primarily responsible
                  for creating the content or constitution of the resource.</tooltip>
                <am:dcterm>Creator</am:dcterm>
@@ -443,7 +440,6 @@
           <xs:annotation>
              <xs:appinfo>
                <label>Contributor</label>
-               <use>required</use>
                <tooltip>Entity responsible for contributions to the content of
                  the resource</tooltip>
                <am:dcterm>Contributor</am:dcterm>
@@ -460,7 +456,6 @@
           <xs:annotation>
              <xs:appinfo>
                <label>Date</label>
-               <use>required</use>
                <tooltip>Date associated with an event in the life cycle of the
                  resource.</tooltip>
                <am:dcterm>Date</am:dcterm>
@@ -512,23 +507,9 @@
        </xs:documentation>
      </xs:annotation>
 
-     <xs:simpleContent>
-       <xs:extension base="xs:token"> 
-
-         <xs:attribute name="pid" type="xs:anyURI">
-            <xs:annotation>
-              <xs:appinfo>
-                <label>PID</label>
-              </xs:appinfo>
-              <xs:documentation>
-                An unambigous identifier for the intended entity having 
-                the name given by this element's value.
-              </xs:documentation>
-            </xs:annotation>
-         </xs:attribute>
-
-       </xs:extension>       
-     </xs:simpleContent>
+    <xs:simpleContent>
+      <xs:extension base="xs:token"/>
+    </xs:simpleContent>
    </xs:complexType>
 
    <xs:complexType name="PersonName">
@@ -836,8 +817,7 @@
           <xs:annotation>
             <xs:appinfo>
               <label>Description</label>
-              <placeholder>Enter ***'s description</placeholder>
-              <use>required</use>
+              <placeholder>Enter Resource's description</placeholder>
               <tooltip>An account of the nature of the resource</tooltip>
             </xs:appinfo>
              <xs:appinfo>
@@ -865,7 +845,6 @@
             <xs:appinfo>
               <label>Subject</label>
               <placeholder>Enter a subject(ex. molecular dynamics, metals, force fields)</placeholder>
-              <use>recommended</use>
               <tooltip>a topic, object type, or other descriptive keywords
                 about the resource.</tooltip>
             </xs:appinfo>
@@ -884,7 +863,6 @@
             <xs:appinfo>
               <label>Landing Page</label>
               <placeholder>Enter a landing page</placeholder>
-              <use>required</use>
               <tooltip>URL pointing to the definitive, human-readable document or web
                 page that serves as the primary description of or entry to
                 this resource.</tooltip>
@@ -897,12 +875,12 @@
           </xs:annotation>
        </xs:element>
 
-       <xs:element name="reference" type="rsm:NamePID" 
+       <xs:element name="reference" type="rsm:DciteRelation" 
                    minOccurs="0" maxOccurs="unbounded">
           <xs:annotation>
             <xs:appinfo>
               <label>Reference</label>
-              <placeholder>Enter your ***'s reference citation</placeholder>
+              <placeholder>Enter your Resource's reference citation</placeholder>
             </xs:appinfo>
              <xs:documentation>
                 a bibliographic reference to a literature article that 
@@ -928,7 +906,7 @@
           <xs:annotation>
             <xs:appinfo>
               <label>Primary Audience</label>
-              <placeholder>Enter your ***'s primary audience</placeholder>
+              <placeholder>Enter your Resource's primary audience</placeholder>
             </xs:appinfo>
              <xs:appinfo>
                <am:dcterm>Subject</am:dcterm>
@@ -947,7 +925,7 @@
      </xs:sequence>
    </xs:complexType>
 
-   <xs:complexType name="Subject">
+   <xs:simpleType name="Subject">
      <xs:annotation>
        <xs:documentation>
          a type for expressing a subject keyword that may be drawn from
@@ -958,53 +936,10 @@
          necessary to provide values for scheme or schemaURI.  
        </xs:documentation>
      </xs:annotation>
-
-     <xs:simpleContent>
-       <xs:extension base="xs:token">
-         <xs:attribute name="scheme" use="optional" type="xs:string">
-           <xs:annotation>
-             <xs:appinfo>
-               <label>Scheme</label>
-             </xs:appinfo>
-             <xs:documentation>
-               a label or classification code indicating the vocabulary that
-               this subject keyword was drawn from
-             </xs:documentation>
-           </xs:annotation>
-         </xs:attribute>
-
-         <xs:attribute name="schemeURI" use="optional" type="xs:anyURI">
-           <xs:annotation>
-             <xs:appinfo>
-               <label>Scheme URI</label>
-             </xs:appinfo>
-             <xs:documentation>
-               The URI identifying or describing the vocabulary that
-               the subject keyword was drawn from
-             </xs:documentation>
-           </xs:annotation>
-         </xs:attribute>
-
-         <xs:attribute name="pid" type="xs:anyURI">
-           <xs:annotation>
-             <xs:appinfo>
-               <label>PID</label>
-             </xs:appinfo>
-             <xs:documentation>
-               The machine-recognizable URI identifying the specific subject 
-               keyword.
-             </xs:documentation>
-             <xs:documentation>
-               Use this attribute if the keyword corresponds to a subject from
-               an RDF vocabulary.
-             </xs:documentation>
-           </xs:annotation>
-         </xs:attribute>
-
-       </xs:extension>
-     </xs:simpleContent>
-
-   </xs:complexType>
+    <xs:restriction base="xs:token">
+      
+    </xs:restriction>
+   </xs:simpleType>
    
 
    <xs:simpleType name="Audience">
