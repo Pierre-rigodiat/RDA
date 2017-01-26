@@ -251,6 +251,9 @@ class ListRenderer(AbstractListRenderer):
         buttons = self._render_buttons(add_button, del_button)
         element_name = element.options['name']
 
+        if 'label' in element.options and element.options['label'] != '':
+            element_name = element.options['label']
+
         for child_key in child_keys:
             sub_elements = []
             sub_inputs = []
