@@ -2433,7 +2433,7 @@ def load_refinements(request):
     for root, tree in sorted(refinements_trees.iteritems()):
         item_info = {
             'enum_name': root.title,
-            'id_label': root.title
+            'id_label': hashlib.sha1(root.title).hexdigest()
         }
         tree_items.append(item_info)
 
@@ -2464,7 +2464,7 @@ def refinements_to_mongo(refinements):
         mongo_queries = dict()
         mongo_in = {}
         for refinement in refinements:
-            splited_refinement = refinement.split(':')
+            splited_refinement = refinement.split('==')
             dot_notation = splited_refinement[0]
             dot_notation = "content." + dot_notation
             value = splited_refinement[1]

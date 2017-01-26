@@ -7,7 +7,7 @@ class TreeInfo:
     key_hash = ""
     selected = False
 
-    def __init__(self, title, key, key_hash):
+    def __init__(self, title, key="", key_hash=""):
         self.title = title
         self.key = key
         self.key_hash = key_hash
@@ -31,12 +31,16 @@ class TreeInfo:
 def build_tree(tree, root, enums, dot_query):
     for enum in sorted(enums, key=lambda x: x.attrib['value']):
         t = tree
-        prefixed = "{0}:{1}".format(root, enum.attrib['value'])
-        for part in prefixed.split(':'):
-            key = "{0}:{1}".format(dot_query, part)
+        t = t.setdefault(TreeInfo(title=root), {})
+        groups = enum.attrib['value'].split(':')
+        split_index = 0
+        for part in groups:
+            split_index += 1
+            key = "{0}=={1}".format(dot_query, ':'.join(groups[:split_index]))
             key_hash = hashlib.sha1(key).hexdigest()
             g = TreeInfo(title=part, key=key, key_hash=key_hash)
             t = t.setdefault(g, {})
+
 
     return tree
 

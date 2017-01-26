@@ -2501,6 +2501,9 @@
            <xs:element name="type" type="rsm:OrgRoleType" minOccurs="1"
                        maxOccurs="1">
              <xs:annotation>
+               <xs:appinfo>
+                 <label>Type</label>
+               </xs:appinfo>
                <xs:documentation>
                  It is recommended that the pid attribute be set to
                  http://purl.org/dc/dcmitype/Dataset.  
@@ -2564,6 +2567,9 @@
            <xs:element name="type" type="rsm:CollectionRoleType" minOccurs="1"
                        maxOccurs="3">
              <xs:annotation>
+               <xs:appinfo>
+                 <label>Type</label>
+               </xs:appinfo>
                <xs:documentation>
                  the sub-type of collection this resource qualifies as.
                </xs:documentation>
@@ -2624,6 +2630,9 @@
            <xs:element name="type" type="rsm:DatasetRoleType" minOccurs="1"
                        maxOccurs="2">
              <xs:annotation>
+               <xs:appinfo>
+                 <label>Type</label>
+               </xs:appinfo>
                <xs:documentation>
                  It is recommended that the pid attribute be set to
                  http://purl.org/dc/dcmitype/Dataset.  

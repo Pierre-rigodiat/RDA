@@ -28,7 +28,7 @@ def loads_refinements_trees(template_name):
                 else:
                     element = element[0]
                     # get the label of refinements
-                    label, name = _get_label_and_name(element)
+                    label = _get_label(element)
                     query = []
 
                     while element is not None:
@@ -53,9 +53,9 @@ def loads_refinements_trees(template_name):
                 dot_query = ".".join(query)
 
                 if has_first_parent_complex_type:
-                    label, name = _get_label_and_name(has_first_parent_complex_type)
+                    label = _get_label(has_first_parent_complex_type)
 
-                trees = Tree.build_tree(tree=trees, root=name, enums=enums, dot_query=dot_query)
+                trees = Tree.build_tree(tree=trees, root=label, enums=enums, dot_query=dot_query)
 
         except Exception, e:
             print "ERROR AUTO GENERATION OF REFINEMENTS."
@@ -63,13 +63,12 @@ def loads_refinements_trees(template_name):
     return trees
 
 
-def _get_label_and_name(element):
+def _get_label(element):
     app_info = common.getAppInfo(element)
     label = app_info['label'] if 'label' in app_info else element.attrib['name']
     label = label if label is not None else ''
-    name = element.attrib['name']
 
-    return label, name
+    return label
 
 
 def _get_flatten_schema_and_namespaces(template_name):

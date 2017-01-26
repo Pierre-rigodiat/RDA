@@ -278,9 +278,6 @@ updateRefinementsOccurrences = function(data2){
             $.map(data.items, function (item) {
                 $("#"+item.text_id).html(item.nb_occurrences);
             });
-            $('*[id^="tree_"]').each(function(){
-                var nodes = $(this).fancytree('getRootNode').load();
-            });
         },
         complete: function(){
 
