@@ -289,9 +289,9 @@ def explore_detail_result(request) :
 #
 ################################################################################
 @permission_required(content_type=RIGHTS.explore_content_type, permission=RIGHTS.explore_access, login_url='/login')
-def explore_detail_result_keyword(request) :
+def explore_detail_result_keyword(request, result_id) :
     template = loader.get_template('explore/explore_detail_results_keyword.html')
-    context = explore_detail_result_process(request)
+    context = explore_detail_result_process(request, result_id)
 
     return HttpResponse(template.render(context))
 
@@ -306,8 +306,8 @@ def explore_detail_result_keyword(request) :
 #
 ################################################################################
 @permission_required(content_type=RIGHTS.explore_content_type, permission=RIGHTS.explore_access, login_url='/login')
-def explore_detail_result_process(request):
-    result_id = request.GET['id']
+def explore_detail_result_process(request, result_id):
+    # result_id = request.GET['id']
     xmlString = XMLdata.get(result_id)
     schemaId = xmlString['schema']
     if 'title' in request.GET:

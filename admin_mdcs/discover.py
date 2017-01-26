@@ -92,8 +92,8 @@ def load_templates():
         template_ids = []
         
         template_results = {
-            'full': 'nmrr-full.xsl',
-            'detail': 'nmrr-detail.xsl',
+            'full': 'nmrr-full_demo.xsl',
+            'detail': 'nmrr-detail_demo.xsl',
         }
         
         template_results_id = {

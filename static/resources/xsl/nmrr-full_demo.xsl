@@ -79,7 +79,7 @@
 		<xsl:variable name="name" select="name(.)" />
 		<xsl:variable name="value" select="." />
 		<xsl:variable name="arg" select="@type" />
-		<xsl:if test="contains($name, 'URL')">
+		<xsl:if test="( (contains($name, 'URL')) or (starts-with($value, 'https://')) or (starts-with($value, 'http://')) )">
 			<xsl:if test="$value!=''">
 				<xsl:value-of select="$name"/>
 				<xsl:text>: </xsl:text>

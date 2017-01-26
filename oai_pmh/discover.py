@@ -129,17 +129,17 @@ def load_xslt():
     # Add OAI Xslt
     xsltFullName = 'full_demo-oai_pmh'
     xsltFullPath = 'nmrr-full_demo-oai_pmh.xsl'
-    xsltDetailName = 'detail-oai_pmh'
-    sltDetailPath = 'nmrr-detail-oai_pmh.xsl'
+    xsltDetailName = 'detail_demo-oai_pmh'
+    sltDetailPath = 'nmrr-detail_demo-oai_pmh.xsl'
 
-    objFull = ResultXslt.objects(filename='nmrr-full_demo-oai_pmh.xsl')
+    objFull = ResultXslt.objects(filename=xsltFullPath)
     if not objFull:
         file = open(os.path.join(SITE_ROOT, 'oai_pmh', 'resources', 'xsl', xsltFullPath),'r')
         fileContent = file.read()
         objFull = ResultXslt(name=xsltFullName, filename=xsltFullPath, content=fileContent).save()
         Template.objects().update(set__ResultXsltList=objFull, upsert=True)
 
-    objDetail = ResultXslt.objects(filename='nmrr-detail-oai_pmh.xsl')
+    objDetail = ResultXslt.objects(filename=sltDetailPath)
     if not objDetail:
         file = open(os.path.join(SITE_ROOT, 'oai_pmh', 'resources', 'xsl', sltDetailPath),'r')
         fileContent = file.read()
