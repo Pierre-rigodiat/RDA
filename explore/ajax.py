@@ -38,7 +38,9 @@ from django.contrib import messages
 from utils.XSDParser.parser import generate_form
 from utils.XSDParser.renderer import DefaultRenderer
 from utils.XSDParser.renderer.checkbox import CheckboxRenderer
-
+from utils.XSDflattener.XSDflattener import XSDFlattenerURL
+from utils.XSDRefinements import Tree, XSDRefinements
+import hashlib
 
 # Class definition
 class ElementInfo:
@@ -524,7 +526,63 @@ def get_results_by_instance_keyword(request):
 
     print 'END def getResultsKeyword(request)'
 
-    return HttpResponse(json.dumps({'resultsByKeyword' : resultsByKeyword, 'resultString' : resultString, 'count' : len(instanceResults) + nbOAI}), content_type='application/javascript')
+    return HttpResponse(json.dumps({'resultsByKeyword' : resultsByKeyword, 'resultString' : resultString,
+                                    'count' : len(instanceResults) + nbOAI}), content_type='application/javascript')
+
+
+# FIXME: Refactor with get_results_by_instance_keyword
+def get_results_occurrences(request):
+    print 'BEGIN def getResultsKeyword(request)'
+
+    tree_info = []
+
+
+    try:
+        keyword = request.GET['keyword']
+        schemas = request.GET.getlist('schemas[]')
+        userSchemas = request.GET.getlist('userSchemas[]')
+        refinements = refinements_to_mongo(request.GET.getlist('refinements[]'))
+        onlySuggestions = json.loads(request.GET['onlySuggestions'])
+        all_refinements = request.GET.getlist('allRefinements[]')
+    except:
+        keyword = ''
+        schemas = []
+        userSchemas = []
+        refinements = {}
+        onlySuggestions = True
+        all_refinements = []
+
+    #We get all template versions for the given schemas
+    #First, we take care of user defined schema
+    templatesIDUser = Template.objects(title__in=userSchemas).distinct(field="id")
+    templatesIDUser = [str(x) for x in templatesIDUser]
+
+    #Take care of the rest, with versions
+    templatesVersions = Template.objects(title__in=schemas).distinct(field="templateVersion")
+
+    #We get all templates ID, for all versions
+    allTemplatesIDCommon = TemplateVersion.objects(pk__in=templatesVersions, isDeleted=False).distinct(field="versions")
+    #We remove the removed version
+    allTemplatesIDCommonRemoved = TemplateVersion.objects(pk__in=templatesVersions, isDeleted=False).distinct(field="deletedVersions")
+    templatesIDCommon = list(set(allTemplatesIDCommon) - set(allTemplatesIDCommonRemoved))
+
+    templatesID = templatesIDUser + templatesIDCommon
+
+    instanceResults = XMLdata.executeFullTextQuery(keyword, templatesID, refinements)
+    list_ids = [x['_id'] for x in instanceResults]
+    try:
+        for refinement in all_refinements:
+            refinements_to_query = [refinement]
+            # FIXME: Treatment too long
+            count = 0#XMLdata.executeOccurrencesQuery(list_ids, refinements_to_mongo(refinements_to_query))
+            result_json = {}
+            result_json['text_id'] = hashlib.sha1(refinement).hexdigest()
+            result_json['nb_occurrences'] = count
+            tree_info.append(result_json)
+    except:
+        data = ''
+
+    return HttpResponse(json.dumps({'items': tree_info}), content_type='application/javascript')
 
 
 ################################################################################
@@ -2366,93 +2424,23 @@ def subElementfieldsToPrettyQuery(request, liElements, list_leaves_id):
 #
 ################################################################################
 def load_refinements(request):
-    schema_name = request.GET['schema']
-    schemas = Template.objects(title=schema_name)
-    schema_id = TemplateVersion.objects().get(pk=schemas[0].templateVersion).current
-
-    schema = Template.objects().get(pk=schema_id)
-
-    xmlDocTree = etree.parse(BytesIO(schema.content.encode('utf-8')))
-
-    # find the namespaces
-    namespaces = common.get_namespaces(BytesIO(schema.content.encode('utf-8')))
-
-    target_ns_prefix = common.get_target_namespace_prefix(namespaces, xmlDocTree)
-    target_ns_prefix = "{}:".format(target_ns_prefix) if target_ns_prefix != '' else ''
-
-    # TODO: change enumeration look up by something more generic (using annotations in the schema)
-    # looking for enumerations
-    simple_types = xmlDocTree.findall("./{0}simpleType".format(LXML_SCHEMA_NAMESPACE))
+    # FIXME: DO NOT hard code the name of the schema
+    schema_name = "res-md" # request.GET['schema']
     tree_info = []
     tree_items = []
-    for simple_type in simple_types:
-        try:
-            entries = []
-            enums = simple_type.findall("./{0}restriction/{0}enumeration".format(LXML_SCHEMA_NAMESPACE))
-            refinement = ""
-            if len(enums) > 0:
-                # build dot notation query
-                # find the element using the enumeration
-                element = xmlDocTree.findall(".//{0}element[@type='{1}']".format(LXML_SCHEMA_NAMESPACE,
-                                                                                 target_ns_prefix + simple_type.attrib['name']))
-                if len(element) > 1:
-                    print "error: more than one element using the enumeration (" + str(len(element)) + ")"
-                else:
-                    element = element[0]
 
-                    # get the label of refinements
-                    app_info = common.getAppInfo(element)
-                    label = app_info['label'] if 'label' in app_info else element.attrib['name']
-                    label = label if label is not None else ''
-                    query = []
-                    while element is not None:
-                        if element.tag == "{0}element".format(LXML_SCHEMA_NAMESPACE):
-                            query.insert(0, element.attrib['name'])
-                        elif element.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE)\
-                                or element.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
-                            try:
-                                element = xmlDocTree.findall(".//{0}element[@type='{1}']".format(LXML_SCHEMA_NAMESPACE,
-                                                                                                 target_ns_prefix + element.attrib['name']))
-                                if len(element) > 1:
-                                    print "error: more than one element using the enumeration (" + str(len(element)) + ")"
-                                else:
-                                    element = element[0]
-                                    query.insert(0, element.attrib['name'])
-                            except:
-                                pass
-                        elif element.tag == "{0}extension".format(LXML_SCHEMA_NAMESPACE):
-                            try:
-                                element = xmlDocTree.findall(".//{0}element[@type='{1}']".format(LXML_SCHEMA_NAMESPACE,
-                                                                                                 element.attrib['base']))
-                                if len(element) > 1:
-                                    print "error: more than one element using the enumeration (" + str(len(element)) + ")"
-                                else:
-                                    element = element[0]
-                                    query.insert(0, element.attrib['name'])
-                            except:
-                                pass
-                        element = element.getparent()
+    refinements_trees = XSDRefinements.loads_refinements_trees(schema_name)
+    for root, tree in sorted(refinements_trees.iteritems()):
+        item_info = {
+            'enum_name': root.title,
+            'id_label': hashlib.sha1(root.title).hexdigest()
+        }
+        tree_items.append(item_info)
 
-                dot_query = ".".join(query)
-
-                # get the name of the enumeration
-                for enum in sorted(enums, key=lambda x: x.attrib['value']):
-                    entries.append({"title": enum.attrib['value'], 'query': dot_query})
-
-                item_info = {
-                    'enum_name': label,
-                    'id_label': simple_type.attrib['name'],
-                    'query': dot_query
-                }
-                tree_items.append(item_info)
-
-                result_json = {}
-                result_json['div_id'] = item_info['id_label']
-                result_json['json_data'] = json.dumps(entries)
-                tree_info.append(result_json)
-
-        except:
-            print "ERROR AUTO GENERATION OF REFINEMENTS."
+        result_json = {}
+        result_json['div_id'] = item_info['id_label']
+        result_json['json_data'] = Tree.print_tree(tree, nb_occurrences_text=True)
+        tree_info.append(result_json)
 
     template = loader.get_template('explore/explore_fancy_tree.html')
     context = Context({'items': tree_items})
@@ -2476,7 +2464,7 @@ def refinements_to_mongo(refinements):
         mongo_queries = dict()
         mongo_in = {}
         for refinement in refinements:
-            splited_refinement = refinement.split(':')
+            splited_refinement = refinement.split('==')
             dot_notation = splited_refinement[0]
             dot_notation = "content." + dot_notation
             value = splited_refinement[1]

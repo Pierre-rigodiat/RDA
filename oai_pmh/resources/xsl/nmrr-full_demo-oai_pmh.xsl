@@ -7,7 +7,7 @@
 		<div class="white-bg">
 			<xsl:variable name="title"  select="//nr:Resource/nr:identity/nr:title"/>
 			{% if oai_pmh %}
-				<a class="title" target="_blank" onclick="dialog_detail_oai_pmh('{{{{id}}}}');">
+				<a class="title" target="_blank" onclick="window.location = '{{% url 'oai-explore-detail-result-keyword' id %}}'">
 					<xsl:choose>
 						<xsl:when test="$title!=''">
 							<strong><xsl:value-of select="$title"/></strong>
@@ -18,7 +18,7 @@
 					</xsl:choose>
 				</a>
 			{% else %}
-				<a class="title" target="_blank" onclick="dialog_detail('{{{{id}}}}');">
+				<a class="title" target="_blank" onclick="window.location = '{{% url 'explore-detail-result-keyword' id %}}'">
 					<xsl:choose>
 						<xsl:when test="$title!=''">
 							<strong><xsl:value-of select="$title"/></strong>
@@ -100,7 +100,7 @@
 		<xsl:variable name="name" select="name(.)" />
 		<xsl:variable name="value" select="." />
 		<xsl:variable name="arg" select="@type" />
-		<xsl:if test="contains($name, 'URL')">
+		<xsl:if test="( (contains($name, 'URL')) or (starts-with($value, 'https://')) or (starts-with($value, 'http://')) )">
 			<xsl:if test="$value!=''">
 				<xsl:value-of select="$name"/>
 				<xsl:text>: </xsl:text>

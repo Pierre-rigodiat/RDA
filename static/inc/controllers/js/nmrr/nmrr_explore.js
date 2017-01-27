@@ -90,33 +90,6 @@ initResources = function(){
 	}
 }
 
-
-dialog_detail = function(id){
-	$.ajax({
-        url : "/explore/detail_result_keyword?id=" + id,
-        type : "GET",
-        success: function(data){
-        	console.log(data);
-        	$("#result_detail").html(data);
-        	
-        	$(function() {
-                $( "#dialog-detail-result" ).dialog({
-                    modal: true,
-                    height: 430,
-                    width: 700,
-                    buttons: {
-                        Ok: function() {
-                        $( this ).dialog( "close" );
-                        }
-                    }
-                });
-            });
-        }
-    });
-	
-}
-
-
 initFilters = function(){
 	// Set filter to simple by default
 	$("#results_view").val("simple");
@@ -213,7 +186,7 @@ loadRefinementQueries = function(){
     $('*[id^="tree_"]').each(function(){
         var nodes = $(this).fancytree('getRootNode').tree.getSelectedNodes();
         $(nodes).each(function() {
-            refinements.push($(this)[0].data.query + ":" + $(this)[0].title);
+            refinements.push($(this)[0].key);
         });
     });
 
@@ -226,6 +199,7 @@ loadRefinementQueries = function(){
  * @param numInstance
  */
 get_results_keyword_refined = function(numInstance){
+    updateRefinementsOccurrences();
 	// clear the timeout
 	clearTimeout(timeout);
 	// send request if no parameter changed during the timeout
@@ -283,6 +257,58 @@ clearRefinements = function(){
 	get_results_keyword_refined();
 }
 
+updateRefinementsOccurrences = function(data2){
+    var keyword = $("#id_search_entry").val();
+	$.ajax({
+        url : "/explore/get_results_occurrences",
+        type : "GET",
+        dataType: "json",
+        data : {
+            keyword: keyword,
+            schemas: getSchemas(),
+            refinements: loadRefinementQueries(),
+            allRefinements: getAllRefinements(),
+            onlySuggestions: false,
+            registries: getRegistries(),
+        },
+        beforeSend: function( xhr ) {
+
+        },
+        success: function(data){
+            $.map(data.items, function (item) {
+                $("#"+item.text_id).html(item.nb_occurrences);
+            });
+        },
+        complete: function(){
+
+        }
+    });
+}
+
+getAllRefinements = function(){
+	var refinements = [];
+
+    $('*[id^="tree_"]').each(function(){
+        var nodes = $(this).fancytree('getRootNode').getChildren();
+        getRefinementsChildren(nodes, refinements);
+    });
+
+	return refinements;
+}
+
+
+getRefinementsChildren = function(children, refinements)
+{
+   if(children === undefined)
+        return;
+
+    $(children).each(function() {
+        refinements.push($(this)[0].key);
+        var nodes = $(this)[0].getChildren();
+        getRefinementsChildren(nodes, refinements);
+    });
+}
+
 
 loadRefinements = function(schema){
 	$("#refine_resource").html('');
@@ -298,6 +324,7 @@ loadRefinements = function(schema){
             $.map(data.items, function (item) {
                 initFancyTree(item.div_id, item.json_data);
             });
+            updateRefinementsOccurrences();
         }
     });
 }

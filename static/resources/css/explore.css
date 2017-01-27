@@ -157,6 +157,11 @@ a[class="collapsed"] .fa-chevron-up {
     color: #CD5C5C;
 }
 
+.harvested a {
+    cursor: pointer;
+    cursor: hand;
+}
+
 .collapseXSLT {
     color: #000000;
     display: block;
