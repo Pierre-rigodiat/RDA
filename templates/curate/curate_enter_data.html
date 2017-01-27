@@ -25,6 +25,8 @@
     <link rel="stylesheet" type="text/css" href="{% static 'resources/css/XMLTreeCurator.css' %}" media="screen" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/nmrr/repo.css' %}" media="screen" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/nmrr/form_validation.css' %}" media="screen" />
+    <link rel="stylesheet" type="text/css" href="{% static 'libs/fancytree/skin-bootstrap/ui.fancytree.css' %}"  class="skinswitcher">
+    <link rel="stylesheet" type="text/css" href="{% static 'libs/bootstrap/3.3.5/css/glyphicon.css' %}">
 {% endblock %}
 
 {% block menu %}
@@ -60,6 +62,7 @@ Please wait while the form is loading...
 <a class="button button-reversed cancel-changes">Cancel Changes </a>
 <a class="button button-reversed clear-fields">Clear Form</a>
 </div>
+<div style="display:none;" id="template_name">{{template_name}}</div>
 {% endblock %}
 
 {% block popups %}
@@ -133,6 +136,10 @@ Some <span style="color:red;">required</span> or <span style="color:blue;">recom
 <script src="{% static 'js/form/autosave.js' %}"></script>
 <script src="{% static 'js/form/choice.js' %}"></script>
 <script src="{% static 'js/toolbar.js' %}"></script>
+<script src="{% static 'libs/fancytree/jquery.fancytree.js' %}"></script>
+<script src="{% static 'libs/fancytree/jquery.fancytree.dnd.js' %}"></script>
+<script src="{% static 'libs/fancytree/jquery.fancytree.glyph.js' %}"></script>
+<script src="{% static 'libs/fancytree/jquery.fancytree.wide.js' %}"></script>
 <script>
 generate_xsd_form();
 $('.button.save-to-repo').on('click', validateXML);

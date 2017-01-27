@@ -13,6 +13,11 @@ import string
 from mgi.models import Status
 from forms import NamePIDForm
 from django.template import Context, Template
+import HTMLParser
+import json
+
+from utils.XSDRefinements.Tree import TreeInfo, print_tree
+
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
 MONGODB_URI = settings.MONGODB_URI
@@ -319,3 +324,114 @@ class TypeModule(InputModule):
 
     def _post_result(self, request):
         return str(request.POST['data'])
+
+
+class FancyTreeModule(Module):
+    """
+    Module to transform an enumeration in fancy tree
+    """
+    def __init__(self, xml_tag):
+        self.xml_tag = xml_tag
+        self.selected = []
+        Module.__init__(self, scripts=[os.path.join(SCRIPTS_PATH, 'fancy_tree.js')])
+
+        # This modules automatically manages occurrences
+        self.is_managing_occurences = True
+
+    def _get_module(self, request):
+        with open(os.path.join(TEMPLATES_PATH, 'fancy_tree.html'), 'r') as template_file:
+            template_content = template_file.read()
+            template = Template(template_content)
+        # self.selected = []
+        # # get the values of the enumeration
+        xml_doc_tree_str = request.session['xmlDocTree']
+        xml_doc_tree = etree.fromstring(xml_doc_tree_str)
+
+        namespaces = common.get_namespaces(BytesIO(str(xml_doc_tree_str)))
+
+        # get the element where the module is attached
+        xsd_element = xml_doc_tree.xpath(request.GET['xsd_xpath'], namespaces=namespaces)[0]
+        xsd_element_type = xsd_element.attrib['type']
+        # remove ns prefix if present
+        if ':' in xsd_element_type:
+            xsd_element_type = xsd_element_type.split(':')[1]
+        xpath_type = "./{0}complexType[@name='{1}']".format(LXML_SCHEMA_NAMESPACE, xsd_element_type)
+        element_type = xml_doc_tree.find(xpath_type)
+        choice_element = element_type.find("./{0}choice".format(LXML_SCHEMA_NAMESPACE))
+        choice_children = list(choice_element)
+
+        # if 'data' in request.GET:
+        #     data = request.GET['data']
+        #     # get XML to reload
+        #     reload_data = etree.fromstring("<root>" + data + "</root>")
+        #     print etree.tostring(reload_data)
+        #     for child in list(reload_data[0]):
+        #         tag_name = child.text
+        #         child_text = etree.tostring(child)
+        #         end_tag = child_text.index(">")
+        #         # +1:"<" + tag_name
+        #         xml_value = child_text[:len(tag_name)+1] + child_text[end_tag:]
+        #         if child.text is not None:
+        #             self.selected.append(xml_value)
+
+        tree = {}
+        for choice_child in choice_children:
+            choice_child_name = choice_child.attrib["name"]
+            choice_child_type_name = choice_child.attrib["type"]
+            # remove ns prefix if present
+            if ':' in choice_child_type_name:
+                choice_child_type_name = choice_child_type_name.split(':')[1]
+
+            choice_child_type_xpath = "./{0}simpleType[@name='{1}']".format(LXML_SCHEMA_NAMESPACE,
+                                                                            choice_child_type_name)
+            choice_child_type = xml_doc_tree.find(choice_child_type_xpath)
+
+            list_enumeration = choice_child_type.findall(".//{0}enumeration".format(LXML_SCHEMA_NAMESPACE))
+
+            tree = _build_tree(tree, choice_child_name, list_enumeration)
+
+        source_data = {}
+        for root, child_tree in sorted(tree.iteritems()):
+            source_data.update(child_tree)
+
+        context = Context({'source_data': print_tree(source_data),
+                           'module_id': request.GET['module_id']})
+        return template.render(context)
+
+    def _get_display(self, request):
+        return ''
+
+    def _get_result(self, request):
+        return ''
+
+    def _post_display(self, request):
+        return ''
+
+    def _post_result(self, request):
+        html_parser = HTMLParser.HTMLParser()
+        xml_result = ''
+        if 'data[]' in request.POST:
+            for value in dict(request.POST)['data[]']:
+                if value != '':
+                    xml_result += '<' + self.xml_tag + '>' + html_parser.unescape(value) + '</' + self.xml_tag + '>'
+        print xml_result
+        return xml_result
+
+
+def _create_xml_node(node_name, child_name):
+    return "<{0}>{1}</{0}>".format(node_name, child_name)
+
+
+def _build_tree(tree, root, enums):
+    for enum in sorted(enums, key=lambda x: x.attrib['value']):
+        t = tree
+        t = t.setdefault(TreeInfo(title=root), {})
+        groups = enum.attrib['value'].split(':')
+        split_index = 0
+        for part in groups:
+            split_index += 1
+            key = _create_xml_node(root, ':'.join(groups[:split_index]))
+            g = TreeInfo(title=part, key=key)
+            t = t.setdefault(g, {})
+    return tree
+

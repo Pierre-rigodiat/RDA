@@ -1,5 +1,5 @@
 from modules.registry.models import RegistryCheckboxesModule, StatusModule, LocalIDModule, DescriptionModule, TypeModule, \
-    NamePIDModule
+    NamePIDModule, FancyTreeModule
 
 
 def registry_checkboxes_materialType(request):
@@ -44,3 +44,12 @@ def resource_type(request):
 
 def name_pid(request):
     return NamePIDModule().render(request)
+
+
+def fancy_tree_material_type(request):
+    return FancyTreeModule(xml_tag='materialType').render(request)
+
+
+def fancy_tree_structural_feature(request):
+    return FancyTreeModule(xml_tag='structuralFeature').render(request)
+

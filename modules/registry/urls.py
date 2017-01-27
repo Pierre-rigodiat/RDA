@@ -23,5 +23,9 @@ urlpatterns = patterns('',
         name='Resource Type'),
     url(r'name-pid', 'modules.registry.views.name_pid',
         name='Name PID'),
+    url(r'fancy_tree_material_type', 'modules.registry.views.fancy_tree_material_type',
+        name='Fancy Tree Material'),
+    url(r'fancy_tree_structural_feature', 'modules.registry.views.fancy_tree_structural_feature',
+        name='Fancy Tree Structural'),
 )
 
