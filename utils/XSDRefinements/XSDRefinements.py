@@ -16,7 +16,6 @@ def loads_refinements_trees(template_name):
     simple_types = xml_doc_tree.findall("./{0}simpleType".format(LXML_SCHEMA_NAMESPACE))
     trees = {}
     for simple_type in simple_types:
-        has_first_parent_complex_type = None
         try:
             enums = simple_type.findall("./{0}restriction/{0}enumeration".format(LXML_SCHEMA_NAMESPACE))
             if len(enums) > 0:
@@ -24,11 +23,11 @@ def loads_refinements_trees(template_name):
                                                                                    target_ns_prefix +
                                                                                    simple_type.attrib['name']))
                 if len(element) > 1:
-                    print "error: more than one element using the enumeration (" + str(len(element)) + ")"
+                    print "error: more than one element using the enumeration ({0})".format(str(len(element)))
                 else:
                     element = element[0]
                     # get the label of refinements
-                    label = _get_label(element)
+                    label = _get_label(element, xml_doc_tree, target_ns_prefix)
                     query = []
 
                     while element is not None:
@@ -40,30 +39,17 @@ def loads_refinements_trees(template_name):
                         elif element.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
                             element = _get_simple_type_or_complex_type_info(xml_doc_tree, target_ns_prefix, element,
                                                                             query)
-                            if not has_first_parent_complex_type:
-                                has_first_parent_complex_type = element
                         elif element.tag == "{0}extension".format(LXML_SCHEMA_NAMESPACE):
                             element = _get_extension_info(xml_doc_tree, element, query)
 
                         element = element.getparent()
 
                     dot_query = ".".join(query)
-                    if has_first_parent_complex_type:
-                        label = _get_label(has_first_parent_complex_type)
-
                     trees = Tree.build_tree(tree=trees, root=label, enums=enums, dot_query=dot_query)
         except:
             print "ERROR AUTO GENERATION OF REFINEMENTS."
 
     return trees
-
-
-def _get_label(element):
-    app_info = common.getAppInfo(element)
-    label = app_info['label'] if 'label' in app_info else element.attrib['name']
-    label = label if label is not None else ''
-
-    return label
 
 
 def _get_flatten_schema_and_namespaces(template_name):
@@ -78,7 +64,26 @@ def _get_flatten_schema_and_namespaces(template_name):
     return ref_xml_schema_content, namespaces
 
 
-def _get_simple_type_or_complex_type_info(xml_doc_tree, target_ns_prefix, element, query):
+def _get_label(element, xml_doc_tree, target_ns_prefix):
+    # By default, use the element's app_info
+    app_info = common.getAppInfo(element)
+    # Check if the element is embedded in a choice. If yes, we use the first parent complexType to get the label.
+    parent = element.getparent()
+    if parent is not None and parent.tag == "{0}choice".format(LXML_SCHEMA_NAMESPACE):
+        while parent.getparent() is not None:
+            parent = parent.getparent()
+            if parent.tag == "{0}complexType".format(LXML_SCHEMA_NAMESPACE):
+                parent = _get_simple_type_or_complex_type_info(xml_doc_tree, target_ns_prefix, parent)
+                app_info = common.getAppInfo(parent)
+                break
+
+    label = app_info['label'] if 'label' in app_info else element.attrib['name']
+    label = label if label is not None else element.attrib['name']
+
+    return label
+
+
+def _get_simple_type_or_complex_type_info(xml_doc_tree, target_ns_prefix, element, query=None):
     try:
         to_search_element = xml_doc_tree.findall(".//{0}element[@type='{1}']".format(LXML_SCHEMA_NAMESPACE,
                                                  target_ns_prefix + element.attrib['name']))
@@ -89,14 +94,15 @@ def _get_simple_type_or_complex_type_info(xml_doc_tree, target_ns_prefix, elemen
             print "error: more than one element using the enumeration ({0})".format(str(len(element)))
         else:
             element = to_search_element[0]
-            query.insert(0, element.attrib['name'])
+            if query is not None:
+                query.insert(0, element.attrib['name'])
     except:
         pass
 
     return element
 
 
-def _get_extension_info(xml_doc_tree, element, query):
+def _get_extension_info(xml_doc_tree, element, query=None):
     try:
         to_search_element = xml_doc_tree.findall(".//{0}element[@type='{1}']".format(LXML_SCHEMA_NAMESPACE,
                                                  element.attrib['base']))
@@ -106,7 +112,8 @@ def _get_extension_info(xml_doc_tree, element, query):
             print "error: more than one element using the enumeration ({0})".format(str(len(element)))
         else:
             element = to_search_element[0]
-            query.insert(0, element.attrib['name'])
+            if query is not None:
+                query.insert(0, element.attrib['name'])
     except:
         pass
 

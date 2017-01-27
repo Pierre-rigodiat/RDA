@@ -1626,7 +1626,7 @@
                        minOccurs="0" maxOccurs="unbounded">
              <xs:annotation>
                <xs:appinfo>
-                 <label>Experimental Method</label>
+                 <label>Experimental Data Acquisition Methods</label>
                </xs:appinfo>
                <xs:documentation>
                   the experimental technique used to acquire the data
@@ -1639,7 +1639,7 @@
                        minOccurs="0" maxOccurs="unbounded">
              <xs:annotation>
                <xs:appinfo>
-                 <label>Computational Method</label>
+                 <label>Computational Data Acquisition Methods</label>
                </xs:appinfo>
                <xs:documentation>
                   the computational technique used to acquire the data
@@ -1653,7 +1653,7 @@
                        minOccurs="0" maxOccurs="unbounded">
              <xs:annotation>
                <xs:appinfo>
-                 <label>Synthesis Processing</label>
+                 <label>Sample Processing Method</label>
                </xs:appinfo>
                <xs:documentation>
                  the physical processing or preparation technique applied 
