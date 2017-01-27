@@ -45,19 +45,14 @@ def loads_refinements_trees(template_name):
                         elif element.tag == "{0}extension".format(LXML_SCHEMA_NAMESPACE):
                             element = _get_extension_info(xml_doc_tree, element, query)
 
-                        try:
-                            element = element.getparent()
-                        except:
-                            element = None
+                        element = element.getparent()
 
-                dot_query = ".".join(query)
+                    dot_query = ".".join(query)
+                    if has_first_parent_complex_type:
+                        label = _get_label(has_first_parent_complex_type)
 
-                if has_first_parent_complex_type:
-                    label = _get_label(has_first_parent_complex_type)
-
-                trees = Tree.build_tree(tree=trees, root=label, enums=enums, dot_query=dot_query)
-
-        except Exception, e:
+                    trees = Tree.build_tree(tree=trees, root=label, enums=enums, dot_query=dot_query)
+        except:
             print "ERROR AUTO GENERATION OF REFINEMENTS."
 
     return trees
@@ -85,12 +80,15 @@ def _get_flatten_schema_and_namespaces(template_name):
 
 def _get_simple_type_or_complex_type_info(xml_doc_tree, target_ns_prefix, element, query):
     try:
-        element = xml_doc_tree.findall(".//{0}element[@type='{1}']".format(LXML_SCHEMA_NAMESPACE,
-                                                                           target_ns_prefix + element.attrib['name']))
-        if len(element) > 1:
+        to_search_element = xml_doc_tree.findall(".//{0}element[@type='{1}']".format(LXML_SCHEMA_NAMESPACE,
+                                                 target_ns_prefix + element.attrib['name']))
+        if len(to_search_element) == 0:
+            print "warning: impossible to find the element using the enumeration ({0})".format(str(len(element)))
+            element = _find_extension(xml_doc_tree, target_ns_prefix, element)
+        elif len(to_search_element) > 1:
             print "error: more than one element using the enumeration ({0})".format(str(len(element)))
         else:
-            element = element[0]
+            element = to_search_element[0]
             query.insert(0, element.attrib['name'])
     except:
         pass
@@ -100,13 +98,32 @@ def _get_simple_type_or_complex_type_info(xml_doc_tree, target_ns_prefix, elemen
 
 def _get_extension_info(xml_doc_tree, element, query):
     try:
-        element = xml_doc_tree.findall(".//{0}element[@type='{1}']".format(LXML_SCHEMA_NAMESPACE,
-                                                                         element.attrib['base']))
-        if len(element) > 1:
+        to_search_element = xml_doc_tree.findall(".//{0}element[@type='{1}']".format(LXML_SCHEMA_NAMESPACE,
+                                                 element.attrib['base']))
+        if len(to_search_element) == 0:
+            print "warning: impossible to find the element using the enumeration ({0})".format(str(len(element)))
+        elif len(to_search_element) > 1:
             print "error: more than one element using the enumeration ({0})".format(str(len(element)))
         else:
-            element = element[0]
+            element = to_search_element[0]
             query.insert(0, element.attrib['name'])
+    except:
+        pass
+
+    return element
+
+
+def _find_extension(xml_doc_tree, target_ns_prefix, element):
+    try:
+        to_search_element = xml_doc_tree.findall(".//{0}extension[@base='{1}']".format(LXML_SCHEMA_NAMESPACE,
+                                                 target_ns_prefix +
+                                                 element.attrib['name']))
+        if len(to_search_element) == 0:
+            print "warning: impossible to find the enumeration ({0})".format(str(len(element)))
+        elif len(to_search_element) > 1:
+            print "error: more than one enumeration using the element ({0})".format(str(len(element)))
+        else:
+            element = to_search_element[0]
     except:
         pass
 
