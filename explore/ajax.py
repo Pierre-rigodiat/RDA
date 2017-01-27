@@ -574,7 +574,7 @@ def get_results_occurrences(request):
         for refinement in all_refinements:
             refinements_to_query = [refinement]
             # FIXME: Treatment too long
-            count = XMLdata.executeOccurrencesQuery(list_ids, refinements_to_mongo(refinements_to_query))
+            count = 0#XMLdata.executeOccurrencesQuery(list_ids, refinements_to_mongo(refinements_to_query))
             result_json = {}
             result_json['text_id'] = hashlib.sha1(refinement).hexdigest()
             result_json['nb_occurrences'] = count
