@@ -1617,8 +1617,10 @@
      <xs:complexContent>
        <xs:extension base="rsm:Applicability">
          <xs:sequence>
-           <xs:element name="materialType" type="rsm:Material_types" 
-                       minOccurs="0" maxOccurs="unbounded">
+           <xs:element name="materialType" 
+             type="rsm:Material_types" 
+             minOccurs="0" maxOccurs="unbounded" 
+             xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/fancy_tree_material_type">
              <xs:annotation>
                <xs:appinfo>
                  <label>Material Type</label>
@@ -1632,7 +1634,8 @@
 
            <xs:element name="structuralFeature" 
                        type="rsm:Structural_features" 
-                       minOccurs="0" maxOccurs="unbounded">
+                       minOccurs="0" maxOccurs="unbounded"
+                       xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/fancy_tree_structural_feature">
              <xs:annotation>
                <xs:appinfo>
                  <label>Structural Feature</label>
@@ -1644,8 +1647,10 @@
              </xs:annotation>
            </xs:element>
 
-           <xs:element name="propertyAddressed" type="rsm:Properties_addressed"
-                       minOccurs="0" maxOccurs="unbounded">
+           <xs:element name="propertyAddressed" 
+                       type="rsm:Properties_addressed"
+                       minOccurs="0" maxOccurs="unbounded"
+                       xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/fancy_tree_property_addressed">
              <xs:annotation>
                <xs:appinfo>
                  <label>Property Addressed</label>
@@ -1656,8 +1661,10 @@
              </xs:annotation>
            </xs:element>
 
-           <xs:element name="experimentalMethod" type="rsm:Experimental_methods"
-                       minOccurs="0" maxOccurs="unbounded">
+           <xs:element name="experimentalMethod" 
+                       type="rsm:Experimental_methods"
+                       minOccurs="0" maxOccurs="unbounded"
+                       xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/fancy_tree_experimental_method">
              <xs:annotation>
                <xs:appinfo>
                  <label>Experimental Data Acquisition Methods</label>
@@ -1669,8 +1676,10 @@
              </xs:annotation>
            </xs:element>
 
-           <xs:element name="computationalMethod" type="rsm:Computational_methods"
-                       minOccurs="0" maxOccurs="unbounded">
+           <xs:element name="computationalMethod" 
+                       type="rsm:Computational_methods"
+                       minOccurs="0" maxOccurs="unbounded"
+                       xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/fancy_tree_computational_method">
              <xs:annotation>
                <xs:appinfo>
                  <label>Computational Data Acquisition Methods</label>
@@ -1684,7 +1693,8 @@
 
            <xs:element name="synthesisProcessing"
                        type="rsm:Synthesis_and_processing"
-                       minOccurs="0" maxOccurs="unbounded">
+                       minOccurs="0" maxOccurs="unbounded"
+                       xmlns:ns0="http://mdcs.ns" ns0:_mod_mdcs_="/registry/fancy_tree_synthesis_processing">
              <xs:annotation>
                <xs:appinfo>
                  <label>Synthesis Processing</label>

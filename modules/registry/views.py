@@ -53,3 +53,18 @@ def fancy_tree_material_type(request):
 def fancy_tree_structural_feature(request):
     return FancyTreeModule(xml_tag='structuralFeature').render(request)
 
+
+def fancy_tree_property_addressed(request):
+    return FancyTreeModule(xml_tag='propertyAddressed').render(request)
+
+
+def fancy_tree_experimental_method(request):
+    return FancyTreeModule(xml_tag='experimentalMethod').render(request)
+
+
+def fancy_tree_computational_method(request):
+    return FancyTreeModule(xml_tag='computationalMethod').render(request)
+
+
+def fancy_tree_synthesis_processing(request):
+    return FancyTreeModule(xml_tag='synthesisProcessing').render(request)
