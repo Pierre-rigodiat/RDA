@@ -419,7 +419,7 @@
           </xs:annotation>
        </xs:element>
 
-       <xs:element name="creator" type="rsm:Person" 
+       <xs:element name="creator" type="rsm:SimplePerson" 
                    minOccurs="0" maxOccurs="unbounded">
           <xs:annotation>
              <xs:appinfo>
@@ -435,7 +435,7 @@
           </xs:annotation>
        </xs:element>
 
-       <xs:element name="contributor" type="rsm:Person" 
+       <xs:element name="contributor" type="rsm:DciteContributor" 
                    minOccurs="0" maxOccurs="unbounded">
           <xs:annotation>
              <xs:appinfo>
@@ -492,7 +492,7 @@
      </xs:sequence>
    </xs:complexType>
 
-  <xs:complexType name="NamePID">
+   <xs:complexType name="NameDOI">
      <xs:annotation>
        <xs:documentation>
          a name or title that can potentially have an associated identifier.
@@ -507,9 +507,43 @@
        </xs:documentation>
      </xs:annotation>
 
-    <xs:simpleContent>
-      <xs:extension base="xs:token"/>
-    </xs:simpleContent>
+     <xs:simpleContent>
+       <xs:extension base="xs:token">
+
+         <xs:attribute name="pid" type="xs:anyURI">
+            <xs:annotation>
+              <xs:appinfo>
+                <label>Paper DOI</label>
+              </xs:appinfo>
+              <xs:documentation>
+                An unambigous identifier for the intended entity having 
+                the name given by this element's value.
+              </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+
+       </xs:extension>       
+     </xs:simpleContent>
+   </xs:complexType>
+
+   <xs:complexType name="NamePID">
+     <xs:annotation>
+       <xs:documentation>
+         a name or title that can potentially have an associated identifier.
+       </xs:documentation>
+       <xs:documentation>
+         The string-valued name is intended for display purposes.  The identifier
+         provides unambiguous identification; thus, providing it is recommended
+         when available.  
+       </xs:documentation>
+       <xs:documentation>
+         NMRR Notes:  use only NMRR-internal identifiers here.  
+       </xs:documentation>
+     </xs:annotation>
+
+     <xs:simpleContent>
+       <xs:extension base="xs:token"/>
+     </xs:simpleContent>
    </xs:complexType>
 
    <xs:complexType name="PersonName">
@@ -705,7 +739,7 @@
        </xs:documentation>
      </xs:annotation>
      <xs:sequence>
-       <xs:element name="name" type="rsm:PersonName">
+       <xs:element name="name" type="xs:token">
           <xs:annotation>
             <xs:appinfo>
               <label>Name</label>
@@ -875,12 +909,12 @@
           </xs:annotation>
        </xs:element>
 
-       <xs:element name="reference" type="rsm:DciteRelation" 
+       <xs:element name="reference" type="rsm:NameDOI" 
                    minOccurs="0" maxOccurs="unbounded">
           <xs:annotation>
             <xs:appinfo>
-              <label>Reference</label>
-              <placeholder>Enter your Resource's reference citation</placeholder>
+              <label>Related Literature Reference</label>
+              <placeholder>Enter a citation to reference related to this resource...</placeholder>
             </xs:appinfo>
              <xs:documentation>
                 a bibliographic reference to a literature article that 
@@ -1583,7 +1617,7 @@
      <xs:complexContent>
        <xs:extension base="rsm:Applicability">
          <xs:sequence>
-           <xs:element name="materialType" type="rsm:Material_type" 
+           <xs:element name="materialType" type="rsm:Material_types" 
                        minOccurs="0" maxOccurs="unbounded">
              <xs:annotation>
                <xs:appinfo>
@@ -1597,7 +1631,7 @@
            </xs:element>
 
            <xs:element name="structuralFeature" 
-                       type="rsm:Structural_Feature" 
+                       type="rsm:Structural_features" 
                        minOccurs="0" maxOccurs="unbounded">
              <xs:annotation>
                <xs:appinfo>
@@ -1622,7 +1656,7 @@
              </xs:annotation>
            </xs:element>
 
-           <xs:element name="experimentalMethod" type="rsm:Experimental_Methods"
+           <xs:element name="experimentalMethod" type="rsm:Experimental_methods"
                        minOccurs="0" maxOccurs="unbounded">
              <xs:annotation>
                <xs:appinfo>
@@ -1635,7 +1669,7 @@
              </xs:annotation>
            </xs:element>
 
-           <xs:element name="computationalMethod" type="rsm:Computational_method"
+           <xs:element name="computationalMethod" type="rsm:Computational_methods"
                        minOccurs="0" maxOccurs="unbounded">
              <xs:annotation>
                <xs:appinfo>
@@ -1649,11 +1683,11 @@
            </xs:element>
 
            <xs:element name="synthesisProcessing"
-                       type="rsm:Synthesis_and_Processing"
+                       type="rsm:Synthesis_and_processing"
                        minOccurs="0" maxOccurs="unbounded">
              <xs:annotation>
                <xs:appinfo>
-                 <label>Sample Processing Method</label>
+                 <label>Synthesis Processing</label>
                </xs:appinfo>
                <xs:documentation>
                  the physical processing or preparation technique applied 
@@ -1825,6 +1859,25 @@
 
      </xs:restriction>
    </xs:simpleType>
+
+   <xs:complexType name="SimplePerson">
+     <xs:annotation>
+       <xs:documentation>
+         a contributor that plays one of the roles defined by the
+         datacite metadata schema.  
+       </xs:documentation>
+       <xs:documentation>
+         This type was created to prevent MDCS from offering subtypes to
+         the Creator element.
+       </xs:documentation>
+     </xs:annotation>
+
+     <xs:complexContent>
+       <xs:extension base="rsm:Person">
+       </xs:extension>
+     </xs:complexContent>
+
+   </xs:complexType>
 
    <xs:complexType name="DciteContributor">
      <xs:annotation>
@@ -2189,7 +2242,7 @@
              <am:dataciteproperty>IsCitedBy</am:dataciteproperty>
            </xs:appinfo>
            <xs:documentation>
-             a relationship indicating that the targe resource includes
+             a relationship indicating that the target resource includes
              the subject resource in a citation
            </xs:documentation>
          </xs:annotation>
