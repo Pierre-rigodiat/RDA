@@ -62,7 +62,27 @@ Please wait while the form is loading...
 <a class="button button-reversed cancel-changes">Cancel Changes </a>
 <a class="button button-reversed clear-fields">Clear Form</a>
 </div>
-<div style="display:none;" id="template_name">{{template_name}}</div>
+{% if not edit %}
+    {% if template_name == 'organization' %}
+    <div style="display:none;" id="role">Organization</div>
+    {% elif template_name == 'datacollection' %}
+    <div style="display:none;" id="role">DataCollection</div>
+    {% elif template_name == 'repository' %}
+    <div style="display:none;" id="role">DataCollection</div>
+    {% elif template_name == 'projectarchive' %}
+    <div style="display:none;" id="role">DataCollection</div>
+    {% elif template_name == 'database' %}
+    <div style="display:none;" id="role">DataCollection</div>
+    {% elif template_name == 'dataset' %}
+    <div style="display:none;" id="role">Dataset</div>
+    {% elif template_name == 'service' %}
+    <div style="display:none;" id="role">ServiceAPI</div>
+    {% elif template_name == 'informational' %}
+    <div style="display:none;" id="role">WebSite</div>
+    {% elif template_name == 'software' %}
+    <div style="display:none;" id="role">Software</div>
+    {% endif %}
+{% endif %}
 {% endblock %}
 
 {% block popups %}

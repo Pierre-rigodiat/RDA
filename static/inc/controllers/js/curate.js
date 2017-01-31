@@ -167,6 +167,7 @@ clear_fields = function(){
             });
 
             initModules();
+            selectRole();//FIXME: NMRR
         }
     });
 }
@@ -413,8 +414,19 @@ generate_xsd_form = function(){
             setTimeout(disable_elements ,0);
 
             initModules();
+            selectRole();//FIXME: NMRR
         },
     });
+}
+
+var selectRole = function(){
+    var role = $("#role").html();
+    if(role != undefined){
+        var option = $("option:contains('" + role + "')")[0];
+        var value = option.value;
+        $(option).parent('select').val(value).change();
+        $(option).parent('select').prop('disabled', 'disabled');
+    }
 }
 
 
