@@ -159,8 +159,9 @@ def is_schema_valid(object_type, content, name=None):
         raise XSDError(error)
 
 
-def create_template(content, name, filename, dependencies=[], user=None):
-    is_schema_valid('Template', content, name)
+def create_template(content, name, filename, dependencies=[], user=None, validation=True):
+    if validation:
+        is_schema_valid('Template', content, name)
     hash_value = XSDhash.get_hash(content)
     # save the template
     template_versions = TemplateVersion(nbVersions=1, isDeleted=False).save()

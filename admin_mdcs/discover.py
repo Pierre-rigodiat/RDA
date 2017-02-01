@@ -16,18 +16,21 @@
 #
 ################################################################################
 from django.contrib.auth.models import Permission, Group
+
+from mgi.common import update_dependencies
 from mgi.rights import anonymous_group, default_group, explore_access, curate_access, \
     curate_edit_document, curate_delete_document, api_access
 from pymongo import MongoClient
 import os
+from lxml import etree
+from io import BytesIO
+from mgi.models import Template, Type, create_template, create_type
 from django.utils.importlib import import_module
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
 MONGODB_URI = settings.MONGODB_URI
 SITE_ROOT = settings.SITE_ROOT
 MGI_DB = settings.MGI_DB
-from mgi.models import Template, Type, create_template, create_type, TemplateVersion
-from utils.XSDhash import XSDhash
 STATIC_DIR = os.path.join(SITE_ROOT, 'static', 'resources', 'xsd')
 
 def init_rules():
@@ -76,17 +79,19 @@ def load_templates():
     # if templates are already present, initialization already happened
     existing_templates = Template.objects()
     if len(existing_templates) == 0:
+        vocab_template_filename = 'mse_vocab.xsd'
+
         templates = {
-            'all':'AllResources.xsd',
-            'organization': 'Organization.xsd',
-            'datacollection': 'DataCollection.xsd',
-            'repository': 'Repository.xsd',
-            'projectarchive': 'ProjectArchive.xsd',
-            'database': 'Database.xsd',
-            'dataset': 'Dataset.xsd',
-            'service': 'Service.xsd',
-            'informational': 'Informational.xsd',
-            'software': 'Software.xsd',
+            'all': 'res-md.xsd',
+            'organization': 'res-md.xsd',
+            'datacollection': 'res-md.xsd',
+            'repository': 'res-md.xsd',
+            'projectarchive': 'res-md.xsd',
+            'database': 'res-md.xsd',
+            'dataset': 'res-md.xsd',
+            'service': 'res-md.xsd',
+            'informational': 'res-md.xsd',
+            'software': 'res-md.xsd',
         }    
         
         template_ids = []
@@ -105,23 +110,28 @@ def load_templates():
         client = MongoClient(MONGODB_URI)
         # connect to the db 'mgi'
         db = client[MGI_DB]
-        
+
+        # add vocab
+        vocab_file = open(os.path.join(SITE_ROOT, 'static', 'resources', 'xsd', vocab_template_filename), 'r')
+        vocab_content = vocab_file.read()
+        vocab_template = create_template(vocab_content, 'vocab', vocab_template_filename)
+
         # Add the templates
         for template_name, template_path in templates.iteritems():
-            file = open(os.path.join(SITE_ROOT, 'static', 'resources', 'xsd', template_path),'r')
-            templateContent = file.read()
-            hash = XSDhash.get_hash(templateContent)
-            
-            #create template/ template version
-            objectVersions = TemplateVersion(nbVersions=1, isDeleted=False).save()
-            object = Template(title=template_name, filename=template_path, content=templateContent, version=1, templateVersion=str(objectVersions.id), hash=hash).save()
-            objectVersions.versions = [str(object.id)]
-            objectVersions.current = str(object.id)
-            objectVersions.save()    
-            object.save()
-        
-            # save template id
-            template_ids.append(str(object.id))
+            template_file = open(os.path.join(SITE_ROOT, 'static', 'resources', 'xsd', template_path), 'r')
+            template_content = template_file.read()
+            # add local vocab to template
+            xml_tree = etree.parse(BytesIO(template_content.encode('utf-8')))
+            update_dependencies(xml_tree, {'mse_vocab.xsd': str(vocab_template.id)})
+            template_content = etree.tostring(xml_tree)
+            # create template
+            resource_template = create_template(template_content,
+                                                template_name,
+                                                template_path,
+                                                dependencies=[str(vocab_template.id)],
+                                                user=None,
+                                                validation=False)
+            template_ids.append(str(resource_template.id))
     
     
 
