@@ -41,6 +41,8 @@ from utils.XSDParser.renderer.checkbox import CheckboxRenderer
 from utils.XSDflattener.XSDflattener import XSDFlattenerURL
 from utils.XSDRefinements import Tree, XSDRefinements
 import hashlib
+from itertools import groupby
+
 
 # Class definition
 class ElementInfo:
@@ -430,40 +432,26 @@ def get_results_by_instance_keyword(request):
     try:
         keyword = request.GET['keyword']
         schemas = request.GET.getlist('schemas[]')
-        userSchemas = request.GET.getlist('userSchemas[]')
-        refinements = refinements_to_mongo(request.GET.getlist('refinements[]'))
+        user_schemas = request.GET.getlist('userSchemas[]')
+        refinements = refinements_to_mongo(json.loads(request.GET.get('refinements', {})))
         onlySuggestions = json.loads(request.GET['onlySuggestions'])
     except:
         keyword = ''
         schemas = []
-        userSchemas = []
+        user_schemas = []
         refinements = {}
         onlySuggestions = True
 
-    #We get all template versions for the given schemas
-    #First, we take care of user defined schema
-    templatesIDUser = Template.objects(title__in=userSchemas).distinct(field="id")
-    templatesIDUser = [str(x) for x in templatesIDUser]
-
-    #Take care of the rest, with versions
-    templatesVersions = Template.objects(title__in=schemas).distinct(field="templateVersion")
-
-    #We get all templates ID, for all versions
-    allTemplatesIDCommon = TemplateVersion.objects(pk__in=templatesVersions, isDeleted=False).distinct(field="versions")
-    #We remove the removed version
-    allTemplatesIDCommonRemoved = TemplateVersion.objects(pk__in=templatesVersions, isDeleted=False).distinct(field="deletedVersions")
-    templatesIDCommon = list(set(allTemplatesIDCommon) - set(allTemplatesIDCommonRemoved))
-
-    templatesID = templatesIDUser + templatesIDCommon
-    instanceResults = XMLdata.executeFullTextQuery(keyword, templatesID, refinements)
-    if len(instanceResults) > 0:
+    templates_id = _get_templates_id(schemas=schemas, user_schemas=user_schemas)
+    instance_results = XMLdata.executeFullTextQuery(keyword, templates_id, refinements)
+    if len(instance_results) > 0:
         if not onlySuggestions:
             xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
             xslt = etree.parse(xsltPath)
             transform = etree.XSLT(xslt)
             template = loader.get_template('explore/explore_result_keyword.html')
 
-        for instanceResult in instanceResults:
+        for instanceResult in instance_results:
             if not onlySuggestions:
                 custom_xslt = False
                 results.append({'title': instanceResult['title'],
@@ -527,60 +515,49 @@ def get_results_by_instance_keyword(request):
     print 'END def getResultsKeyword(request)'
 
     return HttpResponse(json.dumps({'resultsByKeyword' : resultsByKeyword, 'resultString' : resultString,
-                                    'count' : len(instanceResults) + nbOAI}), content_type='application/javascript')
+                                    'count' : len(instance_results) + nbOAI}), content_type='application/javascript')
 
 
-# FIXME: Refactor with get_results_by_instance_keyword
 def get_results_occurrences(request):
     print 'BEGIN def getResultsKeyword(request)'
 
     tree_info = []
-
+    tree_count = []
+    cache_instances = {}
+    keyword = request.GET.get('keyword', '')
+    schemas = request.GET.getlist('schemas[]', [])
+    user_schemas = request.GET.getlist('userSchemas[]', [])
+    refinements = json.loads(request.GET.get('refinements', {}))
+    all_refinements = json.loads(request.GET.get('allRefinements', {}))
+    templates_id = _get_templates_id(schemas=schemas, user_schemas=user_schemas)
 
     try:
-        keyword = request.GET['keyword']
-        schemas = request.GET.getlist('schemas[]')
-        userSchemas = request.GET.getlist('userSchemas[]')
-        refinements = refinements_to_mongo(request.GET.getlist('refinements[]'))
-        onlySuggestions = json.loads(request.GET['onlySuggestions'])
-        all_refinements = request.GET.getlist('allRefinements[]')
-    except:
-        keyword = ''
-        schemas = []
-        userSchemas = []
-        refinements = {}
-        onlySuggestions = True
-        all_refinements = []
+        for current in all_refinements:
+            refine = []
+            for x in refinements:
+                if x['key'] != current['key']:
+                    refine.append(x)
 
-    #We get all template versions for the given schemas
-    #First, we take care of user defined schema
-    templatesIDUser = Template.objects(title__in=userSchemas).distinct(field="id")
-    templatesIDUser = [str(x) for x in templatesIDUser]
+            list_refinements = refinements_to_mongo(refine)
+            if not cache_instances.has_key(json.dumps(list_refinements)):
+                instance_results = XMLdata.executeFullTextQuery(keyword, templates_id, list_refinements)
+                cache_instances[json.dumps(list_refinements)] = instance_results
+            else:
+                instance_results = cache_instances[json.dumps(list_refinements)]
+            for refinement in current['value']:
+                count = _get_count_refinement(instance_results, refinement)
+                tree_count.append({"refinement": refinement, "count": count})
 
-    #Take care of the rest, with versions
-    templatesVersions = Template.objects(title__in=schemas).distinct(field="templateVersion")
+        max_level = max(len(x['refinement'].split(":")) for x in tree_count)
+        for i in range(max_level, 0, -1):
+            grouper = lambda x: ":".join(x['refinement'].split(":")[:i])
+            for key, grp in groupby(sorted(tree_count, key=grouper), grouper):
+                count = sum(item["count"] for item in grp)
+                result_json = {'text_id': hashlib.sha1(key).hexdigest(), 'nb_occurrences': count}
+                tree_info.append(result_json)
 
-    #We get all templates ID, for all versions
-    allTemplatesIDCommon = TemplateVersion.objects(pk__in=templatesVersions, isDeleted=False).distinct(field="versions")
-    #We remove the removed version
-    allTemplatesIDCommonRemoved = TemplateVersion.objects(pk__in=templatesVersions, isDeleted=False).distinct(field="deletedVersions")
-    templatesIDCommon = list(set(allTemplatesIDCommon) - set(allTemplatesIDCommonRemoved))
-
-    templatesID = templatesIDUser + templatesIDCommon
-
-    instanceResults = XMLdata.executeFullTextQuery(keyword, templatesID, refinements)
-    list_ids = [x['_id'] for x in instanceResults]
-    try:
-        for refinement in all_refinements:
-            refinements_to_query = [refinement]
-            # FIXME: Treatment too long
-            count = 0#XMLdata.executeOccurrencesQuery(list_ids, refinements_to_mongo(refinements_to_query))
-            result_json = {}
-            result_json['text_id'] = hashlib.sha1(refinement).hexdigest()
-            result_json['nb_occurrences'] = count
-            tree_info.append(result_json)
-    except:
-        data = ''
+    except Exception, e:
+        pass
 
     return HttpResponse(json.dumps({'items': tree_info}), content_type='application/javascript')
 
@@ -2424,8 +2401,7 @@ def subElementfieldsToPrettyQuery(request, liElements, list_leaves_id):
 #
 ################################################################################
 def load_refinements(request):
-    # FIXME: DO NOT hard code the name of the schema
-    schema_name = "res-md" # request.GET['schema']
+    schema_name = request.GET['schema']
     tree_info = []
     tree_items = []
 
@@ -2459,29 +2435,37 @@ def load_refinements(request):
 #
 ################################################################################
 def refinements_to_mongo(refinements):
+    mongo_or = []
+    mongo_and = {}
     try:
         # transform the refinement in mongo query
-        mongo_queries = dict()
-        mongo_in = {}
         for refinement in refinements:
-            splited_refinement = refinement.split('==')
-            dot_notation = splited_refinement[0]
-            dot_notation = "content." + dot_notation
-            value = splited_refinement[1]
-            if dot_notation in mongo_queries:
-                mongo_queries[dot_notation].append(value)
-            else:
-                mongo_queries[dot_notation] = [value]
+            mongo_queries = dict()
+            mongo_in = {}
+            ref_value = refinement['value']
+            for elt in ref_value:
+                splited_refinement = elt.split('==')
+                dot_notation = splited_refinement[0]
+                dot_notation = "content." + dot_notation
+                value = splited_refinement[1]
+                if dot_notation in mongo_queries:
+                    mongo_queries[dot_notation].append(value)
+                else:
+                    mongo_queries[dot_notation] = [value]
 
-        for query in mongo_queries:
-            key = query
-            values = ({ '$in' : mongo_queries[query]})
-            mongo_in[key] = values
+            for query in mongo_queries:
+                key = query
+                values = ({'$in': mongo_queries[query]})
+                mongo_in[key] = values
 
-        mongo_or = {'$and' : [mongo_in]}
-        return mongo_or
+            mongo_or.append({'$or': [{x: mongo_in[x]} for x in mongo_in]})
+
+        if len(mongo_or) > 0:
+            mongo_and = {'$and': mongo_or}
+
+        return mongo_and
     except:
-        return []
+        return {}
 
 
 ################################################################################
@@ -2626,3 +2610,45 @@ def update_publish(request):
 def update_unpublish(request):
     XMLdata.update_unpublish(request.GET['result_id'])
     return HttpResponse(json.dumps({}), content_type='application/javascript')
+
+
+def _get_templates_id(schemas, user_schemas):
+    # We get all template versions for the given schemas
+    # First, we take care of user defined schema
+    templates_id_user = Template.objects(title__in=user_schemas).distinct(field="id")
+    templates_id_user = [str(x) for x in templates_id_user]
+    # Take care of the rest, with versions
+    templates_versions = Template.objects(title__in=schemas).distinct(field="templateVersion")
+    # We get all templates ID, for all versions
+    all_templates_id_common = TemplateVersion.objects(pk__in=templates_versions, isDeleted=False)\
+        .distinct(field="versions")
+    # We remove the removed version
+    all_templates_id_common_removed = TemplateVersion.objects(pk__in=templates_versions, isDeleted=False)\
+        .distinct( field="deletedVersions")
+    templates_id_common = list(set(all_templates_id_common) - set(all_templates_id_common_removed))
+    templates_id = templates_id_user + templates_id_common
+
+    return templates_id
+
+
+def _get_count_refinement(dictionary, refinement):
+    count = 0
+    try:
+        key = "content."+refinement.split("==")[0]
+        value = refinement.split("==")[1]
+        for item in dictionary:
+            for index in key.split("."):
+                if index in item:
+                    item = item[index]
+                else:
+                    break
+
+            if isinstance(item, list):
+                for elt in item:
+                    count += 1 if elt[index] == value else 0
+            else:
+                count += 1 if item == value else 0
+    except:
+        pass
+
+    return count

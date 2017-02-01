@@ -752,33 +752,6 @@ class XMLdata(object):
 
 
     @staticmethod
-    def executeOccurrencesQuery(listID, refinements={}):
-        """
-        Execute a full text query with possible refinements
-        """
-        # create a connection
-        client = MongoClient(MONGODB_URI, document_class=OrderedDict)
-        # connect to the db 'mgi'
-        db = client[MGI_DB]
-        # get the xmldata collection
-        xmldata = db['xmldata']
-
-        if len(listID) > 0:
-            full_text_query = {'_id': {'$in': listID}}
-
-        if len(refinements.keys()) > 0:
-            full_text_query.update(refinements)
-
-        # # only get published and active resources
-        # full_text_query.update({'ispublished': True, 'status': {'$ne': Status.DELETED}})
-        cursor = xmldata.find(full_text_query).count()
-
-        # results = []
-        # for result in cursor:
-        #     results.append(result)
-        return cursor
-
-    @staticmethod
     def change_status(id, status, ispublished=False):
         """
             Update the status of the object with the given id

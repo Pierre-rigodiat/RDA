@@ -177,29 +177,12 @@ load_custom_view = function(schema){
 }
 
 
-/**
- * Load refinement queries
- */
-loadRefinementQueries = function(){
-	var refinements = [];
-
-    $('*[id^="tree_"]').each(function(){
-        var nodes = $(this).fancytree('getRootNode').tree.getSelectedNodes();
-        $(nodes).each(function() {
-            refinements.push($(this)[0].key);
-        });
-    });
-
-	return refinements;
-}
-
 
 /**
  * AJAX call, gets query results
  * @param numInstance
  */
 get_results_keyword_refined = function(numInstance){
-    updateRefinementsOccurrences();
 	// clear the timeout
 	clearTimeout(timeout);
 	// send request if no parameter changed during the timeout
@@ -257,7 +240,7 @@ clearRefinements = function(){
 	get_results_keyword_refined();
 }
 
-updateRefinementsOccurrences = function(data2){
+updateRefinementsOccurrences = function(avoid_tree){
     var keyword = $("#id_search_entry").val();
 	$.ajax({
         url : "/explore/get_results_occurrences",
@@ -285,15 +268,48 @@ updateRefinementsOccurrences = function(data2){
     });
 }
 
-getAllRefinements = function(){
-	var refinements = [];
-
+/**
+ * Load refinement queries
+ */
+loadRefinementQueries = function(){
+	var dict = [];
     $('*[id^="tree_"]').each(function(){
-        var nodes = $(this).fancytree('getRootNode').getChildren();
-        getRefinementsChildren(nodes, refinements);
+        var refinements = [];
+        getSelectedRefinements($(this), refinements);
+        if(!$.isEmptyObject(refinements))
+        {
+            dict.push({
+                key:   this.id,
+                value: refinements
+            });
+        }
     });
 
-	return refinements;
+	return JSON.stringify(dict);
+}
+
+
+getSelectedRefinements = function (tree, refinements){
+    var nodes = tree.fancytree('getRootNode').tree.getSelectedNodes();
+    $(nodes).each(function() {
+        refinements.push($(this)[0].key);
+    });
+}
+
+getAllRefinements = function(avoid_tree=""){
+    var dict = [];
+
+    $('*[id^="tree_"]:not(#tree_'+avoid_tree+')').each(function(){
+        var refinements = [];
+        var nodes = $(this).fancytree('getRootNode').getChildren();
+        getRefinementsChildren(nodes, refinements);
+        dict.push({
+            key:   this.id,
+            value: refinements
+        });
+    });
+
+	return JSON.stringify(dict);
 }
 
 
@@ -350,8 +366,11 @@ initFancyTree = function(div_id, json_data) {
       },
       init: function(event, data) {
         $("#tree_"+div_id+" ul").addClass("fancytree-colorize-selected");
+        // Render all nodes even if collapsed
+        $(this).fancytree("getRootNode").render(force=true, deep=true);
       },
       select: function(event, data){
+          updateRefinementsOccurrences(div_id);
           get_results_keyword_refined();
       }
     });
@@ -368,11 +387,10 @@ glyph_opts = {
       dropMarker: "glyphicon glyphicon-arrow-right",
       error: "glyphicon glyphicon-warning-sign",
       expanderClosed: "glyphicon glyphicon-menu-right",
-      expanderLazy: "glyphicon glyphicon-menu-right",  // glyphicon-plus-sign
-      expanderOpen: "glyphicon glyphicon-menu-down",  // glyphicon-collapse-down
+      expanderLazy: "glyphicon glyphicon-menu-right",
+      expanderOpen: "glyphicon glyphicon-menu-down",
       folder: "glyphicon glyphicon-folder-close",
       folderOpen: "glyphicon glyphicon-folder-open",
       loading: "glyphicon glyphicon-refresh glyphicon-spin"
     }
 };
-
