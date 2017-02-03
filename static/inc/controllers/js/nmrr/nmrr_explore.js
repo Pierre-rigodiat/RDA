@@ -259,7 +259,12 @@ updateRefinementsOccurrences = function(avoid_tree){
         },
         success: function(data){
             $.map(data.items, function (item) {
-                $("#"+item.text_id).html(item.nb_occurrences);
+                var text = $("#"+item.text_id)
+                text.html(item.nb_occurrences);
+                if(item.nb_occurrences == 0)
+                    text.closest('span').fadeTo(500, 0.2);
+                else
+                    text.closest('span').fadeTo(500, 1);
             });
         },
         complete: function(){
@@ -350,6 +355,7 @@ initFancyTree = function(div_id, json_data) {
     $("#tree_"+div_id).fancytree({
       extensions: ["glyph", "wide"],
       checkbox: true,
+      icon: false,
       glyph: glyph_opts,
       selectMode: 3,
       source: JSON.parse(json_data),
@@ -358,11 +364,6 @@ initFancyTree = function(div_id, json_data) {
         iconWidth: "1em",
         iconSpacing: "0.5em",
         levelOfs: "1.5em"
-      },
-      icon: function(event, data){
-      	if( data.node.isFolder() ) {
-  			return "glyphicon glyphicon-book";
-		}
       },
       init: function(event, data) {
         $("#tree_"+div_id+" ul").addClass("fancytree-colorize-selected");
