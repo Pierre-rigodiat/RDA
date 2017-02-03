@@ -550,16 +550,18 @@ def get_results_occurrences(request):
             else:
                 instance_results = cache_instances[json.dumps(list_refinements)]
             for refinement in current['value']:
-                count = _get_count_refinement(instance_results, refinement)
-                tree_count.append({"refinement": refinement, "count": count})
+                ids = _get_list_ids_for_refinement(instance_results, refinement)
+                tree_count.append({"refinement": refinement, "ids": ids})
 
         max_level = max(len(x['refinement'].split(splitter)) for x in tree_count)
         for i in range(max_level, 0, -1):
             grouper = lambda x: ":".join(x['refinement'].split(splitter)[:i])
             for key, grp in groupby(sorted(tree_count, key=grouper), grouper):
                 if len(key.split(splitter)) == i:
-                    count = sum(item["count"] for item in grp)
-                    result_json = {'text_id': hashlib.sha1(key).hexdigest(), 'nb_occurrences': count}
+                    ids = []
+                    for item in grp:
+                        ids.extend(item["ids"])
+                    result_json = {'text_id': hashlib.sha1(key).hexdigest(), 'nb_occurrences': len(sorted(set(ids)))}
                     tree_info.append(result_json)
 
         # Call to OAI-PMH
@@ -2647,12 +2649,13 @@ def _get_templates_id(schemas, user_schemas):
     return templates_id
 
 
-def _get_count_refinement(dictionary, refinement):
-    count = 0
+def _get_list_ids_for_refinement(dictionary, refinement):
+    ids = []
     try:
         key = "content."+refinement.split("==")[0]
         value = refinement.split("==")[1]
         for item in dictionary:
+            _id = str(item['_id'])
             for index in key.split("."):
                 if index in item:
                     item = item[index]
@@ -2661,16 +2664,17 @@ def _get_count_refinement(dictionary, refinement):
 
             if isinstance(item, list):
                 for elt in item:
-                    if isinstance(elt, dict) and index in elt:
-                        count += 1 if elt[index] == value else 0
-                    else:
-                        count += 1 if elt == value else 0
-            else:
-                count += 1 if item == value else 0
+                    if isinstance(elt, dict) and index in elt and elt[index] == value:
+                            ids.append(_id)
+                    elif elt == value:
+                        ids.append(_id)
+            elif item == value:
+                ids.append(_id)
     except:
         pass
 
-    return count
+    return ids
+
 
 def update_url(request):
     # schemas = request.GET.getlist('schemas[]')
