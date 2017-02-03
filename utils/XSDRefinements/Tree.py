@@ -1,5 +1,5 @@
 import hashlib
-
+from collections import OrderedDict
 
 class TreeInfo:
     title = ""
@@ -31,7 +31,7 @@ class TreeInfo:
 def build_tree(tree, root, enums, dot_query):
     for enum in enums:
         t = tree
-        t = t.setdefault(TreeInfo(title=root), {})
+        t = t.setdefault(TreeInfo(title=root), OrderedDict())
         groups = enum.attrib['value'].split(':')
         split_index = 0
         for part in groups:
@@ -39,7 +39,7 @@ def build_tree(tree, root, enums, dot_query):
             key = "{0}=={1}".format(dot_query, ':'.join(groups[:split_index]))
             key_hash = hashlib.sha1(key).hexdigest()
             g = TreeInfo(title=part, key=key, key_hash=key_hash)
-            t = t.setdefault(g, {})
+            t = t.setdefault(g, OrderedDict())
 
 
     return tree

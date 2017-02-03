@@ -5,6 +5,7 @@ from utils.XSDflattener.XSDflattener import XSDFlattenerURL
 from mgi.models import Template, TemplateVersion
 import lxml.etree as etree
 from utils.XSDRefinements import Tree
+from collections import OrderedDict
 
 
 def loads_refinements_trees(template_name):
@@ -14,7 +15,7 @@ def loads_refinements_trees(template_name):
     target_ns_prefix = "{}:".format(target_ns_prefix) if target_ns_prefix != '' else ''
 
     simple_types = xml_doc_tree.findall("./{0}simpleType".format(LXML_SCHEMA_NAMESPACE))
-    trees = {}
+    trees = OrderedDict()
     for simple_type in simple_types:
         try:
             enums = simple_type.findall("./{0}restriction/{0}enumeration".format(LXML_SCHEMA_NAMESPACE))
