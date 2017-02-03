@@ -12,16 +12,16 @@
 ################################################################################
 
 import re
-from django.http import HttpResponse
 from django.conf import settings
 from io import BytesIO
-import xmltodict
 import os
 import json
 import lxml.etree as etree
 from mgi.models import Template, Instance, TemplateVersion, OaiRecord, OaiMetadataFormat, OaiRegistry, XMLdata
 from django.template import loader, Context, RequestContext
 from urlparse import urlparse
+import hashlib
+from itertools import groupby
 
 
 ################################################################################
@@ -74,8 +74,8 @@ def get_results_by_instance_keyword(request):
     try:
         keyword = request.GET['keyword']
         schemas = request.GET.getlist('schemas[]')
-        userSchemas = request.GET.getlist('userSchemas[]')
-        refinements = refinements_to_mongo(request.GET.getlist('refinements[]'))
+        user_schemas = request.GET.getlist('userSchemas[]')
+        refinements = refinements_to_mongo(json.loads(request.GET.get('refinements', {})))
         if 'onlySuggestions' in request.GET:
             onlySuggestions = json.loads(request.GET['onlySuggestions'])
         else:
@@ -84,36 +84,13 @@ def get_results_by_instance_keyword(request):
     except:
         keyword = ''
         schemas = []
-        userSchemas = []
+        user_schemas = []
         refinements = {}
         onlySuggestions = True
         registries = []
 
-    #We get all template versions for the given schemas
-    #First, we take care of user defined schema
-    templatesIDUser = Template.objects(title__in=userSchemas).distinct(field="id")
-    templatesIDUser = [str(x) for x in templatesIDUser]
-
-    #Take care of the rest, with versions
-    templatesVersions = Template.objects(title__in=schemas).distinct(field="templateVersion")
-
-    #We get all templates ID, for all versions
-    allTemplatesIDCommon = TemplateVersion.objects(pk__in=templatesVersions, isDeleted=False).distinct(field="versions")
-    #We remove the removed version
-    allTemplatesIDCommonRemoved = TemplateVersion.objects(pk__in=templatesVersions, isDeleted=False).distinct(field="deletedVersions")
-    templatesIDCommon = list(set(allTemplatesIDCommon) - set(allTemplatesIDCommonRemoved))
-
-    templatesID = templatesIDUser + templatesIDCommon
-    if len(registries) == 0:
-        #We retrieve deactivated registries so as not to get their metadata formats
-        deactivatedRegistries = [str(x.id) for x in OaiRegistry.objects(isDeactivated=True).order_by('id')]
-        metadataFormatsID = OaiMetadataFormat.objects(template__in=templatesID, registry__not__in=deactivatedRegistries).distinct(field="id")
-    else:
-        #We retrieve registries from the refinement
-        metadataFormatsID = OaiMetadataFormat.objects(template__in=templatesID, registry__in=registries).distinct(field="id")
-
-
-    instanceResults = OaiRecord.executeFullTextQuery(keyword, metadataFormatsID, refinements)
+    metadata_format_ids = _get_metadata_formats_id(schemas=schemas, user_schemas=user_schemas, registries=registries)
+    instanceResults = OaiRecord.executeFullTextQuery(keyword, metadata_format_ids, refinements)
     if len(instanceResults) > 0:
         if not onlySuggestions:
             xsltPath = os.path.join(settings.SITE_ROOT, 'static/resources/xsl/xml2html.xsl')
@@ -194,13 +171,8 @@ def get_results_by_instance_keyword(request):
                     if not result_json in resultsByKeyword:
                         resultsByKeyword.append(result_json)
 
-    #We don't need those results in session
-    # request.session[sessionName] = results
     print 'END def getResultsKeyword(request)'
-
-    # return HttpResponse(json.dumps({'resultsByKeyword' : resultsByKeyword, 'resultString' : resultString, 'count' : len(instanceResults)}), content_type='application/javascript')
     return json.dumps({'resultsByKeyword' : resultsByKeyword, 'resultString' : resultString, 'count' : len(instanceResults)})
-
 
 
 ################################################################################
@@ -213,26 +185,135 @@ def get_results_by_instance_keyword(request):
 #
 ################################################################################
 def refinements_to_mongo(refinements):
+    mongo_or = []
+    mongo_and = {}
     try:
         # transform the refinement in mongo query
-        mongo_queries = dict()
-        mongo_in = {}
         for refinement in refinements:
-            splited_refinement = refinement.split(':')
-            dot_notation = splited_refinement[0]
-            dot_notation = "metadata." + dot_notation
-            value = splited_refinement[1]
-            if dot_notation in mongo_queries:
-                mongo_queries[dot_notation].append(value)
-            else:
-                mongo_queries[dot_notation] = [value]
+            mongo_queries = dict()
+            mongo_in = {}
+            ref_value = refinement['value']
+            for elt in ref_value:
+                splited_refinement = elt.split('==')
+                dot_notation = splited_refinement[0]
+                dot_notation = "metadata." + dot_notation
+                value = splited_refinement[1]
+                if dot_notation in mongo_queries:
+                    mongo_queries[dot_notation].append(value)
+                else:
+                    mongo_queries[dot_notation] = [value]
 
-        for query in mongo_queries:
-            key = query
-            values = ({ '$in' : mongo_queries[query]})
-            mongo_in[key] = values
+            for query in mongo_queries:
+                key = query
+                values = ({'$in': mongo_queries[query]})
+                mongo_in[key] = values
 
-        mongo_or = {'$and' : [mongo_in]}
-        return mongo_or
+            mongo_or.append({'$or': [{x: mongo_in[x]} for x in mongo_in]})
+
+        if len(mongo_or) > 0:
+            mongo_and = {'$and': mongo_or}
+
+        return mongo_and
     except:
-        return []
+        return {}
+
+
+def get_results_occurrences(request):
+    print 'BEGIN def getResultsKeyword(request)'
+
+    tree_info = []
+    tree_count = []
+    cache_instances = {}
+    keyword = request.GET.get('keyword', '')
+    schemas = request.GET.getlist('schemas[]', [])
+    user_schemas = request.GET.getlist('userSchemas[]', [])
+    refinements = json.loads(request.GET.get('refinements', {}))
+    all_refinements = json.loads(request.GET.get('allRefinements', {}))
+    registries = request.GET.getlist('registries[]', [])
+    splitter = ":"
+
+    metadata_format_ids = _get_metadata_formats_id(schemas=schemas, user_schemas=user_schemas, registries=registries)
+    try:
+        for current in all_refinements:
+            refine = []
+            for x in refinements:
+                if x['key'] != current['key']:
+                    refine.append(x)
+
+            list_refinements = refinements_to_mongo(refine)
+            if not cache_instances.has_key(json.dumps(list_refinements)):
+                instance_results = OaiRecord.executeFullTextQuery(keyword, metadata_format_ids, list_refinements)
+                cache_instances[json.dumps(list_refinements)] = instance_results
+            else:
+                instance_results = cache_instances[json.dumps(list_refinements)]
+            for refinement in current['value']:
+                count = _get_count_refinement(instance_results, refinement)
+                tree_count.append({"refinement": refinement, "count": count})
+
+        max_level = max(len(x['refinement'].split(splitter)) for x in tree_count)
+        for i in range(max_level, 0, -1):
+            grouper = lambda x: ":".join(x['refinement'].split(splitter)[:i])
+            for key, grp in groupby(sorted(tree_count, key=grouper), grouper):
+                if len(key.split(splitter)) == i:
+                    count = sum(item["count"] for item in grp)
+                    result_json = {'text_id': hashlib.sha1(key).hexdigest(), 'nb_occurrences': count}
+                    tree_info.append(result_json)
+
+    except Exception, e:
+        pass
+
+    return json.dumps({'items': tree_info})
+
+
+def _get_metadata_formats_id(schemas, user_schemas, registries):
+    # We get all template versions for the given schemas
+    # First, we take care of user defined schema
+    templates_id_user = Template.objects(title__in=user_schemas).distinct(field="id")
+    templates_id_user = [str(x) for x in templates_id_user]
+    # Take care of the rest, with versions
+    templates_versions = Template.objects(title__in=schemas).distinct(field="templateVersion")
+    # We get all templates ID, for all versions
+    all_templates_id_common = TemplateVersion.objects(pk__in=templates_versions, isDeleted=False)\
+        .distinct(field="versions")
+    # We remove the removed version
+    all_templates_id_common_removed = TemplateVersion.objects(pk__in=templates_versions, isDeleted=False)\
+        .distinct( field="deletedVersions")
+    templates_id_common = list(set(all_templates_id_common) - set(all_templates_id_common_removed))
+    templates_id = templates_id_user + templates_id_common
+    if len(registries) == 0:
+        # We retrieve deactivated registries so as not to get their metadata formats
+        deactivatedRegistries = [str(x.id) for x in OaiRegistry.objects(isDeactivated=True).order_by('id')]
+        metadataFormatsID = OaiMetadataFormat.objects(template__in=templates_id,
+                                                      registry__not__in=deactivatedRegistries).distinct(field="id")
+    else:
+        # We retrieve registries from the refinement
+        metadataFormatsID = OaiMetadataFormat.objects(template__in=templates_id, registry__in=registries).distinct(
+            field="id")
+
+    return metadataFormatsID
+
+
+def _get_count_refinement(dictionary, refinement):
+    count = 0
+    try:
+        key = "metadata."+refinement.split("==")[0]
+        value = refinement.split("==")[1]
+        for item in dictionary:
+            for index in key.split("."):
+                if index in item:
+                    item = item[index]
+                else:
+                    break
+
+            if isinstance(item, list):
+                for elt in item:
+                    if isinstance(elt, dict) and index in elt:
+                        count += 1 if elt[index] == value else 0
+                    else:
+                        count += 1 if elt == value else 0
+            else:
+                count += 1 if item == value else 0
+    except:
+        pass
+
+    return count

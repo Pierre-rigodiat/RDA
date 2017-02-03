@@ -29,7 +29,7 @@ class TreeInfo:
 
 
 def build_tree(tree, root, enums, dot_query):
-    for enum in sorted(enums, key=lambda x: x.attrib['value']):
+    for enum in enums:
         t = tree
         t = t.setdefault(TreeInfo(title=root), {})
         groups = enum.attrib['value'].split(':')
@@ -47,7 +47,7 @@ def build_tree(tree, root, enums, dot_query):
 
 def print_tree(tree, nb_occurrences_text=False):
     display = "[\n"
-    for key, leaves in sorted(tree.iteritems()):
+    for key, leaves in tree.iteritems():
         display += _print_leaves(key, leaves, nb_occurrences_text)
     display += "]"
     return _remove_last_comma(display)

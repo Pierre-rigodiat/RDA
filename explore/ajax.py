@@ -472,8 +472,13 @@ def get_results_by_instance_keyword(request):
                     newdom = transform(dom)
                     custom_xslt = False
                 modification = request.user.is_staff or (str(instanceResult['iduser']) == str(request.user.id))
+                # FIXME: DO NOT PUT DIRECTLY THE PATH
+                try:
+                    local_id = str(instanceResult['content']['Resource']['@localid'])
+                except:
+                    local_id=''
                 context = RequestContext(request, {'id': str(instanceResult['_id']),
-                                                   'local_id': str(instanceResult['content']['Resource']['@localid']),
+                                                   'local_id': local_id,
                                                    'xml': str(newdom),
                                                    'title': instanceResult['title'],
                                                    'custom_xslt': custom_xslt,
@@ -530,7 +535,7 @@ def get_results_occurrences(request):
     refinements = json.loads(request.GET.get('refinements', {}))
     all_refinements = json.loads(request.GET.get('allRefinements', {}))
     templates_id = _get_templates_id(schemas=schemas, user_schemas=user_schemas)
-
+    splitter = ":"
     try:
         for current in all_refinements:
             refine = []
@@ -548,16 +553,27 @@ def get_results_occurrences(request):
                 count = _get_count_refinement(instance_results, refinement)
                 tree_count.append({"refinement": refinement, "count": count})
 
-        max_level = max(len(x['refinement'].split(":")) for x in tree_count)
+        max_level = max(len(x['refinement'].split(splitter)) for x in tree_count)
         for i in range(max_level, 0, -1):
-            grouper = lambda x: ":".join(x['refinement'].split(":")[:i])
+            grouper = lambda x: ":".join(x['refinement'].split(splitter)[:i])
             for key, grp in groupby(sorted(tree_count, key=grouper), grouper):
-                count = sum(item["count"] for item in grp)
-                result_json = {'text_id': hashlib.sha1(key).hexdigest(), 'nb_occurrences': count}
-                tree_info.append(result_json)
+                if len(key.split(splitter)) == i:
+                    count = sum(item["count"] for item in grp)
+                    result_json = {'text_id': hashlib.sha1(key).hexdigest(), 'nb_occurrences': count}
+                    tree_info.append(result_json)
+
+        # Call to OAI-PMH
+        json_obj = json.loads(OAIExplore.get_results_occurrences(request))
+        for record in json_obj['items']:
+            to_modify = [x for x in tree_info if x['text_id'] == record["text_id"]]
+            if len(to_modify) > 0:
+                to_modify[0]['nb_occurrences'] += record['nb_occurrences']
+            else:
+                tree_info.append(record)
 
     except Exception, e:
         pass
+
 
     return HttpResponse(json.dumps({'items': tree_info}), content_type='application/javascript')
 
@@ -2406,7 +2422,7 @@ def load_refinements(request):
     tree_items = []
 
     refinements_trees = XSDRefinements.loads_refinements_trees(schema_name)
-    for root, tree in sorted(refinements_trees.iteritems()):
+    for root, tree in refinements_trees.iteritems():
         item_info = {
             'enum_name': root.title,
             'id_label': hashlib.sha1(root.title).hexdigest()
@@ -2645,7 +2661,10 @@ def _get_count_refinement(dictionary, refinement):
 
             if isinstance(item, list):
                 for elt in item:
-                    count += 1 if elt[index] == value else 0
+                    if isinstance(elt, dict) and index in elt:
+                        count += 1 if elt[index] == value else 0
+                    else:
+                        count += 1 if elt == value else 0
             else:
                 count += 1 if item == value else 0
     except:

@@ -117,7 +117,7 @@
 						<!--<br/>-->
 						<!--<a id="config_custom" onclick="configure_custom_view();" style="display:none;cursor: pointer;">Change Custom View</a>-->
 						<!--<br/><br/>-->
-						<div>
+						<div style="display: none;">
 							Resource Type:
 							<form id="refine_resource_type">
 								<input type="radio" name="resource_type" value="all"> All Resources<br/>
@@ -132,17 +132,17 @@
 								<input type="radio" name="resource_type" value="software"> Software<br/>
 								<br/>
 							</form>
-							{% if search_Form.form_oai_pmh.my_registries %}
-							<div id="id_my_registries">
-								Data Providers:
-									<br/>
-								{% for value, label in search_Form.form_oai_pmh.my_registries.field.choices %}
-									<input type='checkbox' checked_id="id_my_registries_{{ forloop.counter0 }}"
-										   name="my_registries" value='{{value}}' onchange='get_results_keyword_refined();'> {{label}} <br/>
-								{% endfor %}
-							</div>
-							{% endif %}
 						</div>
+						{% if search_Form.form_oai_pmh.my_registries %}
+						<div id="id_my_registries">
+							Data Providers:
+								<br/>
+							{% for value, label in search_Form.form_oai_pmh.my_registries.field.choices %}
+								<input type='checkbox' checked_id="id_my_registries_{{ forloop.counter0 }}"
+									   name="my_registries" value='{{value}}' onchange='get_results_keyword_refined();'> {{label}} <br/>
+							{% endfor %}
+						</div>
+						{% endif %}
 						<br/><br/>
 						<div id="refine_common"></div>
 						<div id="refine_resource">
