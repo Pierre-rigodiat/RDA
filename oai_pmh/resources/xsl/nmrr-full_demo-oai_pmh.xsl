@@ -18,7 +18,7 @@
 					</xsl:choose>
 				</a>
 			{% else %}
-				<a class="title" target="_blank" onclick="window.location = '{{% url 'explore-detail-result-keyword' id %}}'">
+				<a class="title" target="_blank" onclick="window.location = '{% url 'expore-index-keyword'%}?Resource.@localid={{local_id}}'">
 					<xsl:choose>
 						<xsl:when test="$title!=''">
 							<strong><xsl:value-of select="$title"/></strong>

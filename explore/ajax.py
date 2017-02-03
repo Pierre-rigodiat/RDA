@@ -43,7 +43,6 @@ from utils.XSDRefinements import Tree, XSDRefinements
 import hashlib
 from itertools import groupby
 
-
 # Class definition
 class ElementInfo:
     """
@@ -472,8 +471,9 @@ def get_results_by_instance_keyword(request):
                     #We use the default one
                     newdom = transform(dom)
                     custom_xslt = False
-                modification = request.user.is_staff or (str(instanceResult['iduser']) ==  str(request.user.id))
+                modification = request.user.is_staff or (str(instanceResult['iduser']) == str(request.user.id))
                 context = RequestContext(request, {'id': str(instanceResult['_id']),
+                                                   'local_id': str(instanceResult['content']['Resource']['@localid']),
                                                    'xml': str(newdom),
                                                    'title': instanceResult['title'],
                                                    'custom_xslt': custom_xslt,
@@ -2652,3 +2652,55 @@ def _get_count_refinement(dictionary, refinement):
         pass
 
     return count
+
+def update_url(request):
+    # schemas = request.GET.getlist('schemas[]')
+    # userSchemas = request.GET.getlist('userSchemas[]')
+    # refinements = refinements_to_mongo(request.GET.getlist('refinements[]'))
+    # onlySuggestions = json.loads(request.GET['onlySuggestions'])
+    # all_refinements = request.GET.getlist('allRefinements[]')
+
+    url = ''
+    refinements = request.GET.getlist('refinements[]', [])
+    keyword = request.GET.getlist('keyword', [])
+    role = request.GET['role']
+
+    url = update_url_with_refinements(refinements, url)
+    url = update_url_with_keyword(keyword, url)
+    url = update_url_with_resource_role(role, url)
+
+    return HttpResponse(json.dumps({'url': url}), content_type='application/javascript')
+
+
+def update_url_with_resource_role(role, url):
+    if role != '':
+        if url == '':
+            url += '?'
+        else:
+            url += '&'
+        url += 'role='+role
+    return url
+
+
+def update_url_with_keyword(keywords, url):
+    if len(keywords) == 1 and keywords[0] == '':
+        return url
+    for index, keyword in enumerate(keywords):
+        if index == 0 and url == '':
+            url += '?'
+        else:
+            url += '&'
+
+        url += 'keyword=' + keyword
+    return url
+
+
+def update_url_with_refinements(refinements, url):
+    for index, refinement in enumerate(refinements):
+        if index == 0 and url == '':
+            url += '?'
+        else:
+            url += '&'
+
+        url += refinement.replace('==', '=')
+    return url

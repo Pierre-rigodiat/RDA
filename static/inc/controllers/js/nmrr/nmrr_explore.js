@@ -1,12 +1,13 @@
 var custom_view_done;
 var timeout;
+var first_occurence = true;
 
-initSearch = function(){
+initSearch = function(listRefinements, keyword, resource) {
+    selectRadio(resource);
+    select_hidden_schemas(resource)
 	initResources();
-	loadRefinements('all');
-	initFilters();	
-	custom_view_done = false;
-	get_results_keyword_refined();
+    //$("#refine_resource_type").children("input:radio[value="+resource+"]").click();
+	loadRefinements(resource, listRefinements, keyword);
 }
 
 selectRadio = function(radio) {
@@ -25,69 +26,124 @@ selectRadio = function(radio) {
 	}
 }
 
+
+update_url = function() {
+    console.log('update url');
+    if ( first_occurence) {
+        console.log('update url but not ready');
+        return ;
+    }
+    var refinements = [];
+    $('*[id^="tree_"]').each(function() {
+        getSelectedRefinements($(this), refinements);
+    });
+
+
+	var keyword = $("#id_search_entry").val();
+	var role = $('input[name=resource_type]:checked', '#refine_resource_type').val();
+	$.ajax({
+        url : "/explore/update_url",
+        type : "GET",
+        dataType: "json",
+        data : {
+            keyword: keyword,
+            role: role,
+            refinements: refinements,
+        },
+        success: function(data) {
+            History.pushState("", "", data.url);
+        }
+    });
+}
+
+/**
+ * Set keywords
+ */
+set_keyword = function(keyword) {
+    console.log('put keywords from url');
+    var list_keyword = keyword.split('&amp;');
+    for (var i=0 ; i<list_keyword.length ; i++) {
+        $("#id_search_entry").tagit("createTag", list_keyword[i]);
+    }
+}
+
+/**
+ * Load refinement queries
+ */
+selectRefinementQueries = function(listRefinement) {
+    console.log('select the refinements from url');
+	var list_refinements = listRefinement.split('&amp;');
+
+    $('*[id^="tree_"]').each(function() {
+        var root = $(this).fancytree('getTree');
+        for (var i = 0; i < list_refinements.length; i++) {
+            var node = root.getNodeByKey(list_refinements[i]);
+            if (node != null) {
+                node.setSelected(true);
+            }
+        }
+    });
+}
+
+select_hidden_schemas = function (selected_val) {
+// update the value of the search form
+    if (selected_val == 'all') {
+        // check all options
+        $("#id_my_schemas").find("input").each(function () {
+            $(this).prop("checked", true);
+        });
+    } else {
+        // uncheck all options except the selected one
+        $("#id_my_schemas").find("input").each(function () {
+            if ($(this).val() == selected_val) {
+                $(this).prop("checked", true);
+            } else {
+                $(this).removeAttr("checked");
+            }
+        });
+    }
+}
 initResources = function(){
-	// select all resources by default
-	$("#refine_resource_type").children("input:radio[value=all]").prop("checked", true);
-	$("#id_my_schemas").find("input").each(function(){
-		$(this).prop("checked", true);
-	});
-	
+    console.log('init resources');
 	// get radio to refine resource type
-	var radio_btns = $("#refine_resource_type").children("input:radio")
+	var radio_btns = $("#refine_resource_type").children("input:radio");
 	for(var i = 0; i < radio_btns.length; i++) {
 		// when value change
 		radio_btns[i].onclick = function() {
 			// get the value
 	        selected_val = $(this).val();
-			
 			// update selected icon
 	        if (selected_val == 'repository'
 	        	|| selected_val == 'projectarchive'
 	        		|| selected_val == 'database'){
 	        	$("#icons_table").find("td").each(function(){
 		        	$(this).removeClass("selected_resource");
-		        	if ($(this).attr("value") == 'datacollection'){
-		        		$(this).addClass("selected_resource");
-		        	}	        	
+		        	if ($(this).attr("value") == 'datacollection') {
+                        $(this).addClass("selected_resource");
+                    }
 	        	});
-	        }else{
-	        	$("#icons_table").find("td").each(function(){
-		        	$(this).removeClass("selected_resource");
-		        	if ($(this).attr("value") == selected_val){
-		        		$(this).addClass("selected_resource");
-		        	}	        	
-	        	});
-	        }	        
-			
+	        }else {
+                $("#icons_table").find("td").each(function () {
+                    $(this).removeClass("selected_resource");
+                    if ($(this).attr("value") == selected_val) {
+                        $(this).addClass("selected_resource");
+                    }
+                });
+            }
+
 			// update refinements options based on the selected schema
-			loadRefinements(selected_val);
-			
+			loadRefinements(selected_val, '', '');
+
 			// update filters: if custom, switch to default simple
 			if ($("#results_view").val() == "custom"){
 				$("#results_view").val("simple");
 			}
 			filter_result_display($("#results_view").val());
 			custom_view_done = false;
-
-	        // update the value of the search form
-	        if (selected_val == 'all'){
-	        	// check all options
-	        	$("#id_my_schemas").find("input").each(function(){
-	        		$(this).prop("checked", true);
-	        	});
-	        }else{
-	        	// uncheck all options except the selected one
-	        	$("#id_my_schemas").find("input").each(function(){
-	        		if ($(this).val() == selected_val){
-	        			$(this).prop("checked",true);
-	        		}else{
-	        			$(this).removeAttr("checked");
-	        		}	        		
-	        	});
-	        }	        
-	        get_results_keyword_refined();
+            select_hidden_schemas(selected_val);
 	    };
 	}
+	console.log('fin init resources');
 }
 
 initFilters = function(){
@@ -183,6 +239,10 @@ load_custom_view = function(schema){
  * @param numInstance
  */
 get_results_keyword_refined = function(numInstance){
+    if (first_occurence) {
+        return ;
+    }
+    update_url();
 	// clear the timeout
 	clearTimeout(timeout);
 	// send request if no parameter changed during the timeout
@@ -331,7 +391,8 @@ getRefinementsChildren = function(children, refinements)
 }
 
 
-loadRefinements = function(schema){
+loadRefinements = function(schema, listRefinements, keyword){
+    console.log('load refinements');
 	$("#refine_resource").html('');
 	$.ajax({
         url : "/explore/load_refinements",
@@ -345,7 +406,16 @@ loadRefinements = function(schema){
             $.map(data.items, function (item) {
                 initFancyTree(item.div_id, item.json_data);
             });
+            if (first_occurence) {
+                console.log('load refinements + first occ');
+                selectRefinementQueries(listRefinements);
+                set_keyword(keyword);
+                first_occurence = false;
+            }
             updateRefinementsOccurrences();
+            initFilters();
+	        custom_view_done = false;
+	        get_results_keyword_refined();
         }
     });
 }
@@ -371,8 +441,10 @@ initFancyTree = function(div_id, json_data) {
         $(this).fancytree("getRootNode").render(force=true, deep=true);
       },
       select: function(event, data){
-          updateRefinementsOccurrences(div_id);
-          get_results_keyword_refined();
+          if (! first_occurence) {
+              updateRefinementsOccurrences(div_id);
+                get_results_keyword_refined();
+          }
       }
     });
 }

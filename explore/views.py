@@ -75,10 +75,44 @@ def index(request):
 ################################################################################
 @permission_required(content_type=RIGHTS.explore_content_type, permission=RIGHTS.explore_access, login_url='/login')
 def index_keyword(request):
+    if is_local_id(request.GET):
+        return query_local_id(request)
+
+    list_refinements = ''
+    keyword = ''
+    resource = ''
+    if request.GET:
+        i = 0
+        for key in request.GET:
+            if key == 'keyword':
+                keywords = request.GET.getlist(key)
+                if len(keywords) == 1:
+                    keywords = keywords[0].split(',')
+                for value in keywords:
+                    if i > 0:
+                        keyword += '&'
+                    i += 1
+                    keyword += value
+            if key == 'role':
+                resource = request.GET[key]
+            else:
+                values = request.GET.getlist(key)
+                for value in values:
+                    if i > 0:
+                        list_refinements += '&'
+                    i += 1
+                    list_refinements += key + '==' + value
+
+    if resource == '':
+        resource = 'all'
+
     template = loader.get_template('explore/explore_keyword.html')
     search_form = KeywordForm(request.user.id)
     context = RequestContext(request, {
-        'search_Form':search_form,
+        'search_Form': search_form,
+        'listRefinements': list_refinements,
+        'keyword': keyword,
+        'resource': resource,
     })
     return HttpResponse(template.render(context))
 
@@ -309,17 +343,22 @@ def explore_detail_result_keyword(request, result_id) :
 def explore_detail_result_process(request, result_id):
     # result_id = request.GET['id']
     xmlString = XMLdata.get(result_id)
-    schemaId = xmlString['schema']
     if 'title' in request.GET:
         title = request.GET['title']
     else:
-        title = xmlString['title']
+        title = None
+    return get_detail_result(request, xmlString, title)
+
+
+def get_detail_result(request, xmlString, title=None):
+    schemaId = xmlString['schema']
+    if title is None:
+       title= xmlString['title']
     xmlString = XMLdata.unparse(xmlString['content']).encode('utf-8')
     xsltPath = os.path.join(settings.SITE_ROOT, 'static', 'resources', 'xsl', 'xml2html.xsl')
     xslt = etree.parse(xsltPath)
     transform = etree.XSLT(xslt)
-
-    #Check if a custom detailed result XSLT has to be used
+    # Check if a custom detailed result XSLT has to be used
     schema = Template.objects.get(pk=schemaId)
     try:
         if (xmlString != ""):
@@ -331,16 +370,14 @@ def explore_detail_result_process(request, result_id):
             else:
                 newdom = transform(dom)
     except Exception, e:
-        #We use the default one
+        # We use the default one
         newdom = transform(dom)
-
     result = str(newdom)
     context = RequestContext(request, {
         'XMLHolder': result,
         'title': title,
         "template_name": schema.title
     })
-
     return context
 
 
@@ -426,3 +463,26 @@ def start_export(request):
                            'nb_elts_xslt': len(upload_xslt_Form.EXPORT_OPTIONS)})
 
         return HttpResponse(json.dumps({'template': template.render(context)}), content_type='application/javascript')
+
+
+def query_local_id(request):
+        # extract filters
+        query = {}
+        query['ispublished'] = True
+        query['content.Resource.@localid'] = request.GET[request.GET.keys()[0]]
+
+        # run query
+        result = XMLdata.find(query)
+        # generate response
+        template = loader.get_template('explore/explore_detail_results_keyword.html')
+        if len(result) == 0:
+            context = RequestContext(request, {})
+        elif len(result) == 1:
+            context = get_detail_result(request=request, xmlString=result[0], title=None)
+        else:
+            template = None
+        return HttpResponse(template.render(context))
+
+
+def is_local_id(dict):
+    return len(dict) == 1 and dict.keys()[0] == 'Resource.@localid'

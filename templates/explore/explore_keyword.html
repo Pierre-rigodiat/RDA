@@ -189,10 +189,11 @@ No Custom View available for this type of resource.
 <script src="{% static 'libs/fancytree/jquery.fancytree.dnd.js' %}"></script>
 <script src="{% static 'libs/fancytree/jquery.fancytree.glyph.js' %}"></script>
 <script src="{% static 'libs/fancytree/jquery.fancytree.wide.js' %}"></script>
+<script src="{% static 'libs/history/jquery.history.js' %}"></script>
 
 <script>
     initAutocomplete();
-    initSearch();
+    initSearch('{{listRefinements}}', '{{keyword}}', '{{resource}}');
 </script>
 {% endblock %}
 
