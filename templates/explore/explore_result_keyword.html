@@ -11,9 +11,13 @@
 	<input type='checkbox' name='checks' result_id='{{id}}'/>
     <span class='expand' style='cursor:pointer;' onclick='showhideResults(event);'></span>
         {% if oai_pmh %}
-        <span style='font-weight:bold;'><a href="{% url 'explore-detail-result-keyword' id %}">{{title}}</a></span> <span style='color:grey;'>{{template_name}}</span>
+        <span style='font-weight:bold;'><a href="{% url 'oai-explore-detail-result-keyword' id %}">{{title}}</a></span> <span style='color:grey;'>{{template_name}}</span>
         {% else %}
-        <span style='font-weight:bold;'><a href="{% url 'expore-index-keyword'%}?Resource.@localid={{local_id}}">{{title}}</a></span> <span style='color:grey;'>{{template_name}}</span>
+            {% if local_id %}
+            <span style='font-weight:bold;'><a href="{% url 'expore-index-keyword'%}?Resource.@localid={{local_id}}">{{title}}</a></span> <span style='color:grey;'>{{template_name}}</span>
+            {% else %}
+            <span style='font-weight:bold;'><a href="{% url 'explore-detail-result-keyword' id %}">{{title}}</a></span> <span style='color:grey;'>{{template_name}}</span>
+            {% endif %}
         {% endif %}
     {% if canEdit and modification %}
     <a href="/curate/enter-data?id={{id}}"><span class="icon edit"></span></a>
