@@ -475,7 +475,7 @@ def get_results_by_instance_keyword(request):
                 try:
                     local_id = str(instanceResult['content']['Resource']['@localid'])
                 except:
-                    local_id=''
+                    local_id = None
                 context = RequestContext(request, {'id': str(instanceResult['_id']),
                                                    'local_id': local_id,
                                                    'xml': str(newdom),
