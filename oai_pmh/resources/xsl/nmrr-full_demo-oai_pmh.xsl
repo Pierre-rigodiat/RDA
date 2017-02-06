@@ -43,8 +43,8 @@
 				{% endif %}
 			{% endif %}
 			<div class="black">
-				<xsl:variable name="creators" select="//nr:Resource/nr:curation/nr:creator" />
-				<xsl:variable name="publisher" select="//nr:Resource/nr:curation/nr:publisher"/>
+				<xsl:variable name="creators" select="//nr:Resource/nr:providers/nr:creator" />
+				<xsl:variable name="publisher" select="//nr:Resource/nr:providers/nr:publisher"/>
 				<xsl:call-template name="join">
 					<xsl:with-param name="list" select="$creators" />
 					<xsl:with-param name="separator" select="', '" />
@@ -54,7 +54,7 @@
 				</xsl:if>
 				<xsl:value-of select="$publisher"/>
 			</div>
-			<xsl:variable name="url" select="//nr:Resource/nr:content/nr:referenceURL" />
+			<xsl:variable name="url" select="//nr:Resource/nr:content/nr:landingPage" />
 			<a target="_blank" href="{$url}"><xsl:value-of select="$url"/></a>
 			<xsl:variable name="idw"  select="'{{id}}'" />
 			<a data-toggle="collapse" data-target="#{$idw}"
@@ -72,14 +72,16 @@
 					<!--</xsl:if>-->
 				<br/>
 			</div>
-			<div class="keywords">
-				<xsl:text>Subject keyword(s): </xsl:text>
-				<xsl:variable name="subject" select="//nr:Resource/nr:content/nr:subject" />
-				<xsl:call-template name="join">
-					<xsl:with-param name="list" select="$subject" />
-					<xsl:with-param name="separator" select="', '" />
-				</xsl:call-template>
-			</div>
+			<xsl:variable name="subject" select="//nr:Resource/nr:content/nr:subject" />
+			<xsl:if test="$subject!=''">
+				<div class="keywords">
+					<xsl:text>Subject keyword(s): </xsl:text>
+					<xsl:call-template name="join">
+						<xsl:with-param name="list" select="$subject" />
+						<xsl:with-param name="separator" select="', '" />
+					</xsl:call-template>
+				</div>
+			</xsl:if>
 			<div class="black">
 				<p class="description">
 					<xsl:value-of select="//nr:Resource/nr:content/nr:description"/>

@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
-	xmlns:nr="urn:nist.gov/nmrr.res/1.0wd">
+	xmlns:nr="http://schema.nist.gov/xml/res-md/1.0wd-02-2017">
 	<xsl:output method="html" indent="yes" encoding="UTF-8" />
 
 	<xsl:template match="/">
 		<div class="white-bg">
 			<xsl:variable name="title"  select="//nr:Resource/nr:identity/nr:title"/>
-			<a class="title" target="_blank" onclick="dialog_detail('{{{{id}}}}');">
+			{% if local_id %}
+			<a class="title" target="_blank" onclick="window.location = '{{% url 'expore-index-keyword' %}}?Resource.@localid={{{{local_id}}}}'">
 				<xsl:choose>
 					<xsl:when test="$title!=''">
 						<strong><xsl:value-of select="$title"/></strong>
@@ -16,9 +17,21 @@
 					</xsl:otherwise>
 				</xsl:choose>
 			</a>
+			{% else %}
+			<a class="title" target="_blank" onclick="window.location = '{{% url 'explore-detail-result-keyword' id %}}'">
+				<xsl:choose>
+					<xsl:when test="$title!=''">
+						<strong><xsl:value-of select="$title"/></strong>
+					</xsl:when>
+					<xsl:otherwise>
+						<strong class="italic">Untitled</strong>
+					</xsl:otherwise>
+				</xsl:choose>
+			</a>
+			{% endif %}
 			<div class="black">
-				<xsl:variable name="creators" select="//nr:Resource/nr:curation/nr:creator" />
-				<xsl:variable name="publisher" select="//nr:Resource/nr:curation/nr:publisher"/>
+				<xsl:variable name="creators" select="//nr:Resource/nr:providers/nr:creator" />
+				<xsl:variable name="publisher" select="//nr:Resource/nr:providers/nr:publisher"/>
 				<xsl:call-template name="join">
 					<xsl:with-param name="list" select="$creators" />
 					<xsl:with-param name="separator" select="', '" />
@@ -28,7 +41,7 @@
 				</xsl:if>
 				<xsl:value-of select="$publisher"/>
 			</div>
-			<xsl:variable name="url" select="//nr:Resource/nr:content/nr:referenceURL" />
+			<xsl:variable name="url" select="//nr:Resource/nr:content/nr:landingPage" />
 			<a target="_blank" href="{$url}"><xsl:value-of select="$url"/></a>
 			<xsl:variable name="idw"  select="'{{id}}'" />
 			<a data-toggle="collapse" data-target="#{$idw}"
@@ -46,14 +59,16 @@
 					<!--</xsl:if>-->
 				<br/>
 			</div>
-			<div class="keywords">
-				<xsl:text>Subject keyword(s): </xsl:text>
-				<xsl:variable name="subject" select="//nr:Resource/nr:content/nr:subject" />
-				<xsl:call-template name="join">
-					<xsl:with-param name="list" select="$subject" />
-					<xsl:with-param name="separator" select="', '" />
-				</xsl:call-template>
-			</div>
+			<xsl:variable name="subject" select="//nr:Resource/nr:content/nr:subject" />
+			<xsl:if test="$subject!=''">
+				<div class="keywords">
+					<xsl:text>Subject keyword(s): </xsl:text>
+					<xsl:call-template name="join">
+						<xsl:with-param name="list" select="$subject" />
+						<xsl:with-param name="separator" select="', '" />
+					</xsl:call-template>
+				</div>
+			</xsl:if>
 			<div class="black">
 				<p class="description">
 					<xsl:value-of select="//nr:Resource/nr:content/nr:description"/>

@@ -13,7 +13,7 @@
 ################################################################################ 
  -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
-	xmlns:nr="urn:nist.gov/nmrr.res/1.0wd">
+	xmlns:nr="http://schema.nist.gov/xml/res-md/1.0wd-02-2017">
 	<xsl:output method="html" indent="yes" encoding="UTF-8" />	
 	
 	<xsl:template match="/">
@@ -87,6 +87,7 @@
 						</span>
 					</xsl:otherwise>
 				</xsl:choose>
+				<xsl:apply-templates select="@*" />
 			</xsl:when>
 			<xsl:otherwise>
 				<span style="display:block;">
@@ -179,18 +180,20 @@
 	<xsl:template match="@*">
 		<xsl:variable name="name" select="name(.)" />
 		<xsl:variable name="value" select="." />
-		<span class='value'>
-			<xsl:text> (</xsl:text>
-			<xsl:value-of select="$name" /> <xsl:text>: </xsl:text>
-			<xsl:choose>
-				<xsl:when test="( (contains($name, 'URL')) or (starts-with($value, 'https://')) or (starts-with($value, 'http://')) )">
-					<a target="_blank" href="{$value}"><xsl:value-of select="$value"/></a>
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:value-of select="$value"/>
-				</xsl:otherwise>
-			</xsl:choose>
-		</span>
-		<xsl:text>)</xsl:text>
+		<xsl:if test="not(starts-with($name, 'xsi:type'))">
+			<span class='value'>
+				<xsl:text> (</xsl:text>
+				<xsl:value-of select="$name" /> <xsl:text>: </xsl:text>
+				<xsl:choose>
+					<xsl:when test="( (contains($name, 'URL')) or (starts-with($value, 'https://')) or (starts-with($value, 'http://')) )">
+						<a target="_blank" href="{$value}"><xsl:value-of select="$value"/></a>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:value-of select="$value"/>
+					</xsl:otherwise>
+				</xsl:choose>
+				<xsl:text>)</xsl:text>
+			</span>
+		</xsl:if>
 	</xsl:template>
 </xsl:stylesheet>
