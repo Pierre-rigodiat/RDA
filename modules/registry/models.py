@@ -15,6 +15,7 @@ from forms import NamePIDForm
 from django.template import Context, Template
 import HTMLParser
 import json
+from collections import OrderedDict
 
 from utils.XSDRefinements.Tree import TreeInfo, print_tree
 
@@ -402,7 +403,7 @@ class FancyTreeModule(Module):
         choice_children = list(choice_element)
 
         # declare an empty tree
-        tree = {}
+        tree = OrderedDict()
         # iterate trough all options to build the tree
         for choice_child in choice_children:
             # get choice element name
@@ -426,7 +427,7 @@ class FancyTreeModule(Module):
             tree = _build_tree(tree, choice_child_name, list_enumeration, self.selected)
 
         # declare empty source data for the client fancy tree
-        source_data = {}
+        source_data = OrderedDict()
         for root, child_tree in sorted(tree.iteritems()):
             # add tree to source data
             source_data.update(child_tree)
@@ -465,7 +466,7 @@ def _create_xml_node(node_name, child_name):
 def _build_tree(tree, root, enums, selected_values):
     for enum in sorted(enums, key=lambda x: x.attrib['value']):
         t = tree
-        t = t.setdefault(TreeInfo(title=root), {})
+        t = t.setdefault(TreeInfo(title=root), OrderedDict())
         groups = enum.attrib['value'].split(':')
         split_index = 0
         for part in groups:
@@ -474,6 +475,6 @@ def _build_tree(tree, root, enums, selected_values):
             g = TreeInfo(title=part, key=key)
             if key in selected_values:
                 g.selected = True
-            t = t.setdefault(g, {})
+            t = t.setdefault(g, OrderedDict())
     return tree
 
