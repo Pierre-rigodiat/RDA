@@ -38,7 +38,6 @@ from django.contrib import messages
 from utils.XSDParser.parser import generate_form
 from utils.XSDParser.renderer import DefaultRenderer
 from utils.XSDParser.renderer.checkbox import CheckboxRenderer
-from utils.XSDflattener.XSDflattener import XSDFlattenerURL
 from utils.XSDRefinements import Tree, XSDRefinements
 import hashlib
 from itertools import groupby

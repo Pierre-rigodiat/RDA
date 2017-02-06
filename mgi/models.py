@@ -35,6 +35,7 @@ import os
 from django.utils.importlib import import_module
 import json
 from curate.models import SchemaElement
+from utils.XSDflattener.XSDflattener import XSDFlattenerURL
 
 settings_file = os.environ.get("DJANGO_SETTINGS_MODULE")
 settings = import_module(settings_file)
@@ -162,7 +163,9 @@ def is_schema_valid(object_type, content, name=None):
 def create_template(content, name, filename, dependencies=[], user=None, validation=True):
     if validation:
         is_schema_valid('Template', content, name)
-    hash_value = XSDhash.get_hash(content)
+    flattener = XSDFlattenerURL(content.encode('utf-8'))
+    content_encoded = flattener.get_flat()
+    hash_value = XSDhash.get_hash(content_encoded)
     # save the template
     template_versions = TemplateVersion(nbVersions=1, isDeleted=False).save()
     new_template = Template(title=name, filename=filename, content=content,
@@ -207,7 +210,9 @@ def create_type(content, name, filename, buckets=[], dependencies=[], user=None)
 
 def create_template_version(content, filename, versions_id, dependencies=[]):
     is_schema_valid('Template', content)
-    hash_value = XSDhash.get_hash(content)
+    flattener = XSDFlattenerURL(content.encode('utf-8'))
+    content_encoded = flattener.get_flat()
+    hash_value = XSDhash.get_hash(content_encoded)
     template_versions = TemplateVersion.objects.get(pk=versions_id)
     template_versions.nbVersions += 1
     current_template = Template.objects.get(pk=template_versions.current)
