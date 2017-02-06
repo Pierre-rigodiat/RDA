@@ -785,7 +785,6 @@ def generate_form(request, xsd_doc_data, xml_doc_data=None, config=None):
         rendered HTMl form
     """
 
-    request.session['implicit_extension'] = True
     load_config(request, config)
 
     # flatten the includes
@@ -1881,7 +1880,7 @@ def generate_choice_absent(request, element_id, config=None):
 
 
 def generate_simple_type(request, element, xml_tree, full_path, edit_data_tree=None,
-                         default_value=None, schema_location=None):
+                         default_value=None, schema_location=None, implicit_extension=True):
     """Generates a section of the form that represents an XML simple type
 
     Parameters:
@@ -1892,6 +1891,7 @@ def generate_simple_type(request, element, xml_tree, full_path, edit_data_tree=N
         edit_data_tree:
         default_value:
         schema_location:
+        implicit_extension: True if implicit extensions should be considered
 
     Returns:
         HTML string representing a simple type
@@ -1935,9 +1935,8 @@ def generate_simple_type(request, element, xml_tree, full_path, edit_data_tree=N
 
         return form_string, db_element
 
-    # TODO: check that it's not already extending a base
     # check if the type has a name (can be referenced by an extension)
-    if 'name' in element.attrib and request.session['implicit_extension']:
+    if 'name' in element.attrib and implicit_extension:
         # check if types extend this one
         extensions = get_extensions(xml_tree, element.attrib['name'])
 
@@ -1994,7 +1993,7 @@ def generate_simple_type(request, element, xml_tree, full_path, edit_data_tree=N
 
 
 def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=None, default_value='',
-                          schema_location=None):
+                          schema_location=None, implicit_extension=True):
     """Generates a section of the form that represents an XML complexType
 
     Parameters:
@@ -2005,6 +2004,7 @@ def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=
         edit_data_tree:
         default_value:
         schema_location:
+        implicit_extension: True if implicit extensions should be considered
 
     Returns:
         HTML string representing a sequence
@@ -2064,9 +2064,8 @@ def generate_complex_type(request, element, xml_tree, full_path, edit_data_tree=
 
         return form_string, db_element
 
-    # TODO: check that it's not already extending a base
     # check if the type has a name (can be referenced by an extension)
-    if 'name' in element.attrib and request.session['implicit_extension']:
+    if 'name' in element.attrib and implicit_extension:
         # check if types extend this one
         extensions = get_extensions(xml_tree, element.attrib['name'])
 
@@ -2218,7 +2217,6 @@ def generate_choice_extensions(request, element, xml_tree, choice_info=None, ful
 
         li_content = ''
 
-        request.session['implicit_extension'] = False
         for (counter, choiceChild) in enumerate(list(element)):
 
             if is_root:
@@ -2235,14 +2233,16 @@ def generate_choice_extensions(request, element, xml_tree, choice_info=None, ful
                                                    full_path=full_path,
                                                    edit_data_tree=edit_data_tree,
                                                    default_value=default_value,
-                                                   schema_location=schema_location)
+                                                   schema_location=schema_location,
+                                                   implicit_extension=False)
 
                 elif choiceChild.tag == "{0}simpleType".format(LXML_SCHEMA_NAMESPACE):
                     result = generate_simple_type(request, choiceChild, xml_tree,
                                                   full_path=full_path,
                                                   edit_data_tree=edit_data_tree,
                                                   default_value=default_value,
-                                                  schema_location=schema_location)
+                                                  schema_location=schema_location,
+                                                  implicit_extension=False)
 
                 # Find the default element
                 if choiceChild.attrib.get('name') is not None:
@@ -2271,7 +2271,6 @@ def generate_choice_extensions(request, element, xml_tree, choice_info=None, ful
 
         db_element['children'].append(db_child)
 
-    request.session['implicit_extension'] = True
     # form_string += render_ul(ul_content, choice_id, chosen)
     return form_string, db_element
 
@@ -2584,8 +2583,6 @@ def generate_extension(request, element, xml_tree, full_path="", edit_data_tree=
 
     remove_annotations(element)
 
-    request.session['implicit_extension'] = False
-
     ##################################################
     # Parsing attributes
     #
@@ -2616,7 +2613,8 @@ def generate_extension(request, element, xml_tree, full_path="", edit_data_tree=
                                                             full_path=full_path,
                                                             edit_data_tree=edit_data_tree,
                                                             default_value=default_value,
-                                                            schema_location=schema_location)
+                                                            schema_location=schema_location,
+                                                            implicit_extension=False)
 
                 form_string += complex_type_result[0]
                 db_element['children'].append(complex_type_result[1])
@@ -2625,7 +2623,8 @@ def generate_extension(request, element, xml_tree, full_path="", edit_data_tree=
                                                           full_path=full_path,
                                                           edit_data_tree=edit_data_tree,
                                                           default_value=default_value,
-                                                          schema_location=schema_location)
+                                                          schema_location=schema_location,
+                                                          implicit_extension=False)
 
                 form_string += simple_type_result[0]
                 db_element['children'].append(simple_type_result[1])
@@ -2676,7 +2675,5 @@ def generate_extension(request, element, xml_tree, full_path="", edit_data_tree=
 
                 form_string += choice_result[0]
                 extended_element.append(choice_result[1])
-
-    request.session['implicit_extension'] = True
 
     return form_string, db_element
