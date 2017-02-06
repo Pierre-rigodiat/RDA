@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
-	xmlns:nr="urn:nist.gov/nmrr.res/1.0wd">
+	xmlns:nr="http://schema.nist.gov/xml/res-md/1.0wd-02-2017">
 	<xsl:output method="html" indent="yes" encoding="UTF-8" />
 
 	<xsl:template match="/">
@@ -19,10 +19,7 @@
 				</a>
 			{% else %}
 				{% if local_id %}
-				<a class="title" target="_blank" onclick="window.location = '{% url 'expore-index-keyword'%}?Resource.@localid={{local_id}}'">
-				{% else %}
-				<a class="title" target="_blank" onclick="window.location = '{{% url 'explore-detail-result-keyword' id %}}'">
-				{% endif %}
+				<a class="title" target="_blank" onclick="window.location = '{{% url 'expore-index-keyword' %}}?Resource.@localid={{{{local_id}}}}'">
 					<xsl:choose>
 						<xsl:when test="$title!=''">
 							<strong><xsl:value-of select="$title"/></strong>
@@ -32,6 +29,18 @@
 						</xsl:otherwise>
 					</xsl:choose>
 				</a>
+				{% else %}
+				<a class="title" target="_blank" onclick="window.location = '{{% url 'explore-detail-result-keyword' id %}}'">
+					<xsl:choose>
+						<xsl:when test="$title!=''">
+							<strong><xsl:value-of select="$title"/></strong>
+						</xsl:when>
+						<xsl:otherwise>
+							<strong class="italic">Untitled</strong>
+						</xsl:otherwise>
+					</xsl:choose>
+				</a>
+				{% endif %}
 			{% endif %}
 			<div class="black">
 				<xsl:variable name="creators" select="//nr:Resource/nr:curation/nr:creator" />
