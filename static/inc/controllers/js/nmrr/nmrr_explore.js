@@ -40,14 +40,14 @@ update_url = function() {
 
 
 	var keyword = $("#id_search_entry").val();
-	var role = $('input[name=resource_type]:checked', '#refine_resource_type').val();
+//	var role = $('input[name=resource_type]:checked', '#refine_resource_type').val();
 	$.ajax({
         url : "/explore/update_url",
         type : "GET",
         dataType: "json",
         data : {
             keyword: keyword,
-            role: role,
+//            role: role,
             refinements: refinements,
         },
         success: function(data) {
@@ -242,11 +242,11 @@ get_results_keyword_refined = function(numInstance){
     if (first_occurence) {
         return ;
     }
-    update_url();
 	// clear the timeout
 	clearTimeout(timeout);
 	// send request if no parameter changed during the timeout
     timeout = setTimeout(function(){
+        update_url();
     	$("#results").html('Please wait...');
         var keyword = $("#id_search_entry").val();    
         $.ajax({

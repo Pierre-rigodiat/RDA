@@ -2676,20 +2676,14 @@ def _get_list_ids_for_refinement(dictionary, refinement):
 
 
 def update_url(request):
-    # schemas = request.GET.getlist('schemas[]')
-    # userSchemas = request.GET.getlist('userSchemas[]')
-    # refinements = refinements_to_mongo(request.GET.getlist('refinements[]'))
-    # onlySuggestions = json.loads(request.GET['onlySuggestions'])
-    # all_refinements = request.GET.getlist('allRefinements[]')
-
     url = ''
     refinements = request.GET.getlist('refinements[]', [])
     keyword = request.GET.getlist('keyword', [])
-    role = request.GET['role']
+    # role = request.GET['role']
 
     url = update_url_with_refinements(refinements, url)
     url = update_url_with_keyword(keyword, url)
-    url = update_url_with_resource_role(role, url)
+    # url = update_url_with_resource_role(role, url)
 
     return HttpResponse(json.dumps({'url': url}), content_type='application/javascript')
 
