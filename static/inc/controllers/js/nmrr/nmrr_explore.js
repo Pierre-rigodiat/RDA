@@ -235,16 +235,15 @@ load_custom_view = function(schema){
  * @param numInstance
  */
 get_results_keyword_refined = function(numInstance){
-
     if (!first_occurence) {
             console.log('not first occ so update');
             update_url();
     }
+    updateRefinementsOccurrences();
 	// clear the timeout
 	clearTimeout(timeout);
 	// send request if no parameter changed during the timeout
     timeout = setTimeout(function() {
-
     	$("#results").html('Please wait...');
         var keyword = $("#id_search_entry").val();    
         $.ajax({
@@ -298,7 +297,7 @@ clearRefinements = function(){
 	get_results_keyword_refined();
 }
 
-updateRefinementsOccurrences = function(avoid_tree){
+updateRefinementsOccurrences = function(){
     var keyword = $("#id_search_entry").val();
 	$.ajax({
         url : "/explore/get_results_occurrences",
@@ -320,9 +319,9 @@ updateRefinementsOccurrences = function(avoid_tree){
                 var text = $("#"+item.text_id)
                 text.html(item.nb_occurrences);
                 if(item.nb_occurrences == 0)
-                    text.closest('span').fadeTo(500, 0.2);
+                    text.closest('span').fadeTo(100, 0.2);
                 else
-                    text.closest('span').fadeTo(500, 1);
+                    text.closest('span').fadeTo(100, 1);
             });
         },
         complete: function(){
@@ -359,10 +358,10 @@ getSelectedRefinements = function (tree, refinements){
     });
 }
 
-getAllRefinements = function(avoid_tree=""){
+getAllRefinements = function(){
     var dict = [];
 
-    $('*[id^="tree_"]:not(#tree_'+avoid_tree+')').each(function(){
+    $('*[id^="tree_"]').each(function(){
         var refinements = [];
         var nodes = $(this).fancytree('getRootNode').getChildren();
         getRefinementsChildren(nodes, refinements);
@@ -409,7 +408,6 @@ loadRefinements = function(schema, listRefinements, keyword){
                 selectRefinementQueries(listRefinements);
                 set_keyword(keyword);
             }
-            updateRefinementsOccurrences();
             initFilters();
 	        custom_view_done = false;
 	        get_results_keyword_refined();
@@ -440,7 +438,6 @@ initFancyTree = function(div_id, json_data) {
       },
       select: function(event, data){
           if (! first_occurence) {
-            updateRefinementsOccurrences(div_id);
             get_results_keyword_refined();
             selectIcons($(this));
           }
