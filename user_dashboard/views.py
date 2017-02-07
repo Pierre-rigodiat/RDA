@@ -146,26 +146,21 @@ def dashboard_resources(request):
     query = {}
     context = RequestContext(request, {})
     ispublished = request.GET.get('ispublished', None)
-    template_name = request.GET.get('template', None)
+    role_name_list = request.GET.getlist('role', ['all'])
+
+    role_name = ''
+    for role in role_name_list:
+        role_name += role + ','
+    context.update({'roles': role_name[:-1]})
+
     query['iduser'] = str(request.user.id)
-    #If ispublished not None, check if we want publish or unpublish records
+
     if ispublished:
         ispublished = ispublished == 'true'
         query['ispublished'] = ispublished
-    if template_name:
-        context.update({'template': template_name})
-        if template_name == 'datacollection':
-            templateNamesQuery = list(chain(Template.objects.filter(title=template_name).values_list('id'),
-                                            Template.objects.filter(title='repository').values_list('id'),
-                                            Template.objects.filter(title='database').values_list('id'),
-                                            Template.objects.filter(title='projectarchive').values_list('id')))
-        else :
-            templateNamesQuery = Template.objects.filter(title=template_name).values_list('id')
-        templateNames = []
-        for templateQuery in templateNamesQuery:
-            templateNames.append(str(templateQuery))
 
-        query['schema'] = {"$in" : templateNames}
+    if not (len(role_name_list) == 1 and role_name_list[0] == 'all'):
+        query['$or'] = [{"content.Resource.role.@xsi:type": role} for role in role_name_list]
 
     userXmlData = sorted(XMLdata.find(query), key=lambda data: data['lastmodificationdate'], reverse=True)
     #Add user_form for change owner
