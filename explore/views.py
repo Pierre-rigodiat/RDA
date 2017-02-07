@@ -80,7 +80,6 @@ def index_keyword(request):
 
     list_refinements = ''
     keyword = ''
-    resource = ''
     if request.GET:
         i = 0
         for key in request.GET:
@@ -93,8 +92,6 @@ def index_keyword(request):
                         keyword += '&'
                     i += 1
                     keyword += value
-            if key == 'role':
-                resource = request.GET[key]
             else:
                 values = request.GET.getlist(key)
                 for value in values:
@@ -103,16 +100,13 @@ def index_keyword(request):
                     i += 1
                     list_refinements += key + '==' + value
 
-    if resource == '':
-        resource = 'all'
-
     template = loader.get_template('explore/explore_keyword.html')
     search_form = KeywordForm(request.user.id)
     context = RequestContext(request, {
         'search_Form': search_form,
         'listRefinements': list_refinements,
         'keyword': keyword,
-        'resource': resource,
+        'resource': 'all',
     })
     return HttpResponse(template.render(context))
 

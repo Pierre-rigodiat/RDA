@@ -2679,23 +2679,11 @@ def update_url(request):
     url = ''
     refinements = request.GET.getlist('refinements[]', [])
     keyword = request.GET.getlist('keyword', [])
-    # role = request.GET['role']
 
     url = update_url_with_refinements(refinements, url)
     url = update_url_with_keyword(keyword, url)
-    # url = update_url_with_resource_role(role, url)
 
     return HttpResponse(json.dumps({'url': url}), content_type='application/javascript')
-
-
-def update_url_with_resource_role(role, url):
-    if role != '':
-        if url == '':
-            url += '?'
-        else:
-            url += '&'
-        url += 'role='+role
-    return url
 
 
 def update_url_with_keyword(keywords, url):

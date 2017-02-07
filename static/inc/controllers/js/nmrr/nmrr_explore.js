@@ -6,7 +6,6 @@ initSearch = function(listRefinements, keyword, resource) {
     selectRadio(resource);
     select_hidden_schemas(resource)
 	initResources();
-    //$("#refine_resource_type").children("input:radio[value="+resource+"]").click();
 	loadRefinements(resource, listRefinements, keyword);
 }
 
@@ -40,14 +39,12 @@ update_url = function() {
 
 
 	var keyword = $("#id_search_entry").val();
-//	var role = $('input[name=resource_type]:checked', '#refine_resource_type').val();
 	$.ajax({
         url : "/explore/update_url",
         type : "GET",
         dataType: "json",
         data : {
             keyword: keyword,
-//            role: role,
             refinements: refinements,
         },
         success: function(data) {
@@ -242,14 +239,16 @@ load_custom_view = function(schema){
  * @param numInstance
  */
 get_results_keyword_refined = function(numInstance){
-    if (first_occurence) {
-        return ;
+
+    if (!first_occurence) {
+            console.log('not first occ so update');
+            update_url();
     }
 	// clear the timeout
 	clearTimeout(timeout);
 	// send request if no parameter changed during the timeout
-    timeout = setTimeout(function(){
-        update_url();
+    timeout = setTimeout(function() {
+
     	$("#results").html('Please wait...');
         var keyword = $("#id_search_entry").val();    
         $.ajax({
@@ -413,12 +412,12 @@ loadRefinements = function(schema, listRefinements, keyword){
                 console.log('load refinements + first occ');
                 selectRefinementQueries(listRefinements);
                 set_keyword(keyword);
-                first_occurence = false;
             }
             updateRefinementsOccurrences();
             initFilters();
 	        custom_view_done = false;
 	        get_results_keyword_refined();
+	        first_occurence = false;
         }
     });
 }
