@@ -51,6 +51,9 @@ update_url = function() {
             refinements: refinements,
         },
         success: function(data) {
+            if (data.url.length == 0)
+                data.url = History.getBaseUrl();
+
             History.pushState("", "", data.url);
         }
     });
