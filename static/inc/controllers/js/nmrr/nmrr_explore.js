@@ -3,26 +3,22 @@ var timeout;
 var first_occurence = true;
 
 initSearch = function(listRefinements, keyword, resource) {
-    selectRadio(resource);
     select_hidden_schemas(resource)
 	initResources();
 	loadRefinements(resource, listRefinements, keyword);
 }
 
-selectRadio = function(radio) {
-    var radio_btns = $("#refine_resource_type").children("input:radio")
-	for(var i = 0; i < radio_btns.length; i++) {
-	    selected_val = $(radio_btns[i]).val();
-	    if (selected_val == radio) {
-	        $(radio_btns[i]).click();
-	        $("#icons_table").find("td").each(function(){
-		        	$(this).removeClass("selected_resource");
-		        	if ($(this).attr("value") == selected_val){
-		        		$(this).addClass("selected_resource");
-		        	}
-	        	});
-	    }
-	}
+selectType = function(radio) {
+    var root =  $('*[id^="tree_"]').first().fancytree('getTree');
+    if (root.length !== 0) {
+        root.visit(function(node){
+            node.setSelected(false);
+        });
+        var node = root.getNodeByKey(radio);
+        if (node != null) {
+            node.setSelected(true);
+        }
+    }
 }
 
 
@@ -444,8 +440,9 @@ initFancyTree = function(div_id, json_data) {
       },
       select: function(event, data){
           if (! first_occurence) {
-              updateRefinementsOccurrences(div_id);
-                get_results_keyword_refined();
+            updateRefinementsOccurrences(div_id);
+            get_results_keyword_refined();
+            selectIcons($(this));
           }
       }
     });
@@ -469,3 +466,21 @@ glyph_opts = {
       loading: "glyphicon glyphicon-refresh glyphicon-spin"
     }
 };
+
+selectIcons = function (tree) {
+    icon = "";
+    var nodes = tree.fancytree('getRootNode').tree.getSelectedNodes(stopOnParents=true);
+    if (nodes.length == 1){
+        icon = nodes[0].key;
+    }
+    else if (nodes.length == 0){
+        icon = "all";
+    }
+
+    $("#icons_table").find("td").each(function(){
+        $(this).removeClass("selected_resource");
+        if ($(this).attr("value") == icon){
+            $(this).addClass("selected_resource");
+        }
+    });
+}
