@@ -163,9 +163,7 @@ def is_schema_valid(object_type, content, name=None):
 def create_template(content, name, filename, dependencies=[], user=None, validation=True):
     if validation:
         is_schema_valid('Template', content, name)
-    flattener = XSDFlattenerURL(content.encode('utf-8'))
-    content_encoded = flattener.get_flat()
-    hash_value = XSDhash.get_hash(content_encoded)
+    hash_value = XSDhash.get_hash(content)
     # save the template
     template_versions = TemplateVersion(nbVersions=1, isDeleted=False).save()
     new_template = Template(title=name, filename=filename, content=content,
@@ -210,9 +208,7 @@ def create_type(content, name, filename, buckets=[], dependencies=[], user=None)
 
 def create_template_version(content, filename, versions_id, dependencies=[]):
     is_schema_valid('Template', content)
-    flattener = XSDFlattenerURL(content.encode('utf-8'))
-    content_encoded = flattener.get_flat()
-    hash_value = XSDhash.get_hash(content_encoded)
+    hash_value = XSDhash.get_hash(content)
     template_versions = TemplateVersion.objects.get(pk=versions_id)
     template_versions.nbVersions += 1
     current_template = Template.objects.get(pk=template_versions.current)

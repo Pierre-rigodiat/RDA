@@ -780,10 +780,8 @@ def get_xsd(request, schema):
     try:
         templatesVersionID = Template.objects(filename=schema).distinct(field="templateVersion")
         templateID = TemplateVersion.objects(pk__in=templatesVersionID, isDeleted=False).distinct(field="current")
-        templates = Template.objects.get(pk=templateID[0])
-        flattener = XSDFlattenerURL(templates.content.encode('utf-8'))
-        content_encoded = flattener.get_flat()
-        file_obj = StringIO(content_encoded)
+        template = Template.objects.get(pk=templateID[0])
+        file_obj = StringIO(template.content.encode('utf-8'))
 
         return HttpResponse(file_obj, content_type='text/xml')
     except Exception, e:
