@@ -26,7 +26,7 @@ from exporter.builtin.models import XSLTExporter
 from django.shortcuts import HttpResponse
 from StringIO import StringIO
 from rest_framework.status import HTTP_500_INTERNAL_SERVER_ERROR
-from utils.XSDflattener.XSDflattener import XSDFlattenerURL
+from utils.XSDflattener.XSDflattener import XSDFlattenerDatabaseOrURL
 
 
 class OAIProvider(TemplateView):
@@ -781,7 +781,9 @@ def get_xsd(request, schema):
         templatesVersionID = Template.objects(filename=schema).distinct(field="templateVersion")
         templateID = TemplateVersion.objects(pk__in=templatesVersionID, isDeleted=False).distinct(field="current")
         template = Template.objects.get(pk=templateID[0])
-        file_obj = StringIO(template.content.encode('utf-8'))
+        flattener = XSDFlattenerDatabaseOrURL(template.content.encode('utf-8'))
+        content_encoded = flattener.get_flat()
+        file_obj = StringIO(content_encoded)
 
         return HttpResponse(file_obj, content_type='text/xml')
     except Exception, e:

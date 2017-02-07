@@ -22,6 +22,7 @@ import lxml.etree as etree
 from io import BytesIO
 from abc import ABCMeta, abstractmethod
 import urllib2
+from urlparse import urlparse
 
 
 class XSDFlattener(object):
@@ -93,5 +94,47 @@ class XSDFlattenerURL(XSDFlattener):
         if self.download_enabled:
             file = urllib2.urlopen(uri)
             content = file.read()
+
+        return content
+
+
+class XSDFlattenerDatabaseOrURL(XSDFlattener):
+    """
+    Get the content of the dependency from the database or from the URL
+    """
+
+    def get_dependency_content(self, uri):
+        content = self._get_dependency_content_database(uri)
+        if content == "":
+            content = self._get_dependency_content_url(uri)
+
+        return content
+
+    def _get_dependency_content_database(self, uri):
+        from mgi.models import Type, Template
+        content = ""
+        try:
+            url = urlparse(uri)
+            _id = url.query.split("=")[1]
+            try:
+                _type = Type.objects.get(pk=str(_id))
+                content = _type.content
+            except:
+                template = Template.objects.get(pk=str(_id))
+                content = template.content
+        except:
+            pass
+
+        return content
+
+    def _get_dependency_content_url(self, uri):
+        content = ""
+
+        try:
+            if self.download_enabled:
+                _file = urllib2.urlopen(uri)
+                content = _file.read()
+        except:
+            pass
 
         return content
