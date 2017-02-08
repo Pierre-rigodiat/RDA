@@ -1,6 +1,6 @@
 var custom_view_done;
 var timeout;
-var first_occurence = true;
+var first_occurrence = true;
 
 initSearch = function(listRefinements, keyword, resource, data_provider) {
     select_hidden_schemas(resource)
@@ -9,8 +9,12 @@ initSearch = function(listRefinements, keyword, resource, data_provider) {
 }
 
 selectType = function(radio) {
-    var root =  $('*[id^="tree_"]').first().fancytree('getTree');
-    if (root.length !== 0) {
+    var tree = getTypeTree();
+    var root =  tree.fancytree('getTree');
+    if (radio == "all"){
+        selectAllCheckboxes(tree);
+    }
+    else if (root.length !== 0) {
         root.visit(function(node){
             node.setSelected(false);
         });
@@ -21,9 +25,19 @@ selectType = function(radio) {
     }
 }
 
+selectAllCheckboxes = function(root) {
+    var selected = areAllParentSelected(tree);
+    var root =  tree.fancytree('getTree');
+    if (root.length !== 0) {
+        root.visit(function(node){
+            node.setSelected(!selected);
+        });
+    }
+}
+
 
 update_url = function() {
-    if ( first_occurence) {
+    if ( first_occurrence) {
         return ;
     }
     var refinements = [];
@@ -251,14 +265,14 @@ load_custom_view = function(schema){
  * @param numInstance
  */
 get_results_keyword_refined = function(numInstance){
-    if (!first_occurence) {
+    if (!first_occurrence) {
             update_url();
     }
-    updateRefinementsOccurrences();
 	// clear the timeout
 	clearTimeout(timeout);
 	// send request if no parameter changed during the timeout
     timeout = setTimeout(function() {
+        updateRefinementsOccurrences();
     	$("#results").html('Please wait...');
         var keyword = $("#id_search_entry").val();    
         $.ajax({
@@ -417,15 +431,21 @@ loadRefinements = function(schema, listRefinements, keyword, data_provider){
             $.map(data.items, function (item) {
                 initFancyTree(item.div_id, item.json_data);
             });
-            if (first_occurence) {
+            if (first_occurrence) {
                 selectRefinementQueries(listRefinements);
                 set_keyword(keyword);
                 set_data_provider(data_provider);
+                tree = getTypeTree();
+                if(!asSelectedElement(tree)) {
+                    root = tree.fancytree('getTree');
+                    selectAllCheckboxes(root);
+                }
+                tree.parent().parent().collapse('show');
             }
             initFilters();
 	        custom_view_done = false;
 	        get_results_keyword_refined();
-	        first_occurence = false;
+	        first_occurrence = false;
         }
     });
 }
@@ -446,15 +466,14 @@ initFancyTree = function(div_id, json_data) {
         levelOfs: "1.5em"
       },
       init: function(event, data) {
-        $("#tree_"+div_id+" ul").addClass("fancytree-colorize-selected");
         // Render all nodes even if collapsed
         $(this).fancytree("getRootNode").render(force=true, deep=true);
       },
       select: function(event, data){
-          if (! first_occurence) {
+          if (! first_occurrence) {
             get_results_keyword_refined();
-            selectIcons($(this));
           }
+          selectIcons();
       }
     });
 }
@@ -478,20 +497,41 @@ glyph_opts = {
     }
 };
 
-selectIcons = function (tree) {
-    icon = "";
+selectIcons = function () {
+    icon = [];
+    tree = getTypeTree();
     var nodes = tree.fancytree('getRootNode').tree.getSelectedNodes(stopOnParents=true);
-    if (nodes.length == 1){
-        icon = nodes[0].key;
-    }
-    else if (nodes.length == 0){
-        icon = "all";
-    }
+    $(nodes).each(function() {
+        icon.push($(this)[0].key);
+    });
+
+    if(areAllParentSelected(tree))
+        icon.push("all");
 
     $("#icons_table").find("td").each(function(){
+        var i = 0;
         $(this).removeClass("selected_resource");
-        if ($(this).attr("value") == icon){
-            $(this).addClass("selected_resource");
+        var res = "^" + $(this).attr("value");
+        for (; i < icon.length; i++) {
+            if (icon[i].match(res)) {
+                $(this).addClass("selected_resource");
+            }
         }
     });
+}
+
+areAllParentSelected = function(tree) {
+    var nodes = tree.fancytree('getRootNode').tree.getSelectedNodes(stopOnParents=true);
+    var children = tree.fancytree('getRootNode').getChildren();
+
+    return nodes.length == children.length;
+}
+
+asSelectedElement = function(tree) {
+    var nodes = tree.fancytree('getRootNode').tree.getSelectedNodes(stopOnParents=true);
+    return nodes.length > 0;
+}
+
+getTypeTree = function () {
+    return $('*[id^="tree_"]').first();
 }
