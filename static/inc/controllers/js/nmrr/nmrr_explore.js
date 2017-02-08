@@ -265,59 +265,69 @@ load_custom_view = function(schema){
  * @param numInstance
  */
 get_results_keyword_refined = function(numInstance){
-    if (!first_occurrence) {
-            update_url();
-    }
 	// clear the timeout
 	clearTimeout(timeout);
 	// send request if no parameter changed during the timeout
     timeout = setTimeout(function() {
         updateRefinementsOccurrences();
+        if (!first_occurrence) {
+            update_url();
+        }
     	$("#results").html('Please wait...');
-        var keyword = $("#id_search_entry").val();    
-        $.ajax({
-            url : "/explore/get_results_by_instance_keyword",
-            type : "GET",
-            dataType: "json",
-            data : {
-            	keyword: keyword,
-            	schemas: getSchemas(),
-            	refinements: loadRefinementQueries(),
-            	onlySuggestions: false,
-            	registries: getRegistries(),
-            },
-            beforeSend: function( xhr ) {
-                $("#loading").addClass("isloading");
-            },
-            success: function(data){
-            	if (data.resultString.length == 0){
-            		// get no results
-            		$("#results").html("No results found");
-            		// get no results
-            		$("#results_infos").html("0 results");
-            	}
-            	else{
-            		// get result count
-            		if(data.count > 1)
-            	        $("#results_infos").html(data.count + " results");
-                    else
-                        $("#results_infos").html(data.count + " result");
-            		// get results
-            		$("#results").html(data.resultString);
-            		// filter the view
-            		filter_result_display($("#results_view").val());
-            	}
-            	$(".description").shorten({showChars: 350,
-                    ellipsesText: "",
-                    moreText: "... show more",
-                    lessText: " show less",
-                });
-            },
-            complete: function(){
-                $("#loading").removeClass("isloading");
-                checkEmptyAccordion();
-            }
-        });
+        var keyword = $("#id_search_entry").val();
+        // Do not search if no type refinement are selected
+        if(asSelectedElement(getTypeTree()))
+        {
+            $.ajax({
+                url : "/explore/get_results_by_instance_keyword",
+                type : "GET",
+                dataType: "json",
+                data : {
+                    keyword: keyword,
+                    schemas: getSchemas(),
+                    refinements: loadRefinementQueries(),
+                    onlySuggestions: false,
+                    registries: getRegistries(),
+                },
+                beforeSend: function( xhr ) {
+                    $("#loading").addClass("isloading");
+                },
+                success: function(data){
+                    if (data.resultString.length == 0){
+                        // get no results
+                        $("#results").html("No results found");
+                        // get no results
+                        $("#results_infos").html("0 results");
+                    }
+                    else{
+                        // get result count
+                        if(data.count > 1)
+                            $("#results_infos").html(data.count + " results");
+                        else
+                            $("#results_infos").html(data.count + " result");
+                        // get results
+                        $("#results").html(data.resultString);
+                        // filter the view
+                        filter_result_display($("#results_view").val());
+                        $(".description").shorten({showChars: 350,
+                            ellipsesText: "",
+                            moreText: "... show more",
+                            lessText: " show less",
+                        });
+                    }
+                },
+                complete: function(){
+                    $("#loading").removeClass("isloading");
+                    checkEmptyAccordion();
+                }
+            });
+        }
+        else {
+            // get no results
+            $("#results").html("No results found");
+            // get no results
+            $("#results_infos").html("0 results");
+        }
     }, 1000);
 }
 
