@@ -724,32 +724,34 @@ class XMLdata(object):
         xmldata.update({'_id': ObjectId(postID)}, {'$set': {'iduser': user}}, upsert=False)
 
     @staticmethod
-    def executeFullTextQuery(text, templatesID, refinements={}):
+    def executeFullTextQuery(text, templatesID, refinements={}, only_content=False):
         """
         Execute a full text query with possible refinements
         """
-        #create a connection
+        # create a connection
         client = MongoClient(MONGODB_URI, document_class=OrderedDict)
         # connect to the db 'mgi'
         db = client[MGI_DB]
         # get the xmldata collection
         xmldata = db['xmldata']
-        wordList = re.sub("[^\w]", " ",  text).split()
+        wordList = re.sub("[^\w]", " ", text).split()
         wordList = ['"{0}"'.format(x) for x in wordList]
         wordList = ' '.join(wordList)
-    
+
         if len(wordList) > 0:
-            full_text_query = {'$text': {'$search': wordList}, 'schema' : {'$in': templatesID}, }
+            full_text_query = {'$text': {'$search': wordList}, 'schema': {'$in': templatesID}, }
         else:
-            full_text_query = {'schema' : {'$in': templatesID} } 
-        
+            full_text_query = {'schema': {'$in': templatesID}}
+
         if len(refinements.keys()) > 0:
             full_text_query.update(refinements)
 
         # only get published and active resources
         full_text_query.update({'ispublished': True, 'status': {'$ne': Status.DELETED}})
-        cursor = xmldata.find(full_text_query).sort('publicationdate', DESCENDING)
-        
+        if only_content:
+            cursor = xmldata.find(full_text_query, {"content": 1}).sort('publicationdate', DESCENDING)
+        else:
+            cursor = xmldata.find(full_text_query).sort('publicationdate', DESCENDING)
         results = []
         for result in cursor:
             results.append(result)
@@ -1011,7 +1013,7 @@ class OaiRecord(Document):
         xmldata.create_index([('$**', TEXT)], default_language="en", language_override="en")
 
     @staticmethod
-    def executeFullTextQuery(text, listMetadataFormatId, refinements={}):
+    def executeFullTextQuery(text, listMetadataFormatId, refinements={}, only_content=False):
         """
         Execute a full text query with possible refinements
         """
@@ -1037,7 +1039,10 @@ class OaiRecord(Document):
         # only no deleted records
         full_text_query.update({'deleted':  False})
 
-        cursor = xmlrecord.find(full_text_query)
+        if only_content:
+            cursor = xmlrecord.find(full_text_query, {"content": 1 })
+        else:
+            cursor = xmlrecord.find(full_text_query)
 
         results = []
         for result in cursor:

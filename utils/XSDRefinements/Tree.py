@@ -56,7 +56,7 @@ def print_tree(tree, nb_occurrences_text=False):
 def _print_leaves(key, leaves, nb_occurrences_text=False):
     if nb_occurrences_text:
         display = "{{\"title\": \"{0} " \
-                  "(<text id='{1}'>-</text>)\", " \
+                  "(<text class='occurrences' id='{1}'>-</text>)\", " \
                   "\"selected\": \"{2}\", " \
                   "\"key\": \"{3}\"".format(key.title, key.key_hash, key.is_selected(), key.key)
     else:

@@ -241,11 +241,13 @@ def get_results_occurrences(request):
                     refine.append(x)
 
             list_refinements = refinements_to_mongo(refine)
-            if not cache_instances.has_key(json.dumps(list_refinements)):
-                instance_results = OaiRecord.executeFullTextQuery(keyword, metadata_format_ids, list_refinements)
-                cache_instances[json.dumps(list_refinements)] = instance_results
+            json_refinements = json.dumps(list_refinements)
+            if not cache_instances.has_key(json_refinements):
+                instance_results = OaiRecord.executeFullTextQuery(keyword, metadata_format_ids, list_refinements,
+                                                                  only_content=True)
+                cache_instances[json_refinements] = instance_results
             else:
-                instance_results = cache_instances[json.dumps(list_refinements)]
+                instance_results = cache_instances[json_refinements]
             for refinement in current['value']:
                 ids = _get_list_ids_for_refinement(instance_results, refinement)
                 tree_count.append({"refinement": refinement, "ids": ids})

@@ -269,12 +269,15 @@ get_results_keyword_refined = function(numInstance){
 	clearTimeout(timeout);
 	// send request if no parameter changed during the timeout
     timeout = setTimeout(function() {
-        updateRefinementsOccurrences();
         if (!first_occurrence) {
             update_url();
         }
     	$("#results").html('Please wait...');
         var keyword = $("#id_search_entry").val();
+        var schemas_ = getSchemas();
+        var refinements_ = loadRefinementQueries();
+        var registries_ = getRegistries();
+        updateRefinementsOccurrences(keyword, schemas_, refinements_, registries_);
         // Do not search if no type refinement are selected
         if(asSelectedElement(getTypeTree()))
         {
@@ -284,10 +287,10 @@ get_results_keyword_refined = function(numInstance){
                 dataType: "json",
                 data : {
                     keyword: keyword,
-                    schemas: getSchemas(),
-                    refinements: loadRefinementQueries(),
+                    schemas: schemas_,
+                    refinements: refinements_,
                     onlySuggestions: false,
-                    registries: getRegistries(),
+                    registries: registries_,
                 },
                 beforeSend: function( xhr ) {
                     $("#loading").addClass("isloading");
@@ -337,22 +340,23 @@ clearRefinements = function(){
 	get_results_keyword_refined();
 }
 
-updateRefinementsOccurrences = function(){
-    var keyword = $("#id_search_entry").val();
+updateRefinementsOccurrences = function(keyword, schemas_, refinements_, registries_){
 	$.ajax({
         url : "/explore/get_results_occurrences",
         type : "GET",
         dataType: "json",
         data : {
             keyword: keyword,
-            schemas: getSchemas(),
-            refinements: loadRefinementQueries(),
+            schemas: schemas_,
+            refinements: refinements_,
             allRefinements: getAllRefinements(),
             onlySuggestions: false,
-            registries: getRegistries(),
+            registries: registries_,
         },
         beforeSend: function( xhr ) {
-
+            $(".occurrences").each(function(){
+                $(this).html("-");
+            });
         },
         success: function(data){
             $.map(data.items, function (item) {
