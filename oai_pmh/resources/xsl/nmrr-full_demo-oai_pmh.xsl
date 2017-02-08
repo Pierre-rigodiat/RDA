@@ -70,7 +70,6 @@
 						<!--<xsl:value-of select="$terms"/>-->
 						<!--<br/>-->
 					<!--</xsl:if>-->
-				<br/>
 			</div>
 			<xsl:variable name="subject" select="//nr:Resource/nr:content/nr:subject" />
 			<xsl:if test="$subject!=''">

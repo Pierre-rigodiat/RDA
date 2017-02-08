@@ -315,6 +315,7 @@ get_results_keyword_refined = function(numInstance){
             },
             complete: function(){
                 $("#loading").removeClass("isloading");
+                checkEmptyAccordion();
             }
         });
     }, 1000);
@@ -534,4 +535,13 @@ asSelectedElement = function(tree) {
 
 getTypeTree = function () {
     return $('*[id^="tree_"]').first();
+}
+
+checkEmptyAccordion = function () {
+    $('div .collapseXSLT').each(function() {
+        if( $(this).is(':empty') ) {
+            var link = $("[aria-controls='" + $(this).prop("id") + "']")
+            link.hide();
+        }
+    });
 }
