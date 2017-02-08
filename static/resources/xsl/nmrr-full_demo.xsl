@@ -37,7 +37,7 @@
 					<xsl:with-param name="separator" select="', '" />
 				</xsl:call-template>
 				<xsl:if test="( ($creators!='') and ($publisher!='') )">
-					<xsl:text>-</xsl:text>
+					<xsl:text> - </xsl:text>
 				</xsl:if>
 				<xsl:value-of select="$publisher"/>
 			</div>
@@ -57,7 +57,6 @@
 						<!--<xsl:value-of select="$terms"/>-->
 						<!--<br/>-->
 					<!--</xsl:if>-->
-				<br/>
 			</div>
 			<xsl:variable name="subject" select="//nr:Resource/nr:content/nr:subject" />
 			<xsl:if test="$subject!=''">

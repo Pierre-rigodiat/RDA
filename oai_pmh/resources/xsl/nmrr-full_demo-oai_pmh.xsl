@@ -50,7 +50,7 @@
 					<xsl:with-param name="separator" select="', '" />
 				</xsl:call-template>
 				<xsl:if test="( ($creators!='') and ($publisher!='') )">
-					<xsl:text>-</xsl:text>
+					<xsl:text> - </xsl:text>
 				</xsl:if>
 				<xsl:value-of select="$publisher"/>
 			</div>
