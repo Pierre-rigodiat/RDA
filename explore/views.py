@@ -80,6 +80,7 @@ def index_keyword(request):
 
     list_refinements = ''
     keyword = ''
+    oai = ''
     if request.GET:
         i = 0
         for key in request.GET:
@@ -92,6 +93,15 @@ def index_keyword(request):
                         keyword += '&'
                     i += 1
                     keyword += value
+            elif key == 'data_provider':
+                data_provider = request.GET.getlist(key)
+                if len(data_provider) == 1:
+                    data_provider = data_provider[0].split(',')
+                for value in data_provider:
+                    if i > 0:
+                        oai += '&'
+                    i += 1
+                    oai += value
             else:
                 values = request.GET.getlist(key)
                 for value in values:
@@ -107,6 +117,7 @@ def index_keyword(request):
         'listRefinements': list_refinements,
         'keyword': keyword,
         'resource': 'all',
+        'data_provider': oai,
     })
     return HttpResponse(template.render(context))
 

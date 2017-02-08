@@ -2,10 +2,10 @@ var custom_view_done;
 var timeout;
 var first_occurence = true;
 
-initSearch = function(listRefinements, keyword, resource) {
+initSearch = function(listRefinements, keyword, resource, data_provider) {
     select_hidden_schemas(resource)
 	initResources();
-	loadRefinements(resource, listRefinements, keyword);
+	loadRefinements(resource, listRefinements, keyword, data_provider);
 }
 
 selectType = function(radio) {
@@ -23,9 +23,7 @@ selectType = function(radio) {
 
 
 update_url = function() {
-    console.log('update url');
     if ( first_occurence) {
-        console.log('update url but not ready');
         return ;
     }
     var refinements = [];
@@ -33,6 +31,11 @@ update_url = function() {
         getSelectedRefinements($(this), refinements);
     });
 
+    var data_providers = [];
+    $("#id_my_registries").find('input:checked').each(function(){
+        var label = $("label[for='"+$(this).attr('checked_id')+"']");
+        data_providers.push(label.text());
+    });
 
 	var keyword = $("#id_search_entry").val();
 	$.ajax({
@@ -42,6 +45,7 @@ update_url = function() {
         data : {
             keyword: keyword,
             refinements: refinements,
+            oai: data_providers,
         },
         success: function(data) {
             if (data.url.length == 0)
@@ -56,7 +60,6 @@ update_url = function() {
  * Set keywords
  */
 set_keyword = function(keyword) {
-    console.log('put keywords from url');
     var list_keyword = keyword.split('&amp;');
     for (var i=0 ; i<list_keyword.length ; i++) {
         $("#id_search_entry").tagit("createTag", list_keyword[i]);
@@ -64,10 +67,24 @@ set_keyword = function(keyword) {
 }
 
 /**
+ * Set data providers
+ */
+set_data_provider = function(data_providers) {
+    var list_oai = data_providers.split('&amp;');
+    $("#id_my_registries").find('input').each(function(){
+        var label = $("label[for='"+$(this).attr('checked_id')+"']");
+        for (var i = 0 ; i < list_oai.length ; i++) {
+            if (label.text() == list_oai[i]) {
+                $(this).prop( "checked", true );
+            }
+        }
+    });
+}
+
+/**
  * Load refinement queries
  */
 selectRefinementQueries = function(listRefinement) {
-    console.log('select the refinements from url');
 	var list_refinements = listRefinement.split('&amp;');
 
     $('*[id^="tree_"]').each(function() {
@@ -99,8 +116,8 @@ select_hidden_schemas = function (selected_val) {
         });
     }
 }
+
 initResources = function(){
-    console.log('init resources');
 	// get radio to refine resource type
 	var radio_btns = $("#refine_resource_type").children("input:radio");
 	for(var i = 0; i < radio_btns.length; i++) {
@@ -139,7 +156,6 @@ initResources = function(){
             select_hidden_schemas(selected_val);
 	    };
 	}
-	console.log('fin init resources');
 }
 
 initFilters = function(){
@@ -236,7 +252,6 @@ load_custom_view = function(schema){
  */
 get_results_keyword_refined = function(numInstance){
     if (!first_occurence) {
-            console.log('not first occ so update');
             update_url();
     }
     updateRefinementsOccurrences();
@@ -388,8 +403,7 @@ getRefinementsChildren = function(children, refinements)
 }
 
 
-loadRefinements = function(schema, listRefinements, keyword){
-    console.log('load refinements');
+loadRefinements = function(schema, listRefinements, keyword, data_provider){
 	$("#refine_resource").html('');
 	$.ajax({
         url : "/explore/load_refinements",
@@ -404,9 +418,9 @@ loadRefinements = function(schema, listRefinements, keyword){
                 initFancyTree(item.div_id, item.json_data);
             });
             if (first_occurence) {
-                console.log('load refinements + first occ');
                 selectRefinementQueries(listRefinements);
                 set_keyword(keyword);
+                set_data_provider(data_provider);
             }
             initFilters();
 	        custom_view_done = false;

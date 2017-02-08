@@ -143,7 +143,9 @@
 								<br/>
 							{% for value, label in search_Form.form_oai_pmh.my_registries.field.choices %}
 								<input type='checkbox' checked_id="id_my_registries_{{ forloop.counter0 }}"
-									   name="my_registries" value='{{value}}' onchange='get_results_keyword_refined();'> {{label}} <br/>
+									   name="my_registries" value='{{value}}' onchange='get_results_keyword_refined();'>
+								<label style="padding-left: 10px; display:inline;" for="id_my_registries_{{ forloop.counter0 }}">{{label}}</label>
+								<br/>
 							{% endfor %}
 						</div>
 						<br/>
@@ -193,7 +195,7 @@ No Custom View available for this type of resource.
 
 <script>
     initAutocomplete();
-    initSearch('{{listRefinements}}', '{{keyword}}', '{{resource}}');
+    initSearch('{{listRefinements}}', '{{keyword}}', '{{resource}}', '{{data_provider}}');
 </script>
 {% endblock %}
 

@@ -2679,11 +2679,24 @@ def update_url(request):
     url = ''
     refinements = request.GET.getlist('refinements[]', [])
     keyword = request.GET.getlist('keyword', [])
+    oai = request.GET.getlist('oai[]', [])
 
     url = update_url_with_refinements(refinements, url)
     url = update_url_with_keyword(keyword, url)
+    url = update_url_with_oai(oai, url)
 
     return HttpResponse(json.dumps({'url': url}), content_type='application/javascript')
+
+
+def update_url_with_oai(oais, url):
+    for index, oai in enumerate(oais):
+        if index == 0 and url == '':
+            url += '?'
+        else:
+            url += '&'
+
+        url += 'data_provider=' + oai
+    return url
 
 
 def update_url_with_keyword(keywords, url):
