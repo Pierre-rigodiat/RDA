@@ -6,7 +6,7 @@
 	<xsl:template match="/">
 		<div class="white-bg">
 			<xsl:variable name="title"  select="//nr:Resource/nr:identity/nr:title"/>
-			{% if oai_pmh or not local_id %}
+			{% if oai_pmh %}
 				<a class="title" target="_blank" onclick="window.location = '{{% url 'oai-explore-detail-result-keyword' id %}}'">
 					<xsl:choose>
 						<xsl:when test="$title!=''">
