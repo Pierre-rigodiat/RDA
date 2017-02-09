@@ -198,3 +198,11 @@ a[class="collapsed"] .fa-chevron-up {
 .shortcontent, .allcontent {
     display: inline;
 }
+
+.clearTree {
+    float: right;
+    margin: 0px;
+    padding:0px;
+    color: black;
+    font-size: small;
+}

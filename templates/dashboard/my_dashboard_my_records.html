@@ -109,14 +109,14 @@
             <div class="clear"></div>
             {% if user.is_staff %}
                 <span>
-                    <div class="tpl-title">Other users Resources</div>
+                    <div class="tpl-title">Other Users' Resources</div>
                 </span>
                 {% if OtherUsersXMLdatas%}
                     {% with canEdit=request.user|has_perm:'curate.curate_edit_document' canDelete=request.user|has_perm:'curate.curate_delete_document' %}
                         {% include 'dashboard/my_dashboard_my_records_table.html' with XMLdatas=OtherUsersXMLdatas %}
                     {% endwith%}
                 {%else%}
-                    No other users Resources found
+                    No other users' resources found
                 {%endif%}
             {%endif%}
         </div>

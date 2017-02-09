@@ -35,6 +35,14 @@ selectAllCheckboxes = function(root) {
     }
 }
 
+clearTree = function(div_tree) {
+    var root =  $(div_tree).fancytree('getTree');
+    if (root.length !== 0) {
+        root.visit(function(node){
+            node.setSelected(false);
+        });
+    }
+}
 
 update_url = function() {
     if ( first_occurrence) {
@@ -356,7 +364,10 @@ updateRefinementsOccurrences = function(keyword, schemas_, refinements_, registr
         beforeSend: function( xhr ) {
             $(".occurrences").each(function(){
                 $(this).html("-");
+                $(this).closest('span').fadeTo(100, 0.2);
             });
+            // Disable checkboxes
+            $('*[id^="tree_"]').css("pointer-events", "none");
         },
         success: function(data){
             $.map(data.items, function (item) {
@@ -369,7 +380,8 @@ updateRefinementsOccurrences = function(keyword, schemas_, refinements_, registr
             });
         },
         complete: function(){
-
+            // Enable checkboxes
+            $('*[id^="tree_"]').css("pointer-events", "auto");
         }
     });
 }
@@ -455,7 +467,7 @@ loadRefinements = function(schema, listRefinements, keyword, data_provider){
                     root = tree.fancytree('getTree');
                     selectAllCheckboxes(root);
                 }
-                tree.parent().parent().collapse('show');
+                $("a[href='#"+tree.parent().parent().prop('id')+"']").click();
             }
             initFilters();
 	        custom_view_done = false;
@@ -481,6 +493,7 @@ initFancyTree = function(div_id, json_data) {
         levelOfs: "1.5em"
       },
       init: function(event, data) {
+        $("#tree_"+div_id+" ul").addClass("fancytree-colorize-selected");
         // Render all nodes even if collapsed
         $(this).fancytree("getRootNode").render(force=true, deep=true);
       },
