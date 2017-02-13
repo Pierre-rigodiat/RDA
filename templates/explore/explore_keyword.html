@@ -25,12 +25,11 @@
 {% endcomment %}
 
 {% block extrastyle %}
+<link rel="stylesheet" type="text/css" href="{% static 'resources/css/explore.css' %}" />
 <link rel="stylesheet" type="text/css" href="{% static 'libs/fancytree/skin-bootstrap/ui.fancytree.css' %}"  class="skinswitcher">
 <link rel="stylesheet" type="text/css" href="{% static 'css/nmrr/keyword.css' %}"  media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/jquery.tagit.css' %}"  media="screen" />
-<link rel="stylesheet" type="text/css" href="{% static 'resources/css/explore.css' %}"  media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'libs/bootstrap/3.3.5/css/glyphicon.css' %}">
-
 {% endblock %}
 
 {% block title %}<h3>Search for Resources</h3>{% endblock %}
@@ -38,6 +37,7 @@
 
 
 {% block content %}
+{% csrf_token %}
 <div id="search">
 		<div class="toolbar" style="display: block;">
 			<div class="alert alert-warning" id="banner_results_wait" style="display: none;">
@@ -67,7 +67,7 @@
 		<div style="display: none;">{{search_Form.my_schemas}}</div>
         <div id="form_result_start_current"></div>
 </div>
-<div id="results_infos" style="color:grey;"></div>
+<div id="results_infos"></div>
 <div class="clearer">&nbsp;</div>
 <table id="icons_table">
 	<tr>

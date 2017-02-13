@@ -224,12 +224,12 @@ def get_results_occurrences(request):
     tree_info = []
     tree_count = []
     cache_instances = {}
-    keyword = request.GET.get('keyword', '')
-    schemas = request.GET.getlist('schemas[]', [])
-    user_schemas = request.GET.getlist('userSchemas[]', [])
-    refinements = json.loads(request.GET.get('refinements', {}))
-    all_refinements = json.loads(request.GET.get('allRefinements', {}))
-    registries = request.GET.getlist('registries[]', [])
+    keyword = request.POST.get('keyword', '')
+    schemas = request.POST.getlist('schemas[]', [])
+    user_schemas = request.POST.getlist('userSchemas[]', [])
+    refinements = json.loads(request.POST.get('refinements', {}))
+    all_refinements = json.loads(request.POST.get('allRefinements', {}))
+    registries = request.POST.getlist('registries[]', [])
     splitter = ":"
 
     metadata_format_ids = _get_metadata_formats_id(schemas=schemas, user_schemas=user_schemas, registries=registries)

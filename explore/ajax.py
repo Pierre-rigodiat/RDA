@@ -428,11 +428,11 @@ def get_results_by_instance_keyword(request):
 
 
     try:
-        keyword = request.GET['keyword']
-        schemas = request.GET.getlist('schemas[]')
-        user_schemas = request.GET.getlist('userSchemas[]')
-        refinements = refinements_to_mongo(json.loads(request.GET.get('refinements', {})))
-        onlySuggestions = json.loads(request.GET['onlySuggestions'])
+        keyword = request.POST['keyword']
+        schemas = request.POST.getlist('schemas[]')
+        user_schemas = request.POST.getlist('userSchemas[]')
+        refinements = refinements_to_mongo(json.loads(request.POST.get('refinements', {})))
+        onlySuggestions = json.loads(request.POST['onlySuggestions'])
     except:
         keyword = ''
         schemas = []
@@ -528,11 +528,11 @@ def get_results_occurrences(request):
     tree_info = []
     tree_count = []
     cache_instances = {}
-    keyword = request.GET.get('keyword', '')
-    schemas = request.GET.getlist('schemas[]', [])
-    user_schemas = request.GET.getlist('userSchemas[]', [])
-    refinements = json.loads(request.GET.get('refinements', {}))
-    all_refinements = json.loads(request.GET.get('allRefinements', {}))
+    keyword = request.POST.get('keyword', '')
+    schemas = request.POST.getlist('schemas[]', [])
+    user_schemas = request.POST.getlist('userSchemas[]', [])
+    refinements = json.loads(request.POST.get('refinements', {}))
+    all_refinements = json.loads(request.POST.get('allRefinements', {}))
     templates_id = _get_templates_id(schemas=schemas, user_schemas=user_schemas)
     splitter = ":"
     try:

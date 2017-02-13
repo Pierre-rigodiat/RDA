@@ -291,7 +291,7 @@ get_results_keyword_refined = function(numInstance){
         {
             $.ajax({
                 url : "/explore/get_results_by_instance_keyword",
-                type : "GET",
+                type : "POST",
                 dataType: "json",
                 data : {
                     keyword: keyword,
@@ -299,6 +299,7 @@ get_results_keyword_refined = function(numInstance){
                     refinements: refinements_,
                     onlySuggestions: false,
                     registries: registries_,
+                    csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val(),
                 },
                 beforeSend: function( xhr ) {
                     $("#loading").addClass("isloading");
@@ -351,7 +352,7 @@ clearRefinements = function(){
 updateRefinementsOccurrences = function(keyword, schemas_, refinements_, registries_){
 	$.ajax({
         url : "/explore/get_results_occurrences",
-        type : "GET",
+        type : "POST",
         dataType: "json",
         data : {
             keyword: keyword,
@@ -360,6 +361,7 @@ updateRefinementsOccurrences = function(keyword, schemas_, refinements_, registr
             allRefinements: getAllRefinements(),
             onlySuggestions: false,
             registries: registries_,
+            csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val(),
         },
         beforeSend: function( xhr ) {
             $(".occurrences").each(function(){
@@ -480,29 +482,29 @@ loadRefinements = function(schema, listRefinements, keyword, data_provider){
 initFancyTree = function(div_id, json_data) {
 
     $("#tree_"+div_id).fancytree({
-      extensions: ["glyph", "wide"],
-      checkbox: true,
-      icon: false,
-      glyph: glyph_opts,
-      selectMode: 3,
-      source: JSON.parse(json_data),
-      toggleEffect: { effect: "drop", options: {direction: "left"}, duration: 400 },
-      wide: {
-        iconWidth: "1em",
-        iconSpacing: "0.5em",
-        levelOfs: "1.5em"
-      },
-      init: function(event, data) {
-        $("#tree_"+div_id+" ul").addClass("fancytree-colorize-selected");
-        // Render all nodes even if collapsed
-        $(this).fancytree("getRootNode").render(force=true, deep=true);
-      },
-      select: function(event, data){
-          if (! first_occurrence) {
-            get_results_keyword_refined();
-          }
-          selectIcons();
-      }
+        extensions: ["glyph", "wide"],
+        checkbox: true,
+        icon: false,
+        glyph: glyph_opts,
+        selectMode: 3,
+        source: JSON.parse(json_data),
+        toggleEffect: { effect: "drop", options: {direction: "left"}, duration: 400 },
+        wide: {
+            iconWidth: "1em",
+            iconSpacing: "0.5em",
+            levelOfs: "1.5em"
+        },
+        init: function(event, data) {
+            $("#tree_"+div_id+" ul").addClass("fancytree-colorize-selected");
+            // Render all nodes even if collapsed
+            $(this).fancytree("getRootNode").render(force=true, deep=true);
+        },
+        select: function(event, data){
+            if (! first_occurrence) {
+                get_results_keyword_refined();
+            }
+            selectIcons();
+        }
     });
 }
 
