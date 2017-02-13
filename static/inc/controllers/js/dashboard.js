@@ -34,9 +34,9 @@ initNmrr = function (roles_list) {
             var selected_val = $(this).val();
             var td = $("#td_"+selected_val);
             if ($(this).prop('checked') == true) {
-                td.css({'border-color': '#000000', 'border-size':'15px'});
+                td.addClass("selected_resource");
             } else {
-                td.css({'border-color': '', 'border-size':''});
+                td.removeClass("selected_resource");
             }
         };
     }
@@ -65,13 +65,13 @@ is_all_td_selected = function() {
 click_role = function(role) {
     if (role == 'all') {
         $("#my_role").find('input:checked').prop('checked', false);
-        $("#td_" + role).css({'border-color': '#000000', 'border-size':'15px'});
+        $("#td_" + role).addClass("selected_resource");
     } else {
-        $("#td_all").css({'border-color': '', 'border-size':''});
+        $("#td_all").css({'class': ''});
         $("#"+role).click();
         if (is_all_td_selected()) {
             $("#my_role").find('input:checked').prop('checked',false);
-            $("#td_all").css({'border-color': '#000000', 'border-size':'15px'});
+            $("#td_" + role).removeClass("selected_resource");
         }
     }
 }

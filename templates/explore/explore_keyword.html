@@ -27,7 +27,7 @@
 {% block extrastyle %}
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/explore.css' %}" />
 <link rel="stylesheet" type="text/css" href="{% static 'libs/fancytree/skin-bootstrap/ui.fancytree.css' %}"  class="skinswitcher">
-<link rel="stylesheet" type="text/css" href="{% static 'css/nmrr/keyword.css' %}"  media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/nmrr/selection.css' %}"  media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'resources/css/lib/jquery.tagit.css' %}"  media="screen" />
 <link rel="stylesheet" type="text/css" href="{% static 'libs/bootstrap/3.3.5/css/glyphicon.css' %}">
 {% endblock %}
@@ -71,37 +71,64 @@
 <div class="clearer">&nbsp;</div>
 <table id="icons_table">
 	<tr>
-		<td align="center" value="all">
-			<img onclick="selectType('all');" width="100" src="/static/img/allresources.png"><br/>
+		<td align="center" value="all" onclick="selectType('all');">
+			<img width="100" src="/static/img/allresources.png">
+			<div class="tick" align="right">
+			  	 <i class="fa fa-check-circle-o fa-2x" aria-hidden="true"></i>
+			</div>
+			<br/>
 			All Resources
 		</td>
-		<td align="center" value="Resource.role.type==Organization">
-			<img onclick="selectType('Resource.role.type==Organization');" width="100" src="/static/img/organization.png"><br>
+		<td align="center" value="Resource.role.type==Organization" onclick="selectType('Resource.role.type==Organization');">
+			<img width="100" src="/static/img/organization.png">
+			<div class="tick" align="right">
+			  	 <i class="fa fa-check-circle-o fa-2x" aria-hidden="true"></i>
+			</div>
+			<br>
 			Organizations
 		</td>
-		<td align="center" value="Resource.role.type==Collection">
-			<img onclick="selectType('Resource.role.type==Collection');" width="100" src="/static/img/datacollection.png"><br>
+		<td align="center" value="Resource.role.type==Collection" onclick="selectType('Resource.role.type==Collection');">
+			<img width="100" src="/static/img/datacollection.png">
+			<div class="tick" align="right">
+			  	 <i class="fa fa-check-circle-o fa-2x" aria-hidden="true"></i>
+			</div>
+			<br>
 			Data Collections
 		</td>
-		<td align="center" value="Resource.role.type==Dataset">
-			<img onclick="selectType('Resource.role.type==Dataset');" width="100" src="/static/img/dataset.png"><br>
+		<td align="center" value="Resource.role.type==Dataset" onclick="selectType('Resource.role.type==Dataset');">
+			<img width="100" src="/static/img/dataset.png">
+			<div class="tick" align="right">
+			  	 <i class="fa fa-check-circle-o fa-2x" aria-hidden="true"></i>
+			</div>
+			<br>
 			Datasets
 		</td>
-		<td align="center" value="Resource.role.type==Service">
-			<img onclick="selectType('Resource.role.type==Service');" width="100" src="/static/img/service.png"><br>
+		<td align="center" value="Resource.role.type==Service" onclick="selectType('Resource.role.type==Service');">
+			<img width="100" src="/static/img/service.png">
+			<div class="tick" align="right">
+			  	 <i class="fa fa-check-circle-o fa-2x" aria-hidden="true"></i>
+			</div>
+			<br>
 			Services
 		</td>
-		<td align="center" value="Resource.role.type==Web Site">
-			<img onclick="selectType('Resource.role.type==Web Site');" width="100" src="/static/img/informational.png"><br>
+		<td align="center" value="Resource.role.type==Web Site" onclick="selectType('Resource.role.type==Web Site');">
+			<img width="100" src="/static/img/informational.png">
+			<div class="tick" align="right">
+			  	 <i class="fa fa-check-circle-o fa-2x" aria-hidden="true"></i>
+			</div>
+			<br>
 			Informational Sites
 		</td>
-		<td align="center" value="Resource.role.type==Software">
-			<img onclick="selectType('Resource.role.type==Software');" width="100" src="/static/img/software.jpg"><br>
+		<td align="center" value="Resource.role.type==Software" onclick="selectType('Resource.role.type==Software');">
+			<img width="100" src="/static/img/software.jpg">
+			<div class="tick" align="right">
+			  	 <i class="fa fa-check-circle-o fa-2x" aria-hidden="true"></i>
+			</div>
+			<br>
 			Software
 		</td>
 	</tr>
 </table>
-<br/><br/>
 
 <table>
 	<tr>

@@ -15,12 +15,14 @@ selectType = function(radio) {
         selectAllCheckboxes(tree);
     }
     else if (root.length !== 0) {
-        root.visit(function(node){
-            node.setSelected(false);
-        });
+        if(areAllParentSelected(tree)){
+            root.visit(function(node){
+                node.setSelected(false);
+            });
+        }
         var node = root.getNodeByKey(radio);
         if (node != null) {
-            node.setSelected(true);
+            node.setSelected(!node.isSelected());
         }
     }
 }
@@ -534,13 +536,17 @@ glyph_opts = {
 selectIcons = function () {
     icon = [];
     tree = getTypeTree();
-    var nodes = tree.fancytree('getRootNode').tree.getSelectedNodes(stopOnParents=true);
-    $(nodes).each(function() {
-        icon.push($(this)[0].key);
-    });
 
-    if(areAllParentSelected(tree))
+    if(areAllParentSelected(tree)){
         icon.push("all");
+    }
+    else
+    {
+        var nodes = tree.fancytree('getRootNode').tree.getSelectedNodes(stopOnParents=true);
+        $(nodes).each(function() {
+            icon.push($(this)[0].key);
+        });
+    }
 
     $("#icons_table").find("td").each(function(){
         var i = 0;

@@ -24,6 +24,7 @@
 
 {% block extrastyle %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/nmrr/result.css' %}" media="screen" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/nmrr/selection.css' %}"  media="screen" />
 {% endblock %}
 
 {% block content %}
@@ -48,40 +49,61 @@
 
             <table id="icons_table">
             <tr>
-                <td id="td_all" onclick="click_role('all');get_url('{{ispublished}}');" align="center">
-                    <div align="center"><img width="100" src="/static/img/allresources.png"><br>
-                    All Resources</div>
-                    </a>
+                <td id="td_all" align="center" onclick="click_role('all');get_url('{{ispublished}}');">
+                    <img width="100" src="/static/img/allresources.png">
+                    <div class="tick" align="right">
+                         <i class="fa fa-check-circle-o fa-2x" aria-hidden="true"></i>
+                    </div>
+                    <br/>
+                    All Resources
                 </td>
-                <td id="td_Organization" onclick="click_role('Organization');get_url('{{ispublished}}');" align="center">
-                    <div align="center"><img width="100" src="/static/img/organization.png"><br>
-                    Organizations</div>
-                    </a>
+                <td id="td_Organization" align="center" onclick="click_role('Organization');get_url('{{ispublished}}');" >
+                    <img width="100" src="/static/img/organization.png">
+                    <div class="tick" align="right">
+                         <i class="fa fa-check-circle-o fa-2x" aria-hidden="true"></i>
+                    </div>
+                    <br>
+                    Organizations
                 </td>
-                <td id="td_DataCollection" onclick="click_role('DataCollection');get_url('{{ispublished}}');" align="center">
-                    <div align="center"><img width="100" src="/static/img/datacollection.png"><br>
-                    Data Collections</div>
-                    </a>
+                <td id="td_DataCollection"  align="center" onclick="click_role('DataCollection');get_url('{{ispublished}}');" >
+                    <img width="100" src="/static/img/datacollection.png">
+                    <div class="tick" align="right">
+                         <i class="fa fa-check-circle-o fa-2x" aria-hidden="true"></i>
+                    </div>
+                    <br>
+                    Data Collections
                 </td>
-                <td id="td_Dataset" onclick="click_role('Dataset');get_url('{{ispublished}}');" align="center">
-                    <div align="center"><img width="100" src="/static/img/dataset.png"><br>
-                    Datasets</div>
-                    </a>
+                <td id="td_Dataset" align="center" onclick="click_role('Dataset');get_url('{{ispublished}}');">
+                    <img width="100" src="/static/img/dataset.png">
+                    <div class="tick" align="right">
+                         <i class="fa fa-check-circle-o fa-2x" aria-hidden="true"></i>
+                    </div>
+                    <br>
+                    Datasets
                 </td>
-                <td id="td_ServiceAPI" onclick="click_role('ServiceAPI');get_url('{{ispublished}}');" align="center">
-                    <div align="center"><img width="100" src="/static/img/service.png"><br>
-                    Services</div>
-                    </a>
+                <td id="td_ServiceAPI" align="center" onclick="click_role('ServiceAPI');get_url('{{ispublished}}');">
+                    <img width="100" src="/static/img/service.png">
+                    <div class="tick" align="right">
+                         <i class="fa fa-check-circle-o fa-2x" aria-hidden="true"></i>
+                    </div>
+                    <br>
+                    Services
                 </td>
-                <td id="td_WebSite" onclick="click_role('WebSite');get_url('{{ispublished}}');" align="center">
-                    <div align="center"><img width="100" src="/static/img/informational.png"><br>
-                    Informational</div>
-                    </a>
+                <td id="td_WebSite" align="center" onclick="click_role('WebSite');get_url('{{ispublished}}');">
+                    <img width="100" src="/static/img/informational.png">
+                    <div class="tick" align="right">
+                         <i class="fa fa-check-circle-o fa-2x" aria-hidden="true"></i>
+                    </div>
+                    <br>
+                    Informational Sites
                 </td>
-                <td id="td_Software" onclick="click_role('Software');get_url('{{ispublished}}');" align="center">
-                    <div align="center"><img width="100" src="/static/img/software.jpg"><br>
-                    Software</div>
-                    </a>
+                <td id="td_Software" align="center" onclick="click_role('Software');get_url('{{ispublished}}');">
+                    <img width="100" src="/static/img/software.jpg">
+                    <div class="tick" align="right">
+                         <i class="fa fa-check-circle-o fa-2x" aria-hidden="true"></i>
+                    </div>
+                    <br>
+                    Software
                 </td>
             </tr>
             </table>
