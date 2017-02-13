@@ -499,7 +499,7 @@ initFancyTree = function(div_id, json_data) {
             levelOfs: "1.5em"
         },
         init: function(event, data) {
-            $("#tree_"+div_id+" ul").addClass("fancytree-colorize-selected");
+            // $("#tree_"+div_id+" ul").addClass("fancytree-colorize-selected");
             // Render all nodes even if collapsed
             $(this).fancytree("getRootNode").render(force=true, deep=true);
         },
