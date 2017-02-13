@@ -1040,7 +1040,7 @@ class OaiRecord(Document):
         full_text_query.update({'deleted':  False})
 
         if only_content:
-            cursor = xmlrecord.find(full_text_query, {"content": 1 })
+            cursor = xmlrecord.find(full_text_query, {"metadata": 1 })
         else:
             cursor = xmlrecord.find(full_text_query)
 
