@@ -180,9 +180,8 @@ class tests_OAI_PMH_explore(OAI_PMH_Test):
 
     def test_explore_detail_result_keyword_no_title(self):
         self.dump_oai_registry()
-        url = '/oai_pmh/explore/detail_result_keyword'
-        data = {'id': '5731fe36a530af33ed232f82'}
-        r = self.doRequestGetAdminClientLogged(url=url, data=data)
+        url = '/oai_pmh/explore/detail_result_keyword/5731fe36a530af33ed232f82'
+        r = self.doRequestGetAdminClientLogged(url=url)
         self.isStatusOK(r.status_code)
         self.assertIsNotNone(r.context)
         self.assertIsNotNone(r.context[0].dicts[1].get('XMLHolder'))
@@ -190,8 +189,8 @@ class tests_OAI_PMH_explore(OAI_PMH_Test):
 
     def test_explore_detail_result_keyword_with_title(self):
         self.dump_oai_registry()
-        url = '/oai_pmh/explore/detail_result_keyword'
-        data = {'id': '5731fe36a530af33ed232f82', 'title': 'test_title'}
+        url = '/oai_pmh/explore/detail_result_keyword/5731fe36a530af33ed232f82'
+        data = {'title': 'test_title'}
         r = self.doRequestGetAdminClientLogged(url=url, data=data)
         self.isStatusOK(r.status_code)
         self.assertIsNotNone(r.context)
