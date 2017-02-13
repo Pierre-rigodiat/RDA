@@ -486,6 +486,10 @@ initFancyTree = function(div_id, json_data) {
         checkbox: true,
         icon: false,
         glyph: glyph_opts,
+        _classNames: {
+            active: "no-css",
+            focused: "no-css"
+        },
         selectMode: 3,
         source: JSON.parse(json_data),
         toggleEffect: { effect: "drop", options: {direction: "left"}, duration: 400 },

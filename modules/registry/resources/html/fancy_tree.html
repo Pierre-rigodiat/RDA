@@ -29,6 +29,10 @@
             extensions: ["glyph", "wide"],
             checkbox: true,
             glyph: glyph_opts,
+            _classNames: {
+                active: "no-css",
+                focused: "no-css"
+            },
             selectMode: 3,
             source: JSON.parse($fancy_tree.parent().children(".source_data").html()),
             wide: {
