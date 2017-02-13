@@ -20,11 +20,12 @@ from django.test.client import RequestFactory
 from django.contrib.auth.models import User
 from testing.models import FAKE_ID
 
+
 class tests_OAI_PMH_ajax(OAI_PMH_Test):
 
     def test_results_by_instance_keyword_no_data(self):
         url = '/oai_pmh/explore/get_results_by_instance_keyword/'
-        req = RequestFactory().get(url)
+        req = RequestFactory().post(url)
         req.session = {}
         req.user = User.objects.get(username='admin')
         r = get_results_by_instance_keyword(req)
@@ -40,7 +41,7 @@ class tests_OAI_PMH_ajax(OAI_PMH_Test):
         self.dump_oai_my_metadata_format()
         data = {'keyword': 'MGI', 'schemas[]': ['software', 'service']}
         url = '/oai_pmh/explore/get_results_by_instance_keyword/'
-        req = RequestFactory().get(url, data=data)
+        req = RequestFactory().post(url, data=data)
         req.session = {}
         req.user = User.objects.get(username='admin')
         r = get_results_by_instance_keyword(req)
@@ -57,7 +58,7 @@ class tests_OAI_PMH_ajax(OAI_PMH_Test):
         self.dump_oai_my_metadata_format()
         data = {'keyword': 'MGI', 'schemas[]': ['software', 'service'], 'registries[]': []}
         url = '/oai_pmh/explore/get_results_by_instance_keyword/'
-        req = RequestFactory().get(url, data=data)
+        req = RequestFactory().post(url, data=data)
         req.session = {}
         req.user = User.objects.get(username='admin')
         r = get_results_by_instance_keyword(req)
@@ -70,7 +71,7 @@ class tests_OAI_PMH_ajax(OAI_PMH_Test):
         self.dump_oai_my_metadata_format()
         data = {'keyword': 'MGI', 'schemas[]': ['software', 'service'], 'registries[]': [FAKE_ID]}
         url = '/oai_pmh/explore/get_results_by_instance_keyword/'
-        req = RequestFactory().get(url, data=data)
+        req = RequestFactory().post(url, data=data)
         req.session = {}
         req.user = User.objects.get(username='admin')
         r = get_results_by_instance_keyword(req)
@@ -84,7 +85,7 @@ class tests_OAI_PMH_ajax(OAI_PMH_Test):
         registry = OaiRegistry.objects.first()
         data = {'keyword': 'MGI', 'schemas[]': ['software', 'service'], 'registries[]': [str(registry.id)]}
         url = '/oai_pmh/explore/get_results_by_instance_keyword/'
-        req = RequestFactory().get(url, data=data)
+        req = RequestFactory().post(url, data=data)
         req.session = {}
         req.user = User.objects.get(username='admin')
         r = get_results_by_instance_keyword(req)
@@ -97,7 +98,7 @@ class tests_OAI_PMH_ajax(OAI_PMH_Test):
         self.dump_oai_my_metadata_format()
         data = {'keyword': 'MGI', 'schemas[]': ['software', 'service'], 'onlySuggestions': json.dumps(True)}
         url = '/oai_pmh/explore/get_results_by_instance_keyword/'
-        req = RequestFactory().get(url, data=data)
+        req = RequestFactory().post(url, data=data)
         req.session = {}
         req.user = User.objects.get(username='admin')
         r = get_results_by_instance_keyword(req)

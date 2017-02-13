@@ -426,19 +426,14 @@ def get_results_by_instance_keyword(request):
     request.session['instancesExplore'] = json_instances
     sessionName = "resultsExplore" + instance['name']
 
-
-    try:
-        keyword = request.POST['keyword']
-        schemas = request.POST.getlist('schemas[]')
-        user_schemas = request.POST.getlist('userSchemas[]')
-        refinements = refinements_to_mongo(json.loads(request.POST.get('refinements', {})))
+    keyword = request.POST.get('keyword', '')
+    schemas = request.POST.getlist('schemas[]', [])
+    user_schemas = request.POST.getlist('userSchemas[]', [])
+    refinements = refinements_to_mongo(json.loads(request.POST.get('refinements', '{}')))
+    if 'onlySuggestions' in request.POST:
         onlySuggestions = json.loads(request.POST['onlySuggestions'])
-    except:
-        keyword = ''
-        schemas = []
-        user_schemas = []
-        refinements = {}
-        onlySuggestions = True
+    else:
+        onlySuggestions = False
 
     templates_id = _get_templates_id(schemas=schemas, user_schemas=user_schemas)
     instance_results = XMLdata.executeFullTextQuery(keyword, templates_id, refinements)
@@ -531,8 +526,8 @@ def get_results_occurrences(request):
     keyword = request.POST.get('keyword', '')
     schemas = request.POST.getlist('schemas[]', [])
     user_schemas = request.POST.getlist('userSchemas[]', [])
-    refinements = json.loads(request.POST.get('refinements', {}))
-    all_refinements = json.loads(request.POST.get('allRefinements', {}))
+    refinements = json.loads(request.POST.get('refinements', '{}'))
+    all_refinements = json.loads(request.POST.get('allRefinements', '{}'))
     templates_id = _get_templates_id(schemas=schemas, user_schemas=user_schemas)
     splitter = ":"
     try:

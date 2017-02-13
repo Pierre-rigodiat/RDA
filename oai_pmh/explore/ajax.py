@@ -70,24 +70,15 @@ def get_results_by_instance_keyword(request):
     request.session['instancesExplore'] = json_instances
     sessionName = "resultsExploreOaiPMh" + instance['name']
 
-
-    try:
-        keyword = request.GET['keyword']
-        schemas = request.GET.getlist('schemas[]')
-        user_schemas = request.GET.getlist('userSchemas[]')
-        refinements = refinements_to_mongo(json.loads(request.GET.get('refinements', {})))
-        if 'onlySuggestions' in request.GET:
-            onlySuggestions = json.loads(request.GET['onlySuggestions'])
-        else:
-            onlySuggestions = False
-        registries = request.GET.getlist('registries[]')
-    except:
-        keyword = ''
-        schemas = []
-        user_schemas = []
-        refinements = {}
-        onlySuggestions = True
-        registries = []
+    keyword = request.POST.get('keyword', '')
+    schemas = request.POST.getlist('schemas[]', [])
+    user_schemas = request.POST.getlist('userSchemas[]', [])
+    refinements = refinements_to_mongo(json.loads(request.POST.get('refinements', '{}')))
+    registries = request.POST.getlist('registries[]', [])
+    if 'onlySuggestions' in request.POST:
+        onlySuggestions = json.loads(request.POST['onlySuggestions'])
+    else:
+        onlySuggestions = False
 
     metadata_format_ids = _get_metadata_formats_id(schemas=schemas, user_schemas=user_schemas, registries=registries)
     instanceResults = OaiRecord.executeFullTextQuery(keyword, metadata_format_ids, refinements)
@@ -227,7 +218,7 @@ def get_results_occurrences(request):
     keyword = request.POST.get('keyword', '')
     schemas = request.POST.getlist('schemas[]', [])
     user_schemas = request.POST.getlist('userSchemas[]', [])
-    refinements = json.loads(request.POST.get('refinements', {}))
+    refinements = json.loads(request.POST.get('refinements', '{}'))
     all_refinements = json.loads(request.POST.get('allRefinements', {}))
     registries = request.POST.getlist('registries[]', [])
     splitter = ":"
