@@ -17,7 +17,6 @@
 from django.conf.urls import patterns, url
 
 urlpatterns = patterns('',
-    url(r'^keyword',  'explore.views.index_keyword', name='expore-index-keyword'),
     url(r'^detail_result_keyword/(?P<result_id>\w+)', 'explore.views.explore_detail_result_keyword',
         name='explore-detail-result-keyword'),
     url(r'^query',  'explore.views.index_keyword', name='expore-index-keyword'),
