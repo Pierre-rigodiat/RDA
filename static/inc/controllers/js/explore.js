@@ -1381,7 +1381,7 @@ initAutocomplete = function() {
                  onlySuggestions: true, csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val(), refinements: refinements_},
                 function (data) {
                     response($.map(data.resultsByKeyword, function (item) {
-                        if(item.label != '')
+                        if(item.label != undefined)
                         {
                             return {
                             label: item.label,
