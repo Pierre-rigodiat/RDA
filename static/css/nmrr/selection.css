@@ -26,7 +26,7 @@
    right: 2px;
    top: 2px;
 }
-#icons_table td[class="selected_resource"] .tick {
+#icons_table td[class*="selected_resource"] > .tick {
    display: inline-block;
    color: green;
    z-index: 10;

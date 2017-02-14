@@ -8,21 +8,23 @@ initSearch = function(listRefinements, keyword, resource, data_provider) {
 	loadRefinements(resource, listRefinements, keyword, data_provider);
 }
 
-selectType = function(radio) {
-    var tree = getTypeTree();
-    var root =  tree.fancytree('getTree');
-    if (radio == "all"){
-        selectAllCheckboxes(tree);
-    }
-    else if (root.length !== 0) {
-        if(areAllParentSelected(tree)){
-            root.visit(function(node){
-                node.setSelected(false);
-            });
+selectType = function(radio, td_icon) {
+    if (!$(td_icon).hasClass('disabled_refinements')) {
+        var tree = getTypeTree();
+        var root =  tree.fancytree('getTree');
+        if (radio == "all"){
+            selectAllCheckboxes(tree);
         }
-        var node = root.getNodeByKey(radio);
-        if (node != null) {
-            node.setSelected(!node.isSelected());
+        else if (root.length !== 0) {
+            if(areAllParentSelected(tree)){
+                root.visit(function(node){
+                    node.setSelected(false);
+                });
+            }
+            var node = root.getNodeByKey(radio);
+            if (node != null) {
+                node.setSelected(!node.isSelected());
+            }
         }
     }
 }
@@ -37,12 +39,14 @@ selectAllCheckboxes = function(root) {
     }
 }
 
-clearTree = function(div_tree) {
-    var root =  $(div_tree).fancytree('getTree');
-    if (root.length !== 0) {
-        root.visit(function(node){
-            node.setSelected(false);
-        });
+clearTree = function(div_tree, link) {
+    if (!$(link).hasClass('disabled_refinements')) {
+        var root =  $(div_tree).fancytree('getTree');
+        if (root.length !== 0) {
+            root.visit(function(node){
+                node.setSelected(false);
+            });
+        }
     }
 }
 
@@ -372,6 +376,10 @@ updateRefinementsOccurrences = function(keyword, schemas_, refinements_, registr
             });
             // Disable checkboxes
             $('*[id^="tree_"]').css("pointer-events", "none");
+            // Disable clear
+            $('.clearTree').addClass('disabled_refinements');
+            // Disable icons
+            $('#icons_table td').addClass('disabled_refinements');
         },
         success: function(data){
             $.map(data.items, function (item) {
@@ -386,6 +394,10 @@ updateRefinementsOccurrences = function(keyword, schemas_, refinements_, registr
         complete: function(){
             // Enable checkboxes
             $('*[id^="tree_"]').css("pointer-events", "auto");
+            // Enable clear
+            $('.clearTree').removeClass('disabled_refinements');
+            // Enable icons
+            $('#icons_table td').removeClass('disabled_refinements')
         }
     });
 }
