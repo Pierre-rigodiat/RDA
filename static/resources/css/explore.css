@@ -206,3 +206,16 @@ a[class="collapsed"] .fa-chevron-up {
     color: black;
     font-size: small;
 }
+
+#results_infos {
+    color: black;
+}
+
+ul.fancytree-container{
+    width: 17em;
+}
+
+span.fancytree-title{
+    white-space: normal;
+    width: 12em;
+}

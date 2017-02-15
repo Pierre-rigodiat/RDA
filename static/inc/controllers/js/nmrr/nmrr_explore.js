@@ -496,10 +496,18 @@ loadRefinements = function(schema, listRefinements, keyword, data_provider){
 initFancyTree = function(div_id, json_data) {
 
     $("#tree_"+div_id).fancytree({
-        extensions: ["glyph", "wide"],
+        extensions: ["glyph", "wide", "customTag"],
         checkbox: true,
         icon: false,
         glyph: glyph_opts,
+        wide: {
+            iconWidth: "1em",
+            iconSpacing: "0.5em",
+            levelOfs: "1.5em"
+        },
+        customTag : {
+            tag: "div"
+        },
         _classNames: {
             active: "no-css",
             focused: "no-css"
@@ -507,11 +515,6 @@ initFancyTree = function(div_id, json_data) {
         selectMode: 3,
         source: JSON.parse(json_data),
         toggleEffect: { effect: "drop", options: {direction: "left"}, duration: 400 },
-        wide: {
-            iconWidth: "1em",
-            iconSpacing: "0.5em",
-            levelOfs: "1.5em"
-        },
         init: function(event, data) {
             // $("#tree_"+div_id+" ul").addClass("fancytree-colorize-selected");
             // Render all nodes even if collapsed
