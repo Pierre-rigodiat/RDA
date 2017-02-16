@@ -39,17 +39,6 @@ selectAllCheckboxes = function(root) {
     }
 }
 
-clearTree = function(div_tree, link) {
-    if (!$(link).hasClass('disabled_refinements')) {
-        var root =  $(div_tree).fancytree('getTree');
-        if (root.length !== 0) {
-            root.visit(function(node){
-                node.setSelected(false);
-            });
-        }
-    }
-}
-
 update_url = function() {
     if ( first_occurrence) {
         return ;
@@ -380,6 +369,8 @@ updateRefinementsOccurrences = function(keyword, schemas_, refinements_, registr
             $('.clearTree').addClass('disabled_refinements');
             // Disable icons
             $('#icons_table td').addClass('disabled_refinements');
+            // Disable tags
+            $('#myFilters li').addClass('disabled_refinements');
         },
         success: function(data){
             $.map(data.items, function (item) {
@@ -398,6 +389,8 @@ updateRefinementsOccurrences = function(keyword, schemas_, refinements_, registr
             $('.clearTree').removeClass('disabled_refinements');
             // Enable icons
             $('#icons_table td').removeClass('disabled_refinements')
+            // Enable tags
+            $('#myFilters li').removeClass('disabled_refinements');
         }
     });
 }
@@ -525,6 +518,7 @@ initFancyTree = function(div_id, json_data) {
                 get_results_keyword_refined();
             }
             selectIcons();
+            manageFilters($(this));
         }
     });
 }
@@ -582,6 +576,11 @@ areAllParentSelected = function(tree) {
     return nodes.length == children.length;
 }
 
+areAllParentUnselected = function(tree) {
+    var nodes = tree.fancytree('getRootNode').tree.getSelectedNodes(stopOnParents=true);
+    return nodes.length == 0;
+}
+
 asSelectedElement = function(tree) {
     var nodes = tree.fancytree('getRootNode').tree.getSelectedNodes(stopOnParents=true);
     return nodes.length > 0;
@@ -598,4 +597,57 @@ checkEmptyAccordion = function () {
             link.hide();
         }
     });
+}
+
+manageFilters = function (tree) {
+    if(areAllParentUnselected(tree))
+        $("#myFilters").tagit("removeTagByLabel", tree.attr("name"));
+    else if ($("#myFilters").tagit("isNew", tree.attr("name")))
+    {
+        $("#myFilters").tagit("createTag", tree.attr("name"), undefined, undefined, custom_id=tree.attr("id"));
+        showFilters();
+    }
+}
+
+initTagFilters = function () {
+    $("#myFilters").tagit({
+        readOnly: false,
+        singleFieldNode: false,
+        beforeTagRemoved: function(event, ui) {
+            if(!ui.tag.hasClass('disabled_refinements'))
+                clearTree("#"+ ui.tag.attr("custom_id"), ui.tag);
+            else
+                return false;
+        },
+        afterTagRemoved: function(event, ui) {
+            if(!$("#myFilters").tagit("hasTag"))
+                hideFilters();
+        },
+    }).ready(function() {
+        $(this).find('#myFilters .tagit-new').css('display', 'none');
+        hideFilters();
+    });
+}
+
+showFilters = function () {
+    $("#filters_refinements").show();
+}
+
+hideFilters = function () {
+    $("#filters_refinements").hide();
+}
+
+clearTree = function(div_tree, link) {
+    if (!$(link).hasClass('disabled_refinements')) {
+        var root =  $(div_tree).fancytree('getTree');
+        if (root.length !== 0) {
+            root.visit(function(node){
+                node.setSelected(false);
+            });
+        }
+    }
+}
+
+clearAllTrees = function() {
+    $(".clearTree").click();
 }

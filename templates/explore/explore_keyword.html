@@ -67,8 +67,6 @@
 		<div style="display: none;">{{search_Form.my_schemas}}</div>
         <div id="form_result_start_current"></div>
 </div>
-<div id="results_infos"></div>
-<div class="clearer">&nbsp;</div>
 <table id="icons_table">
 	<tr>
 		<td align="center" value="all" onclick="selectType('all', this);">
@@ -129,8 +127,17 @@
 		</td>
 	</tr>
 </table>
-
+<div>
+	<span id="filters_refinements">
+		<text>Search criterias used
+			(<a href="javascript:void(0)" onclick="clearAllTrees();" class="clearAll">Clear all</a>):
+		</text>
+		<ul id="myFilters">
+		</ul>
+	</span>
+</div>
 <table>
+	<div id="results_infos"></div>
 	<tr>
 		<td style="background-color:#fafafa;">
 			<!--<select id="results_view" name="results_view">-->
@@ -211,6 +218,7 @@ No Custom View available for this type of resource.
 {% block extrajs %}
 <script src="{% static 'inc/controllers/js/explore.js' %}"></script>
 <script src="{% static 'libs/tags/tag-it.js' %}"></script>
+<script src="{% static 'libs/tags/tag-it_custom_extensions.js' %}"></script>
 <script src="{% static 'inc/controllers/js/nmrr/nmrr_explore.js' %}"></script>
 <script src="{% static 'inc/controllers/js/nmrr/oai_pmh_explore.js' %}"></script>
 <script src="{% static 'libs/jquery-shorten/1.1.0/jquery.shorten.js' %}"></script>
@@ -223,6 +231,7 @@ No Custom View available for this type of resource.
 <script>
     initAutocomplete();
     initSearch('{{listRefinements}}', '{{keyword}}', '{{resource}}', '{{data_provider}}');
+	initTagFilters();
 </script>
 {% endblock %}
 

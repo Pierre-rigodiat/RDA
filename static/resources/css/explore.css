@@ -219,3 +219,8 @@ span.fancytree-title{
     white-space: normal;
     width: 12em;
 }
+
+#myFilters.ui-widget-content {
+    border: none;
+    font-size: small;
+}
