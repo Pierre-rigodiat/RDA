@@ -290,10 +290,8 @@ def dashboard_my_drafts(request):
 
 def _get_list_roles(xml_data):
     list_roles = re.findall(r"role xsi:type=\"([a-zA-Z]*)\">", xml_data)
-    string = ""
-    for role in set(list_roles):
-        string += role + ", "
-    return string[:-2] if len(string) > 0 else string
+    str_roles = ", ".join(set(list_roles))
+    return str_roles
 
 
 ################################################################################
