@@ -209,6 +209,7 @@ a[class="collapsed"] .fa-chevron-up {
 
 #results_infos {
     color: black;
+    float: right;
 }
 
 ul.fancytree-container{
@@ -223,4 +224,8 @@ span.fancytree-title{
 #myFilters.ui-widget-content {
     border: none;
     font-size: small;
+}
+
+#icons_table, .main_table {
+    margin-top: -1.5em;
 }

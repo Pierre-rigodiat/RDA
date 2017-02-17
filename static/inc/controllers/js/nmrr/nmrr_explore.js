@@ -304,7 +304,7 @@ get_results_keyword_refined = function(numInstance){
                         // get no results
                         $("#results").html("No results found");
                         // get no results
-                        $("#results_infos").html("0 results");
+                        $("#results_infos").html("0 result");
                     }
                     else{
                         // get result count
