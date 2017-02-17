@@ -266,7 +266,7 @@ def dashboard_my_drafts(request):
                              xml_data__exists=True).order_by('template') # xml_data_id False if document not curated
     detailed_forms = []
     for form in forms:
-        detailed_forms.append({'form': form, 'template_name': re.findall(r"xsi:type=\"([a-zA-Z]*)\">", form.xml_data),
+        detailed_forms.append({'form': form, 'template_roles': _get_list_roles(form.xml_data),
                                'user': form.user})
     user_form = UserForm(request.user)
     context = RequestContext(request, {'forms': detailed_forms,
@@ -281,12 +281,19 @@ def dashboard_my_drafts(request):
                                                        xml_data__exists=True).order_by('template')
         for form in otherUsersForms:
             other_users_detailed_forms.append({'form': form,
-                                               'template_name': re.findall(r"xsi:type=\"([a-zA-Z]*)\">", form.xml_data),
+                                               'template_roles': _get_list_roles(form.xml_data),
                                                'user': form.user})
         context.update({'otherUsersForms': other_users_detailed_forms, 'usernames': usernames})
 
     return HttpResponse(template.render(context))
 
+
+def _get_list_roles(xml_data):
+    list_roles = re.findall(r"role xsi:type=\"([a-zA-Z]*)\">", xml_data)
+    string = ""
+    for role in set(list_roles):
+        string += role + ", "
+    return string[:-2] if len(string) > 0 else string
 
 
 ################################################################################

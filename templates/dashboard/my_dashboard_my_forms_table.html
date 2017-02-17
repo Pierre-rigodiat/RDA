@@ -16,7 +16,7 @@
         {% cycle 'even' '' as rowcolors silent %}
         <tr class="{{ rowcolors }}">
             <td style="word-break: break-all;">{{ form.form.name }}</td>
-            <td style="word-break: keep-all;">{% for template_name in form.template_name %} {{ template_name}} {% endfor %} </td>
+            <td style="word-break: keep-all;">{{ form.template_roles}} </td>
             {% if user.is_staff %}
                 <td>
                     {{usernames|get:key}}
