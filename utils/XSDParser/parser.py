@@ -313,7 +313,7 @@ def get_xml_element_data(xsd_element, xml_element):
     if xsd_element.tag == prefix + "element":
         # leaf: get the value
         if len(list(xml_element)) == 0:
-            if xml_element.text is not None:
+            if hasattr(xml_element, 'text') and xml_element.text is not None:
                 reload_data = xml_element.text
             else:  # if xml_element.text is None
                 reload_data = ''
@@ -324,7 +324,7 @@ def get_xml_element_data(xsd_element, xml_element):
     elif xsd_element.tag == prefix + "complexType" or xsd_element.tag == prefix + "simpleType":
         # leaf: get the value
         if len(list(xml_element)) == 0:
-            if xml_element.text is not None:
+            if hasattr(xml_element, 'text') and xml_element.text is not None:
                 reload_data = xml_element.text
             else:  # xml_element.text is None
                 reload_data = ''
