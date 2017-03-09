@@ -14,7 +14,7 @@
  -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
 	xmlns:nr="http://schema.nist.gov/xml/res-md/1.0wd-02-2017">
-	<xsl:output method="html" indent="yes" encoding="UTF-8" />	
+	<xsl:output method="html" indent="yes" encoding="UTF-8" />
 	
 	<xsl:template match="/">
 		<h1><xsl:value-of select="//nr:Resource/nr:identity/nr:title"/></h1>
@@ -104,7 +104,9 @@
 								<a target="_blank" href="{$value}"><xsl:value-of select="$value"/></a>
 							</xsl:when>
 							<xsl:otherwise>
-								<xsl:value-of select="$value"/>
+								<xsl:call-template name="break">
+									<xsl:with-param name="text" select="$value" />
+								</xsl:call-template>
 							</xsl:otherwise>
 						</xsl:choose>
 						<xsl:apply-templates select="@*" />
@@ -199,5 +201,24 @@
 				</span>
 			</xsl:if>
 		</xsl:if>
+	</xsl:template>
+
+	<xsl:template name="break">
+		<xsl:param name="text" select="string(.)"/>
+		<xsl:choose>
+			<xsl:when test="contains($text, '&#xa;')">
+			  	<xsl:value-of select="substring-before($text, '&#xa;')"/>
+			  	<br/>
+			  	<xsl:call-template name="break">
+					<xsl:with-param
+					  name="text"
+					  select="substring-after($text, '&#xa;')"
+					/>
+			  	</xsl:call-template>
+			</xsl:when>
+		<xsl:otherwise>
+	  		<xsl:value-of select="$text"/>
+		</xsl:otherwise>
+		</xsl:choose>
 	</xsl:template>
 </xsl:stylesheet>
