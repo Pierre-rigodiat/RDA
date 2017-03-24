@@ -482,10 +482,8 @@ def query_local_id(request):
         template = loader.get_template('explore/explore_detail_results_keyword.html')
         if len(result) == 0:
             context = RequestContext(request, {})
-        elif len(result) == 1:
-            context = get_detail_result(request=request, xmlString=result[0], title=None)
         else:
-            template = None
+            context = get_detail_result(request=request, xmlString=result[0], title=None)
         return HttpResponse(template.render(context))
 
 
