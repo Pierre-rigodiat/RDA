@@ -22,7 +22,7 @@ from django.template import loader, Context, RequestContext
 from urlparse import urlparse
 import hashlib
 from itertools import groupby
-
+from utils.XSDRefinements import Tree
 
 ################################################################################
 #
@@ -242,17 +242,23 @@ def get_results_occurrences(request):
             for refinement in current['value']:
                 ids = _get_list_ids_for_refinement(instance_results, refinement)
                 tree_count.append({"refinement": refinement, "ids": ids})
+                result_json = {'text_id': hashlib.sha1(refinement).hexdigest(), 'nb_occurrences': len(ids)}
+                tree_info.append(result_json)
 
-        max_level = max(len(x['refinement'].split(splitter)) for x in tree_count)
-        for i in range(max_level, 0, -1):
-            grouper = lambda x: ":".join(x['refinement'].split(splitter)[:i])
-            for key, grp in groupby(sorted(tree_count, key=grouper), grouper):
-                if len(key.split(splitter)) == i:
-                    ids = []
-                    for item in grp:
-                        ids.extend(item["ids"])
-                    result_json = {'text_id': hashlib.sha1(key).hexdigest(), 'nb_occurrences': len(sorted(set(ids)))}
-                    tree_info.append(result_json)
+            # For categories
+            max_level = max(len(x['refinement'].split(splitter)) for x in tree_count)
+            for i in range(max_level, 0, -1):
+                grouper = lambda x: ":".join(x['refinement'].split(splitter)[:i])
+                for key, grp in groupby(sorted(tree_count, key=grouper), grouper):
+                    if len(key.split(splitter)) == i:
+                        ids = []
+                        for item in grp:
+                            ids.extend(item["ids"])
+                        key_category = "{0}_{1}".format(key, Tree.TreeInfo.get_category_label())
+                        result_json = {'text_id': hashlib.sha1(key_category).hexdigest(),
+                                       'nb_occurrences': len(sorted(set(ids)))}
+                        tree_info.append(result_json)
+
 
     except Exception, e:
         pass

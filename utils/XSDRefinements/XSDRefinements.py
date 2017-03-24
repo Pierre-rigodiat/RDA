@@ -8,7 +8,7 @@ from utils.XSDRefinements import Tree
 from collections import OrderedDict
 
 
-def loads_refinements_trees(template_name):
+def loads_refinements_trees(template_name, category=False):
     ref_xml_schema_content, namespaces = _get_flatten_schema_and_namespaces(template_name)
     xml_doc_tree = etree.parse(BytesIO(ref_xml_schema_content))
     target_ns_prefix = common.get_target_namespace_prefix(namespaces, xml_doc_tree)
@@ -46,7 +46,7 @@ def loads_refinements_trees(template_name):
                         element = element.getparent()
 
                     dot_query = ".".join(query)
-                    trees = Tree.build_tree(tree=trees, root=label, enums=enums, dot_query=dot_query)
+                    trees = Tree.build_tree(tree=trees, root=label, enums=enums, dot_query=dot_query, category=category)
         except:
             print "ERROR AUTO GENERATION OF REFINEMENTS."
 

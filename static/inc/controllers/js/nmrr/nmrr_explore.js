@@ -16,7 +16,7 @@ selectType = function(radio, td_icon) {
             selectAllCheckboxes(tree);
         }
         else if (root.length !== 0) {
-            if(areAllParentSelected(tree)){
+            if(areAllSelected(tree)){
                 root.visit(function(node){
                     node.setSelected(false);
                 });
@@ -30,7 +30,7 @@ selectType = function(radio, td_icon) {
 }
 
 selectAllCheckboxes = function(root) {
-    var selected = areAllParentSelected(tree);
+    var selected = areAllSelected(tree);
     var root =  tree.fancytree('getTree');
     if (root.length !== 0) {
         root.visit(function(node){
@@ -546,7 +546,7 @@ selectIcons = function () {
     icon = [];
     tree = getTypeTree();
 
-    if(areAllParentSelected(tree)){
+    if(areAllSelected(tree)){
         icon.push("all");
     }
     else
@@ -569,11 +569,23 @@ selectIcons = function () {
     });
 }
 
+areAllSelected = function(tree) {
+    var allCount = tree.fancytree('getRootNode').tree.count()
+    var selectedNodes = tree.fancytree('getRootNode').tree.getSelectedNodes();
+
+    return selectedNodes.length == allCount;
+}
+
 areAllParentSelected = function(tree) {
     var nodes = tree.fancytree('getRootNode').tree.getSelectedNodes(stopOnParents=true);
     var children = tree.fancytree('getRootNode').getChildren();
 
     return nodes.length == children.length;
+}
+
+areAllUnselected = function(tree) {
+    var nodes = tree.fancytree('getRootNode').tree.getSelectedNodes();
+    return nodes.length == 0;
 }
 
 areAllParentUnselected = function(tree) {
@@ -600,7 +612,7 @@ checkEmptyAccordion = function () {
 }
 
 manageFilters = function (tree) {
-    if(areAllParentUnselected(tree))
+    if(areAllUnselected(tree))
         $("#myFilters").tagit("removeTagByLabel", tree.attr("name"));
     else if ($("#myFilters").tagit("isNew", tree.attr("name")))
     {
