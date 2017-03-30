@@ -46,6 +46,10 @@ def name_pid(request):
     return NamePIDModule().render(request)
 
 
+def fancy_tree_data_origin(request):
+    return FancyTreeModule(xml_tag='dataOrigin').render(request)
+
+
 def fancy_tree_material_type(request):
     return FancyTreeModule(xml_tag='materialType').render(request)
 
@@ -64,6 +68,10 @@ def fancy_tree_experimental_method(request):
 
 def fancy_tree_computational_method(request):
     return FancyTreeModule(xml_tag='computationalMethod').render(request)
+
+
+def fancy_tree_compute_scale(request):
+    return FancyTreeModule(xml_tag='computeScale').render(request)
 
 
 def fancy_tree_synthesis_processing(request):
