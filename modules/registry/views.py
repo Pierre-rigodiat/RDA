@@ -66,6 +66,10 @@ def fancy_tree_experimental_method(request):
     return FancyTreeModule(xml_tag='experimentalMethod').render(request)
 
 
+def fancy_tree_characterization_method(request):
+    return FancyTreeModule(xml_tag='characterizationMethod').render(request)
+
+
 def fancy_tree_computational_method(request):
     return FancyTreeModule(xml_tag='computationalMethod').render(request)
 
