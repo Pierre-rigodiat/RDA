@@ -79,8 +79,6 @@ def load_templates():
     # if templates are already present, initialization already happened
     existing_templates = Template.objects()
     if len(existing_templates) == 0:
-        vocab_template_filename = 'mse_vocab.xsd'
-
         templates = {
             'all': 'res-md.xsd',
             'organization': 'res-md.xsd',
@@ -111,24 +109,16 @@ def load_templates():
         # connect to the db 'mgi'
         db = client[MGI_DB]
 
-        # add vocab
-        vocab_file = open(os.path.join(SITE_ROOT, 'static', 'resources', 'xsd', vocab_template_filename), 'r')
-        vocab_content = vocab_file.read()
-        vocab_template = create_template(vocab_content, 'vocab', vocab_template_filename)
-
         # Add the templates
         for template_name, template_path in templates.iteritems():
             template_file = open(os.path.join(SITE_ROOT, 'static', 'resources', 'xsd', template_path), 'r')
             template_content = template_file.read()
-            # add local vocab to template
-            xml_tree = etree.parse(BytesIO(template_content.encode('utf-8')))
-            update_dependencies(xml_tree, {'mse_vocab.xsd': str(vocab_template.id)})
-            template_content = etree.tostring(xml_tree)
+
             # create template
             resource_template = create_template(template_content,
                                                 template_name,
                                                 template_path,
-                                                dependencies=[str(vocab_template.id)],
+                                                dependencies=[],
                                                 user=None,
                                                 validation=False)
             template_ids.append(str(resource_template.id))
