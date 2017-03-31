@@ -355,6 +355,9 @@ class FancyTreeModule(Module):
             reload_data = etree.fromstring("<root>" + data + "</root>")
             # Iterate xml elements
             for reload_data_element in list(reload_data):
+                if len(reload_data_element) == 0:
+                    continue
+
                 # The xml element to be reloaded is the child
                 child = reload_data_element[0]
 
