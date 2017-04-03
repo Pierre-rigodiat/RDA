@@ -355,26 +355,29 @@ class FancyTreeModule(Module):
             reload_data = etree.fromstring("<root>" + data + "</root>")
             # Iterate xml elements
             for reload_data_element in list(reload_data):
-                # The xml element to be reloaded is the child
-                child = reload_data_element[0]
+                try:
+                    # The xml element to be reloaded is the child
+                    child = reload_data_element[0]
 
-                # remove namespace form tag name if present: {namespace}tag
-                tag_name = child.tag
-                if "}" in tag_name:
-                    end_namespace_index = tag_name.index("}")
-                    tag_name = tag_name[end_namespace_index+1:]
+                    # remove namespace form tag name if present: {namespace}tag
+                    tag_name = child.tag
+                    if "}" in tag_name:
+                        end_namespace_index = tag_name.index("}")
+                        tag_name = tag_name[end_namespace_index+1:]
 
-                # get the content of the xml element
-                child_text = etree.tostring(child)
-                # remove namespace from xml value if present: <tag xmlns="">value</tag>
-                if "xmlns=" in child_text:
-                    end_tag_index = child_text.index(">")
-                    xml_value = child_text[:len(tag_name)+1] + child_text[end_tag_index:]
-                else:
-                    xml_value = child_text
+                    # get the content of the xml element
+                    child_text = etree.tostring(child)
+                    # remove namespace from xml value if present: <tag xmlns="">value</tag>
+                    if "xmlns=" in child_text:
+                        end_tag_index = child_text.index(">")
+                        xml_value = child_text[:len(tag_name)+1] + child_text[end_tag_index:]
+                    else:
+                        xml_value = child_text
 
-                # add selected value to list
-                self.selected.append(xml_value)
+                    # add selected value to list
+                    self.selected.append(xml_value)
+                except (IndexError, Exception):
+                    pass
 
         # *** GET POSSIBLE VALUES FROM ENUMERATION AND BUILD FANCY TREE ***
 
