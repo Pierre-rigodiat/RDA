@@ -300,22 +300,25 @@ def _get_list_ids_for_refinement(dictionary, refinement):
         key = "metadata."+refinement.split("==")[0]
         value = refinement.split("==")[1]
         for item in dictionary:
-            _id = str(item['_id'])
-            for index in key.split("."):
-                if index in item:
-                    item = item[index]
-                else:
-                    break
+            try:
+                _id = str(item['_id'])
+                for index in key.split("."):
+                    if index in item:
+                        item = item[index]
+                    else:
+                        break
 
-            if isinstance(item, list):
-                for elt in item:
-                    if isinstance(elt, dict) and index in elt and elt[index] == value:
+                if isinstance(item, list):
+                    for elt in item:
+                        if isinstance(elt, dict) and index in elt and elt[index] == value:
+                                ids.append(_id)
+                        elif elt == value:
                             ids.append(_id)
-                    elif elt == value:
-                        ids.append(_id)
-            elif item == value:
-                ids.append(_id)
-    except:
+                elif item == value:
+                    ids.append(_id)
+            except (IndexError, Exception):
+                pass
+    except Exception:
         pass
 
     return ids
